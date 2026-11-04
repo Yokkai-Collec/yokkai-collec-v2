@@ -125,6 +125,7 @@ export default async function RootLayout({
     [
       "locale",
       "licenseFolders",
+      "collectionCovers",
       "profileFeatured",
       "common",
       "authErrors",

@@ -3,6 +3,7 @@ import { gameErrorKey } from "@/i18n/game-messages";
 import { useTranslations, useFormatter } from "next-intl";
 
 import { BinderCover } from "@/components/binder-cover";
+import { CollectionCoverEditor } from "@/components/collection-cover-editor";
 import { binderCover, binderHref } from "@/lib/ui/binder-discovery";
 import "@/styles/binder-discovery.css";
 import { BinderFavoriteReview } from "@/components/binder-favorite-review";
@@ -1618,6 +1619,13 @@ export function CollectionView({
                               ? tc("adding")
                               : tc("addMissingCardsToWishlist")}
                           </button>
+                        )}
+                        {!readOnly && !previewOnly && (
+                          <CollectionCoverEditor
+                            targetKey={selectedLicense}
+                            name={selectedAlbumName ?? ""}
+                            onSaved={() => setPaniniAlbumRefresh(n => n + 1)}
+                          />
                         )}
                         {!readOnly && !previewOnly && (
                           <LicenseFolderManager

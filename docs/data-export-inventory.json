@@ -7,6 +7,10 @@
     "sections": ["discord_reward"],
     "note": "Own Discord identifier and claim date only; receipt survives account deletion to prevent repeat claims while the offer remains available. No OAuth tokens."
   },
+  "public.collection_covers": {
+    "sections": ["collection_covers"],
+    "note": "Own personal binder/folder cover targets, validated uploaded media URLs and update dates."
+  },
   "auth.identities": {
     "sections": ["login_providers"],
     "note": "Own provider names and dates; no provider identifiers or identity JSON."

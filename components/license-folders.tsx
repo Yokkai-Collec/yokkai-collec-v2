@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button, Modal, Pagination } from "@/components/ui";
 import { BinderCover } from "@/components/binder-cover";
+import { CollectionCoverEditor } from "@/components/collection-cover-editor";
 import { YokaiCard } from "@/components/yokai-card";
 import {
   BinderContents,
@@ -343,6 +344,11 @@ export function LicenseFolderManager({
                   </span>
                 </button>
                 <div className="yk-license-folder-actions">
+                  <CollectionCoverEditor
+                    targetKey={`folder:${folder.id}`}
+                    name={folder.name}
+                    onSaved={() => setRefresh(n => n + 1)}
+                  />
                   <button onClick={() => setEditor(folder)}>{t("edit")}</button>
                   <button
                     onClick={() => {

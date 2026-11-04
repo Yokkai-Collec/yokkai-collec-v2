@@ -336,6 +336,15 @@ export function ProfileFeaturedCollection({
     [saved, setSaved] = useState(false);
   const current = result?.owner === profile.id ? result : undefined;
   useEffect(() => {
+    const refreshCovers = () => setRefresh(n => n + 1);
+    window.addEventListener("yokkai:collection-cover-updated", refreshCovers);
+    return () =>
+      window.removeEventListener(
+        "yokkai:collection-cover-updated",
+        refreshCovers
+      );
+  }, []);
+  useEffect(() => {
     if (!saved) return;
     const timer = setTimeout(() => setSaved(false), 4000);
     return () => clearTimeout(timer);

@@ -2,6 +2,7 @@ import { readRequest } from "@/lib/data/read-request";
 import type { CollectionSort } from "@/lib/ui/collection-sort";
 import { createClient } from "@/utils/supabase/client";
 import {
+  withAlbumCovers,
   withLiveCardFranchises,
   type CardFilter,
   type Card,
@@ -307,7 +308,7 @@ export async function getFriendPaniniAlbumsPage(
   );
   if (error) throw fail(error);
   const result = data as PaniniAlbumPage | null;
-  return { items: result?.items ?? [], total: result?.total ?? 0 };
+  return withAlbumCovers(result, friendId);
 }
 export async function getFriendPaniniAlbumCardsPage(
   friendId: string,

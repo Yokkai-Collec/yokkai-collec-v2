@@ -36,6 +36,20 @@
     "privacy": "Confidentialité",
     "settingsLink": "Cadeaux de la communauté"
   },
+  "collectionCovers": {
+    "button": "Couverture",
+    "editFor": "Changer la couverture de {name}",
+    "title": "Couverture · {name}",
+    "hint": "Personnalise ce classeur ou dossier avec une image ou un GIF animé. JPG, PNG, WebP ou GIF · 4 Mo maximum. Ta couverture apparaît aussi sur ton profil, selon la confidentialité de ta collection.",
+    "preview": "Couverture personnalisée de {name}",
+    "proRequired": "Les couvertures personnalisées et les GIF sont disponibles avec PRO.",
+    "choose": "Choisir une image ou un GIF",
+    "invalidImage": "Choisis une image JPG, PNG, WebP ou GIF valide de 4 Mo maximum.",
+    "error": "Impossible d’enregistrer cette couverture. Réessaie dans un instant.",
+    "saving": "Enregistrement de ta couverture…",
+    "close": "Fermer",
+    "reset": "Remettre la couverture d’origine"
+  },
   "packs": {
     "clickTheFanToRevealCards": "Clique sur l’éventail ou appuie sur Entrée pour découvrir tes cartes",
     "loadingCollection": "Chargement de la collection…",

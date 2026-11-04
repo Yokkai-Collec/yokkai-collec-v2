@@ -36,6 +36,20 @@
     "privacy": "Privacy",
     "settingsLink": "Community gifts"
   },
+  "collectionCovers": {
+    "button": "Cover",
+    "editFor": "Change the cover of {name}",
+    "title": "Cover · {name}",
+    "hint": "Personalize this binder or folder with an image or animated GIF. JPG, PNG, WebP or GIF · up to 4 MB. Your cover also appears on your profile, according to your collection privacy settings.",
+    "preview": "Custom cover of {name}",
+    "proRequired": "Custom covers and GIFs are available with PRO.",
+    "choose": "Choose an image or GIF",
+    "invalidImage": "Choose a valid JPG, PNG, WebP or GIF image, up to 4 MB.",
+    "error": "Couldn't save this cover. Please try again in a moment.",
+    "saving": "Saving your cover…",
+    "close": "Close",
+    "reset": "Restore original cover"
+  },
   "packs": {
     "clickTheFanToRevealCards": "Click the fan or press Enter to reveal your cards",
     "loadingCollection": "Loading collection…",

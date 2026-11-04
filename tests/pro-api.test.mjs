@@ -256,6 +256,31 @@ test("image upload checks actual GIF bytes despite forged JPEG filename/MIME and
   );
   assert.equal(response.headers.get("Cache-Control"), "private, no-store");
 });
+test("collection cover uploads require Pro and preserve inspected GIF bytes", async () => {
+  const basic = setup();
+  assert.equal(
+    (
+      await basic
+        .load("app/api/profile-media/route.ts")
+        .POST(imageRequest("collection-cover"))
+    ).status,
+    403
+  );
+  const paid = setup({ active: true });
+  const response = await paid
+    .load("app/api/profile-media/route.ts")
+    .POST(imageRequest("collection-cover"));
+  assert.equal(response.status, 200);
+  const upload = paid.calls.find(call => call.path);
+  assert.match(upload.path, /\/collection-cover-[a-f0-9-]+\.gif$/);
+  assert.equal(upload.options.contentType, "image/gif");
+  assert.equal(
+    paid.calls.find(call => call.table === "profile_media_assets").value
+      .purpose,
+    "collection-cover"
+  );
+});
+
 test("an account deletion committed during upload removes only the new immutable asset", async () => {
   const fixture = setup({ active: true, deletedDuringUpload: true });
   const response = await fixture
