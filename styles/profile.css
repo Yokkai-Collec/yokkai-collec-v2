@@ -1006,7 +1006,7 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
 }
 @media (min-width: 901px) {
   .yk-profile-hub[data-profile-tab="tableau"] {
-    align-items: start;
+    align-items: stretch;
   }
   .yk-profile-hub[data-profile-tab="tableau"] > .yk-profile-identity {
     position: static;
@@ -1035,6 +1035,37 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
     flex: 1;
     display: flex;
     flex-direction: column;
+  }
+  .yk-profile-hub:not([data-profile-compact="true"])[data-profile-tab="tableau"]
+    .yk-profile-side-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-block: 18px;
+  }
+  .yk-profile-hub:not([data-profile-compact="true"])[data-profile-tab="tableau"]
+    .yk-profile-side-stats
+    > div:first-child {
+    grid-column: auto;
+  }
+  .yk-profile-hub:not([data-profile-compact="true"])[data-profile-tab="tableau"]
+    .yk-profile-side-stats
+    > div {
+    padding: 12px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .yk-profile-hub:not([data-profile-compact="true"])[data-profile-tab="tableau"]
+    .yk-profile-showcase {
+    display: flex;
+    flex-direction: column;
+  }
+  .yk-profile-hub:not([data-profile-compact="true"])[data-profile-tab="tableau"]
+    .yk-profile-showcase
+    .yk-featured-stage {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-block: auto;
+  }
+  .yk-profile-hub[data-profile-tab="tableau"] .yk-profile-member {
+    margin-top: auto;
   }
   .yk-profile-identity .yk-profile-banner {
     height: 190px;
