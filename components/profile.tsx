@@ -1281,6 +1281,9 @@ export function ProfileExperience({
     profile.bannerCard?.image;
   const bannerFrame =
     savedBannerFrame === undefined ? details?.bannerFrame : savedBannerFrame;
+  const activeStyle = profile.profileStyle?.active
+    ? profile.profileStyle.style
+    : undefined;
   return (
     <>
       <div
@@ -1288,24 +1291,285 @@ export function ProfileExperience({
         data-profile-compact={compact ? "true" : undefined}
         data-profile-tab={tab}
         data-profile-theme="default"
-        style={
-          showcaseColorVariables(
-            profile.profileStyle?.active
-              ? profile.profileStyle.style
-              : undefined
-          ) as CSSProperties
-        }
-        data-avatar-frame={
-          profile.profileStyle?.active
-            ? profile.profileStyle.style.avatarFrame
-            : "none"
-        }
-        data-showcase-effect={
-          profile.profileStyle?.active
-            ? profile.profileStyle.style.showcaseEffect
-            : "none"
-        }
+        style={showcaseColorVariables(activeStyle) as CSSProperties}
+        data-avatar-frame={activeStyle?.avatarFrame ?? "none"}
+        data-showcase-effect={activeStyle?.showcaseEffect ?? "none"}
       >
+        <header className="yk-profile-identity">
+          <div
+            className={`yk-profile-banner ${bannerImage ? "has-image" : ""} ${bannerFrame ? "has-frame" : ""}`}
+          >
+            {bannerImage && (
+              <>
+                {bannerFrame ? (
+                  <BannerImage src={bannerImage} frame={bannerFrame} />
+                ) : (
+                  <img
+                    src={bannerImage}
+                    alt=""
+                    aria-hidden="true"
+                    decoding="async"
+                  />
+                )}
+                <span className="yk-profile-banner-shade" />
+              </>
+            )}
+          </div>
+          <div className="yk-profile-identity-content">
+            <div className="yk-profile-intro">
+              <div className="yk-profile-avatar">
+                <Avatar
+                  name={profile.pseudo}
+                  image={profile.avatarUrl ?? undefined}
+                  size={compact ? 64 : 96}
+                />
+                <AvatarDecoration frame={activeStyle?.avatarFrame ?? "none"} />
+              </div>
+              <span className="yk-profile-identity-label">
+                {t("profileUi.collectorLabel")}
+              </span>
+              <div className="yk-profile-name-row">
+                <h2>
+                  <StyledPlayerName
+                    name={profile.pseudo}
+                    cosmetics={profile.profileStyle}
+                  />
+                </h2>
+                {!isMe && (
+                  <PlayerModeration
+                    userId={profile.id}
+                    pseudo={profile.pseudo}
+                    blockedByMe={blockedByMe}
+                    adapter={adapter.moderation}
+                    onBlocked={afterBlock}
+                  />
+                )}
+              </div>
+              <p className="yk-profile-bio">
+                {profile.bio || t("profileUi.noBioYet")}
+              </p>
+              <div
+                className={`yk-profile-actions ${profile.friendshipStatus === "accepted" && !blockedByMe ? "is-friend" : ""}`}
+              >
+                {isMe ? (
+                  <>
+                    <Button
+                      variant="secondary"
+                      onClick={() => {
+                        setEditingMode("profile");
+                        setEditing(true);
+                      }}
+                    >
+                      {t("profileUi.editProfile")}{" "}
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={() => {
+                        setEditingMode("style");
+                        setEditing(true);
+                      }}
+                    >
+                      {t("profileUi.profileStyle")}{" "}
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <FriendAction
+                      key={`${profile.id}:${profile.friendshipStatus}:${blockedByMe}`}
+                      userId={profile.id}
+                      status={profile.friendshipStatus}
+                      blockedByMe={blockedByMe}
+                      adapter={adapter.friendAction}
+                      onChanged={status =>
+                        setProfile(current =>
+                          current
+                            ? { ...current, friendshipStatus: status }
+                            : current
+                        )
+                      }
+                      onUnblocked={afterUnblock}
+                    />
+                    {profile.friendshipStatus === "accepted" &&
+                      !blockedByMe && (
+                        <FriendMessageButton
+                          key={profile.id}
+                          showTrade
+                          friend={{
+                            id: profile.id,
+                            pseudo: profile.pseudo,
+                            avatarUrl: profile.avatarUrl,
+                            profileStyle: profile.profileStyle
+                          }}
+                          adapter={adapter.messages}
+                          tradeAdapter={adapter.trades}
+                          moderationAdapter={adapter.moderation}
+                        />
+                      )}
+                  </>
+                )}
+              </div>
+              {!isMe && (
+                <Button
+                  variant="secondary"
+                  className="yk-profile-like"
+                  disabled={
+                    !engagement || likeBusy || profileBlocked || !adapter.like
+                  }
+                  aria-pressed={engagement?.likedByMe ?? false}
+                  aria-busy={likeBusy}
+                  onClick={() => void likeProfile()}
+                >
+                  <svg
+                    className="yk-profile-like-heart"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill={engagement?.likedByMe ? "currentColor" : "none"}
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" />
+                  </svg>
+                  <span className="yk-profile-like-label">
+                    {likeBusy
+                      ? t("collectionUi.saving")
+                      : engagement?.likedByMe
+                        ? t("profileUi.profileLikedAction")
+                        : t("profileUi.likeProfileAction")}
+                  </span>
+                </Button>
+              )}
+              {engagementError && (
+                <p className="yk-profile-muted" role="status">
+                  {t(
+                    gameErrorKey(
+                      engagementError,
+                      "profileUi.profileUnavailable"
+                    )
+                  )}
+                </p>
+              )}
+            </div>
+            <div className="yk-profile-metrics">
+              <div className="yk-profile-side-counts">
+                {!isMe && profile.canViewCollection ? (
+                  <button
+                    type="button"
+                    onPointerEnter={warmCollectionView}
+                    onFocus={warmCollectionView}
+                    onClick={() => void openFriendCollection()}
+                    aria-label={t("profileUi.viewCollectionCount", {
+                      known: profile.cardCount == null ? "no" : "yes",
+                      count: profile.cardCount ?? 0,
+                      name: profile.pseudo
+                    })}
+                  >
+                    <p>{t("profileUi.cards")}</p>
+                    <strong>{profile.cardCount}</strong>
+                    <span>{t("profileUi.viewCollection")}</span>
+                  </button>
+                ) : (
+                  <Link href="/collection">
+                    <p>{t("profileUi.cards")}</p>
+                    <strong>
+                      {profile.canViewCollection
+                        ? profile.cardCount
+                        : t("profileUi.private")}
+                    </strong>
+                  </Link>
+                )}
+                <div>
+                  <p>{t("profileUi.unique")}</p>
+                  <strong>
+                    {profile.canViewCollection
+                      ? profile.distinctCardCount
+                      : t("profileUi.private")}
+                  </strong>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setWishlistOpen(true)}
+                  disabled={!profile.canViewCollection}
+                  data-profile-wishlist
+                  aria-haspopup="dialog"
+                  aria-label={t("profileUi.viewWishlistCount", {
+                    name: profile.pseudo,
+                    count: wishlist.length
+                  })}
+                >
+                  <p>{t("gameUi.wishlistMetadata")}</p>
+                  <strong>
+                    {profile.canViewCollection
+                      ? fmt.number(wishlist.length)
+                      : t("profileUi.private")}
+                  </strong>
+                  {profile.canViewCollection && (
+                    <span>{t("profileUi.viewWishlist")}</span>
+                  )}
+                </button>
+                <div>
+                  <p>{t("profileUi.likes")}</p>
+                  <strong data-profile-likes>
+                    {engagement ? fmt.number(engagement.likes) : "—"}
+                  </strong>
+                </div>
+              </div>
+              <div className="yk-profile-side-stats">
+                <div>
+                  <p>{t("profileUi.packsOpened")}</p>
+                  <strong>
+                    {profile.canViewCollection
+                      ? details?.boostersOpened != null
+                        ? fmt.number(details.boostersOpened)
+                        : "—"
+                      : t("profileUi.private")}
+                  </strong>
+                </div>
+                <div className="is-lr">
+                  <p>✦ LR</p>
+                  <strong>
+                    {profile.canViewCollection
+                      ? details?.lrCount != null
+                        ? fmt.number(details.lrCount)
+                        : "—"
+                      : t("profileUi.private")}
+                  </strong>
+                </div>
+                <div className="is-ssr">
+                  <p>✦ SSR</p>
+                  <strong>
+                    {profile.canViewCollection
+                      ? details?.ssrCount != null
+                        ? fmt.number(details.ssrCount)
+                        : "—"
+                      : t("profileUi.private")}
+                  </strong>
+                </div>
+              </div>
+              <div className="yk-profile-member">
+                <p>{t("profileUi.memberSince")}</p>
+                <strong>
+                  {details?.joinedAt || (isMe && joined)
+                    ? i18nEnabled() && !hydrated
+                      ? "…"
+                      : i18nEnabled()
+                        ? fmt.dateTime(new Date(details?.joinedAt || joined!), {
+                            ...{ dateStyle: "long" },
+                            timeZone:
+                              Intl.DateTimeFormat().resolvedOptions().timeZone
+                          })
+                        : new Date(
+                            details?.joinedAt || joined!
+                          ).toLocaleDateString("en-US", { dateStyle: "long" })
+                    : "—"}
+                </strong>
+              </div>
+            </div>
+          </div>
+        </header>
         {compact && (
           <section className="yk-profile-main yk-profile-compact-board">
             {!profile.canViewCollection ? (
@@ -1320,7 +1584,7 @@ export function ProfileExperience({
                   </div>
                   <Featured
                     cards={profile.featuredCards}
-                    slots={profile.profileStyle?.active ? 10 : 5}
+                    slots={activeStyle ? 10 : 5}
                     emptyLabel={t("profileUi.noFeaturedCards", {
                       name: profile.pseudo
                     })}
@@ -1401,7 +1665,7 @@ export function ProfileExperience({
                 </div>
                 <Featured
                   cards={profile.featuredCards}
-                  slots={profile.profileStyle?.active ? 10 : 5}
+                  slots={activeStyle ? 10 : 5}
                 />
               </section>
               {adapter.previewWidgets ? (
@@ -1648,281 +1912,7 @@ export function ProfileExperience({
             </div>
           </section>
         )}
-        <aside className="yk-profile-identity">
-          <div
-            className={`yk-profile-banner ${bannerImage ? "has-image" : ""} ${bannerFrame ? "has-frame" : ""}`}
-          >
-            {bannerImage && (
-              <>
-                {bannerFrame ? (
-                  <BannerImage src={bannerImage} frame={bannerFrame} />
-                ) : (
-                  <img
-                    src={bannerImage}
-                    alt=""
-                    aria-hidden="true"
-                    decoding="async"
-                  />
-                )}
-                <span className="yk-profile-banner-shade" />
-              </>
-            )}
-          </div>
-          <div className="yk-profile-identity-content">
-            <div className="yk-profile-avatar">
-              <Avatar
-                name={profile.pseudo}
-                image={profile.avatarUrl ?? undefined}
-                size={compact ? 64 : 96}
-              />
-              <AvatarDecoration
-                frame={
-                  profile.profileStyle?.active
-                    ? profile.profileStyle.style.avatarFrame
-                    : "none"
-                }
-              />
-            </div>
-            <span className="yk-profile-identity-label">
-              {t("profileUi.collectorLabel")}
-            </span>
-            <div className="yk-profile-name-row">
-              <h2>
-                <StyledPlayerName
-                  name={profile.pseudo}
-                  cosmetics={profile.profileStyle}
-                />
-              </h2>
-              {!isMe && (
-                <PlayerModeration
-                  userId={profile.id}
-                  pseudo={profile.pseudo}
-                  blockedByMe={blockedByMe}
-                  adapter={adapter.moderation}
-                  onBlocked={afterBlock}
-                />
-              )}
-            </div>
-            <p className="yk-profile-bio">
-              {profile.bio || t("profileUi.noBioYet")}
-            </p>
-            <div
-              className={`yk-profile-actions ${profile.friendshipStatus === "accepted" && !blockedByMe ? "is-friend" : ""}`}
-            >
-              {isMe ? (
-                <>
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      setEditingMode("profile");
-                      setEditing(true);
-                    }}
-                  >
-                    {t("profileUi.editProfile")}{" "}
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      setEditingMode("style");
-                      setEditing(true);
-                    }}
-                  >
-                    {t("profileUi.profileStyle")}{" "}
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <FriendAction
-                    key={`${profile.id}:${profile.friendshipStatus}:${blockedByMe}`}
-                    userId={profile.id}
-                    status={profile.friendshipStatus}
-                    blockedByMe={blockedByMe}
-                    adapter={adapter.friendAction}
-                    onChanged={status =>
-                      setProfile(current =>
-                        current
-                          ? { ...current, friendshipStatus: status }
-                          : current
-                      )
-                    }
-                    onUnblocked={afterUnblock}
-                  />
-                  {profile.friendshipStatus === "accepted" && !blockedByMe && (
-                    <>
-                      <FriendMessageButton
-                        key={profile.id}
-                        showTrade
-                        friend={{
-                          id: profile.id,
-                          pseudo: profile.pseudo,
-                          avatarUrl: profile.avatarUrl,
-                          profileStyle: profile.profileStyle
-                        }}
-                        adapter={adapter.messages}
-                        tradeAdapter={adapter.trades}
-                        moderationAdapter={adapter.moderation}
-                      />
-                    </>
-                  )}
-                </>
-              )}
-            </div>
-            {!isMe && (
-              <Button
-                variant="secondary"
-                className="yk-profile-like"
-                disabled={
-                  !engagement || likeBusy || profileBlocked || !adapter.like
-                }
-                aria-pressed={engagement?.likedByMe ?? false}
-                aria-busy={likeBusy}
-                onClick={() => void likeProfile()}
-              >
-                <svg
-                  className="yk-profile-like-heart"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill={engagement?.likedByMe ? "currentColor" : "none"}
-                  stroke="currentColor"
-                  strokeWidth="1.7"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" />
-                </svg>
-                <span className="yk-profile-like-label">
-                  {likeBusy
-                    ? t("collectionUi.saving")
-                    : engagement?.likedByMe
-                      ? t("profileUi.profileLikedAction")
-                      : t("profileUi.likeProfileAction")}
-                </span>
-              </Button>
-            )}
-            {engagementError && (
-              <p className="yk-profile-muted" role="status">
-                {t(
-                  gameErrorKey(engagementError, "profileUi.profileUnavailable")
-                )}
-              </p>
-            )}
-            <div className="yk-profile-side-counts">
-              {!isMe && profile.canViewCollection ? (
-                <button
-                  type="button"
-                  onPointerEnter={warmCollectionView}
-                  onFocus={warmCollectionView}
-                  onClick={() => void openFriendCollection()}
-                  aria-label={t("profileUi.viewCollectionCount", {
-                    known: profile.cardCount == null ? "no" : "yes",
-                    count: profile.cardCount ?? 0,
-                    name: profile.pseudo
-                  })}
-                >
-                  <p>{t("profileUi.cards")}</p>
-                  <strong>{profile.cardCount}</strong>
-                  <span>{t("profileUi.viewCollection")}</span>
-                </button>
-              ) : (
-                <Link href="/collection">
-                  <p>{t("profileUi.cards")}</p>
-                  <strong>
-                    {profile.canViewCollection
-                      ? profile.cardCount
-                      : t("profileUi.private")}
-                  </strong>
-                </Link>
-              )}
-              <div>
-                <p>{t("profileUi.unique")}</p>
-                <strong>
-                  {profile.canViewCollection
-                    ? profile.distinctCardCount
-                    : t("profileUi.private")}
-                </strong>
-              </div>
-              <button
-                type="button"
-                onClick={() => setWishlistOpen(true)}
-                disabled={!profile.canViewCollection}
-                data-profile-wishlist
-                aria-haspopup="dialog"
-                aria-label={t("profileUi.viewWishlistCount", {
-                  name: profile.pseudo,
-                  count: wishlist.length
-                })}
-              >
-                <p>{t("gameUi.wishlistMetadata")}</p>
-                <strong>
-                  {profile.canViewCollection
-                    ? fmt.number(wishlist.length)
-                    : t("profileUi.private")}
-                </strong>
-                {profile.canViewCollection && (
-                  <span>{t("profileUi.viewWishlist")}</span>
-                )}
-              </button>
-              <div>
-                <p>{t("profileUi.likes")}</p>
-                <strong data-profile-likes>
-                  {engagement ? fmt.number(engagement.likes) : "—"}
-                </strong>
-              </div>
-            </div>
-            <div className="yk-profile-side-stats">
-              <div>
-                <p>{t("profileUi.packsOpened")}</p>
-                <strong>
-                  {profile.canViewCollection
-                    ? details?.boostersOpened != null
-                      ? fmt.number(details.boostersOpened)
-                      : "—"
-                    : t("profileUi.private")}
-                </strong>
-              </div>
-              <div className="is-lr">
-                <p>✦ LR</p>
-                <strong>
-                  {profile.canViewCollection
-                    ? details?.lrCount != null
-                      ? fmt.number(details.lrCount)
-                      : "—"
-                    : t("profileUi.private")}
-                </strong>
-              </div>
-              <div className="is-ssr">
-                <p>✦ SSR</p>
-                <strong>
-                  {profile.canViewCollection
-                    ? details?.ssrCount != null
-                      ? fmt.number(details.ssrCount)
-                      : "—"
-                    : t("profileUi.private")}
-                </strong>
-              </div>
-            </div>
-            <div className="yk-profile-member">
-              <p>{t("profileUi.memberSince")}</p>
-              <strong>
-                {details?.joinedAt || (isMe && joined)
-                  ? i18nEnabled() && !hydrated
-                    ? "…"
-                    : i18nEnabled()
-                      ? fmt.dateTime(new Date(details?.joinedAt || joined!), {
-                          ...{ dateStyle: "long" },
-                          timeZone:
-                            Intl.DateTimeFormat().resolvedOptions().timeZone
-                        })
-                      : new Date(
-                          details?.joinedAt || joined!
-                        ).toLocaleDateString("en-US", { dateStyle: "long" })
-                  : "—"}
-              </strong>
-            </div>
-          </div>
-        </aside>
+
         {!compact && tab === "tableau" && !adapter.previewWidgets && (
           <section className="yk-profile-completion yk-profile-featured-wide">
             <ProfileFeaturedCollection

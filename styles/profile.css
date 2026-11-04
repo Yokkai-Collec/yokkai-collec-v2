@@ -1152,3 +1152,237 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   margin-top: 12px;
   overflow-y: auto;
 }
+
+/* Full profile: compact player header, then a full-width card showcase. */
+.yk-profile-hub:not([data-profile-compact]) {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+.yk-profile-hub:not([data-profile-compact]) > .yk-profile-identity {
+  grid-column: 1;
+  grid-row: 1;
+  position: relative;
+  top: auto;
+  isolation: isolate;
+  display: block;
+  border-radius: 20px;
+}
+.yk-profile-hub:not([data-profile-compact]) > .yk-profile-main {
+  grid-column: 1;
+  grid-row: 2;
+  display: block;
+}
+.yk-profile-hub:not([data-profile-compact]) > .yk-profile-featured-wide {
+  grid-row: 3;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-identity
+  > .yk-profile-banner {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  border-radius: inherit;
+  opacity: 0.32;
+  pointer-events: none;
+}
+.yk-profile-hub:not([data-profile-compact]) .yk-profile-banner-shade {
+  background: linear-gradient(100deg, #080d1799, #080d17ec);
+}
+.yk-profile-hub:not([data-profile-compact]) .yk-profile-identity-content {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  padding: 24px;
+  gap: 24px;
+}
+.yk-profile-hub:not([data-profile-compact]) .yk-profile-intro {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  column-gap: 16px;
+  align-content: start;
+  min-width: 0;
+}
+.yk-profile-hub:not([data-profile-compact]) .yk-profile-intro > * {
+  grid-column: 2;
+  min-width: 0;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-intro
+  > .yk-profile-avatar {
+  grid-column: 1;
+  grid-row: 1 / 4;
+  margin: 0;
+  padding: 4px;
+  width: 72px;
+  height: 72px;
+  align-self: start;
+  background: #080d17;
+}
+.yk-profile-hub:not([data-profile-compact]) .yk-profile-avatar > :first-child {
+  width: 64px;
+  height: 64px;
+  max-width: 100%;
+  max-height: 100%;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-intro
+  .yk-profile-identity-label {
+  margin-top: 2px;
+  font-size: 9px;
+}
+.yk-profile-hub:not([data-profile-compact]) .yk-profile-name-row h2 {
+  font-size: clamp(24px, 3vw, 34px);
+  margin-block: 6px;
+  line-height: 1.2;
+}
+.yk-profile-hub:not([data-profile-compact]) .yk-profile-bio {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.yk-profile-hub:not([data-profile-compact]) .yk-profile-actions {
+  margin: 16px 0 0;
+}
+.yk-profile-hub:not([data-profile-compact]) .yk-profile-like {
+  margin-top: 10px;
+  max-width: 360px;
+}
+.yk-profile-hub:not([data-profile-compact]) .yk-profile-metrics {
+  display: grid;
+  gap: 16px;
+  align-content: center;
+  min-width: 0;
+  border-top: 1px solid var(--color-veil);
+  padding-top: 20px;
+}
+.yk-profile-hub:not([data-profile-compact]) .yk-profile-side-counts {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-metrics
+  .yk-profile-side-stats {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-side-stats
+  > div:first-child {
+  grid-column: auto;
+}
+.yk-profile-hub:not([data-profile-compact]) .yk-profile-side-stats > div {
+  min-width: 0;
+  padding: 12px;
+  background: #080d1780;
+  overflow-wrap: anywhere;
+}
+.yk-profile-hub:not([data-profile-compact]) .yk-profile-member {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.yk-profile-hub:not([data-profile-compact]) .yk-profile-member p {
+  margin: 0;
+}
+.yk-profile-hub:not([data-profile-compact]) .yk-profile-tabs {
+  margin-bottom: 20px;
+  gap: 28px;
+}
+.yk-profile-hub:not([data-profile-compact]) .yk-profile-showcase {
+  border-radius: 20px;
+  padding: clamp(18px, 3vw, 30px);
+}
+.yk-profile-hub:not([data-profile-compact])
+  > .yk-profile-main
+  .yk-profile-showcase
+  .yk-featured-stage {
+  margin: 0;
+  padding-block: 24px 8px;
+}
+@media (min-width: 640px) {
+  .yk-profile-hub:not([data-profile-compact]) .yk-profile-side-counts {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .yk-profile-hub:not([data-profile-compact]) .yk-profile-intro {
+    grid-template-columns: 104px minmax(0, 1fr);
+    column-gap: 22px;
+  }
+  .yk-profile-hub:not([data-profile-compact])
+    .yk-profile-intro
+    > .yk-profile-avatar {
+    width: 104px;
+    height: 104px;
+  }
+  .yk-profile-hub:not([data-profile-compact])
+    .yk-profile-avatar
+    > :first-child {
+    width: 96px;
+    height: 96px;
+  }
+}
+@media (max-width: 639px) {
+  .yk-profile-hub:not([data-profile-compact]) .yk-profile-identity-content {
+    padding: 18px;
+  }
+  .yk-profile-hub:not([data-profile-compact])
+    .yk-profile-intro
+    > .yk-profile-avatar {
+    grid-row: 1 / 3;
+  }
+  .yk-profile-hub:not([data-profile-compact])
+    .yk-profile-intro
+    > :is(
+      .yk-profile-bio,
+      .yk-profile-actions,
+      .yk-profile-like,
+      .yk-profile-muted
+    ) {
+    grid-column: 1 / -1;
+  }
+  .yk-profile-hub:not([data-profile-compact]) .yk-profile-bio {
+    margin-top: 12px;
+  }
+}
+@media (min-width: 701px) {
+  .yk-profile-hub:not([data-profile-compact])
+    > .yk-profile-main
+    .yk-profile-showcase
+    .yk-featured-stage {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+}
+@media (min-width: 1024px) {
+  .yk-profile-hub:not([data-profile-compact]) .yk-profile-identity-content {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    padding: 30px;
+    gap: 40px;
+  }
+  .yk-profile-hub:not([data-profile-compact]) .yk-profile-metrics {
+    border: 0;
+    border-left: 1px solid var(--color-veil);
+    padding: 0 0 0 30px;
+  }
+  .yk-profile-hub:not([data-profile-compact]) .yk-profile-actions.is-friend {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1200px) {
+  .yk-profile-hub:not([data-profile-compact])
+    > .yk-profile-main
+    .yk-profile-showcase
+    .yk-featured-stage {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}

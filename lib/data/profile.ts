@@ -2,6 +2,7 @@ import { readRequest } from "@/lib/data/read-request";
 import type { CollectionSort } from "@/lib/ui/collection-sort";
 import { createClient } from "@/utils/supabase/client";
 import {
+  cardFilterParam as friendFilterParam,
   withAlbumCovers,
   withLiveCardFranchises,
   type CardFilter,
@@ -13,14 +14,6 @@ import {
 } from "@/lib/data/cards";
 import type { FriendUser, FriendshipStatus } from "@/lib/data/friends";
 import { publishPlayerSnapshotInvalidation } from "@/lib/data/player-state";
-// Same encoding as cardFilterParam in cards.ts (kept local: this module only
-// imports types from cards.ts).
-const friendFilterParam = (value: CardFilter = "") =>
-  typeof value === "string"
-    ? value
-    : value.length > 1
-      ? JSON.stringify(value)
-      : (value[0] ?? "");
 import type { BannerFrame } from "@/lib/ui/banner-frame";
 import type { PlayerCosmetics } from "@/components/styled-player-name";
 
@@ -307,8 +300,7 @@ export async function getFriendPaniniAlbumsPage(
       .abortSignal(signal)
   );
   if (error) throw fail(error);
-  const result = data as PaniniAlbumPage | null;
-  return withAlbumCovers(result, friendId);
+  return withAlbumCovers(data as PaniniAlbumPage | null, friendId);
 }
 export async function getFriendPaniniAlbumCardsPage(
   friendId: string,
