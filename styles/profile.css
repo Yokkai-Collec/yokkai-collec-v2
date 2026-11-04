@@ -1336,7 +1336,14 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   display: flex;
   flex-wrap: nowrap;
   gap: 12px;
-  padding: 8px 4px 6px;
+  padding: 24px 8px 22px;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 14px,
+    #000 calc(100% - 14px),
+    transparent
+  );
   overflow-x: auto;
   scroll-snap-type: x proximity;
   scrollbar-width: thin;
