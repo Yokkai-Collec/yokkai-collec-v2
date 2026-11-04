@@ -1327,11 +1327,6 @@ export function ProfileExperience({
                   />
                 </section>
                 <section className="yk-profile-completion">
-                  <div className="yk-profile-section-heading">
-                    <h3 className="yk-section-title">
-                      {t("profileFeatured.title")}
-                    </h3>
-                  </div>
                   <ProfileFeaturedCollection
                     key={profile.id}
                     loadCards={adapter.friendAlbumCards}
@@ -1480,12 +1475,6 @@ export function ProfileExperience({
                 </section>
               ) : (
                 <section className="yk-profile-completion">
-                  <div className="yk-profile-section-heading">
-                    <h2>{t("profileFeatured.title")}</h2>
-                    <span className="yk-profile-muted">
-                      {t("profileFeatured.subtitle")}
-                    </span>
-                  </div>
                   <ProfileFeaturedCollection
                     key={profile.id}
                     loadCards={adapter.friendAlbumCards}

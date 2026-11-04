@@ -336,6 +336,11 @@ export function ProfileFeaturedCollection({
     [saved, setSaved] = useState(false);
   const current = result?.owner === profile.id ? result : undefined;
   useEffect(() => {
+    if (!saved) return;
+    const timer = setTimeout(() => setSaved(false), 4000);
+    return () => clearTimeout(timer);
+  }, [saved]);
+  useEffect(() => {
     if (!profile.canViewCollection) return;
     let active = true;
     void getProfileFeaturedItems(profile.id).then(
@@ -364,21 +369,50 @@ export function ProfileFeaturedCollection({
   if (!profile.canViewCollection) return <ProfilePrivate />;
   return (
     <div className="yk-profile-featured-collection">
-      {isMe && (
-        <div className="yk-profile-featured-actions">
-          <Button
-            variant="secondary"
-            disabled={!current?.data}
-            onClick={() => {
-              setOpen(true);
-              setSaved(false);
-            }}
-          >
-            {t("choose")}
-          </Button>
+      <header className="yk-profile-featured-heading">
+        <div>
+          <h2>{t("title")}</h2>
+          <p>{t("subtitle")}</p>
         </div>
-      )}
-      {saved && <p role="status">{t("saved")}</p>}
+        {isMe && (
+          <div className="yk-profile-featured-actions">
+            {saved && (
+              <span
+                className="yk-profile-featured-saved"
+                role="status"
+                aria-label={t("saved")}
+              >
+                <span aria-hidden="true">✓</span>
+                {t("savedShort")}
+              </span>
+            )}
+            <Button
+              variant="secondary"
+              aria-label={t("choose")}
+              disabled={!current?.data}
+              onClick={() => {
+                setOpen(true);
+                setSaved(false);
+              }}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                aria-hidden="true"
+              >
+                <path d="M4 7h6m4 0h6M4 17h10m4 0h2" />
+                <circle cx="12" cy="7" r="2" />
+                <circle cx="16" cy="17" r="2" />
+              </svg>
+              {t("customize")}
+            </Button>
+          </div>
+        )}
+      </header>
       {!current ? (
         <p role="status">{t("loading")}</p>
       ) : current.error ? (

@@ -1931,7 +1931,9 @@
     "featuredItemTotal": "{count, plural, one {# featured item} other {# featured items}}",
     "featuredItemRange": "Items {from}–{to} of {total}",
     "featuredKindFolder": "Folder",
-    "featuredKindBinder": "Binder"
+    "featuredKindBinder": "Binder",
+    "featuredCompletedCount": "{count, plural, one {# complete} other {# complete}}",
+    "featuredPercent": "{percent}%"
   },
   "settingsUi": {
     "pushInviteTitle": "Stay in the loop",
@@ -4116,6 +4118,8 @@
     "changeLicense": "Change license",
     "backSelection": "Back to selection",
     "creationTitle": "Create a folder in {name}",
-    "creationHint": "The folder will be created immediately and added to your current selection. Save the selection afterwards to feature it on your profile."
+    "creationHint": "The folder will be created immediately and added to your current selection. Save the selection afterwards to feature it on your profile.",
+    "customize": "Customize",
+    "savedShort": "Saved"
   }
 }

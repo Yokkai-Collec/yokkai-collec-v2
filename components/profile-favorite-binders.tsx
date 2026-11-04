@@ -182,33 +182,62 @@ export function ProfileFavoriteBinders({
   ).length;
   return (
     <section className="yk-profile-surface yk-profile-favorite-binders">
-      <div className="yk-profile-completion-summary">
-        <strong>{completed}</strong>
-        <span>
-          {t(
-            mixedMode
-              ? "completedFeaturedItems"
-              : folderMode
-                ? "completedFolders"
-                : "completedBinders",
-            {
-              count: completed
-            }
-          )}
-          <small>
+      {mixedMode ? (
+        <div className="yk-profile-featured-summary">
+          <span>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              aria-hidden="true"
+            >
+              <rect x="3" y="3" width="7" height="7" rx="1.5" />
+              <rect x="14" y="3" width="7" height="7" rx="1.5" />
+              <rect x="3" y="14" width="7" height="7" rx="1.5" />
+              <rect x="14" y="14" width="7" height="7" rx="1.5" />
+            </svg>
+            {t("featuredItemTotal", { count: albums.length })}
+          </span>
+          <span
+            className="yk-profile-featured-completed"
+            data-complete={completed > 0}
+          >
+            <span aria-hidden="true">✓</span>
+            {t("featuredCompletedCount", { count: completed })}
+          </span>
+        </div>
+      ) : (
+        <div className="yk-profile-completion-summary">
+          <strong>{completed}</strong>
+          <span>
             {t(
               mixedMode
-                ? "featuredItemTotal"
+                ? "completedFeaturedItems"
                 : folderMode
-                  ? "featuredFolderTotal"
-                  : "favoriteBinderTotal",
+                  ? "completedFolders"
+                  : "completedBinders",
               {
-                count: albums.length
+                count: completed
               }
             )}
-          </small>
-        </span>
-      </div>
+            <small>
+              {t(
+                mixedMode
+                  ? "featuredItemTotal"
+                  : folderMode
+                    ? "featuredFolderTotal"
+                    : "favoriteBinderTotal",
+                {
+                  count: albums.length
+                }
+              )}
+            </small>
+          </span>
+        </div>
+      )}
       <ul className="yk-profile-favorite-grid">
         {albums.slice(start, start + size).map(album => (
           <li key={binderIdentity(album)}>
@@ -230,7 +259,28 @@ export function ProfileFavoriteBinders({
               />
               <span className="yk-profile-favorite-copy">
                 {mixedMode && (
-                  <span className="yk-profile-featured-kind">
+                  <span
+                    className="yk-profile-featured-kind"
+                    data-kind={album.kind}
+                  >
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                      aria-hidden="true"
+                    >
+                      {album.kind === "folder" ? (
+                        <path d="M3 6a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" />
+                      ) : (
+                        <>
+                          <rect x="5" y="3" width="14" height="18" rx="2" />
+                          <path d="M9 3v18m-4-6h4M5 9h4" />
+                        </>
+                      )}
+                    </svg>
                     {t(
                       album.kind === "folder"
                         ? "featuredKindFolder"
@@ -239,22 +289,36 @@ export function ProfileFavoriteBinders({
                   </span>
                 )}
                 <strong>
-                  <span aria-hidden="true">★</span> {album.license}
+                  {!mixedMode && <span aria-hidden="true">★ </span>}
+                  {album.license}
                 </strong>
-                <span>
-                  {t("favoriteBinderCardCount", {
-                    owned: album.owned,
-                    total: album.total
-                  })}
+                <span
+                  className={
+                    mixedMode ? "yk-profile-featured-card-stats" : undefined
+                  }
+                >
+                  <span>
+                    {t("favoriteBinderCardCount", {
+                      owned: album.owned,
+                      total: album.total
+                    })}
+                  </span>
+                  {mixedMode && (
+                    <small>
+                      {t("featuredPercent", { percent: album.percent })}
+                    </small>
+                  )}
                 </span>
                 <progress
                   max={Math.max(1, album.total)}
                   value={album.owned}
                   aria-label={t("completionFor", { license: album.license })}
                 />
-                <small>
-                  {t("percentComplete", { percent: album.percent })}
-                </small>
+                {!mixedMode && (
+                  <small>
+                    {t("percentComplete", { percent: album.percent })}
+                  </small>
+                )}
               </span>
               <span className="yk-profile-favorite-open" aria-hidden="true">
                 ↗
