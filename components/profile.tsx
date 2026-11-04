@@ -1473,16 +1473,7 @@ export function ProfileExperience({
                     </p>
                   )}
                 </section>
-              ) : (
-                <section className="yk-profile-completion">
-                  <ProfileFeaturedCollection
-                    key={profile.id}
-                    loadCards={adapter.friendAlbumCards}
-                    profile={profile}
-                    isMe={isMe}
-                  />
-                </section>
-              )}
+              ) : null}
             </div>
             <div hidden={tab !== "activity"} className="yk-profile-panel">
               {tab === "activity" && profile.canViewCollection && (
@@ -1932,6 +1923,16 @@ export function ProfileExperience({
             </div>
           </div>
         </aside>
+        {!compact && tab === "tableau" && !adapter.previewWidgets && (
+          <section className="yk-profile-completion yk-profile-featured-wide">
+            <ProfileFeaturedCollection
+              key={profile.id}
+              loadCards={adapter.friendAlbumCards}
+              profile={profile}
+              isMe={isMe}
+            />
+          </section>
+        )}
       </div>
       <Modal
         open={preferencesOpen}

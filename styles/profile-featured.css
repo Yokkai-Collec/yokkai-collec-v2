@@ -168,6 +168,11 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+@container (min-width: 1100px) {
+  .yk-profile-featured-wide .yk-profile-favorite-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
 @media (hover: hover) and (pointer: fine) {
   .yk-profile-featured-collection .yk-profile-favorite-binder:hover {
     border-color: var(--color-accent-gold);
