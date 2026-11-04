@@ -68,6 +68,7 @@ export function CollectionCoverEditor({
         variant="secondary"
         onClick={() => {
           setError("");
+          setImage(undefined);
           setOpen(true);
         }}
         aria-label={t("editFor", { name })}
@@ -116,7 +117,7 @@ export function CollectionCoverEditor({
             </Button>
             <Button
               variant="secondary"
-              disabled={busy || !image}
+              disabled={busy}
               onClick={() => void save()}
             >
               {t("reset")}
