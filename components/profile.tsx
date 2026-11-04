@@ -1333,6 +1333,7 @@ export function ProfileExperience({
                     </h3>
                   </div>
                   <ProfileCompletion
+                    loadCards={adapter.friendAlbumCards}
                     profile={profile}
                     details={details}
                     detailsError={detailsError}
@@ -1487,6 +1488,7 @@ export function ProfileExperience({
                     </span>
                   </div>
                   <ProfileCompletion
+                    loadCards={adapter.friendAlbumCards}
                     profile={profile}
                     details={details}
                     detailsError={detailsError}

@@ -86,6 +86,7 @@ export type ProfileDetails = {
   mutualFriends: FriendUser[];
   favoriteAlbums: {
     license: string;
+    image?: string | null;
     binderKey?: string;
     origin?: "series" | "source";
     total: number;

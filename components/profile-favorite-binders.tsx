@@ -1,0 +1,266 @@
+"use client";
+
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { useTranslations } from "next-intl";
+import { BinderCover } from "@/components/binder-cover";
+import { Button, Modal, Pagination } from "@/components/ui";
+import { YokaiCard } from "@/components/yokai-card";
+import {
+  getFriendPaniniAlbumCardsPage,
+  type ProfileDetails
+} from "@/lib/data/profile";
+import type { PaniniAlbumCardPage } from "@/lib/data/cards";
+import { binderIdentity } from "@/lib/ui/binder-identity";
+import "@/styles/binder-discovery.css";
+import "@/styles/profile-favorite-binders.css";
+
+export type ProfileFavoriteAlbum = ProfileDetails["favoriteAlbums"][number];
+type CardLoader = typeof getFriendPaniniAlbumCardsPage;
+const wideSnapshot = () => window.matchMedia("(min-width: 640px)").matches;
+const serverSnapshot = () => false;
+const subscribeWidth = (listener: () => void) => {
+  const media = window.matchMedia("(min-width: 640px)");
+  media.addEventListener("change", listener);
+  return () => media.removeEventListener("change", listener);
+};
+
+function BinderContents({
+  ownerId,
+  album,
+  loadCards
+}: {
+  ownerId: string;
+  album: ProfileFavoriteAlbum;
+  loadCards: CardLoader;
+}) {
+  const t = useTranslations("profileUi");
+  const tc = useTranslations("collectionUi");
+  const [page, setPage] = useState(1),
+    [ownedOnly, setOwnedOnly] = useState(false),
+    [retry, setRetry] = useState(0);
+  const identity = binderIdentity(album);
+  const requestKey = JSON.stringify([
+    ownerId,
+    identity,
+    page,
+    ownedOnly,
+    retry
+  ]);
+  const [result, setResult] = useState<{
+    key: string;
+    data?: PaniniAlbumCardPage;
+    error?: boolean;
+  }>();
+  const current = result?.key === requestKey ? result : undefined;
+  useEffect(() => {
+    let active = true;
+    void loadCards(ownerId, {
+      license: identity,
+      page,
+      pageSize: 24,
+      ownedOnly
+    }).then(
+      data => {
+        if (active) setResult({ key: requestKey, data });
+      },
+      () => {
+        if (active) setResult({ key: requestKey, error: true });
+      }
+    );
+    return () => {
+      active = false;
+    };
+  }, [loadCards, ownerId, identity, page, ownedOnly, requestKey]);
+  const data = current?.data;
+  return (
+    <div className="yk-profile-binder-contents">
+      <header>
+        <BinderCover image={album.image ?? undefined} license={album.license} />
+        <div>
+          <strong>{album.license}</strong>
+          <p>
+            {t("favoriteBinderCardCount", {
+              owned: data?.binderOwned ?? album.owned,
+              total: data?.binderTotal ?? album.total
+            })}
+          </p>
+          <progress
+            max={Math.max(1, album.total)}
+            value={album.owned}
+            aria-label={t("completionFor", { license: album.license })}
+          />
+        </div>
+      </header>
+      <label className="yk-profile-binder-owned-filter">
+        <input
+          type="checkbox"
+          checked={ownedOnly}
+          onChange={event => {
+            setOwnedOnly(event.target.checked);
+            setPage(1);
+          }}
+        />
+        {t("favoriteBinderOwnedOnly")}
+      </label>
+      {!current ? (
+        <p className="yk-profile-binder-state" role="status">
+          {tc("loadingBinder")}
+        </p>
+      ) : current.error ? (
+        <div className="yk-profile-binder-state" role="alert">
+          <p>{t("favoriteBinderLoadError")}</p>
+          <Button
+            variant="secondary"
+            onClick={() => setRetry(value => value + 1)}
+          >
+            {tc("tryAgain")}
+          </Button>
+        </div>
+      ) : (
+        <>
+          {data?.items.length ? (
+            <ul className="yk-profile-binder-cards">
+              {data.items.map(card => (
+                <li key={card.id} data-owned={card.owned ? "true" : "false"}>
+                  <YokaiCard {...card} animated={false} />
+                  <p className="yk-profile-binder-card-name">{card.name}</p>
+                  <small>
+                    {t(
+                      card.owned
+                        ? "favoriteBinderOwned"
+                        : "favoriteBinderMissing"
+                    )}
+                  </small>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="yk-profile-binder-state">{tc("noCardsFound")}</p>
+          )}
+          <Pagination
+            page={page}
+            pageCount={Math.max(1, Math.ceil((data?.total ?? 0) / 24))}
+            onPageChange={setPage}
+          />
+        </>
+      )}
+    </div>
+  );
+}
+
+export function ProfileFavoriteBinders({
+  ownerId,
+  ownerName,
+  albums,
+  loadCards = getFriendPaniniAlbumCardsPage
+}: {
+  ownerId: string;
+  ownerName: string;
+  albums: ProfileFavoriteAlbum[];
+  loadCards?: CardLoader;
+}) {
+  const t = useTranslations("profileUi");
+  const wide = useSyncExternalStore(
+    subscribeWidth,
+    wideSnapshot,
+    serverSnapshot
+  );
+  const size = wide ? 6 : 4;
+  const [page, setPage] = useState(1),
+    [selected, setSelected] = useState<ProfileFavoriteAlbum>();
+  const pageCount = Math.max(1, Math.ceil(albums.length / size));
+  const activePage = Math.min(page, pageCount);
+  const start = (activePage - 1) * size;
+  const completed = albums.filter(
+    album => album.total > 0 && album.owned >= album.total
+  ).length;
+  return (
+    <section className="yk-profile-surface yk-profile-favorite-binders">
+      <div className="yk-profile-completion-summary">
+        <strong>{completed}</strong>
+        <span>
+          {t("completedBinders", { count: completed })}
+          <small>{t("favoriteBinderTotal", { count: albums.length })}</small>
+        </span>
+      </div>
+      <ul className="yk-profile-favorite-grid">
+        {albums.slice(start, start + size).map(album => (
+          <li key={binderIdentity(album)}>
+            <button
+              type="button"
+              className="yk-profile-favorite-binder"
+              onClick={() => setSelected(album)}
+              aria-label={t("openFavoriteBinder", { license: album.license })}
+              aria-haspopup="dialog"
+            >
+              <BinderCover
+                image={album.image ?? undefined}
+                license={album.license}
+              />
+              <span className="yk-profile-favorite-copy">
+                <strong>
+                  <span aria-hidden="true">★</span> {album.license}
+                </strong>
+                <span>
+                  {t("favoriteBinderCardCount", {
+                    owned: album.owned,
+                    total: album.total
+                  })}
+                </span>
+                <progress
+                  max={Math.max(1, album.total)}
+                  value={album.owned}
+                  aria-label={t("completionFor", { license: album.license })}
+                />
+                <small>
+                  {t("percentComplete", { percent: album.percent })}
+                </small>
+              </span>
+              <span className="yk-profile-favorite-open" aria-hidden="true">
+                ↗
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
+      {albums.length > size && (
+        <footer className="yk-profile-favorite-pages">
+          <p role="status">
+            {t("favoriteBinderRange", {
+              from: start + 1,
+              to: Math.min(start + size, albums.length),
+              total: albums.length
+            })}
+          </p>
+          <Pagination
+            page={activePage}
+            pageCount={pageCount}
+            onPageChange={setPage}
+          />
+        </footer>
+      )}
+      <Modal
+        open={!!selected}
+        onClose={() => setSelected(undefined)}
+        title={
+          selected
+            ? t("favoriteBinderTitle", {
+                license: selected.license,
+                name: ownerName
+              })
+            : t("favoriteBinders")
+        }
+        className="yk-profile-favorite-binder-modal"
+      >
+        {selected && (
+          <BinderContents
+            key={binderIdentity(selected)}
+            ownerId={ownerId}
+            album={selected}
+            loadCards={loadCards}
+          />
+        )}
+      </Modal>
+    </section>
+  );
+}
