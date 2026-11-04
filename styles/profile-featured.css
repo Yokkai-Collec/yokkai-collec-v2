@@ -1,11 +1,3 @@
-.yk-profile-featured-collection {
-  min-width: 0;
-  padding: 18px;
-  border: 1px solid #c4d6f21c;
-  border-radius: 18px;
-  background: linear-gradient(145deg, #101a2b, #090e18 70%);
-  box-shadow: 0 12px 32px #0000001f;
-}
 .yk-profile-featured-heading {
   display: flex;
   align-items: center;
@@ -36,22 +28,6 @@
   gap: 10px;
   justify-content: flex-end;
   margin-left: auto;
-}
-.yk-profile-featured-actions .yk-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 44px;
-  border-color: #d3e2ff38;
-  border-radius: 10px;
-  background: #ffffff06;
-  white-space: normal;
-  text-align: center;
-}
-.yk-profile-featured-actions .yk-button:hover {
-  border-color: #e2ebff80;
-  background: #ffffff0c;
 }
 .yk-profile-featured-saved {
   display: inline-flex;
@@ -87,17 +63,6 @@
 .yk-profile-featured-summary > span:first-child {
   color: var(--color-ink-2);
   font-weight: 550;
-}
-.yk-profile-featured-completed {
-  padding: 5px 8px;
-  border: 1px solid #c4d6f218;
-  border-radius: 7px;
-  font-size: 11px;
-}
-.yk-profile-featured-completed[data-complete="true"] {
-  color: #94dfbf;
-  border-color: #94dfbf38;
-  background: #94dfbf08;
 }
 .yk-profile-featured-collection .yk-profile-favorite-binder {
   padding: 13px;
@@ -170,9 +135,6 @@
   }
 }
 @media (min-width: 640px) {
-  .yk-profile-featured-collection {
-    padding: 22px;
-  }
   .yk-profile-featured-collection .yk-profile-favorite-binder {
     min-height: 132px;
     padding: 14px;

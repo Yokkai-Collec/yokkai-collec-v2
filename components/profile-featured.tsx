@@ -368,8 +368,8 @@ export function ProfileFeaturedCollection({
   );
   if (!profile.canViewCollection) return <ProfilePrivate />;
   return (
-    <div className="yk-profile-featured-collection">
-      <header className="yk-profile-featured-heading">
+    <div className="yk-profile-surface yk-profile-featured-collection">
+      <header className="yk-profile-section-heading yk-profile-featured-heading">
         <div>
           <h2>{t("title")}</h2>
           <p>{t("subtitle")}</p>
@@ -395,19 +395,6 @@ export function ProfileFeaturedCollection({
                 setSaved(false);
               }}
             >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                aria-hidden="true"
-              >
-                <path d="M4 7h6m4 0h6M4 17h10m4 0h2" />
-                <circle cx="12" cy="7" r="2" />
-                <circle cx="16" cy="17" r="2" />
-              </svg>
               {t("customize")}
             </Button>
           </div>

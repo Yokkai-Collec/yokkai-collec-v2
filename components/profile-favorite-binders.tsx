@@ -201,13 +201,6 @@ export function ProfileFavoriteBinders({
             </svg>
             {t("featuredItemTotal", { count: albums.length })}
           </span>
-          <span
-            className="yk-profile-featured-completed"
-            data-complete={completed > 0}
-          >
-            <span aria-hidden="true">✓</span>
-            {t("featuredCompletedCount", { count: completed })}
-          </span>
         </div>
       ) : (
         <div className="yk-profile-completion-summary">
