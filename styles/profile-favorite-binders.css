@@ -1,5 +1,6 @@
 .yk-profile-favorite-binders {
   min-width: 0;
+  container-type: inline-size;
 }
 .yk-profile-favorite-grid {
   display: grid;
@@ -184,6 +185,18 @@
 @media (min-width: 1024px) {
   .yk-profile-binder-cards {
     grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+@container (min-width: 720px) {
+  .yk-profile-favorite-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .yk-profile-favorite-binder {
+    gap: 10px;
+    padding: 10px;
+  }
+  .yk-profile-favorite-binder .yk-binder-cover {
+    width: 46px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

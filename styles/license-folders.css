@@ -1,0 +1,203 @@
+.yk-license-folder-create {
+  gap: 8px;
+}
+.yk-license-folder-modal {
+  width: min(1100px, calc(100vw - 24px));
+  max-width: 1100px;
+}
+.yk-license-folder-editor {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+.yk-license-folder-hint {
+  color: var(--color-ink-3);
+  font-size: 13px;
+}
+.yk-license-folder-name {
+  display: grid;
+  gap: 8px;
+  font-weight: 600;
+}
+.yk-license-folder-editor input:not([type="checkbox"]) {
+  min-width: 0;
+  width: 100%;
+  min-height: 44px;
+  background: #070c15;
+  border: 1px solid var(--color-veil-strong);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.yk-license-folder-featured,
+.yk-license-folder-search label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  font-size: 13px;
+}
+.yk-license-folder-editor input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  accent-color: var(--color-accent-gold);
+}
+.yk-license-folder-search {
+  display: grid;
+  gap: 8px;
+}
+.yk-license-folder-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 12px;
+}
+.yk-license-folder-card-grid > li {
+  min-width: 0;
+}
+.yk-license-folder-card {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  padding: 5px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  text-align: left;
+}
+.yk-license-folder-card[aria-pressed="true"] {
+  border-color: #fff;
+  background: #ffffff0c;
+}
+.yk-license-folder-card:focus-visible,
+.yk-license-folder-open:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+.yk-license-folder-card-label {
+  display: flex;
+  align-items: start;
+  gap: 5px;
+  justify-content: space-between;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.yk-license-folder-card-label > span {
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.yk-license-folder-card small {
+  color: var(--color-ink-3);
+  font-size: 11px;
+}
+.yk-license-folder-error {
+  color: #ff8098;
+}
+.yk-license-folder-save {
+  position: sticky;
+  bottom: -1px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 14px 0;
+  background: var(--color-night, #080d17);
+  border-top: 1px solid var(--color-veil);
+}
+.yk-license-folder-save > span {
+  width: 100%;
+  font-size: 13px;
+}
+.yk-license-folder-save .yk-button {
+  flex: 1;
+}
+.yk-license-folder-list {
+  flex-basis: 100%;
+  min-width: 0;
+  padding-top: 12px;
+}
+.yk-license-folder-list h3,
+.yk-profile-license-folders > h3 {
+  font-size: 16px;
+  font-weight: 650;
+  margin-bottom: 14px;
+}
+.yk-license-folder-list > ul {
+  display: grid;
+  gap: 12px;
+  margin: 12px 0;
+}
+.yk-license-folder-list > ul > li {
+  min-width: 0;
+  border: 1px solid var(--color-veil);
+  border-radius: 12px;
+  background: #0c1420;
+}
+.yk-license-folder-open {
+  width: 100%;
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  align-items: center;
+  text-align: left;
+}
+.yk-license-folder-open .yk-binder-cover {
+  width: 42px;
+}
+.yk-license-folder-open > span:last-child {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.yk-license-folder-open small {
+  font-size: 12px;
+  color: var(--color-ink-3);
+}
+.yk-license-folder-open .yk-license-folder-star {
+  color: var(--color-accent-gold);
+}
+.yk-license-folder-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 0 12px 8px;
+}
+.yk-license-folder-actions > button {
+  min-height: 44px;
+  font-size: 12px;
+}
+.yk-profile-license-folders {
+  margin-top: 28px;
+}
+@media (min-width: 640px) {
+  .yk-license-folder-card-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .yk-license-folder-list > ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .yk-license-folder-search {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 16px;
+    align-items: center;
+  }
+  .yk-license-folder-save {
+    flex-wrap: nowrap;
+  }
+  .yk-license-folder-save > span {
+    flex: 1;
+    width: auto;
+  }
+  .yk-license-folder-save .yk-button {
+    flex: initial;
+  }
+}
+@media (min-width: 1024px) {
+  .yk-license-folder-card-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .yk-license-folder-list > ul {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

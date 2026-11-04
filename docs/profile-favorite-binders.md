@@ -1,8 +1,9 @@
 # Classeurs favoris sur le profil
 
 Les favoris affichent leur couverture native du catalogue, leur nom complet et
-leur progression. La section affiche 4 favoris par page sur téléphone et 6 dès
-640 px. Le résumé porte sur tous les favoris, y compris les pages non visibles.
+leur progression. La section affiche 6 favoris par page sur téléphone et 12 dès
+640 px, avec trois colonnes lorsque le conteneur atteint 720 px. Le résumé porte
+sur tous les favoris, y compris les pages non visibles.
 Le changement de page n’entraîne aucune lecture supplémentaire de collection.
 
 Un clic ouvre le classeur sur le profil, en lecture seule : cartes possédées et

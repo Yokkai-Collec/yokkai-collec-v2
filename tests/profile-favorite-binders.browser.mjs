@@ -68,7 +68,7 @@ try {
         size =>
           document.querySelectorAll(".yk-profile-favorite-binder").length ===
           size,
-        effective >= 640 ? 6 : 4
+        effective >= 640 ? 12 : 6
       );
       await page.locator('[data-preview-ready="true"]').waitFor();
       const cards = page.locator(".yk-profile-favorite-binder");

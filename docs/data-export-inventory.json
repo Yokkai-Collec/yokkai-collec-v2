@@ -450,5 +450,13 @@
   },
   "public.mission_definitions": {
     "excluded": "Global game objectives and reward configuration; no individual account records."
+  },
+  "public.license_folders": {
+    "sections": ["license_folders"],
+    "note": "Own themed license folders, names and profile featuring preference."
+  },
+  "public.license_folder_cards": {
+    "sections": ["license_folder_cards"],
+    "note": "Catalogue card IDs selected in the current player own license folders."
   }
 }

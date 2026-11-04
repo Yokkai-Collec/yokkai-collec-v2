@@ -24,7 +24,7 @@ const subscribeWidth = (listener: () => void) => {
   return () => media.removeEventListener("change", listener);
 };
 
-function BinderContents({
+export function BinderContents({
   ownerId,
   album,
   loadCards
@@ -152,12 +152,14 @@ export function ProfileFavoriteBinders({
   ownerId,
   ownerName,
   albums,
-  loadCards = getFriendPaniniAlbumCardsPage
+  loadCards = getFriendPaniniAlbumCardsPage,
+  folderMode = false
 }: {
   ownerId: string;
   ownerName: string;
   albums: ProfileFavoriteAlbum[];
   loadCards?: CardLoader;
+  folderMode?: boolean;
 }) {
   const t = useTranslations("profileUi");
   const wide = useSyncExternalStore(
@@ -165,7 +167,7 @@ export function ProfileFavoriteBinders({
     wideSnapshot,
     serverSnapshot
   );
-  const size = wide ? 6 : 4;
+  const size = wide ? 12 : 6;
   const [page, setPage] = useState(1),
     [selected, setSelected] = useState<ProfileFavoriteAlbum>();
   const pageCount = Math.max(1, Math.ceil(albums.length / size));
@@ -179,8 +181,14 @@ export function ProfileFavoriteBinders({
       <div className="yk-profile-completion-summary">
         <strong>{completed}</strong>
         <span>
-          {t("completedBinders", { count: completed })}
-          <small>{t("favoriteBinderTotal", { count: albums.length })}</small>
+          {t(folderMode ? "completedFolders" : "completedBinders", {
+            count: completed
+          })}
+          <small>
+            {t(folderMode ? "featuredFolderTotal" : "favoriteBinderTotal", {
+              count: albums.length
+            })}
+          </small>
         </span>
       </div>
       <ul className="yk-profile-favorite-grid">
@@ -190,7 +198,10 @@ export function ProfileFavoriteBinders({
               type="button"
               className="yk-profile-favorite-binder"
               onClick={() => setSelected(album)}
-              aria-label={t("openFavoriteBinder", { license: album.license })}
+              aria-label={t(
+                folderMode ? "openFeaturedFolder" : "openFavoriteBinder",
+                { license: album.license }
+              )}
               aria-haspopup="dialog"
             >
               <BinderCover
@@ -244,7 +255,7 @@ export function ProfileFavoriteBinders({
         onClose={() => setSelected(undefined)}
         title={
           selected
-            ? t("favoriteBinderTitle", {
+            ? t(folderMode ? "featuredFolderTitle" : "favoriteBinderTitle", {
                 license: selected.license,
                 name: ownerName
               })

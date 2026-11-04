@@ -22,6 +22,11 @@ import { YokaiCard } from "@/components/yokai-card";
 import { CardShell } from "@/components/card-shell";
 import dynamic from "next/dynamic";
 import { ProfilePrivate } from "@/components/profile-private";
+const ProfileLicenseFolders = dynamic(() =>
+  import("@/components/license-folders").then(
+    module => module.ProfileLicenseFolders
+  )
+);
 const ProfileCompletion = dynamic(() =>
   import("@/components/profile-completion").then(
     module => module.ProfileCompletion
@@ -1339,6 +1344,13 @@ export function ProfileExperience({
                     detailsError={detailsError}
                     isMe={isMe}
                   />
+                  {profile.canViewCollection && (
+                    <ProfileLicenseFolders
+                      key={profile.id}
+                      ownerId={profile.id}
+                      ownerName={profile.pseudo}
+                    />
+                  )}
                 </section>
               </>
             )}
@@ -1494,6 +1506,13 @@ export function ProfileExperience({
                     detailsError={detailsError}
                     isMe={isMe}
                   />
+                  {profile.canViewCollection && (
+                    <ProfileLicenseFolders
+                      key={profile.id}
+                      ownerId={profile.id}
+                      ownerName={profile.pseudo}
+                    />
+                  )}
                 </section>
               )}
             </div>

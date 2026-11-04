@@ -6,6 +6,7 @@ import { BinderCover } from "@/components/binder-cover";
 import { binderCover, binderHref } from "@/lib/ui/binder-discovery";
 import "@/styles/binder-discovery.css";
 import { BinderFavoriteReview } from "@/components/binder-favorite-review";
+import { LicenseFolderManager } from "@/components/license-folders";
 
 import { cardRarityLabel } from "@/lib/ui/card-rarity-label";
 import Link from "next/link";
@@ -1617,6 +1618,13 @@ export function CollectionView({
                               ? tc("adding")
                               : tc("addMissingCardsToWishlist")}
                           </button>
+                        )}
+                        {!readOnly && !previewOnly && (
+                          <LicenseFolderManager
+                            key={selectedLicense}
+                            binderKey={selectedLicense}
+                            binderName={selectedAlbumName ?? ""}
+                          />
                         )}
                       </div>
                       {binderWishlist.message && (

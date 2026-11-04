@@ -1922,7 +1922,11 @@
     "replyingTo": "Replying to {name}",
     "cancelReplyTarget": "Cancel reply",
     "replyParentUnavailable": "Replying to an unavailable comment",
-    "replyTargetUnavailable": "This comment is no longer available. Choose another comment or reply to the post."
+    "replyTargetUnavailable": "This comment is no longer available. Choose another comment or reply to the post.",
+    "completedFolders": "{count, plural, one {completed folder} other {completed folders}}",
+    "featuredFolderTotal": "{count, plural, one {# featured folder} other {# featured folders}}",
+    "openFeaturedFolder": "Open folder: {license}",
+    "featuredFolderTitle": "{license} · {name}"
   },
   "settingsUi": {
     "pushInviteTitle": "Stay in the loop",
@@ -4033,5 +4037,44 @@
       "auctions_won": "Win {count, plural, one {an auction} other {# auctions}}",
       "trades_completed": "Complete {count, plural, one {a trade} other {# trades}}"
     }
+  },
+  "licenseFolders": {
+    "create": "Create folder",
+    "createTitle": "Create a folder in this binder",
+    "editTitle": "Edit folder",
+    "hint": "Choose cards from this license to build a themed folder. Your copies stay in your collection. Missing cards can be included to track your progress.",
+    "name": "Folder name",
+    "namePlaceholder": "For example: Akatsuki",
+    "feature": "Feature this folder on my profile",
+    "search": "Search cards in this license…",
+    "ownedOnly": "Owned cards only",
+    "owned": "Owned",
+    "missing": "Missing",
+    "select": "Select {name}",
+    "unselect": "Deselect {name}",
+    "selected": "{count, plural, one {# card selected} other {# cards selected}}",
+    "loading": "Loading cards…",
+    "noCards": "No cards match your search.",
+    "retry": "Try again",
+    "save": "Save folder",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteTitle": "Delete this folder?",
+    "deleteHint": "Delete “{name}”? Your cards will stay in your collection.",
+    "inBinder": "Your folders in {name}",
+    "featured": "Featured on profile",
+    "profileTitle": "Featured folders",
+    "progress": "{owned} / {total, plural, one {# card} other {# cards}}",
+    "saved": "Folder saved.",
+    "deleted": "Folder deleted. Your cards are unchanged.",
+    "error": "The folder could not be updated. Please try again.",
+    "loadError": "Featured folders could not be loaded.",
+    "nameTaken": "A folder with this name already exists in this license.",
+    "invalidName": "Enter a folder name between 1 and 60 characters.",
+    "folderLimit": "You can create up to 100 folders.",
+    "invalidCards": "Choose up to 500 cards from this license only.",
+    "notFound": "This folder no longer exists."
   }
 }

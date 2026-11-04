@@ -1922,7 +1922,11 @@
     "replyingTo": "En réponse à {name}",
     "cancelReplyTarget": "Annuler la réponse",
     "replyParentUnavailable": "En réponse à un commentaire indisponible",
-    "replyTargetUnavailable": "Ce commentaire n’est plus disponible. Choisis un autre commentaire ou réponds au post."
+    "replyTargetUnavailable": "Ce commentaire n’est plus disponible. Choisis un autre commentaire ou réponds au post.",
+    "completedFolders": "{count, plural, one {dossier terminé} other {dossiers terminés}}",
+    "featuredFolderTotal": "{count, plural, one {# dossier mis en avant} other {# dossiers mis en avant}}",
+    "openFeaturedFolder": "Ouvrir le dossier : {license}",
+    "featuredFolderTitle": "{license} · {name}"
   },
   "settingsUi": {
     "pushInviteTitle": "Garde le contact avec Yokkai",
@@ -4033,5 +4037,44 @@
       "auctions_won": "Remporter {count, plural, one {une enchère} other {# enchères}}",
       "trades_completed": "Finaliser {count, plural, one {un échange} other {# échanges}}"
     }
+  },
+  "licenseFolders": {
+    "create": "Créer un dossier",
+    "createTitle": "Créer un dossier dans ce classeur",
+    "editTitle": "Modifier le dossier",
+    "hint": "Choisis des cartes de cette licence pour créer un dossier thématique. Tes exemplaires restent dans ta collection. Tu peux inclure les cartes manquantes pour suivre ta progression.",
+    "name": "Nom du dossier",
+    "namePlaceholder": "Par exemple : Akatsuki",
+    "feature": "Mettre ce dossier en avant sur mon profil",
+    "search": "Rechercher des cartes dans cette licence…",
+    "ownedOnly": "Cartes possédées uniquement",
+    "owned": "Possédée",
+    "missing": "Manquante",
+    "select": "Sélectionner {name}",
+    "unselect": "Désélectionner {name}",
+    "selected": "{count, plural, one {# carte sélectionnée} other {# cartes sélectionnées}}",
+    "loading": "Chargement des cartes…",
+    "noCards": "Aucune carte ne correspond à ta recherche.",
+    "retry": "Réessayer",
+    "save": "Enregistrer le dossier",
+    "saving": "Enregistrement…",
+    "cancel": "Annuler",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "deleteTitle": "Supprimer ce dossier ?",
+    "deleteHint": "Supprimer « {name} » ? Tes cartes resteront dans ta collection.",
+    "inBinder": "Tes dossiers dans {name}",
+    "featured": "Mis en avant sur le profil",
+    "profileTitle": "Dossiers mis en avant",
+    "progress": "{owned} / {total, plural, one {# carte} other {# cartes}}",
+    "saved": "Dossier enregistré.",
+    "deleted": "Dossier supprimé. Tes cartes sont conservées.",
+    "error": "Impossible de modifier le dossier. Réessaie.",
+    "loadError": "Impossible de charger les dossiers mis en avant.",
+    "nameTaken": "Un dossier portant ce nom existe déjà dans cette licence.",
+    "invalidName": "Choisis un nom de dossier de 1 à 60 caractères.",
+    "folderLimit": "Tu peux créer jusqu’à 100 dossiers.",
+    "invalidCards": "Choisis au maximum 500 cartes de cette licence uniquement.",
+    "notFound": "Ce dossier n’existe plus."
   }
 }

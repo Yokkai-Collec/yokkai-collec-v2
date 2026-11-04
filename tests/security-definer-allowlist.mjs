@@ -74,6 +74,14 @@ const allowlist = {
   "public.claim_twitter_visit_reward()": ["authenticated"], // User-authorized one-time visit gift for auth.uid(), fixed five packs, ban/deletion/email guards; no follow verification claimed. Approved by the owner.
   "public.get_discord_reward_status()": ["authenticated"], // Own gift/prompt booleans only, no caller-supplied identity or Discord id.
   "public.dismiss_discord_reward_prompt()": ["authenticated"], // Permanently dismisses only auth.uid()'s home invitation after ban/deletion guards; grants no reward.
+  "public.save_license_folder(uuid, text, text, uuid[], boolean)": [
+    "authenticated"
+  ], // Walid approved: active owner only, validated catalogue membership, bounded cards/folders.
+  "public.delete_license_folder(uuid)": ["authenticated"], // Walid approved: active owner only; no asset deletion.
+  "public.get_license_folders(uuid, text, boolean)": ["authenticated"], // Walid approved: bounded listing, collection privacy and featured-only for visitors.
+  "public.get_license_folder_cards(uuid, text, boolean, integer, integer)": [
+    "authenticated"
+  ], // Walid approved: bounded catalogue reader, owner or featured folder, collection privacy.
   "public.admin_list_anticheat_related_accounts(uuid, text, text, integer, integer)":
     ["authenticated"], // Bounded, read-only admin overview of existing/deleted economic and recent connection links; identities expire after 90 days. Walid approved.
   "public.admin_get_referral_pack_provenance(uuid[])": ["authenticated"], // Admin-only bounded source and transfer trail for referral-funded pack cards. Walid approved.
