@@ -1495,6 +1495,10 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   outline: 2px solid #fff;
   outline-offset: 5px;
 }
+.yk-profile-showcase-card .yk-card.yk-rarity-LR {
+  animation: none;
+  box-shadow: none;
+}
 @media (hover: hover) and (pointer: fine) {
   .yk-profile-showcase-card:hover {
     transform: translateY(-4px) scale(1.025);
