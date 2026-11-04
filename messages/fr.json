@@ -1933,7 +1933,8 @@
     "featuredKindFolder": "Dossier",
     "featuredKindBinder": "Classeur",
     "featuredCompletedCount": "{count, plural, one {# terminé} other {# terminés}}",
-    "featuredPercent": "{percent} %"
+    "featuredPercent": "{percent} %",
+    "featuredCardCount": "<value>{owned, number}</value> / {total, plural, one {# carte} other {# cartes}}"
   },
   "settingsUi": {
     "pushInviteTitle": "Garde le contact avec Yokkai",

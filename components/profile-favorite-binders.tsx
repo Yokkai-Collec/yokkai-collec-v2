@@ -290,16 +290,19 @@ export function ProfileFavoriteBinders({
                     mixedMode ? "yk-profile-featured-card-stats" : undefined
                   }
                 >
-                  <span>
-                    {t("favoriteBinderCardCount", {
+                  {mixedMode ? (
+                    t.rich("featuredCardCount", {
                       owned: album.owned,
-                      total: album.total
-                    })}
-                  </span>
-                  {mixedMode && (
-                    <small>
-                      {t("featuredPercent", { percent: album.percent })}
-                    </small>
+                      total: album.total,
+                      value: chunks => <b>{chunks}</b>
+                    })
+                  ) : (
+                    <span>
+                      {t("favoriteBinderCardCount", {
+                        owned: album.owned,
+                        total: album.total
+                      })}
+                    </span>
                   )}
                 </span>
                 <progress
@@ -307,14 +310,12 @@ export function ProfileFavoriteBinders({
                   value={album.owned}
                   aria-label={t("completionFor", { license: album.license })}
                 />
-                {!mixedMode && (
-                  <small>
-                    {t("percentComplete", { percent: album.percent })}
-                  </small>
-                )}
+                <small>
+                  {t("percentComplete", { percent: album.percent })}
+                </small>
               </span>
               <span className="yk-profile-favorite-open" aria-hidden="true">
-                ↗
+                {mixedMode ? "★" : "↗"}
               </span>
             </button>
           </li>

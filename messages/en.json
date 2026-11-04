@@ -1933,7 +1933,8 @@
     "featuredKindFolder": "Folder",
     "featuredKindBinder": "Binder",
     "featuredCompletedCount": "{count, plural, one {# complete} other {# complete}}",
-    "featuredPercent": "{percent}%"
+    "featuredPercent": "{percent}%",
+    "featuredCardCount": "<value>{owned, number}</value> / {total, plural, one {# card} other {# cards}}"
   },
   "settingsUi": {
     "pushInviteTitle": "Stay in the loop",

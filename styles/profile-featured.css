@@ -65,27 +65,43 @@
   font-weight: 550;
 }
 .yk-profile-featured-collection .yk-profile-favorite-binder {
-  padding: 13px;
-  gap: 12px;
-  min-height: 116px;
-  border-color: #bfd0f01f;
+  --yk-featured-cover-width: clamp(88px, 13cqi, 112px);
+  display: grid;
+  grid-template-columns: var(--yk-featured-cover-width) minmax(0, 1fr);
+  padding: 0;
+  gap: 0;
+  height: 100%;
+  min-height: 156px;
+  overflow: hidden;
+  border-color: var(--color-accent-gold);
   border-radius: 12px;
-  background: linear-gradient(125deg, #17233880, #0c1320);
+  background: var(--color-panel, #080d17);
   transition:
     border-color 160ms,
     background 160ms,
     transform 160ms;
 }
 .yk-profile-featured-collection .yk-profile-favorite-binder .yk-binder-cover {
-  width: 56px;
-  border-radius: 6px;
-  box-shadow: 0 5px 14px #0006;
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--yk-featured-cover-width);
+  height: 100%;
+  aspect-ratio: auto;
+  border-radius: 0;
+  box-shadow: none;
 }
 .yk-profile-featured-collection .yk-profile-favorite-copy {
+  display: grid;
+  grid-column: 2;
+  grid-template-rows: auto minmax(min-content, 1fr) auto 4px auto;
+  padding: 12px;
   gap: 8px;
-  align-content: center;
+  align-self: stretch;
+  align-content: stretch;
 }
 .yk-profile-featured-collection .yk-profile-favorite-copy strong {
+  align-self: start;
+  padding-right: 22px;
   font-size: 14px;
   font-weight: 650;
   line-height: 1.35;
@@ -102,6 +118,7 @@
   line-height: 1;
   color: #b2bfd6;
   background: #c4d6f206;
+  margin-right: 26px;
 }
 .yk-profile-featured-collection .yk-profile-featured-kind[data-kind="folder"] {
   color: #b7cbed;
@@ -109,13 +126,15 @@
   border-color: #9bbcff26;
 }
 .yk-profile-featured-collection .yk-profile-featured-card-stats {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
-  flex-wrap: wrap;
+  display: block;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--color-ink-3);
 }
-.yk-profile-featured-card-stats small {
+.yk-profile-featured-card-stats b {
+  font-size: 16px;
+  color: var(--color-accent-gold);
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 .yk-profile-featured-collection .yk-profile-favorite-copy progress {
@@ -123,24 +142,37 @@
   opacity: 0.9;
 }
 .yk-profile-featured-collection .yk-profile-favorite-open {
-  right: 12px;
-  top: 12px;
-  color: #97aac7;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  top: 7px;
+  right: 7px;
+  border: 1px solid var(--color-veil-strong);
+  border-radius: 50%;
+  background: #0c1421;
+  color: var(--color-accent-gold);
+  font-size: 19px;
+  pointer-events: none;
+}
+.yk-profile-featured-collection .yk-profile-favorite-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+@container (min-width: 520px) {
+  .yk-profile-featured-collection .yk-profile-favorite-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@container (min-width: 840px) {
+  .yk-profile-featured-collection .yk-profile-favorite-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 @media (hover: hover) and (pointer: fine) {
   .yk-profile-featured-collection .yk-profile-favorite-binder:hover {
-    border-color: #d2e0fc70;
-    background: #19263a;
+    border-color: var(--color-accent-gold);
+    background: #101928;
     transform: translateY(-2px);
-  }
-}
-@media (min-width: 640px) {
-  .yk-profile-featured-collection .yk-profile-favorite-binder {
-    min-height: 132px;
-    padding: 14px;
-  }
-  .yk-profile-featured-collection .yk-profile-favorite-binder .yk-binder-cover {
-    width: 64px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
