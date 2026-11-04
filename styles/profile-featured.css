@@ -20,6 +20,23 @@
   color: var(--color-ink-3);
   font-size: 13px;
 }
+.yk-profile-highlight-create-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+.yk-profile-highlight-create {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.yk-profile-highlight-create > .yk-button {
+  justify-self: start;
+}
+.yk-profile-highlight-create > h3 {
+  font-size: 18px;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
 .yk-profile-highlight-picker-tabs {
   display: flex;
   gap: 10px;

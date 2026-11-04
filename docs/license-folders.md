@@ -16,6 +16,10 @@ et les choix de classeurs sont indépendants des favoris utilisés dans la
 collection et les packs. Les favoris existants servent de sélection initiale
 jusqu’au premier enregistrement ; une sélection vide explicite reste vide.
 Les dossiers gardent leur option de mise en avant depuis le classeur d’origine.
+Le sélecteur du profil propose également « Créer un dossier » : choix de licence,
+puis réutilisation du même éditeur de cartes sans quitter le profil. Les choix en
+cours sont préservés ; le nouveau dossier est créé sans mise en avant immédiate,
+ajouté à la sélection, puis affiché sur le profil après son enregistrement global.
 
 La collection privée, les amitiés et les blocages continuent de s’appliquer.
 Un visiteur ne peut consulter que les dossiers mis en avant d’une collection

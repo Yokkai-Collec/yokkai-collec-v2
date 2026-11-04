@@ -4108,6 +4108,14 @@
     "saved": "Collection mise en avant enregistrée.",
     "empty": "Aucun classeur ou dossier mis en avant",
     "emptyOwner": "Utilise le bouton ci-dessus pour choisir les éléments à afficher ici.",
-    "emptyVisitor": "Ce joueur n’a pas encore mis de classeur ou de dossier en avant."
+    "emptyVisitor": "Ce joueur n’a pas encore mis de classeur ou de dossier en avant.",
+    "createFolder": "Créer un dossier",
+    "chooseLicenseHint": "Choisis la licence dans laquelle créer ton dossier.",
+    "chooseLicenseTitle": "Choisir une licence",
+    "searchLicense": "Rechercher une licence…",
+    "changeLicense": "Changer de licence",
+    "backSelection": "Retour à la sélection",
+    "creationTitle": "Créer un dossier dans {name}",
+    "creationHint": "Le dossier sera créé immédiatement et ajouté à ta sélection en cours. Enregistre ensuite la sélection pour le mettre en avant sur ton profil."
   }
 }

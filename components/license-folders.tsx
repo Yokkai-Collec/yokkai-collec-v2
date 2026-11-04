@@ -48,18 +48,22 @@ function errorKey(error: unknown) {
   };
   return keys[code] ?? "error";
 }
-function FolderEditor({
+export function FolderEditor({
   binderKey,
   folder,
   onSaved,
   onClose,
-  onSavingChange
+  onSavingChange,
+  showFeaturedOption = true,
+  description
 }: {
   binderKey: string;
   folder?: LicenseFolder;
-  onSaved: () => void;
+  onSaved: (id: string) => void;
   onClose: () => void;
   onSavingChange: (saving: boolean) => void;
+  showFeaturedOption?: boolean;
+  description?: string;
 }) {
   const t = useTranslations("licenseFolders");
   const [name, setName] = useState(folder?.name ?? ""),
@@ -106,14 +110,14 @@ function FolderEditor({
     onSavingChange(true);
     setError("");
     try {
-      await saveLicenseFolder({
+      const id = await saveLicenseFolder({
         id: folder?.id,
         binderKey,
         name,
         featured,
         cardIds: [...selected]
       });
-      onSaved();
+      onSaved(id);
     } catch (e) {
       setError(errorKey(e));
       setBusy(false);
@@ -123,7 +127,7 @@ function FolderEditor({
   }
   return (
     <div className="yk-license-folder-editor">
-      <p className="yk-license-folder-hint">{t("hint")}</p>
+      <p className="yk-license-folder-hint">{description ?? t("hint")}</p>
       <label className="yk-license-folder-name">
         {t("name")}
         <input
@@ -135,15 +139,17 @@ function FolderEditor({
           disabled={busy}
         />
       </label>
-      <label className="yk-license-folder-featured">
-        <input
-          type="checkbox"
-          checked={featured}
-          onChange={e => setFeatured(e.target.checked)}
-          disabled={busy}
-        />
-        {t("feature")}
-      </label>
+      {showFeaturedOption && (
+        <label className="yk-license-folder-featured">
+          <input
+            type="checkbox"
+            checked={featured}
+            onChange={e => setFeatured(e.target.checked)}
+            disabled={busy}
+          />
+          {t("feature")}
+        </label>
+      )}
       <div className="yk-license-folder-search">
         <input
           aria-label={t("search")}

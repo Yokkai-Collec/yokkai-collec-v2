@@ -5,6 +5,7 @@ import { BinderCover } from "@/components/binder-cover";
 import { Button, Modal, Pagination } from "@/components/ui";
 import { ProfilePrivate } from "@/components/profile-private";
 import { ProfileFavoriteBinders } from "@/components/profile-favorite-binders";
+import { FolderEditor } from "@/components/license-folders";
 import { getPaniniAlbumsPage, type PaniniAlbumPage } from "@/lib/data/cards";
 import {
   getLicenseFolders,
@@ -42,7 +43,10 @@ function FeaturedPicker({
     [retry, setRetry] = useState(0);
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(false);
-  const requestKey = JSON.stringify([tab, query, page, retry]);
+  const [creating, setCreating] = useState(false),
+    [chosenBinder, setChosenBinder] = useState<{ key: string; name: string }>();
+  const activeType = creating ? "binder" : tab;
+  const requestKey = JSON.stringify([activeType, query, page, retry, creating]);
   const [result, setResult] = useState<{
     key: string;
     binders?: PaniniAlbumPage;
@@ -51,10 +55,11 @@ function FeaturedPicker({
   }>();
   const current = result?.key === requestKey ? result : undefined;
   useEffect(() => {
+    if (chosenBinder) return;
     let active = true;
     const timer = setTimeout(() => {
       void (
-        tab === "binder"
+        activeType === "binder"
           ? getPaniniAlbumsPage({ query, page, pageSize: 24 }).then(
               binders => ({ binders })
             )
@@ -72,13 +77,13 @@ function FeaturedPicker({
       active = false;
       clearTimeout(timer);
     };
-  }, [tab, query, page, retry, requestKey]);
+  }, [activeType, query, page, retry, requestKey, chosenBinder]);
   const matchingFolders =
     current?.folders?.filter(folder =>
       folder.name.toLocaleLowerCase().includes(query.toLocaleLowerCase())
     ) ?? [];
   const options =
-    tab === "binder"
+    activeType === "binder"
       ? (current?.binders?.items ?? []).map(b => ({
           key: b.binderKey ?? b.license,
           name: b.license,
@@ -95,7 +100,9 @@ function FeaturedPicker({
         }));
   const selected = tab === "binder" ? binders : folders;
   const total =
-    tab === "binder" ? (current?.binders?.total ?? 0) : matchingFolders.length;
+    activeType === "binder"
+      ? (current?.binders?.total ?? 0)
+      : matchingFolders.length;
   function toggle(key: string) {
     const change = (previous: Set<string>) => {
       const next = new Set(previous);
@@ -120,36 +127,94 @@ function FeaturedPicker({
       onSaving(false);
     }
   }
+  function returnToSelection() {
+    setCreating(false);
+    setChosenBinder(undefined);
+    setQuery("");
+    setPage(1);
+  }
+  if (creating && chosenBinder)
+    return (
+      <div className="yk-profile-highlight-create">
+        <Button
+          variant="secondary"
+          disabled={busy}
+          onClick={() => setChosenBinder(undefined)}
+        >
+          {t("changeLicense")}
+        </Button>
+        <h3>{t("creationTitle", { name: chosenBinder.name })}</h3>
+        <FolderEditor
+          key={chosenBinder.key}
+          binderKey={chosenBinder.key}
+          showFeaturedOption={false}
+          description={t("creationHint")}
+          onSavingChange={saving => {
+            setBusy(saving);
+            onSaving(saving);
+          }}
+          onClose={returnToSelection}
+          onSaved={id => {
+            setFolders(previous => new Set([...previous, id]));
+            setTab("folder");
+            returnToSelection();
+            setRetry(n => n + 1);
+          }}
+        />
+      </div>
+    );
   return (
     <div className="yk-profile-highlight-picker">
-      <p className="yk-featured-hint">{t("hint")}</p>
-      <div
-        className="yk-profile-highlight-picker-tabs"
-        role="group"
-        aria-label={t("type")}
-      >
-        {(["binder", "folder"] as const).map(kind => (
+      <p className="yk-featured-hint">
+        {t(creating ? "chooseLicenseHint" : "hint")}
+      </p>
+      {creating ? (
+        <h3>{t("chooseLicenseTitle")}</h3>
+      ) : (
+        <div
+          className="yk-profile-highlight-picker-tabs"
+          role="group"
+          aria-label={t("type")}
+        >
+          {(["binder", "folder"] as const).map(kind => (
+            <Button
+              key={kind}
+              variant="secondary"
+              aria-pressed={tab === kind}
+              disabled={busy}
+              onClick={() => {
+                setTab(kind);
+                setPage(1);
+                setQuery("");
+              }}
+            >
+              {t(kind === "binder" ? "bindersTab" : "foldersTab", {
+                count: kind === "binder" ? binders.size : folders.size
+              })}
+            </Button>
+          ))}
+        </div>
+      )}
+      {!creating && (
+        <div className="yk-profile-highlight-create-actions">
           <Button
-            key={kind}
             variant="secondary"
-            aria-pressed={tab === kind}
-            disabled={busy}
+            className="yk-profile-create-folder"
+            disabled={busy || folders.size >= 100}
             onClick={() => {
-              setTab(kind);
-              setPage(1);
+              setCreating(true);
               setQuery("");
+              setPage(1);
             }}
           >
-            {t(kind === "binder" ? "bindersTab" : "foldersTab", {
-              count: kind === "binder" ? binders.size : folders.size
-            })}
+            {t("createFolder")}
           </Button>
-        ))}
-      </div>
+        </div>
+      )}
       <input
         type="search"
-        aria-label={t("search")}
-        placeholder={t("search")}
+        aria-label={t(creating ? "searchLicense" : "search")}
+        placeholder={t(creating ? "searchLicense" : "search")}
         value={query}
         disabled={busy}
         onChange={e => {
@@ -157,18 +222,20 @@ function FeaturedPicker({
           setPage(1);
         }}
       />
-      <div className="yk-profile-highlight-picker-tools">
-        <span>{t("limit")}</span>
-        <button
-          disabled={busy || !selected.size}
-          onClick={() => {
-            if (tab === "binder") setBinders(new Set());
-            else setFolders(new Set());
-          }}
-        >
-          {t("clearTab")}
-        </button>
-      </div>
+      {!creating && (
+        <div className="yk-profile-highlight-picker-tools">
+          <span>{t("limit")}</span>
+          <button
+            disabled={busy || !selected.size}
+            onClick={() => {
+              if (tab === "binder") setBinders(new Set());
+              else setFolders(new Set());
+            }}
+          >
+            {t("clearTab")}
+          </button>
+        </div>
+      )}
       {error && <p role="alert">{t("saveError")}</p>}
       {!current ? (
         <p role="status">{t("loading")}</p>
@@ -182,19 +249,26 @@ function FeaturedPicker({
       ) : (
         <>
           {!options.length && (
-            <p>{t(tab === "folder" ? "noFolders" : "noBinders")}</p>
+            <p>{t(activeType === "folder" ? "noFolders" : "noBinders")}</p>
           )}
           <ul className="yk-profile-highlight-picker-grid">
             {options.map(option => (
               <li key={option.key}>
                 <button
                   type="button"
-                  aria-pressed={selected.has(option.key)}
+                  aria-pressed={creating ? undefined : selected.has(option.key)}
                   className="yk-profile-highlight-picker-option"
                   disabled={
-                    busy || (!selected.has(option.key) && selected.size >= 100)
+                    busy ||
+                    (!creating &&
+                      !selected.has(option.key) &&
+                      selected.size >= 100)
                   }
-                  onClick={() => toggle(option.key)}
+                  onClick={() => {
+                    if (creating)
+                      setChosenBinder({ key: option.key, name: option.name });
+                    else toggle(option.key);
+                  }}
                 >
                   <BinderCover image={option.image} license={option.name} />
                   <span>
@@ -207,7 +281,7 @@ function FeaturedPicker({
                     </small>
                   </span>
                   <span aria-hidden="true">
-                    {selected.has(option.key) ? "✓" : "+"}
+                    {creating ? "→" : selected.has(option.key) ? "✓" : "+"}
                   </span>
                 </button>
               </li>
@@ -224,12 +298,18 @@ function FeaturedPicker({
         <span role="status">
           {t("selected", { count: binders.size + folders.size })}
         </span>
-        <Button variant="secondary" disabled={busy} onClick={onClose}>
-          {t("cancel")}
+        <Button
+          variant="secondary"
+          disabled={busy}
+          onClick={creating ? returnToSelection : onClose}
+        >
+          {t(creating ? "backSelection" : "cancel")}
         </Button>
-        <Button disabled={busy} onClick={() => void save()}>
-          {t(busy ? "saving" : "save")}
-        </Button>
+        {!creating && (
+          <Button disabled={busy} onClick={() => void save()}>
+            {t(busy ? "saving" : "save")}
+          </Button>
+        )}
       </footer>
     </div>
   );

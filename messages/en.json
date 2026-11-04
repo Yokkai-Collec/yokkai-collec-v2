@@ -4108,6 +4108,14 @@
     "saved": "Featured collection updated.",
     "empty": "No featured binders or folders",
     "emptyOwner": "Use the button above to choose what appears here.",
-    "emptyVisitor": "This player has not featured any binders or folders yet."
+    "emptyVisitor": "This player has not featured any binders or folders yet.",
+    "createFolder": "Create folder",
+    "chooseLicenseHint": "Choose the license where you want to create your folder.",
+    "chooseLicenseTitle": "Choose a license",
+    "searchLicense": "Search a license…",
+    "changeLicense": "Change license",
+    "backSelection": "Back to selection",
+    "creationTitle": "Create a folder in {name}",
+    "creationHint": "The folder will be created immediately and added to your current selection. Save the selection afterwards to feature it on your profile."
   }
 }
