@@ -26,6 +26,11 @@ export function CollectionCoverEditor({
   const [image, setImage] = useState<string>(),
     [error, setError] = useState("");
   const [link, setLink] = useState("");
+  const preview = /^https:\/\/((i\.)?imgur\.com|i\.pinimg\.com)\/[^\s]+$/i.test(
+    link.trim()
+  )
+    ? link.trim()
+    : image;
   useEffect(() => {
     if (!open) return;
     let active = true;
@@ -92,10 +97,10 @@ export function CollectionCoverEditor({
       >
         <div className="yk-collection-cover-editor">
           <p>{t("hint")}</p>
-          {image && (
+          {preview && (
             <img
               className="yk-collection-cover-preview"
-              src={image}
+              src={preview}
               alt={t("preview", { name })}
             />
           )}

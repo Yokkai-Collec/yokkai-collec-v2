@@ -10,9 +10,10 @@
   overflow-wrap: anywhere;
 }
 .yk-collection-cover-preview {
-  width: min(100%, 240px);
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
+  width: min(100%, 520px);
+  aspect-ratio: 16 / 10;
+  object-fit: contain;
+  background: #080d17;
   border-radius: 12px;
   justify-self: center;
   border: 1px solid var(--color-veil);
