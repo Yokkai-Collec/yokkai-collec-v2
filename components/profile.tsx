@@ -118,6 +118,22 @@ const PreferencesEditor = dynamic(() =>
     module => module.PreferencesEditor
   )
 );
+const ShowcaseStyleFields = dynamic(() =>
+  import("@/components/showcase-style-fields").then(
+    module => module.ShowcaseStyleFields
+  )
+);
+
+async function persistProfileStyle(style: ProfileStyle) {
+  const response = await fetch("/api/pro/profile-style", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ style })
+  });
+  if (!response.ok)
+    throw new Error("Your profile style couldn't be saved. Try again.");
+  window.dispatchEvent(new Event("yokkai:profile-style-updated"));
+}
 
 function Featured({
   cards,
@@ -209,6 +225,12 @@ function Editor({
   const [bio, setBio] = useState(profile.bio);
   const pro = useProAccess();
   const FEATURED_CARD_LIMIT = pro ? 10 : 5;
+  const [style, setStyle] = useState(() =>
+    normalizeProfileStyle({
+      ...DEFAULT_PROFILE_STYLE,
+      ...profile.profileStyle?.style
+    })
+  );
   const [avatar, setAvatar] = useState(profile.avatarUrl);
   const ownedBannerCards = useMemo(() => {
     const cards = new Map<string, Card>();
@@ -334,6 +356,14 @@ function Editor({
         uploadedBannerUrl,
         bannerFrame ?? undefined
       );
+      if (mode === "showcase" && pro) {
+        if (
+          style.showcaseEffect !== profile.profileStyle?.style.showcaseEffect ||
+          style.showcaseColor !== profile.profileStyle?.style.showcaseColor
+        )
+          await persistProfileStyle(style);
+        updated.profileStyle = { active: true, style };
+      }
       onSaved(updated);
       onClose();
     } catch (e) {
@@ -561,56 +591,65 @@ function Editor({
           </>
         )}
         {mode === "showcase" && (
-          <section>
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="font-display text-lg">
-                {t("profileUi.featuredCards")}
-              </h3>
-              <span className="text-xs text-ink-3">
-                {selected.size}/{FEATURED_CARD_LIMIT}
-              </span>
-            </div>
-            <p className="mt-2 text-xs text-ink-3">
-              {t("profileUi.chooseFeatured", { limit: FEATURED_CARD_LIMIT })}
-            </p>
-            <label className="sr-only" htmlFor="featured-query">
-              {t("profileUi.searchForACardToFeature")}{" "}
-            </label>
-            <input
-              id="featured-query"
-              className="auth-input mt-4"
-              type="search"
-              value={featuredQuery}
-              onChange={e => setFeaturedQuery(e.target.value)}
-              placeholder={t("collectionUi.searchCards")}
-            />
-            <div className="yk-featured-picker mt-4">
-              {featuredChoices.map(card => {
-                const featured = selected.has(card.instanceId);
-                return (
-                  <button
-                    type="button"
-                    key={card.instanceId}
-                    aria-pressed={featured}
-                    className={featured ? "is-selected" : ""}
-                    onClick={() => toggle(card.instanceId)}
-                  >
-                    <YokaiCard
-                      {...card}
-                      image={featured ? card.image : card.catalogueImage}
-                      animated={false}
-                      imageSizes={PROFILE_CARD_IMAGE_SIZES}
-                    />
-                    <span>
-                      {featured
-                        ? t("collectionUi.selected")
-                        : t("profileUi.choose")}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
+          <>
+            <section>
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="font-display text-lg">
+                  {t("profileUi.featuredCards")}
+                </h3>
+                <span className="text-xs text-ink-3">
+                  {selected.size}/{FEATURED_CARD_LIMIT}
+                </span>
+              </div>
+              <p className="mt-2 text-xs text-ink-3">
+                {t("profileUi.chooseFeatured", { limit: FEATURED_CARD_LIMIT })}
+              </p>
+              <label className="sr-only" htmlFor="featured-query">
+                {t("profileUi.searchForACardToFeature")}{" "}
+              </label>
+              <input
+                id="featured-query"
+                className="auth-input mt-4"
+                type="search"
+                value={featuredQuery}
+                onChange={e => setFeaturedQuery(e.target.value)}
+                placeholder={t("collectionUi.searchCards")}
+              />
+              <div className="yk-featured-picker mt-4">
+                {featuredChoices.map(card => {
+                  const featured = selected.has(card.instanceId);
+                  return (
+                    <button
+                      type="button"
+                      key={card.instanceId}
+                      aria-pressed={featured}
+                      className={featured ? "is-selected" : ""}
+                      onClick={() => toggle(card.instanceId)}
+                    >
+                      <YokaiCard
+                        {...card}
+                        image={featured ? card.image : card.catalogueImage}
+                        animated={false}
+                        imageSizes={PROFILE_CARD_IMAGE_SIZES}
+                      />
+                      <span>
+                        {featured
+                          ? t("collectionUi.selected")
+                          : t("profileUi.choose")}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+            {pro && (
+              <ShowcaseStyleFields
+                value={style}
+                onChange={setStyle}
+                busy={busy}
+              />
+            )}
+          </>
         )}
       </div>
       {error && (
@@ -681,15 +720,8 @@ function ProfileStyleEditor({
     setBusy(true);
     setError("");
     try {
-      const response = await fetch("/api/pro/profile-style", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ style })
-      });
-      if (!response.ok)
-        throw new Error("Your profile style couldn't be saved. Try again.");
+      await persistProfileStyle(style);
       onSaved(style);
-      window.dispatchEvent(new Event("yokkai:profile-style-updated"));
       onClose();
     } catch (reason) {
       setError(
@@ -705,6 +737,7 @@ function ProfileStyleEditor({
   return (
     <div className="space-y-6" data-profile-editor="style">
       <ProfileStyleFields
+        showShowcase={false}
         name={profile.pseudo}
         avatarUrl={profile.avatarUrl}
         value={style}

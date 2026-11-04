@@ -17,19 +17,13 @@ import { AvatarDecoration } from "@/components/avatar-decoration";
 import { useProAccess, useProMembershipStatus } from "@/components/pro-access";
 import { StyledPlayerName } from "@/components/styled-player-name";
 import { DecorativeBadge } from "@/components/decorative-badge";
-import { ShowcaseColorPicker } from "@/components/showcase-color-picker";
+import { ShowcaseStyleFields } from "@/components/showcase-style-fields";
+
 import {
   ProfileAvatarSample,
   ProfileShowcaseSample,
   ProfileStyleSelectionCheck
 } from "@/components/profile-style-samples";
-
-const showcaseEffects = [
-  { id: "none", label: "No showcase effect" },
-  { id: "glow", label: "Glow showcase effect" },
-  { id: "sparkle", label: "Sparkle showcase effect" },
-  { id: "prism", label: "Prism showcase effect" }
-] as const;
 
 function hexToRgb(hex: string) {
   const value = /^#[a-f\d]{6}$/i.test(hex) ? hex.slice(1) : "000000";
@@ -99,13 +93,15 @@ export function ProfileStyleFields({
   onChange,
   busy,
   name,
-  avatarUrl
+  avatarUrl,
+  showShowcase = true
 }: {
   value: ProfileStyle;
   onChange: (value: ProfileStyle) => void;
   busy: boolean;
   name: string;
   avatarUrl?: string | null;
+  showShowcase?: boolean;
 }) {
   const t = useTranslations();
   const pro = useProAccess();
@@ -303,62 +299,24 @@ export function ProfileStyleFields({
                 ))}
               </div>
             </fieldset>
-            <fieldset>
-              <legend>{t("profileUi.showcaseEffect")}</legend>
-              <div className="yk-style-showcase-grid">
-                {showcaseEffects.map(effect => (
-                  <button
-                    type="button"
-                    key={effect.id}
-                    className="yk-style-option yk-style-visual-option yk-style-showcase-option"
-                    aria-label={t(
-                      `profileUi.showcase${effect.id[0].toUpperCase()}${effect.id.slice(1)}`
-                    )}
-                    title={t(
-                      `profileUi.showcase${effect.id[0].toUpperCase()}${effect.id.slice(1)}`
-                    )}
-                    aria-pressed={
-                      (value.showcaseEffect ?? "none") === effect.id
-                    }
-                    onClick={() =>
-                      onChange({ ...value, showcaseEffect: effect.id })
-                    }
-                  >
-                    <span
-                      className="yk-style-showcase-sample"
-                      data-showcase-effect={effect.id}
-                      aria-hidden="true"
-                    >
-                      <ProfileShowcaseSample />
-                    </span>
-                    {(value.showcaseEffect ?? "none") === effect.id && (
-                      <ProfileStyleSelectionCheck />
-                    )}
-                  </button>
-                ))}
-              </div>
-              <ShowcaseColorPicker
-                value={
-                  value.showcaseColor ??
-                  (value.showcaseEffect === "sparkle" ? "#f3cb78" : "#9abcff")
-                }
-                onChange={showcaseColor =>
-                  onChange({
-                    ...value,
-                    showcaseColor,
-                    showcaseEffect:
-                      !value.showcaseEffect || value.showcaseEffect === "none"
-                        ? "glow"
-                        : value.showcaseEffect
-                  })
-                }
-                onReset={() => onChange({ ...value, showcaseColor: undefined })}
+            {showShowcase && (
+              <ShowcaseStyleFields
+                value={value}
+                onChange={onChange}
+                busy={busy}
               />
-            </fieldset>
+            )}
             <button
               type="button"
               className="yk-style-reset"
-              onClick={() => onChange({ ...DEFAULT_PROFILE_STYLE, badges: [] })}
+              onClick={() =>
+                onChange({
+                  ...DEFAULT_PROFILE_STYLE,
+                  badges: [],
+                  showcaseEffect: value.showcaseEffect,
+                  showcaseColor: value.showcaseColor
+                })
+              }
             >
               {t("profileUi.resetStyle")}{" "}
             </button>
