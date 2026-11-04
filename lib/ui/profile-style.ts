@@ -272,3 +272,20 @@ export function randomProfileStyle(random = Math.random): ProfileStyle {
     badges: [pick(STYLE_BADGES).id]
   };
 }
+
+export const PROFILE_WIDGET_LABELS: Record<string, string> = {
+  "ANIME/MANGA": "favoriteanimemanga",
+  "VIDEO GAMES": "favoritegames",
+  KPOP: "kpopgroups",
+  FILM: "favoritemovies",
+  SERIE: "favoriteseries",
+  KDRAMA: "favoriteKdramas",
+  COMICS: "favoritecomics",
+  ARTIST: "favoriteartists",
+  VOCALOID: "favoriteVocaloids",
+  MANWHA: "favoritemanhwa",
+  SPORT: "favoritesports",
+  "DISNEY CHANNEL": "disneyChannel",
+  MEME: "favoritememes",
+  BRAINROT: "favoritebrainrot"
+};

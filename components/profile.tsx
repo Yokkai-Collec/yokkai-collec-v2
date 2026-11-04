@@ -36,6 +36,7 @@ import { AvatarDecoration } from "@/components/avatar-decoration";
 import { StyledPlayerName } from "@/components/styled-player-name";
 import {
   DEFAULT_PROFILE_STYLE,
+  PROFILE_WIDGET_LABELS,
   normalizeProfileStyle,
   showcaseColorVariables,
   type ProfileStyle
@@ -107,23 +108,9 @@ const PROFILE_CARD_IMAGE_SIZES =
   "(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 190px";
 
 function widgetLabel(category: string, t: ReturnType<typeof useTranslations>) {
-  const labels: Record<string, string> = {
-    "ANIME/MANGA": t("profileUi.favoriteanimemanga"),
-    "VIDEO GAMES": t("profileUi.favoritegames"),
-    KPOP: t("profileUi.kpopgroups"),
-    FILM: t("profileUi.favoritemovies"),
-    SERIE: t("profileUi.favoriteseries"),
-    KDRAMA: t("profileUi.favoriteKdramas"),
-    COMICS: t("profileUi.favoritecomics"),
-    ARTIST: t("profileUi.favoriteartists"),
-    VOCALOID: t("profileUi.favoriteVocaloids"),
-    MANWHA: t("profileUi.favoritemanhwa"),
-    SPORT: t("profileUi.favoritesports"),
-    "DISNEY CHANNEL": t("profileUi.disneyChannel"),
-    MEME: t("profileUi.favoritememes"),
-    BRAINROT: t("profileUi.favoritebrainrot")
-  };
-  return labels[category] ?? category;
+  return PROFILE_WIDGET_LABELS[category]
+    ? t(`profileUi.${PROFILE_WIDGET_LABELS[category]}`)
+    : category;
 }
 
 const PreferencesEditor = dynamic(() =>
@@ -134,14 +121,17 @@ const PreferencesEditor = dynamic(() =>
 
 function Featured({
   cards,
+  adapter,
   emptyLabel,
   slots = FEATURED_CARD_LIMIT
 }: {
   cards: CollectedCard[];
+  adapter?: CatalogueCardAdapter;
   emptyLabel?: string;
   slots?: number;
 }) {
   const t = useTranslations();
+  const [selected, setSelected] = useState<Card | null>(null);
   const pathname = usePathname();
   const publicPseudo = pathname.startsWith("/profile/")
     ? decodeURIComponent(pathname.slice("/profile/".length))
@@ -159,19 +149,36 @@ function Featured({
       </div>
     );
   return (
-    <div className="yk-card-grid yk-featured-stage">
-      {cards.map(card => (
-        <div key={card.instanceId}>
-          <YokaiCard {...card} imageSizes={PROFILE_CARD_IMAGE_SIZES} />
-        </div>
-      ))}
-      {Array.from({ length: Math.max(0, slots - cards.length) }, (_, i) => (
-        <div key={`empty-${i}`} className="yk-featured-empty">
-          <span aria-hidden="true">✦</span>
-          <small>{t("profileUi.emptySlot")}</small>
-        </div>
-      ))}
-    </div>
+    <>
+      <div className="yk-card-grid yk-featured-stage">
+        {cards.map(card => (
+          <div key={card.instanceId}>
+            <button
+              type="button"
+              className="yk-profile-showcase-card"
+              aria-label={t("collectionUi.viewCard", { name: card.name })}
+              aria-haspopup="dialog"
+              onClick={() => setSelected(card)}
+            >
+              <YokaiCard {...card} imageSizes={PROFILE_CARD_IMAGE_SIZES} />
+            </button>
+          </div>
+        ))}
+        {Array.from({ length: Math.max(0, slots - cards.length) }, (_, i) => (
+          <div key={`empty-${i}`} className="yk-featured-empty">
+            <span aria-hidden="true">✦</span>
+            <small>{t("profileUi.emptySlot")}</small>
+          </div>
+        ))}
+      </div>
+      {selected && (
+        <CatalogueCardModal
+          selected={selected}
+          adapter={adapter}
+          onClose={() => setSelected(null)}
+        />
+      )}
+    </>
   );
 }
 
@@ -1583,6 +1590,7 @@ export function ProfileExperience({
                     </h3>
                   </div>
                   <Featured
+                    adapter={adapter.discovery}
                     cards={profile.featuredCards}
                     slots={activeStyle ? 10 : 5}
                     emptyLabel={t("profileUi.noFeaturedCards", {
@@ -1664,6 +1672,7 @@ export function ProfileExperience({
                   )}
                 </div>
                 <Featured
+                  adapter={adapter.discovery}
                   cards={profile.featuredCards}
                   slots={activeStyle ? 10 : 5}
                 />

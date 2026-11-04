@@ -1474,6 +1474,36 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
 }
 
 /* A showcase presents the selected cards; unused editor slots stay out of view. */
+.yk-profile-showcase-card {
+  display: block;
+  width: 100%;
+  border-radius: 14px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    transform 220ms,
+    filter 220ms;
+}
+.yk-profile-showcase-card:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 5px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .yk-profile-showcase-card:hover {
+    transform: translateY(-4px) scale(1.025);
+    filter: brightness(1.08);
+  }
+}
+.yk-profile-showcase-card:active {
+  transform: scale(0.98);
+}
+@media (prefers-reduced-motion: reduce) {
+  .yk-profile-showcase-card,
+  .yk-profile-showcase-card:is(:hover, :active) {
+    transition: none;
+    transform: none;
+  }
+}
 .yk-profile-hub:not([data-profile-compact])
   .yk-profile-showcase
   .yk-featured-stage:has(> div:not(.yk-featured-empty))
