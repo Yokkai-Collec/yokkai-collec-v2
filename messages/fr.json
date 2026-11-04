@@ -1926,7 +1926,12 @@
     "completedFolders": "{count, plural, one {dossier terminé} other {dossiers terminés}}",
     "featuredFolderTotal": "{count, plural, one {# dossier mis en avant} other {# dossiers mis en avant}}",
     "openFeaturedFolder": "Ouvrir le dossier : {license}",
-    "featuredFolderTitle": "{license} · {name}"
+    "featuredFolderTitle": "{license} · {name}",
+    "completedFeaturedItems": "{count, plural, one {élément terminé} other {éléments terminés}}",
+    "featuredItemTotal": "{count, plural, one {# élément mis en avant} other {# éléments mis en avant}}",
+    "featuredItemRange": "Éléments {from}–{to} sur {total}",
+    "featuredKindFolder": "Dossier",
+    "featuredKindBinder": "Classeur"
   },
   "settingsUi": {
     "pushInviteTitle": "Garde le contact avec Yokkai",
@@ -4076,5 +4081,33 @@
     "folderLimit": "Tu peux créer jusqu’à 100 dossiers.",
     "invalidCards": "Choisis au maximum 500 cartes de cette licence uniquement.",
     "notFound": "Ce dossier n’existe plus."
+  },
+  "profileFeatured": {
+    "title": "Collection mise en avant",
+    "subtitle": "Classeurs et dossiers",
+    "choose": "Choisir les éléments à mettre en avant",
+    "pickerTitle": "Choisir des classeurs et des dossiers",
+    "hint": "Choisis les classeurs et dossiers qui apparaissent sur ton profil. Tes favoris de collection restent inchangés. La confidentialité de ton profil continue de s’appliquer.",
+    "type": "Type d’élément",
+    "bindersTab": "Classeurs · {count}",
+    "foldersTab": "Dossiers · {count}",
+    "search": "Rechercher des classeurs ou des dossiers…",
+    "limit": "Jusqu’à 100 classeurs et 100 dossiers.",
+    "clearTab": "Vider cette sélection",
+    "progress": "{owned} / {total, plural, one {# carte} other {# cartes}}",
+    "loading": "Chargement de la collection mise en avant…",
+    "loadError": "Impossible de charger cette sélection. Réessaie.",
+    "saveError": "Impossible d’enregistrer ta sélection. Aucun changement n’a été appliqué. Réessaie.",
+    "retry": "Réessayer",
+    "noFolders": "Aucun dossier correspondant. Crée d’abord un dossier dans un classeur de licence.",
+    "noBinders": "Aucun classeur correspondant.",
+    "selected": "{count, plural, one {# élément sélectionné} other {# éléments sélectionnés}}",
+    "cancel": "Annuler",
+    "save": "Enregistrer la sélection",
+    "saving": "Enregistrement…",
+    "saved": "Collection mise en avant enregistrée.",
+    "empty": "Aucun classeur ou dossier mis en avant",
+    "emptyOwner": "Utilise le bouton ci-dessus pour choisir les éléments à afficher ici.",
+    "emptyVisitor": "Ce joueur n’a pas encore mis de classeur ou de dossier en avant."
   }
 }

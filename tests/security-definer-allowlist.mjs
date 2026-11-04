@@ -74,6 +74,8 @@ const allowlist = {
   "public.claim_twitter_visit_reward()": ["authenticated"], // User-authorized one-time visit gift for auth.uid(), fixed five packs, ban/deletion/email guards; no follow verification claimed. Approved by the owner.
   "public.get_discord_reward_status()": ["authenticated"], // Own gift/prompt booleans only, no caller-supplied identity or Discord id.
   "public.dismiss_discord_reward_prompt()": ["authenticated"], // Permanently dismisses only auth.uid()'s home invitation after ban/deletion guards; grants no reward.
+  "public.get_profile_featured_items(uuid)": ["authenticated"], // Walid approved: unified read with collection privacy and no private folder data.
+  "public.set_profile_featured_selection(text[], uuid[])": ["authenticated"], // Walid approved: active owner only, bounded selection, own folders, atomic update, collection favorites unchanged.
   "public.save_license_folder(uuid, text, text, uuid[], boolean)": [
     "authenticated"
   ], // Walid approved: active owner only, validated catalogue membership, bounded cards/folders.

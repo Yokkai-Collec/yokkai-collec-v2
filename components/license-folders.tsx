@@ -6,7 +6,6 @@ import { BinderCover } from "@/components/binder-cover";
 import { YokaiCard } from "@/components/yokai-card";
 import {
   BinderContents,
-  ProfileFavoriteBinders,
   type ProfileFavoriteAlbum
 } from "@/components/profile-favorite-binders";
 import {
@@ -425,59 +424,5 @@ export function LicenseFolderManager({
         </div>
       </Modal>
     </>
-  );
-}
-
-export function ProfileLicenseFolders({
-  ownerId,
-  ownerName
-}: {
-  ownerId: string;
-  ownerName: string;
-}) {
-  const t = useTranslations("licenseFolders");
-  const [result, setResult] = useState<{
-      owner: string;
-      folders?: LicenseFolder[];
-      error?: boolean;
-    }>(),
-    [retry, setRetry] = useState(0);
-  useEffect(() => {
-    let active = true;
-    void getLicenseFolders(ownerId, undefined, true).then(
-      folders => {
-        if (active) setResult({ owner: ownerId, folders });
-      },
-      () => {
-        if (active) setResult({ owner: ownerId, error: true });
-      }
-    );
-    return () => {
-      active = false;
-    };
-  }, [ownerId, retry]);
-  if (result?.owner !== ownerId) return null;
-  if (result.error)
-    return (
-      <div role="alert">
-        <p>{t("loadError")}</p>
-        <Button variant="secondary" onClick={() => setRetry(n => n + 1)}>
-          {t("retry")}
-        </Button>
-      </div>
-    );
-  if (!result.folders?.length) return null;
-  return (
-    <section className="yk-profile-license-folders">
-      <h3>{t("profileTitle")}</h3>
-      <ProfileFavoriteBinders
-        key={ownerId}
-        ownerId={ownerId}
-        ownerName={ownerName}
-        albums={result.folders.map(album)}
-        loadCards={folderLoader}
-        folderMode
-      />
-    </section>
   );
 }

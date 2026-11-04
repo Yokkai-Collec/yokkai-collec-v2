@@ -458,5 +458,9 @@
   "public.license_folder_cards": {
     "sections": ["license_folder_cards"],
     "note": "Catalogue card IDs selected in the current player own license folders."
+  },
+  "public.profile_featured_selection": {
+    "sections": ["profile_featured_selection"],
+    "note": "Own explicit profile binder selection, independent from collection favorites."
   }
 }

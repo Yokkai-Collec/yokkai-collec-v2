@@ -14,7 +14,9 @@ import { binderIdentity } from "@/lib/ui/binder-identity";
 import "@/styles/binder-discovery.css";
 import "@/styles/profile-favorite-binders.css";
 
-export type ProfileFavoriteAlbum = ProfileDetails["favoriteAlbums"][number];
+export type ProfileFavoriteAlbum = ProfileDetails["favoriteAlbums"][number] & {
+  kind?: "binder" | "folder";
+};
 type CardLoader = typeof getFriendPaniniAlbumCardsPage;
 const wideSnapshot = () => window.matchMedia("(min-width: 640px)").matches;
 const serverSnapshot = () => false;
@@ -153,13 +155,15 @@ export function ProfileFavoriteBinders({
   ownerName,
   albums,
   loadCards = getFriendPaniniAlbumCardsPage,
-  folderMode = false
+  folderMode = false,
+  mixedMode = false
 }: {
   ownerId: string;
   ownerName: string;
   albums: ProfileFavoriteAlbum[];
   loadCards?: CardLoader;
   folderMode?: boolean;
+  mixedMode?: boolean;
 }) {
   const t = useTranslations("profileUi");
   const wide = useSyncExternalStore(
@@ -181,13 +185,27 @@ export function ProfileFavoriteBinders({
       <div className="yk-profile-completion-summary">
         <strong>{completed}</strong>
         <span>
-          {t(folderMode ? "completedFolders" : "completedBinders", {
-            count: completed
-          })}
+          {t(
+            mixedMode
+              ? "completedFeaturedItems"
+              : folderMode
+                ? "completedFolders"
+                : "completedBinders",
+            {
+              count: completed
+            }
+          )}
           <small>
-            {t(folderMode ? "featuredFolderTotal" : "favoriteBinderTotal", {
-              count: albums.length
-            })}
+            {t(
+              mixedMode
+                ? "featuredItemTotal"
+                : folderMode
+                  ? "featuredFolderTotal"
+                  : "favoriteBinderTotal",
+              {
+                count: albums.length
+              }
+            )}
           </small>
         </span>
       </div>
@@ -199,7 +217,9 @@ export function ProfileFavoriteBinders({
               className="yk-profile-favorite-binder"
               onClick={() => setSelected(album)}
               aria-label={t(
-                folderMode ? "openFeaturedFolder" : "openFavoriteBinder",
+                folderMode || album.kind === "folder"
+                  ? "openFeaturedFolder"
+                  : "openFavoriteBinder",
                 { license: album.license }
               )}
               aria-haspopup="dialog"
@@ -209,6 +229,15 @@ export function ProfileFavoriteBinders({
                 license={album.license}
               />
               <span className="yk-profile-favorite-copy">
+                {mixedMode && (
+                  <span className="yk-profile-featured-kind">
+                    {t(
+                      album.kind === "folder"
+                        ? "featuredKindFolder"
+                        : "featuredKindBinder"
+                    )}
+                  </span>
+                )}
                 <strong>
                   <span aria-hidden="true">★</span> {album.license}
                 </strong>
@@ -237,7 +266,7 @@ export function ProfileFavoriteBinders({
       {albums.length > size && (
         <footer className="yk-profile-favorite-pages">
           <p role="status">
-            {t("favoriteBinderRange", {
+            {t(mixedMode ? "featuredItemRange" : "favoriteBinderRange", {
               from: start + 1,
               to: Math.min(start + size, albums.length),
               total: albums.length
@@ -255,10 +284,15 @@ export function ProfileFavoriteBinders({
         onClose={() => setSelected(undefined)}
         title={
           selected
-            ? t(folderMode ? "featuredFolderTitle" : "favoriteBinderTitle", {
-                license: selected.license,
-                name: ownerName
-              })
+            ? t(
+                folderMode || selected.kind === "folder"
+                  ? "featuredFolderTitle"
+                  : "favoriteBinderTitle",
+                {
+                  license: selected.license,
+                  name: ownerName
+                }
+              )
             : t("favoriteBinders")
         }
         className="yk-profile-favorite-binder-modal"

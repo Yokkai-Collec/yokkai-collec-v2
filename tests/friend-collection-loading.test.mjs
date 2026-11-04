@@ -157,7 +157,9 @@ function harness(adapter) {
     "next/dynamic": {
       __esModule: true,
       default: loader =>
-        loader.toString().includes("profile-completion") ? stub : CollectionView
+        /profile-completion|profile-featured/.test(loader.toString())
+          ? stub
+          : CollectionView
     },
     "next/navigation": {
       usePathname: () => "/profile/Alice",

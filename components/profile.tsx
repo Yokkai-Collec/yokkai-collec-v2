@@ -22,14 +22,9 @@ import { YokaiCard } from "@/components/yokai-card";
 import { CardShell } from "@/components/card-shell";
 import dynamic from "next/dynamic";
 import { ProfilePrivate } from "@/components/profile-private";
-const ProfileLicenseFolders = dynamic(() =>
-  import("@/components/license-folders").then(
-    module => module.ProfileLicenseFolders
-  )
-);
-const ProfileCompletion = dynamic(() =>
-  import("@/components/profile-completion").then(
-    module => module.ProfileCompletion
+const ProfileFeaturedCollection = dynamic(() =>
+  import("@/components/profile-featured").then(
+    module => module.ProfileFeaturedCollection
   )
 );
 import { PlayerModeration } from "@/components/player-moderation";
@@ -1334,23 +1329,15 @@ export function ProfileExperience({
                 <section className="yk-profile-completion">
                   <div className="yk-profile-section-heading">
                     <h3 className="yk-section-title">
-                      {t("profileUi.favoriteBinders")}
+                      {t("profileFeatured.title")}
                     </h3>
                   </div>
-                  <ProfileCompletion
+                  <ProfileFeaturedCollection
+                    key={profile.id}
                     loadCards={adapter.friendAlbumCards}
                     profile={profile}
-                    details={details}
-                    detailsError={detailsError}
                     isMe={isMe}
                   />
-                  {profile.canViewCollection && (
-                    <ProfileLicenseFolders
-                      key={profile.id}
-                      ownerId={profile.id}
-                      ownerName={profile.pseudo}
-                    />
-                  )}
                 </section>
               </>
             )}
@@ -1494,25 +1481,17 @@ export function ProfileExperience({
               ) : (
                 <section className="yk-profile-completion">
                   <div className="yk-profile-section-heading">
-                    <h2>{t("profileUi.completion")}</h2>
+                    <h2>{t("profileFeatured.title")}</h2>
                     <span className="yk-profile-muted">
-                      {t("profileUi.favoriteBinders")}
+                      {t("profileFeatured.subtitle")}
                     </span>
                   </div>
-                  <ProfileCompletion
+                  <ProfileFeaturedCollection
+                    key={profile.id}
                     loadCards={adapter.friendAlbumCards}
                     profile={profile}
-                    details={details}
-                    detailsError={detailsError}
                     isMe={isMe}
                   />
-                  {profile.canViewCollection && (
-                    <ProfileLicenseFolders
-                      key={profile.id}
-                      ownerId={profile.id}
-                      ownerName={profile.pseudo}
-                    />
-                  )}
                 </section>
               )}
             </div>
