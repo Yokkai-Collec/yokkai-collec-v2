@@ -1452,7 +1452,7 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
     .yk-profile-showcase
     .yk-featured-stage
     > div {
-    flex: 0 1 112px;
+    flex: 0 1 var(--profile-showcase-card-width, 112px);
     min-width: 100px;
   }
 }
@@ -1471,4 +1471,42 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
     ) {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
+}
+
+/* A showcase presents the selected cards; unused editor slots stay out of view. */
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-showcase
+  .yk-featured-stage:has(> div:not(.yk-featured-empty))
+  > .yk-featured-empty,
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-showcase
+  .yk-featured-empty
+  ~ .yk-featured-empty {
+  display: none;
+}
+.yk-profile-hub:not([data-profile-compact])
+  > .yk-profile-main
+  .yk-profile-showcase
+  .yk-featured-stage:not(:has(> div:nth-child(5):not(.yk-featured-empty))) {
+  justify-content: safe center;
+  --profile-showcase-card-width: 132px;
+}
+.yk-profile-hub:not([data-profile-compact])
+  > .yk-profile-main
+  .yk-profile-showcase
+  .yk-featured-stage:not(:has(> div:nth-child(3):not(.yk-featured-empty))) {
+  --profile-showcase-card-width: 148px;
+}
+.yk-profile-hub:not([data-profile-compact])
+  > .yk-profile-main
+  .yk-profile-showcase
+  .yk-featured-stage:not(:has(> div:nth-child(2):not(.yk-featured-empty))) {
+  --profile-showcase-card-width: 160px;
+}
+.yk-profile-hub:not([data-profile-compact])
+  > .yk-profile-main
+  .yk-profile-showcase
+  .yk-featured-stage:not(:has(> div:nth-child(5):not(.yk-featured-empty)))
+  > div {
+  flex: 0 0 var(--profile-showcase-card-width);
 }
