@@ -67,6 +67,23 @@ test("personal covers require own Pro media, respect privacy and expire without 
   );
   await save(owner, key, url);
   assert.deepEqual(await read(owner, [key]), { [key]: url });
+  for (const external of [
+    "https://i.imgur.com/cover.gif",
+    "https://i.pinimg.com/originals/cover.gif"
+  ]) {
+    await save(owner, key, external);
+    assert.deepEqual(await read(owner, [key]), { [key]: external });
+  }
+  for (const invalid of [
+    "http://i.imgur.com/cover.gif",
+    "https://i.imgur.com.evil.test/cover.gif",
+    "https://i.imgur.com@evil.test/cover.gif",
+    "javascript:alert(1)",
+    "https://evil.test/cover.gif"
+  ]) {
+    await assert.rejects(save(owner, key, invalid), /COLLECTION_COVER_INVALID/);
+  }
+  await save(owner, key, url);
   await assert.rejects(save(other, key, url), /PRO_REQUIRED/);
   await db.query(
     "insert into public.billing_accounts(user_id,scope,active,status,period_end,verified_at) values($1,$2,true,'active',clock_timestamp()+interval '1 month',clock_timestamp())",

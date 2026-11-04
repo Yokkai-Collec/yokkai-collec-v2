@@ -1,12 +1,11 @@
 "use client";
 /* eslint-disable @next/next/no-img-element -- Preserve uploaded animated GIFs. */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button, Modal } from "@/components/ui";
 import { useProMembershipStatus } from "@/components/pro-access";
 import {
   setCollectionCover,
-  uploadCollectionCover,
   withCollectionCovers
 } from "@/lib/data/collection-covers";
 import "@/styles/collection-cover-editor.css";
@@ -26,7 +25,7 @@ export function CollectionCoverEditor({
     [busy, setBusy] = useState(false);
   const [image, setImage] = useState<string>(),
     [error, setError] = useState("");
-  const fileInput = useRef<HTMLInputElement>(null);
+  const [link, setLink] = useState("");
   useEffect(() => {
     if (!open) return;
     let active = true;
@@ -34,17 +33,26 @@ export function CollectionCoverEditor({
       [{ image: undefined as string | undefined }],
       () => targetKey
     ).then(items => {
-      if (active) setImage(items[0].image);
+      if (active) {
+        setImage(items[0].image);
+      }
     });
     return () => {
       active = false;
     };
   }, [open, targetKey]);
-  async function save(file?: File) {
+  async function save(reset = false) {
     setBusy(true);
     setError("");
     try {
-      const url = file ? await uploadCollectionCover(file) : null;
+      const url = reset ? null : link.trim();
+      if (
+        !reset &&
+        (!url ||
+          url.length > 2048 ||
+          !/^https:\/\/((i\.)?imgur\.com|i\.pinimg\.com)\/[^\s]+$/i.test(url))
+      )
+        throw new Error("COLLECTION_COVER_INVALID");
       await setCollectionCover(targetKey, url);
       onSaved?.();
       setOpen(false);
@@ -53,13 +61,12 @@ export function CollectionCoverEditor({
       setError(
         code === "PRO_REQUIRED"
           ? "proRequired"
-          : code === "PROFILE_IMAGE_INVALID"
+          : code === "COLLECTION_COVER_INVALID"
             ? "invalidImage"
             : "error"
       );
     } finally {
       setBusy(false);
-      if (fileInput.current) fileInput.current.value = "";
     }
   }
   return (
@@ -69,6 +76,7 @@ export function CollectionCoverEditor({
         onClick={() => {
           setError("");
           setImage(undefined);
+          setLink("");
           setOpen(true);
         }}
         aria-label={t("editFor", { name })}
@@ -95,13 +103,14 @@ export function CollectionCoverEditor({
           <label className="yk-collection-cover-file">
             {t("choose")}
             <input
-              ref={fileInput}
-              type="file"
-              accept="image/jpeg,image/png,image/webp,image/gif"
+              type="url"
+              value={link}
+              maxLength={2048}
+              placeholder="https://i.imgur.com/image.gif"
               disabled={busy || pro !== true}
               onChange={event => {
-                const file = event.target.files?.[0];
-                if (file) void save(file);
+                setLink(event.target.value);
+                setError("");
               }}
             />
           </label>
@@ -118,9 +127,15 @@ export function CollectionCoverEditor({
             <Button
               variant="secondary"
               disabled={busy}
-              onClick={() => void save()}
+              onClick={() => void save(true)}
             >
               {t("reset")}
+            </Button>
+            <Button
+              disabled={busy || pro !== true || !link.trim()}
+              onClick={() => void save()}
+            >
+              {t("save")}
             </Button>
           </div>
         </div>

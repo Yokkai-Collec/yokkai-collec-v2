@@ -24,10 +24,15 @@ import type { getFriendPaniniAlbumCardsPage } from "@/lib/data/profile";
 import "@/styles/license-folders.css";
 
 const folderLoader: typeof getFriendPaniniAlbumCardsPage = (_owner, options) =>
-  getLicenseFolderCards(options.license, options.page, options.ownedOnly);
+  getLicenseFolderCards(
+    options.license.replace(/^folder:/, ""),
+    options.page,
+    options.ownedOnly
+  );
 function album(folder: LicenseFolder): ProfileFavoriteAlbum {
   return {
-    binderKey: folder.id,
+    binderKey: `folder:${folder.id}`,
+    kind: "folder",
     license: folder.name,
     total: folder.total,
     owned: folder.owned,
@@ -256,6 +261,15 @@ export function LicenseFolderManager({
   const [folders, setFolders] = useState<LicenseFolder[]>([]),
     [refresh, setRefresh] = useState(0),
     [page, setPage] = useState(1);
+  useEffect(() => {
+    const refreshCovers = () => setRefresh(n => n + 1);
+    window.addEventListener("yokkai:collection-cover-updated", refreshCovers);
+    return () =>
+      window.removeEventListener(
+        "yokkai:collection-cover-updated",
+        refreshCovers
+      );
+  }, []);
   const [editor, setEditor] = useState<LicenseFolder | "new">(),
     [view, setView] = useState<LicenseFolder>(),
     [removing, setRemoving] = useState<LicenseFolder>();
@@ -404,8 +418,9 @@ export function LicenseFolderManager({
           <BinderContents
             key={view.id}
             ownerId="self"
-            album={album(view)}
+            album={album(folders.find(folder => folder.id === view.id) ?? view)}
             loadCards={folderLoader}
+            canEditCover
           />
         )}
       </Modal>

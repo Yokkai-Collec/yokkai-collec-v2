@@ -19,13 +19,3 @@ export async function setCollectionCover(targetKey: string, url: string | null) 
   if (error) throw error;
   window.dispatchEvent(new Event("yokkai:collection-cover-updated"));
 }
-export async function uploadCollectionCover(file: File): Promise<string> {
-  if (file.size > 4 * 1024 * 1024) throw new Error("PROFILE_IMAGE_INVALID");
-  const form = new FormData();
-  form.set("file", file);
-  form.set("purpose", "collection-cover");
-  const response = await fetch("/api/profile-media", { method: "POST", body: form });
-  const result = await response.json();
-  if (!response.ok || typeof result.url !== "string") throw new Error(result.code ?? "COLLECTION_COVER_INVALID");
-  return result.url;
-}

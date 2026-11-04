@@ -109,6 +109,7 @@
   min-width: 0;
 }
 .yk-profile-binder-contents > header {
+  flex-wrap: wrap;
   display: flex;
   align-items: center;
   gap: 16px;

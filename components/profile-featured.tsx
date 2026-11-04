@@ -426,12 +426,13 @@ export function ProfileFeaturedCollection({
         </div>
       ) : current.data?.items.length ? (
         <ProfileFavoriteBinders
-          key={profile.id + ":" + refresh}
+          key={profile.id}
           ownerId={profile.id}
           ownerName={profile.pseudo}
           albums={current.data.items}
           loadCards={mixedLoader}
           mixedMode
+          canEditCover={isMe}
         />
       ) : (
         <div className="yk-profile-surface yk-profile-completion-empty">

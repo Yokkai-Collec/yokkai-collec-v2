@@ -3,6 +3,7 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 import { BinderCover } from "@/components/binder-cover";
+import { CollectionCoverEditor } from "@/components/collection-cover-editor";
 import { Button, Modal, Pagination } from "@/components/ui";
 import { YokaiCard } from "@/components/yokai-card";
 import {
@@ -29,11 +30,13 @@ const subscribeWidth = (listener: () => void) => {
 export function BinderContents({
   ownerId,
   album,
-  loadCards
+  loadCards,
+  canEditCover = false
 }: {
   ownerId: string;
   album: ProfileFavoriteAlbum;
   loadCards: CardLoader;
+  canEditCover?: boolean;
 }) {
   const t = useTranslations("profileUi");
   const tc = useTranslations("collectionUi");
@@ -92,6 +95,9 @@ export function BinderContents({
             aria-label={t("completionFor", { license: album.license })}
           />
         </div>
+        {canEditCover && (
+          <CollectionCoverEditor targetKey={identity} name={album.license} />
+        )}
       </header>
       <label className="yk-profile-binder-owned-filter">
         <input
@@ -156,7 +162,8 @@ export function ProfileFavoriteBinders({
   albums,
   loadCards = getFriendPaniniAlbumCardsPage,
   folderMode = false,
-  mixedMode = false
+  mixedMode = false,
+  canEditCover = false
 }: {
   ownerId: string;
   ownerName: string;
@@ -164,6 +171,7 @@ export function ProfileFavoriteBinders({
   loadCards?: CardLoader;
   folderMode?: boolean;
   mixedMode?: boolean;
+  canEditCover?: boolean;
 }) {
   const t = useTranslations("profileUi");
   const wide = useSyncExternalStore(
@@ -359,8 +367,13 @@ export function ProfileFavoriteBinders({
           <BinderContents
             key={binderIdentity(selected)}
             ownerId={ownerId}
-            album={selected}
+            album={
+              albums.find(
+                item => binderIdentity(item) === binderIdentity(selected)
+              ) ?? selected
+            }
             loadCards={loadCards}
+            canEditCover={canEditCover}
           />
         )}
       </Modal>
