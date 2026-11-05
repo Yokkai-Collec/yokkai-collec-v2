@@ -62,26 +62,39 @@ export function BannerImage({
     fillContainer ? viewportAspect : aspectRatio
   );
   return (
-    <img
-      ref={imageRef}
-      className="yk-banner-framed-image"
-      src={src}
-      alt=""
-      aria-hidden="true"
-      decoding="async"
-      draggable={false}
-      style={{
-        visibility: ready ? "visible" : "hidden",
-        transform: `translate(${geometry.offsetX}%, ${geometry.offsetY}%) scale(${geometry.scale}) rotate(${geometry.rotation}deg)`
-      }}
-      onLoad={event => {
-        const image = event.currentTarget;
-        const aspect = image.naturalWidth / image.naturalHeight;
-        setLoaded({ src, aspect });
-        onReady?.(aspect);
-      }}
-      onError={onError}
-    />
+    <>
+      {fillContainer && (
+        <img
+          className="yk-banner-blurred-background"
+          src={src}
+          alt=""
+          aria-hidden="true"
+          decoding="async"
+          draggable={false}
+          style={{ visibility: ready ? "visible" : "hidden" }}
+        />
+      )}
+      <img
+        ref={imageRef}
+        className="yk-banner-framed-image"
+        src={src}
+        alt=""
+        aria-hidden="true"
+        decoding="async"
+        draggable={false}
+        style={{
+          visibility: ready ? "visible" : "hidden",
+          transform: `translate(${geometry.offsetX}%, ${geometry.offsetY}%) scale(${geometry.scale}) rotate(${geometry.rotation}deg)`
+        }}
+        onLoad={event => {
+          const image = event.currentTarget;
+          const aspect = image.naturalWidth / image.naturalHeight;
+          setLoaded({ src, aspect });
+          onReady?.(aspect);
+        }}
+        onError={onError}
+      />
+    </>
   );
 }
 export function useProfileBannerAspect(aspect?: number, rotation = 0) {
