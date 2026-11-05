@@ -32,7 +32,7 @@ Migration `20261104080000_license_folders.sql` : tables, quatre fonctions RPC et
 ajout des données propres au joueur à son export existant. **Non appliquée sur le
 VPS**. La migration des couvertures `20261104060000` est aussi incluse, non
 appliquée sur le VPS. Walid a validé les nouveaux accès de l’allowlist SQL stricte.
-Migration `20261104180000_profile_featured_selection.sql` : choix des classeurs
+Migration `20261104183000_profile_featured_selection.sql` : choix des classeurs
 sur le profil, lecteur commun et enregistrement atomique, export des préférences.
 Appliquée uniquement en local, **non appliquée sur le VPS**. Walid a validé les
 deux nouveaux accès SQL stricts correspondants.

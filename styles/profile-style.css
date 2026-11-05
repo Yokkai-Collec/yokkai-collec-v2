@@ -1,4 +1,5 @@
 @import "./profile-fonts.css";
+@import "./showcase-design.css";
 
 /* Shared lighting for the profile, live preview and effect choices. */
 :is(.yk-profile-hub, .yk-style-profile-preview, .yk-style-showcase-sample) {
@@ -2057,3 +2058,5 @@ body:has(.yk-pro-site-background) {
 .yk-messenger-conversation {
   gap: 14px;
 }
+
+/* Showcase scene assets remain shared with the live editor. */

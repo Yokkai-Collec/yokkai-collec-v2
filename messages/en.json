@@ -1312,6 +1312,18 @@
     "missing": "This card is no longer in the catalogue. It may have been deleted."
   },
   "profileUi": {
+    "showcaseDescription": "Short description",
+    "showcaseIntensity": "Lighting intensity",
+    "showcaseLayout": "Card arrangement",
+    "showcaseLayoutFan": "Fan",
+    "showcaseLayoutRow": "Gallery",
+    "showcaseLayoutSpotlight": "Centerpiece",
+    "showcasePreviewEmpty": "Choose cards above to preview your showcase.",
+    "showcaseScene": "Background",
+    "showcaseSceneMarble": "Black marble",
+    "showcaseSceneStars": "Starry sky",
+    "showcaseSceneVelvet": "Velvet",
+    "showcaseTitle": "Showcase title",
     "privateCollectionNotice": "This collection is private. Only authorized players can view its activity and binders.",
     "licenseLimitHint": "Choose up to 12 licenses per category.",
     "couldntSaveChanges": "Couldn't save changes.",

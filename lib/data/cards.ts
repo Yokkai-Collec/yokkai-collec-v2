@@ -1,6 +1,5 @@
 import { readRequest, resumePages, type PageCheckpoint } from "@/lib/data/read-request";
 import { createClient } from "@/utils/supabase/client";
-import { withCollectionCovers } from "@/lib/data/collection-covers";
 import { cardSearchTerms } from "@/lib/ui/card-search";
 import type { CollectionSort } from "@/lib/ui/collection-sort";
 import { createPlayerSnapshotCache, PLAYER_SNAPSHOT_TTL, publishPlayerSnapshotInvalidation, subscribePlayerSnapshotInvalidation, type PlayerSnapshotScope } from "@/lib/data/player-state";
@@ -31,7 +30,13 @@ export type PaniniAlbumPage = {
   mappingVersion?: string;
 };
 export async function withAlbumCovers(page: PaniniAlbumPage | null, owner?: string): Promise<PaniniAlbumPage> {
-  return { ...page, items: await withCollectionCovers(page?.items ?? [], item => item.binderKey ?? item.license, owner), total: page?.total ?? 0 };
+  const base = page ?? { items: [], total: 0 };
+  try {
+    const { withCollectionCovers } = await import("@/lib/data/collection-covers");
+    return { ...base, items: await withCollectionCovers(base.items, item => item.binderKey ?? item.license, owner) };
+  } catch {
+    return base;
+  }
 }
 export type PaniniAlbumCard = Card & { owned: boolean };
 export type PaniniAlbumCardPage = {
@@ -284,8 +289,8 @@ export async function getPaniniAlbumsPage({
   });
   if (error) throw failure(error);
   const result = data as PaniniAlbumPage | null;
-  return { items: await withCollectionCovers(result?.items ?? [], item => item.binderKey ?? item.license), total: result?.total ?? 0,
-    ...(stable ? { favoriteConflicts: result?.favoriteConflicts ?? [], mappingVersion: result?.mappingVersion } : {}) };
+  return withAlbumCovers({ items: result?.items ?? [], total: result?.total ?? 0,
+    ...(stable ? { favoriteConflicts: result?.favoriteConflicts ?? [], mappingVersion: result?.mappingVersion } : {}) });
 }
 
 export async function getPaniniAlbumCardsPage({

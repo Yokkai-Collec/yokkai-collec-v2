@@ -8,7 +8,7 @@ import {
   NAME_FONTS,
   NAME_EFFECTS,
   STYLE_BADGES,
-  DEFAULT_PROFILE_STYLE,
+  resetProfileAppearance,
   nameStyleVariables,
   showcaseColorVariables
 } from "@/lib/ui/profile-style";
@@ -309,14 +309,7 @@ export function ProfileStyleFields({
             <button
               type="button"
               className="yk-style-reset"
-              onClick={() =>
-                onChange({
-                  ...DEFAULT_PROFILE_STYLE,
-                  badges: [],
-                  showcaseEffect: value.showcaseEffect,
-                  showcaseColor: value.showcaseColor
-                })
-              }
+              onClick={() => onChange(resetProfileAppearance(value))}
             >
               {t("profileUi.resetStyle")}{" "}
             </button>

@@ -2,7 +2,6 @@ import { readRequest } from "@/lib/data/read-request";
 import type { CollectionSort } from "@/lib/ui/collection-sort";
 import { createClient } from "@/utils/supabase/client";
 import {
-  cardFilterParam as friendFilterParam,
   withAlbumCovers,
   withLiveCardFranchises,
   type CardFilter,
@@ -16,6 +15,11 @@ import type { FriendUser, FriendshipStatus } from "@/lib/data/friends";
 import { publishPlayerSnapshotInvalidation } from "@/lib/data/player-state";
 import type { BannerFrame } from "@/lib/ui/banner-frame";
 import type { PlayerCosmetics } from "@/components/styled-player-name";
+
+function friendFilterParam(value: CardFilter = ""): string {
+  if (typeof value === "string") return value;
+  return value.length > 1 ? JSON.stringify(value) : (value[0] ?? "");
+}
 
 export type Profile = {
   profileStyle?: PlayerCosmetics;

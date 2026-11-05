@@ -37,6 +37,11 @@ import { StyledPlayerName } from "@/components/styled-player-name";
 import {
   DEFAULT_PROFILE_STYLE,
   PROFILE_WIDGET_LABELS,
+  tiltShowcaseCard,
+  resetShowcaseCard,
+  showcaseCardPosition,
+  showcaseDesignAttributes,
+  showcaseSelection,
   normalizeProfileStyle,
   showcaseColorVariables,
   type ProfileStyle
@@ -138,11 +143,13 @@ async function persistProfileStyle(style: ProfileStyle) {
 function Featured({
   cards,
   adapter,
+  design,
   emptyLabel,
   slots = FEATURED_CARD_LIMIT
 }: {
   cards: CollectedCard[];
   adapter?: CatalogueCardAdapter;
+  design?: Partial<ProfileStyle>;
   emptyLabel?: string;
   slots?: number;
 }) {
@@ -166,12 +173,23 @@ function Featured({
     );
   return (
     <>
-      <div className="yk-card-grid yk-featured-stage">
-        {cards.map(card => (
-          <div key={card.instanceId}>
+      {design?.showcaseDescription && (
+        <p className="yk-showcase-description">{design.showcaseDescription}</p>
+      )}
+      <div
+        className="yk-card-grid yk-featured-stage yk-showcase-design"
+        {...showcaseDesignAttributes(design)}
+      >
+        {cards.map((card, index) => (
+          <div
+            key={card.instanceId}
+            style={showcaseCardPosition(index, cards.length) as CSSProperties}
+          >
             <button
               type="button"
               className="yk-profile-showcase-card"
+              onPointerMove={tiltShowcaseCard}
+              onPointerLeave={resetShowcaseCard}
               aria-label={t("collectionUi.viewCard", { name: card.name })}
               aria-haspopup="dialog"
               onClick={() => setSelected(card)}
@@ -358,8 +376,13 @@ function Editor({
       );
       if (mode === "showcase" && pro) {
         if (
-          style.showcaseEffect !== profile.profileStyle?.style.showcaseEffect ||
-          style.showcaseColor !== profile.profileStyle?.style.showcaseColor
+          JSON.stringify(style) !==
+          JSON.stringify(
+            normalizeProfileStyle({
+              ...DEFAULT_PROFILE_STYLE,
+              ...profile.profileStyle?.style
+            })
+          )
         )
           await persistProfileStyle(style);
         updated.profileStyle = { active: true, style };
@@ -644,6 +667,7 @@ function Editor({
             </section>
             {pro && (
               <ShowcaseStyleFields
+                cards={showcaseSelection(collection, selected)}
                 value={style}
                 onChange={setStyle}
                 busy={busy}
@@ -720,8 +744,15 @@ function ProfileStyleEditor({
     setBusy(true);
     setError("");
     try {
-      await persistProfileStyle(style);
+      const response = await fetch("/api/pro/profile-style", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ style })
+      });
+      if (!response.ok)
+        throw new Error("Your profile style couldn't be saved. Try again.");
       onSaved(style);
+      window.dispatchEvent(new Event("yokkai:profile-style-updated"));
       onClose();
     } catch (reason) {
       setError(
@@ -1619,11 +1650,13 @@ export function ProfileExperience({
                 <section className="yk-profile-surface yk-profile-showcase">
                   <div className="yk-profile-section-heading">
                     <h3 className="yk-section-title">
-                      {t("profileUi.featuredCards")}
+                      {activeStyle?.showcaseTitle ||
+                        t("profileUi.featuredCards")}
                     </h3>
                   </div>
                   <Featured
                     adapter={adapter.discovery}
+                    design={activeStyle}
                     cards={profile.featuredCards}
                     slots={activeStyle ? 10 : 5}
                     emptyLabel={t("profileUi.noFeaturedCards", {
@@ -1686,7 +1719,7 @@ export function ProfileExperience({
               <section className="yk-profile-surface yk-profile-showcase">
                 <div className="yk-profile-section-heading">
                   <h3 className="yk-section-title">
-                    {t("profileUi.featuredCards")}
+                    {activeStyle?.showcaseTitle || t("profileUi.featuredCards")}
                   </h3>
                   {isMe ? (
                     <Button
@@ -1706,6 +1739,7 @@ export function ProfileExperience({
                 </div>
                 <Featured
                   adapter={adapter.discovery}
+                  design={activeStyle}
                   cards={profile.featuredCards}
                   slots={activeStyle ? 10 : 5}
                 />

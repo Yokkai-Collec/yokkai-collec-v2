@@ -1,5 +1,10 @@
 "use client";
 import { useTranslations } from "next-intl";
+import dynamic from "next/dynamic";
+import type { CollectedCard } from "@/lib/data/cards";
+const ShowcaseDesignFields = dynamic(() =>
+  import("./showcase-design-fields").then(module => module.ShowcaseDesignFields)
+);
 import type { CSSProperties } from "react";
 import {
   showcaseColorVariables,
@@ -20,13 +25,24 @@ const showcaseEffects = [
 export function ShowcaseStyleFields({
   value,
   onChange,
-  busy
+  busy,
+  cards
 }: {
   value: ProfileStyle;
   onChange: (value: ProfileStyle) => void;
   busy: boolean;
+  cards?: CollectedCard[];
 }) {
   const t = useTranslations();
+  if (cards)
+    return (
+      <ShowcaseDesignFields
+        value={value}
+        onChange={onChange}
+        busy={busy}
+        cards={cards}
+      />
+    );
   return (
     <div
       className="yk-showcase-editor-effects"

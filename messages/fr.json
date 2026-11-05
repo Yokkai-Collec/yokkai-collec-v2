@@ -1312,6 +1312,18 @@
     "missing": "Cette carte n?est plus dans le catalogue. Elle a peut-?tre ?t? supprim?e."
   },
   "profileUi": {
+    "showcaseDescription": "Petite description",
+    "showcaseIntensity": "Intensité de la lumière",
+    "showcaseLayout": "Disposition des cartes",
+    "showcaseLayoutFan": "Éventail",
+    "showcaseLayoutRow": "Galerie",
+    "showcaseLayoutSpotlight": "Pièce maîtresse",
+    "showcasePreviewEmpty": "Choisis des cartes au-dessus pour voir ta vitrine.",
+    "showcaseScene": "Ambiance du fond",
+    "showcaseSceneMarble": "Marbre noir",
+    "showcaseSceneStars": "Ciel étoilé",
+    "showcaseSceneVelvet": "Velours",
+    "showcaseTitle": "Titre de la vitrine",
     "privateCollectionNotice": "Cette collection est privée. Seuls les joueurs autorisés peuvent voir son activité et ses classeurs.",
     "licenseLimitHint": "Choisis jusqu’à 12 licences par catégorie.",
     "couldntSaveChanges": "Impossible d’enregistrer les modifications.",

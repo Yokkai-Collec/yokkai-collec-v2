@@ -1,0 +1,310 @@
+.yk-showcase-customizer {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-veil);
+}
+.yk-showcase-design-controls {
+  display: grid;
+  gap: 22px;
+  min-width: 0;
+}
+.yk-showcase-customizer fieldset {
+  min-width: 0;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.yk-showcase-design-controls .auth-input {
+  width: 100%;
+  min-width: 0;
+}
+.yk-showcase-design-controls label {
+  display: grid;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--color-ink-2);
+}
+.yk-showcase-design-controls legend {
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.yk-showcase-choices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.yk-showcase-choices button {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid #c4d6f22b;
+  border-radius: 10px;
+  background: #0b1220;
+  color: #c7d2e5;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.yk-showcase-choices button[aria-pressed="true"] {
+  border-color: #fff;
+  background: #ffffff0b;
+  color: #fff;
+}
+.yk-showcase-choices button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+.yk-showcase-scene-choice > span {
+  height: 54px;
+  border-radius: 6px;
+}
+.yk-showcase-scene-choice[data-scene="velvet"] > span {
+  background:
+    radial-gradient(ellipse at 50% 100%, #635683, transparent 80%),
+    repeating-linear-gradient(105deg, #101522 0 10px, #151b2c 12px 22px);
+}
+.yk-showcase-scene-choice[data-scene="stars"] > span {
+  background:
+    radial-gradient(circle at 24% 25%, #fff 0 1px, transparent 2px),
+    radial-gradient(circle at 72% 60%, #e1c7ff 0 1px, transparent 2px),
+    radial-gradient(ellipse at bottom, #3b315b, #0a0e1a);
+}
+.yk-showcase-scene-choice[data-scene="marble"] > span {
+  background:
+    repeating-linear-gradient(
+      145deg,
+      transparent 0 18px,
+      #b9c9e235 19px,
+      transparent 21px 44px
+    ),
+    linear-gradient(125deg, #232935, #090d14);
+}
+.yk-showcase-layout-choice > span {
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 54px;
+  gap: 4px;
+}
+.yk-showcase-layout-choice i {
+  min-width: 0;
+  flex-shrink: 1;
+  display: block;
+  width: 20px;
+  height: 30px;
+  border: 1px solid #a6b7d4;
+  border-radius: 3px;
+  background: linear-gradient(135deg, #485873, #1e293d);
+}
+.yk-showcase-layout-choice[data-layout="fan"] i:first-child {
+  transform: translateY(3px) rotate(-12deg);
+}
+.yk-showcase-layout-choice[data-layout="fan"] i:last-child {
+  transform: translateY(3px) rotate(12deg);
+}
+.yk-showcase-layout-choice[data-layout="spotlight"] i:nth-child(2) {
+  width: 26px;
+  height: 40px;
+  border-color: #f6d879;
+}
+.yk-showcase-intensity > span {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.yk-showcase-intensity output {
+  font-variant-numeric: tabular-nums;
+  color: #f6d879;
+}
+.yk-showcase-intensity input {
+  width: 100%;
+  min-height: 32px;
+  accent-color: #c7d8f3;
+}
+.yk-showcase-live-preview {
+  min-width: 0;
+  align-self: start;
+  border: 1px solid #c4d6f225;
+  border-radius: 16px;
+  background: #080d17;
+  overflow: hidden;
+}
+.yk-showcase-live-preview header {
+  padding: 18px 18px 0;
+}
+.yk-showcase-live-preview header > span {
+  color: #8e9db6;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.yk-showcase-live-preview h3 {
+  margin-top: 10px;
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+.yk-showcase-live-preview header p,
+.yk-showcase-description {
+  color: var(--color-ink-3);
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.yk-showcase-description {
+  margin: 0 4px 10px;
+}
+.yk-showcase-preview-empty {
+  padding: 28px 18px;
+  font-size: 13px;
+  color: var(--color-ink-3);
+}
+.yk-showcase-live-preview .yk-profile-hub {
+  display: block;
+  margin: 0;
+}
+.yk-showcase-live-preview .yk-featured-stage {
+  display: flex;
+  align-items: center;
+  justify-content: safe center;
+  gap: 10px;
+  padding: 34px 18px;
+  overflow-x: auto;
+}
+.yk-showcase-live-preview .yk-featured-stage > div {
+  flex: 0 0 92px;
+  min-width: 0;
+}
+.yk-showcase-live-preview .yk-card.yk-rarity-LR {
+  box-shadow: none;
+  animation: none;
+}
+.yk-profile-hub .yk-featured-stage.yk-showcase-design[data-showcase-scene] {
+  position: relative;
+  isolation: isolate;
+  background: none;
+}
+.yk-showcase-design[data-showcase-scene]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: var(--showcase-intensity, 0.6);
+  border-radius: inherit;
+}
+.yk-showcase-design[data-showcase-scene="velvet"]::before {
+  background:
+    radial-gradient(
+      ellipse 48% 100% at 50% 100%,
+      color-mix(in srgb, var(--showcase-color, #9abcff) 42%, transparent),
+      transparent 85%
+    ),
+    repeating-linear-gradient(
+      105deg,
+      transparent 0 38px,
+      #ffffff04 40px,
+      transparent 58px 94px
+    );
+}
+.yk-showcase-design[data-showcase-scene="stars"]::before {
+  background:
+    radial-gradient(circle at 14% 28%, #fff 0 1px, transparent 2px),
+    radial-gradient(circle at 83% 18%, #fff 0 1px, transparent 2px),
+    radial-gradient(circle at 72% 68%, #fff 0 1px, transparent 2px),
+    radial-gradient(circle at 36% 70%, #ffffffa0 0 1px, transparent 2px),
+    radial-gradient(circle at 48% 18%, #fff 0 1px, transparent 2px),
+    radial-gradient(
+      ellipse at 50% 100%,
+      color-mix(in srgb, var(--showcase-color, #9abcff) 36%, transparent),
+      transparent 75%
+    );
+}
+.yk-showcase-design[data-showcase-scene="marble"]::before {
+  background:
+    repeating-linear-gradient(
+      151deg,
+      transparent 0 74px,
+      #c8d9f31a 75px,
+      transparent 76px 81px,
+      #ffffff08 82px,
+      transparent 85px 162px
+    ),
+    radial-gradient(
+      ellipse at 75% 30%,
+      color-mix(in srgb, var(--showcase-color, #9abcff) 20%, transparent),
+      transparent 75%
+    ),
+    linear-gradient(130deg, #29313c55, #0a0e1700);
+}
+.yk-showcase-design[data-showcase-layout] {
+  align-items: center;
+}
+.yk-showcase-design[data-showcase-layout="fan"] > div:not(.yk-featured-empty) {
+  transform-origin: center 110%;
+  transform: rotate(var(--showcase-fan-angle, 0deg));
+}
+.yk-showcase-design[data-showcase-layout="fan"] > div:nth-child(3n + 1) {
+  --showcase-fan-angle: -4deg;
+}
+.yk-showcase-design[data-showcase-layout="fan"] > div:nth-child(3n) {
+  --showcase-fan-angle: 4deg;
+}
+.yk-showcase-design[data-showcase-layout="fan"] > div:only-child {
+  --showcase-fan-angle: 0deg;
+}
+.yk-showcase-design[data-showcase-layout="spotlight"]
+  > div:not(:first-child):not(.yk-featured-empty) {
+  transform: scale(0.88);
+}
+.yk-showcase-design[data-showcase-layout="spotlight"] > div:first-child {
+  order: 1;
+}
+.yk-showcase-design[data-showcase-layout="spotlight"] > div:nth-child(n + 3) {
+  order: 2;
+}
+.yk-showcase-design[data-showcase-layout="spotlight"] > div:nth-child(even) {
+  order: 0;
+}
+.yk-showcase-design[data-showcase-layout="fan"]:not(
+    :has(> div:nth-child(2):not(.yk-featured-empty))
+  )
+  > div:first-child {
+  transform: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .yk-showcase-design .yk-profile-showcase-card:hover {
+    transform: perspective(800px) translateY(-4px)
+      rotateX(var(--showcase-tilt-y, 0deg))
+      rotateY(var(--showcase-tilt-x, 0deg)) scale(1.025);
+  }
+}
+@media (min-width: 900px) {
+  .yk-showcase-customizer {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+  .yk-showcase-live-preview {
+    position: sticky;
+    top: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* These are static arrangements, not animation; preserve the chosen layout. */
+  .yk-showcase-design[data-showcase-layout="fan"]
+    > div:not(.yk-featured-empty) {
+    transform: rotate(var(--showcase-fan-angle, 0deg)) !important;
+  }
+  .yk-showcase-design[data-showcase-layout="spotlight"]
+    > div:not(:first-child):not(.yk-featured-empty) {
+    transform: scale(0.88) !important;
+  }
+  .yk-showcase-design .yk-profile-showcase-card:hover {
+    transform: none;
+  }
+}

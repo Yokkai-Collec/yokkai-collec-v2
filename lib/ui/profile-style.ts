@@ -1,4 +1,5 @@
 import { readableNameColor } from "@/lib/ui/name-contrast";
+import type { CSSProperties } from "react";
 
 // Cosmetic presentation only; membership is always checked on the server.
 export const NAME_FONTS = [
@@ -161,6 +162,11 @@ export type ProfileStyle = {
   avatarFrame?: AvatarFrame;
   showcaseEffect?: "none" | "glow" | "sparkle" | "prism";
   showcaseColor?: string;
+  showcaseScene?: "velvet" | "stars" | "marble";
+  showcaseLayout?: "row" | "fan" | "spotlight";
+  showcaseIntensity?: number;
+  showcaseTitle?: string;
+  showcaseDescription?: string;
   backgroundUrl?: string;
   cardBackUrl?: string;
 };
@@ -195,6 +201,33 @@ export function normalizeProfileStyle(input: ProfileStyle): ProfileStyle {
     ...(typeof input.showcaseColor === "string" &&
     /^#[a-f\d]{6}$/i.test(input.showcaseColor)
       ? { showcaseColor: input.showcaseColor }
+      : {}),
+    ...(["velvet", "stars", "marble"].includes(input.showcaseScene ?? "")
+      ? { showcaseScene: input.showcaseScene }
+      : {}),
+    ...(["row", "fan", "spotlight"].includes(input.showcaseLayout ?? "")
+      ? { showcaseLayout: input.showcaseLayout }
+      : {}),
+    ...(Number.isInteger(input.showcaseIntensity) &&
+    input.showcaseIntensity! >= 0 &&
+    input.showcaseIntensity! <= 100
+      ? { showcaseIntensity: input.showcaseIntensity }
+      : {}),
+    ...(typeof input.showcaseTitle === "string"
+      ? {
+          showcaseTitle: input.showcaseTitle
+            .replace(/[\u0000-\u001f\u007f]/g, "")
+            .trim()
+            .slice(0, 60)
+        }
+      : {}),
+    ...(typeof input.showcaseDescription === "string"
+      ? {
+          showcaseDescription: input.showcaseDescription
+            .replace(/[\u0000-\u001f\u007f]/g, "")
+            .trim()
+            .slice(0, 160)
+        }
       : {}),
     ...(safeStyleMedia(input.backgroundUrl)
       ? { backgroundUrl: input.backgroundUrl }
@@ -289,3 +322,66 @@ export const PROFILE_WIDGET_LABELS: Record<string, string> = {
   MEME: "favoritememes",
   BRAINROT: "favoritebrainrot"
 };
+
+export function tiltShowcaseCard(event: {
+  currentTarget: HTMLElement;
+  clientX: number;
+  clientY: number;
+  pointerType: string;
+}) {
+  if (
+    event.pointerType !== "mouse" ||
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  )
+    return;
+  const card = event.currentTarget,
+    box = card.getBoundingClientRect();
+  card.style.setProperty(
+    "--showcase-tilt-x",
+    `${((event.clientX - box.left) / box.width - 0.5) * 8}deg`
+  );
+  card.style.setProperty(
+    "--showcase-tilt-y",
+    `${(0.5 - (event.clientY - box.top) / box.height) * 8}deg`
+  );
+}
+export function resetShowcaseCard(event: { currentTarget: HTMLElement }) {
+  event.currentTarget.style.removeProperty("--showcase-tilt-x");
+  event.currentTarget.style.removeProperty("--showcase-tilt-y");
+}
+
+export function showcaseCardPosition(index: number, count: number) {
+  return {
+    "--showcase-fan-angle": `${(index - (count - 1) / 2) * Math.min(4, 20 / Math.max(1, count))}deg`
+  };
+}
+
+export function showcaseDesignAttributes(style?: Partial<ProfileStyle>) {
+  return {
+    "data-showcase-scene": style?.showcaseScene,
+    "data-showcase-layout": style?.showcaseLayout,
+    style: {
+      "--showcase-intensity": (style?.showcaseIntensity ?? 60) / 100
+    } as CSSProperties
+  };
+}
+
+export function showcaseSelection<T extends { instanceId: string }>(
+  cards: T[],
+  ids: Iterable<string>
+) {
+  const copies = new Map(cards.map(card => [card.instanceId, card]));
+  return Array.from(ids).flatMap(id =>
+    copies.has(id) ? [copies.get(id)!] : []
+  );
+}
+
+export function resetProfileAppearance(style: ProfileStyle): ProfileStyle {
+  return {
+    ...DEFAULT_PROFILE_STYLE,
+    badges: [],
+    ...Object.fromEntries(
+      Object.entries(style).filter(([key]) => key.startsWith("showcase"))
+    )
+  };
+}
