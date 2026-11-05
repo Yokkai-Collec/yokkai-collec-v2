@@ -2102,7 +2102,7 @@ export function ProfileExperience({
             ? "yk-profile-edit-modal"
             : editingMode === "style"
               ? "yk-profile-style-modal"
-              : "max-w-4xl"
+              : "yk-showcase-edit-modal"
         }
       >
         {isMe && editingMode === "style" ? (

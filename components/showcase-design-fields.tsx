@@ -45,7 +45,18 @@ export function ShowcaseDesignFields({
         <fieldset>
           <legend>{t("showcaseScene")}</legend>
           <div className="yk-showcase-choices">
-            {(["velvet", "stars", "marble"] as const).map(scene => (
+            {(
+              [
+                "velvet",
+                "stars",
+                "marble",
+                "lightning",
+                "flames",
+                "mist",
+                "aurora",
+                "embers"
+              ] as const
+            ).map(scene => (
               <button
                 type="button"
                 key={scene}

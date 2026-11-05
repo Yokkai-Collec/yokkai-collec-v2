@@ -162,7 +162,15 @@ export type ProfileStyle = {
   avatarFrame?: AvatarFrame;
   showcaseEffect?: "none" | "glow" | "sparkle" | "prism";
   showcaseColor?: string;
-  showcaseScene?: "velvet" | "stars" | "marble";
+  showcaseScene?:
+    | "velvet"
+    | "stars"
+    | "marble"
+    | "lightning"
+    | "flames"
+    | "mist"
+    | "aurora"
+    | "embers";
   showcaseLayout?: "row" | "fan" | "spotlight";
   showcaseIntensity?: number;
   showcaseTitle?: string;
@@ -202,7 +210,16 @@ export function normalizeProfileStyle(input: ProfileStyle): ProfileStyle {
     /^#[a-f\d]{6}$/i.test(input.showcaseColor)
       ? { showcaseColor: input.showcaseColor }
       : {}),
-    ...(["velvet", "stars", "marble"].includes(input.showcaseScene ?? "")
+    ...([
+      "velvet",
+      "stars",
+      "marble",
+      "lightning",
+      "flames",
+      "mist",
+      "aurora",
+      "embers"
+    ].includes(input.showcaseScene ?? "")
       ? { showcaseScene: input.showcaseScene }
       : {}),
     ...(["row", "fan", "spotlight"].includes(input.showcaseLayout ?? "")
