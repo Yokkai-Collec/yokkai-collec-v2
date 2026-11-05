@@ -1345,9 +1345,7 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
     transparent
   );
   overflow-x: auto;
-  scroll-snap-type: x proximity;
-  scrollbar-width: thin;
-  scrollbar-color: #8194b4 #ffffff08;
+  scrollbar-width: none;
 }
 .yk-profile-hub:not([data-profile-compact])
   > .yk-profile-main
@@ -1369,8 +1367,7 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
 .yk-profile-hub:not([data-profile-compact])
   .yk-profile-showcase
   .yk-featured-stage::-webkit-scrollbar {
-  display: block;
-  height: 4px;
+  display: none;
 }
 .yk-profile-hub:not([data-profile-compact])
   .yk-profile-showcase

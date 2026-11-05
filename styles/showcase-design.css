@@ -188,6 +188,20 @@
   flex: 0 0 126px;
   min-width: 0;
 }
+.yk-profile-showcase .yk-featured-stage,
+.yk-showcase-live-preview .yk-featured-stage {
+  scrollbar-width: none;
+  cursor: grab;
+  user-select: none;
+}
+.yk-profile-showcase .yk-featured-stage::-webkit-scrollbar,
+.yk-showcase-live-preview .yk-featured-stage::-webkit-scrollbar {
+  display: none;
+}
+.yk-featured-stage[data-dragging="true"],
+.yk-featured-stage[data-dragging="true"] * {
+  cursor: grabbing;
+}
 .yk-profile-showcase {
   position: relative;
   isolation: isolate;

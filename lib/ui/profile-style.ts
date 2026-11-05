@@ -413,3 +413,5 @@ export function resetProfileAppearance(style: ProfileStyle): ProfileStyle {
     )
   };
 }
+export const PROFILE_CARD_IMAGE_SIZES =
+  "(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 190px";

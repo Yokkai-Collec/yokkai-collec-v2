@@ -2059,4 +2059,4 @@ body:has(.yk-pro-site-background) {
   gap: 14px;
 }
 
-/* Photographic ice sits above cards while decorative layers stay click-through. */
+/* Showcase scrolling uses wheel and drag gestures with no visible scrollbar. */

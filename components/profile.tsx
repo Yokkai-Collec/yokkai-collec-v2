@@ -1,5 +1,6 @@
 "use client";
 import { useSyncExternalStore } from "react";
+import { useShowcaseScroll } from "@/hooks/use-showcase-scroll";
 import { i18nEnabled } from "@/i18n/locale";
 const subscribeToHydration = () => () => {};
 import { gameErrorKey } from "@/i18n/game-messages";
@@ -36,6 +37,7 @@ import { AvatarDecoration } from "@/components/avatar-decoration";
 import { StyledPlayerName } from "@/components/styled-player-name";
 import {
   DEFAULT_PROFILE_STYLE,
+  PROFILE_CARD_IMAGE_SIZES,
   profileWidgetLabel as widgetLabel,
   tiltShowcaseCard,
   resetShowcaseCard,
@@ -109,8 +111,6 @@ const CatalogueCardModal = dynamic(() =>
 );
 
 const FEATURED_CARD_LIMIT = 5;
-const PROFILE_CARD_IMAGE_SIZES =
-  "(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 190px";
 
 const PreferencesEditor = dynamic(() =>
   import("@/components/profile-preferences-editor").then(
@@ -143,6 +143,7 @@ function Featured({
 }) {
   const t = useTranslations();
   const [selected, setSelected] = useState<Card | null>(null);
+  const scrollRef = useShowcaseScroll(cards.length);
   const pathname = usePathname();
   const publicPseudo = pathname.startsWith("/profile/")
     ? decodeURIComponent(pathname.slice("/profile/".length))
@@ -170,6 +171,7 @@ function Featured({
       )}
       <div
         className="yk-card-grid yk-featured-stage"
+        ref={scrollRef}
         {...showcaseDesignAttributes(design)}
       >
         {cards.map((card, index) => (
