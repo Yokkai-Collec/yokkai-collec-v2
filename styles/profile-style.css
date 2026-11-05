@@ -2059,4 +2059,4 @@ body:has(.yk-pro-site-background) {
   gap: 14px;
 }
 
-/* Alpha fire animations use static frames when motion is reduced or the showcase is hidden. */
+/* Photographic fire flipbook replaces repeated border animations. */

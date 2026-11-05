@@ -222,40 +222,24 @@
   height: clamp(80px, 12vw, 150px);
   background: radial-gradient(ellipse at 50% 100%, #fa6a1824, transparent 72%);
 }
-.yk-showcase-fire-top,
-.yk-showcase-fire-bottom {
+.yk-showcase-fire-canvas {
   position: absolute;
   inset: auto 0 0;
-  height: clamp(65px, 9vw, 112px);
-  background: url("/images/fire-bottom-still.webp") center bottom / auto 100%
-    repeat-x;
-  mask-image: radial-gradient(
-    ellipse 24% 65% at 50% 0,
-    transparent 5%,
-    #000 85%
-  );
+  width: 100%;
+  height: clamp(92px, 13vw, 160px);
   pointer-events: none;
+  background: url("/images/showcase-fire-still.webp") center bottom / auto 100%
+    repeat-x;
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 4%,
+    #000 96%,
+    transparent
+  );
 }
-.yk-showcase-fire-top {
-  inset: 0 0 auto;
-  height: clamp(45px, 6vw, 80px);
-  background-image: url("/images/fire-top-still.webp");
-  background-position: center top;
-  mask-image: none;
-}
-.yk-showcase-fire[data-motion="running"] .yk-showcase-fire-top {
-  background-image: url("/images/fire-top-animated.webp");
-}
-.yk-showcase-fire[data-motion="running"] .yk-showcase-fire-bottom {
-  background-image: url("/images/fire-bottom-animated.webp");
-}
-@media (prefers-reduced-motion: reduce) {
-  .yk-showcase-fire[data-motion] .yk-showcase-fire-top {
-    background-image: url("/images/fire-top-still.webp");
-  }
-  .yk-showcase-fire[data-motion] .yk-showcase-fire-bottom {
-    background-image: url("/images/fire-bottom-still.webp");
-  }
+.yk-showcase-fire-canvas[data-ready="true"] {
+  background: none;
 }
 .yk-profile-showcase > header,
 .yk-profile-showcase > .yk-profile-section-heading,
@@ -507,7 +491,8 @@
   animation: yk-showcase-lightning 6s ease-in-out infinite;
 }
 .yk-showcase-scene-choice[data-scene="flames"] > span {
-  background: url("/images/fire-bottom.webp") center bottom / auto 100% repeat-x;
+  background: url("/images/showcase-fire-still.webp") center bottom / auto 100%
+    repeat-x;
 }
 :is(
     .yk-showcase-design,

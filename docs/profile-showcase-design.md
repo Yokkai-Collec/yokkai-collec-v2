@@ -33,8 +33,4 @@ La vitrine et son aper�u masquent leur barre horizontale. La molette fait d�
 
 ### Feu photographique
 
-Le feu dessine en CSS/SVG/canvas a ete retire. Le theme charge les deux WebP animes fournis : fire-top-animated.webp (612 596 octets) et fire-bottom-animated.webp (872 880 octets), 12 images et une boucle de 1,2 seconde chacun. Le canal alpha reel a ete verifie sur chaque image, avec des zones totalement transparentes et des bords translucides. Aucun damier opaque n'est integre.
-
-Les bandes conservent leurs proportions, se repetent sur la largeur et restent derriere les cartes (pointer-events: none). Le bandeau superieur commence sous le titre et les commandes ; le bas est attenue au centre. Les dimensions et la position des cartes sont conservees.
-
-Des images fixes extraites des premiers frames prennent le relais lorsque prefers-reduced-motion est actif, que la vitrine sort de l'ecran, que l'onglet est masque ou que l'intensite est nulle. Aucune animation JavaScript de flamme ne tourne. L'ancienne bande statique fire-bottom.webp reste disponible et sert de miniature au selecteur. Aucun changement SQL.
+Les anciennes bordures ont ete remplacees par une sequence photographique generee, animee en foyers independants au pied des cartes. Voir [la description, les assets et le prompt](showcase-fire-asset.md). Les cartes restent au premier plan et les animations reduites affichent une image fixe. Aucun changement SQL.
