@@ -246,7 +246,7 @@
 .yk-showcase-ice {
   position: absolute;
   inset: 72px 0 0;
-  z-index: 0;
+  z-index: 2;
   pointer-events: none;
   overflow: hidden;
   border-radius: 0 0 20px 20px;
