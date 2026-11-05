@@ -98,7 +98,7 @@ export function useProfileBannerAspect(aspect?: number, rotation = 0) {
     observer.observe(header);
     return () => observer.disconnect();
   }, []);
-  return Math.max(sourceAspect, width / 220);
+  return Math.max(sourceAspect, width / 300);
 }
 
 export function useBannerPan(

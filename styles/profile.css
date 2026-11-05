@@ -1214,7 +1214,7 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   inset: auto;
   height: auto;
   aspect-ratio: var(--profile-cover-aspect, 3);
-  max-height: 220px;
+  max-height: 300px;
   border-radius: 0;
   overflow: hidden;
   opacity: 1;
