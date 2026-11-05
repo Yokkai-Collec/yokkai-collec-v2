@@ -21,6 +21,7 @@ export function BannerImage({
   src,
   frame,
   fillContainer = false,
+  blurredSides = false,
   aspectRatio = 2.3,
   onReady,
   onError
@@ -28,6 +29,7 @@ export function BannerImage({
   src: string;
   frame: BannerFrame;
   fillContainer?: boolean;
+  blurredSides?: boolean;
   aspectRatio?: number;
   onReady?: (aspect: number) => void;
   onError?: () => void;
@@ -35,13 +37,14 @@ export function BannerImage({
   const [loaded, setLoaded] = useState<{ src: string; aspect: number }>();
   const imageRef = useRef<HTMLImageElement>(null);
   const ready = loaded?.src === src;
+  const blended = fillContainer || blurredSides;
   const [viewportAspect, setViewportAspect] = useState(3);
   const coverAspect = profileBannerAspect(
     ready ? loaded.aspect : undefined,
     frame.rotation
   );
   useEffect(() => {
-    const container = imageRef.current?.parentElement;
+    const container = imageRef.current?.parentElement?.parentElement;
     if (!fillContainer || !container) return;
     container.style.setProperty("--profile-cover-aspect", String(coverAspect));
     const measure = () => {
@@ -59,11 +62,11 @@ export function BannerImage({
   const geometry = bannerGeometry(
     ready ? loaded.aspect : 2.3,
     frame,
-    fillContainer ? viewportAspect : aspectRatio
+    (fillContainer ? viewportAspect : aspectRatio) * (blended ? 0.82 : 1)
   );
   return (
     <>
-      {fillContainer && (
+      {blended && (
         <img
           className="yk-banner-blurred-background"
           src={src}
@@ -74,26 +77,30 @@ export function BannerImage({
           style={{ visibility: ready ? "visible" : "hidden" }}
         />
       )}
-      <img
-        ref={imageRef}
-        className="yk-banner-framed-image"
-        src={src}
-        alt=""
-        aria-hidden="true"
-        decoding="async"
-        draggable={false}
-        style={{
-          visibility: ready ? "visible" : "hidden",
-          transform: `translate(${geometry.offsetX}%, ${geometry.offsetY}%) scale(${geometry.scale}) rotate(${geometry.rotation}deg)`
-        }}
-        onLoad={event => {
-          const image = event.currentTarget;
-          const aspect = image.naturalWidth / image.naturalHeight;
-          setLoaded({ src, aspect });
-          onReady?.(aspect);
-        }}
-        onError={onError}
-      />
+      <span
+        className={blended ? "yk-banner-sharp-layer" : "yk-banner-image-layer"}
+      >
+        <img
+          ref={imageRef}
+          className="yk-banner-framed-image"
+          src={src}
+          alt=""
+          aria-hidden="true"
+          decoding="async"
+          draggable={false}
+          style={{
+            visibility: ready ? "visible" : "hidden",
+            transform: `translate(${geometry.offsetX}%, ${geometry.offsetY}%) scale(${geometry.scale}) rotate(${geometry.rotation}deg)`
+          }}
+          onLoad={event => {
+            const image = event.currentTarget;
+            const aspect = image.naturalWidth / image.naturalHeight;
+            setLoaded({ src, aspect });
+            onReady?.(aspect);
+          }}
+          onError={onError}
+        />
+      </span>
     </>
   );
 }
@@ -119,7 +126,8 @@ export function useBannerPan(
   aspect: number | undefined,
   viewportAspect: number,
   ready: boolean,
-  setFrame: Dispatch<SetStateAction<BannerFrame>>
+  setFrame: Dispatch<SetStateAction<BannerFrame>>,
+  widthFraction = 1
 ) {
   const drag = useRef<{
     id: number;
@@ -163,7 +171,7 @@ export function useBannerPan(
         panBanner(
           start.frame,
           aspect,
-          (event.clientX - start.x) / box.width,
+          (event.clientX - start.x) / (box.width * widthFraction),
           (event.clientY - start.y) / box.height,
           viewportAspect
         )
