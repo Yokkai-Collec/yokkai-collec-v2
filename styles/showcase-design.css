@@ -239,13 +239,41 @@
 }
 .yk-showcase-scene-choice[data-scene="frost"] > span {
   background:
-    repeating-conic-gradient(
-      from 30deg at 20% 70%,
-      transparent 0 28deg,
-      #d8f8ffb0 29deg 31deg,
-      transparent 32deg 60deg
-    ),
-    radial-gradient(ellipse at bottom, #9adfff77, transparent 80%), #0d1c2b;
+    url("/images/ice-top.webp") center top / auto 48px repeat-x,
+    url("/images/ice-bottom.webp") center bottom / auto 18px repeat-x,
+    #0d1c2b;
+}
+.yk-showcase-ice {
+  position: absolute;
+  inset: 72px 0 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: 0 0 20px 20px;
+}
+.yk-showcase-live-preview > .yk-showcase-ice {
+  top: 88px;
+}
+.yk-showcase-ice > span {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  background-repeat: repeat-x;
+  background-size: auto 100%;
+  filter: drop-shadow(0 2px 3px #91dfff18);
+}
+.yk-showcase-ice-top {
+  top: 0;
+  height: clamp(65px, 9vw, 112px);
+  background-image: url("/images/ice-top.webp");
+  background-position: center top;
+}
+.yk-showcase-ice-bottom {
+  bottom: 0;
+  height: clamp(38px, 5vw, 60px);
+  background-image: url("/images/ice-bottom.webp");
+  background-position: center bottom;
 }
 .yk-showcase-live-preview .yk-card.yk-rarity-LR {
   box-shadow: none;

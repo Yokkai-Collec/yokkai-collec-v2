@@ -10,12 +10,29 @@ export function ShowcaseAtmosphere({
   intensity?: number;
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const iceRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const overlay = iceRef.current;
+    const surface = overlay?.parentElement;
+    const heading = surface?.querySelector<HTMLElement>(
+      ":scope > .yk-profile-section-heading, :scope > header"
+    );
+    if (!overlay || !surface || !heading) return;
+    const place = () => {
+      overlay.style.top = `${Math.max(0, heading.getBoundingClientRect().bottom - surface.getBoundingClientRect().top + 8)}px`;
+    };
+    const observer = new ResizeObserver(place);
+    observer.observe(heading);
+    observer.observe(surface);
+    place();
+    return () => observer.disconnect();
+  }, [scene]);
   useEffect(() => {
     const canvas = ref.current;
     if (
       !canvas ||
       intensity <= 0 ||
-      !["flames", "lightning", "mist", "aurora", "frost"].includes(scene ?? "")
+      !["flames", "lightning", "mist", "aurora"].includes(scene ?? "")
     )
       return;
     const ctx = canvas.getContext("2d", { alpha: true });
@@ -188,7 +205,6 @@ export function ShowcaseAtmosphere({
       ctx.clearRect(0, 0, width, height);
       if (scene === "lightning") lightning(time);
       else if (scene === "flames") fire(time);
-      else if (scene === "frost") frost(time);
       else vaporOrFire(time);
     }
     function fire(time: number) {
@@ -294,111 +310,6 @@ export function ShowcaseAtmosphere({
       }
       ctx.globalCompositeOperation = "source-over";
     }
-    function frost(time: number) {
-      if (!ctx) return;
-      const haze = ctx.createLinearGradient(0, 0, 0, height);
-      haze.addColorStop(0, "#9adfff26");
-      haze.addColorStop(0.3, "#8bdfff00");
-      haze.addColorStop(0.75, "#8bdfff00");
-      haze.addColorStop(1, "#a9eaff36");
-      ctx.fillStyle = haze;
-      ctx.fillRect(0, 0, width, height);
-      // Faceted ice shelves grow inward from both edges, leaving the art clear.
-      for (const top of [true, false]) {
-        ctx.save();
-        if (!top) {
-          ctx.translate(0, height);
-          ctx.scale(1, -1);
-        }
-        const shelf = ctx.createLinearGradient(0, 0, 0, height * 0.25);
-        shelf.addColorStop(0, "#e2faffc0");
-        shelf.addColorStop(0.2, "#91d7f18c");
-        shelf.addColorStop(0.65, "#4da0c735");
-        shelf.addColorStop(1, "#87dfff00");
-        ctx.fillStyle = shelf;
-        ctx.strokeStyle = "#c8f4ff85";
-        ctx.lineWidth = 0.65;
-        const shards = Math.ceil(width / 36);
-        for (let i = 0; i < shards; i++) {
-          const x = i * 36,
-            seed = top ? 13 : 27;
-          const length = 19 + hash(i, seed) * Math.min(84, height * 0.23);
-          const tip = x + 9 + hash(i, seed + 1) * 22;
-          ctx.beginPath();
-          ctx.moveTo(x - 10, 0);
-          ctx.lineTo(x + 42, 0);
-          ctx.lineTo(x + 30, length * 0.3);
-          ctx.lineTo(tip, length);
-          ctx.lineTo(x + 7, length * 0.43);
-          ctx.closePath();
-          ctx.fill();
-          ctx.stroke();
-          ctx.beginPath();
-          ctx.moveTo(x + 19, 0);
-          ctx.lineTo(tip, length);
-          ctx.lineTo(x + 28, length * 0.29);
-          ctx.stroke();
-          ctx.beginPath();
-          ctx.moveTo(x - 10, 12 + hash(i, 3) * 9);
-          ctx.lineTo(x + 18, 26 + hash(i, 6) * 10);
-          ctx.lineTo(x + 39, 13);
-          ctx.stroke();
-        }
-        ctx.restore();
-      }
-      function crystal(
-        x: number,
-        y: number,
-        length: number,
-        angle: number,
-        depth: number
-      ) {
-        if (!ctx || !depth) return;
-        const endX = x + Math.cos(angle) * length,
-          endY = y + Math.sin(angle) * length;
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(endX, endY);
-        ctx.lineWidth = depth * 0.28;
-        ctx.stroke();
-        for (const fraction of [0.45, 0.72]) {
-          const bx = x + (endX - x) * fraction,
-            by = y + (endY - y) * fraction;
-          for (const side of [-1, 1])
-            crystal(
-              bx,
-              by,
-              length * 0.32,
-              angle + (side * Math.PI) / 3,
-              depth - 1
-            );
-        }
-      }
-      ctx.strokeStyle = "#d0f4ffb0";
-      ctx.shadowColor = "#8edfff";
-      ctx.shadowBlur = 5;
-      for (let i = 0; i < Math.ceil(width / 95); i++) {
-        const x = i * 97 + hash(i, 2) * 45;
-        crystal(
-          x,
-          i % 2 ? 0 : height,
-          26 + hash(i, 7) * 64,
-          i % 2 ? Math.PI / 2 : -Math.PI / 2,
-          3
-        );
-      }
-      ctx.shadowBlur = 0;
-      for (let i = 0; i < 38; i++) {
-        const fall = (hash(i, 3) + time * 0.018) % 1;
-        const x = hash(i, 8) * width + Math.sin(time * 0.25 + i) * 10;
-        ctx.globalAlpha = 0.25 + hash(i, 6) * 0.45;
-        ctx.fillStyle = "#e5faff";
-        ctx.beginPath();
-        ctx.arc(x, fall * height, 0.6 + hash(i, 4) * 1.4, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1;
-    }
     function tick(now: number) {
       if (stopped) return;
       if (visible && !document.hidden && now - last >= 50) {
@@ -429,7 +340,20 @@ export function ShowcaseAtmosphere({
       motion.removeEventListener("change", restart);
     };
   }, [scene, intensity]);
-  if (!["flames", "lightning", "mist", "aurora", "frost"].includes(scene ?? ""))
+  if (scene === "frost")
+    return (
+      <div
+        ref={iceRef}
+        className="yk-showcase-ice"
+        data-atmosphere="frost"
+        style={{ opacity: Math.max(0, Math.min(100, intensity)) / 100 }}
+        aria-hidden="true"
+      >
+        <span className="yk-showcase-ice-top" />
+        <span className="yk-showcase-ice-bottom" />
+      </div>
+    );
+  if (!["flames", "lightning", "mist", "aurora"].includes(scene ?? ""))
     return null;
   return (
     <canvas

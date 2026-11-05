@@ -18,3 +18,11 @@ Migration complémentaire : `20261105020000_showcase_atmospheres.sql`, même pé
 Flammes, éclairs, brume et aurore utilisent un canvas décoratif sur toute la surface de vitrine, en dehors du rail défilant des cartes. Le rendu reste derrière les commandes et illustrations, sans intercepter les clics. Textures de bruit pour le feu et la brume, éclairs avec subdivisions et branches, rideau lumineux continu pour l’aurore. Aucun média distant ni téléchargement de vidéo. Résolution et cadence plafonnées ; le rendu s’arrête hors écran, dans un onglet masqué, à intensité zéro et en mode réduit (image statique). Les cartes sont agrandies ; leur rail reste accessible au toucher.
 
 Les flammes utilisent désormais des volutes lumineuses et des étincelles, sans aplat opaque. L’ambiance Glace et givre ajoute des cristaux ramifiés sur les bords et des particules de neige. Migration `20261105030000_showcase_frost.sql` appliquée uniquement en local après sauvegarde ; aucun nouvel accès SQL. Le lecteur de vitrine conserve les classes attendues par le contrat mobile existant.
+
+## Bordure de glace photographique
+
+L’ambiance `frost` utilise désormais exclusivement l’image fournie par le propriétaire du projet, conservée dans `public/images/ice-frame.png` (2172 × 724, RGBA). Le centre est réellement transparent : le pixel central vaut RGBA `(0,0,0,0)` ; aucun pixel noir opaque n’a été détecté. Aucun détourage par couleur n’est effectué.
+
+Deux découpes à largeur native conservent l’alpha : `ice-top.webp` (2172 × 380, lignes 0–379) et `ice-bottom.webp` (2172 × 224, lignes 500–723). WebP qualité 90, alpha qualité 100 : 317110 et 165178 octets. L’original est conservé mais seuls les deux WebP sont chargés par l’interface. Aucun service externe.
+
+Les images sont positionnées par arrière-plans `auto 100%` répétés horizontalement : pas d’étirement des stalactites, hauteur responsive limitée. Un observateur de taille place la bordure supérieure sous le titre et ses commandes, y compris quand le titre revient à la ligne. La bordure inférieure reste au bord de la vitrine. Les overlays n’interceptent pas les clics et restent derrière les cartes. L’ancien dessin canvas de givre, ses triangles et sa neige animée sont supprimés ; aucun rendu permanent n’est exécuté pour cette ambiance. Aucune migration supplémentaire.
