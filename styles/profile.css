@@ -1555,7 +1555,7 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   .yk-profile-showcase
   .yk-featured-stage
   > div:not(.yk-featured-empty) {
-  flex: 0 0 clamp(116px, 13vw, 132px);
+  flex: 0 0 clamp(140px, 16vw, 164px);
   min-width: 0;
 }
 .yk-profile-hub:not([data-profile-compact])
