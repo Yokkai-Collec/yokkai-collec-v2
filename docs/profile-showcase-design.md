@@ -30,3 +30,7 @@ Les images sont positionnées par arrière-plans `auto 100%` répétés horizont
 Une brume froide accompagne les deux bordures : voiles bleutés sous les stalactites et nappes diffuses au ras du sol. Deux couches CSS se déplacent lentement par transform, sans boucle de rendu JavaScript ; pause hors écran, dans un onglet masqué et à intensité zéro. Le mode réduit conserve un brouillard statique. Le centre et les commandes restent libres.
 
 La vitrine et son aper�u masquent leur barre horizontale. La molette fait d�filer les cartes horizontalement seulement tant que la vitrine peut avancer dans ce sens ; aux extr�mit�s, la page reprend son d�filement normal. Le cliquer-glisser � la souris commence apr�s un seuil de 6 px et ne d�clenche pas la modale d�une carte. Le clic simple, le clavier et le balayage tactile natif restent disponibles. Aucun changement SQL.
+
+### Feu photographique
+
+Le th�me feu utilise maintenant `public/images/fire-bottom.webp`, extrait de la bande inf�rieure (2172 � 304 px) de l�image fournie par le propri�taire du projet. Le canal alpha est conserv� � l�identique ; les pixels sombres de la texture ne sont pas transform�s en transparence. L�asset optimis� p�se 304 624 octets. Aucune animation de feu avec alpha n��tant disponible dans le projet, ce rendu est statique : aucun faux mouvement de flamme CSS/SVG/canvas. Une lueur chaude discr�te accompagne la bande, avec un masque qui att�nue les pointes au centre. Les dimensions de la vitrine, les cartes et les autres th�mes restent inchang�s. Aucun changement SQL.

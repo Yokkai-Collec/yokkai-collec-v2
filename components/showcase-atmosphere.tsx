@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 
-/** Decorative procedural atmosphere: no network media, no pointer interception. */
+/** Decorative atmosphere: photographic fire/ice and procedural sky, all click-through. */
 export function ShowcaseAtmosphere({
   scene,
   intensity = 60
@@ -48,7 +48,7 @@ export function ShowcaseAtmosphere({
     if (
       !canvas ||
       intensity <= 0 ||
-      !["flames", "lightning", "mist", "aurora"].includes(scene ?? "")
+      !["lightning", "mist", "aurora"].includes(scene ?? "")
     )
       return;
     const ctx = canvas.getContext("2d", { alpha: true });
@@ -96,7 +96,7 @@ export function ShowcaseAtmosphere({
       texture.height = Math.min(180, Math.max(90, Math.round(height / 2)));
       draw(2.5);
     }
-    function vaporOrFire(time: number) {
+    function vapor(time: number) {
       if (!textureCtx || !ctx) return;
       const w = texture.width,
         h = texture.height;
@@ -220,111 +220,7 @@ export function ShowcaseAtmosphere({
       if (!ctx) return;
       ctx.clearRect(0, 0, width, height);
       if (scene === "lightning") lightning(time);
-      else if (scene === "flames") fire(time);
-      else vaporOrFire(time);
-    }
-    function fire(time: number) {
-      if (!ctx) return;
-      const glow = ctx.createLinearGradient(0, height, 0, 0);
-      glow.addColorStop(0, "#ff6c2528");
-      glow.addColorStop(0.65, "#ff482b05");
-      glow.addColorStop(1, "#ff482b00");
-      ctx.fillStyle = glow;
-      ctx.fillRect(0, 0, width, height);
-      ctx.globalCompositeOperation = "screen";
-      const tongues = Math.min(40, Math.ceil(width / 40));
-      for (let i = 0; i < tongues; i++) {
-        const base =
-          ((i + 0.5) * width) / tongues + Math.sin(time * 0.6 + i) * 9;
-        const tall =
-          height *
-          (0.3 + hash(i, 5) * 0.6) *
-          (0.88 + Math.sin(time * 1.7 + i) * 0.12);
-        const sway = Math.sin(time * 1.1 + i * 2) * 36;
-        const breadth = 12 + hash(i, 9) * 15;
-        ctx.beginPath();
-        ctx.moveTo(base - breadth, height + 6);
-        ctx.bezierCurveTo(
-          base - breadth * 1.7,
-          height - tall * 0.32,
-          base + sway - breadth,
-          height - tall * 0.63,
-          base + sway * 1.6,
-          height - tall
-        );
-        ctx.bezierCurveTo(
-          base + sway * 1.6 - breadth * 0.8,
-          height - tall * 0.64,
-          base + breadth * 1.9,
-          height - tall * 0.42,
-          base + breadth,
-          height + 6
-        );
-        const gradient = ctx.createLinearGradient(
-          base,
-          height,
-          base,
-          height - tall
-        );
-        gradient.addColorStop(0, "#fff1ba9c");
-        gradient.addColorStop(0.2, "#ffcb6590");
-        gradient.addColorStop(0.52, "#ff7b305c");
-        gradient.addColorStop(0.84, "#f448252b");
-        gradient.addColorStop(1, "#ff5f2800");
-        ctx.fillStyle = gradient;
-        ctx.shadowColor = "#ff822e";
-        ctx.shadowBlur = 9;
-        ctx.fill();
-        ctx.shadowColor = "#ff762b";
-        ctx.shadowBlur = 14;
-        ctx.strokeStyle = `rgba(255,181,88,${0.15 + hash(i, 2) * 0.25})`;
-        ctx.lineWidth = 0.8;
-        ctx.stroke();
-        ctx.shadowBlur = 0;
-        ctx.beginPath();
-        ctx.moveTo(base - breadth * 0.45, height);
-        ctx.bezierCurveTo(
-          base + breadth,
-          height - tall * 0.2,
-          base - breadth,
-          height - tall * 0.3,
-          base + sway * 0.4,
-          height - tall * 0.58
-        );
-        ctx.bezierCurveTo(
-          base + breadth * 0.4,
-          height - tall * 0.28,
-          base + breadth * 0.6,
-          height - tall * 0.16,
-          base + breadth * 0.45,
-          height
-        );
-        const core = ctx.createLinearGradient(
-          base,
-          height,
-          base,
-          height - tall * 0.58
-        );
-        core.addColorStop(0, "#fff7d696");
-        core.addColorStop(0.55, "#ffe8a844");
-        core.addColorStop(1, "#ffcb6500");
-        ctx.fillStyle = core;
-        ctx.fill();
-        const rise = (time * (0.045 + hash(i, 8) * 0.035) + hash(i, 7)) % 1;
-        ctx.fillStyle = "#ffd8a1";
-        ctx.globalAlpha = Math.sin(rise * Math.PI) * 0.7;
-        ctx.beginPath();
-        ctx.arc(
-          base + Math.sin(rise * 8 + i) * 18,
-          height * (1 - rise),
-          0.8 + hash(i, 4),
-          0,
-          Math.PI * 2
-        );
-        ctx.fill();
-        ctx.globalAlpha = 1;
-      }
-      ctx.globalCompositeOperation = "source-over";
+      else vapor(time);
     }
     function tick(now: number) {
       if (stopped) return;
@@ -356,6 +252,17 @@ export function ShowcaseAtmosphere({
       motion.removeEventListener("change", restart);
     };
   }, [scene, intensity]);
+  if (scene === "flames")
+    return (
+      <div
+        className="yk-showcase-fire"
+        data-atmosphere="flames"
+        style={{ opacity: Math.max(0, Math.min(100, intensity)) / 100 }}
+        aria-hidden="true"
+      >
+        <span className="yk-showcase-fire-bottom" />
+      </div>
+    );
   if (scene === "frost")
     return (
       <div
@@ -370,8 +277,7 @@ export function ShowcaseAtmosphere({
         <span className="yk-showcase-cold-mist" />
       </div>
     );
-  if (!["flames", "lightning", "mist", "aurora"].includes(scene ?? ""))
-    return null;
+  if (!["lightning", "mist", "aurora"].includes(scene ?? "")) return null;
   return (
     <canvas
       ref={ref}

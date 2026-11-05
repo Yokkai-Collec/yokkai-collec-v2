@@ -207,6 +207,33 @@
   isolation: isolate;
   overflow: hidden;
 }
+.yk-showcase-fire {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.yk-showcase-fire::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: clamp(80px, 12vw, 150px);
+  background: radial-gradient(ellipse at 50% 100%, #fa6a1824, transparent 72%);
+}
+.yk-showcase-fire-bottom {
+  position: absolute;
+  inset: auto 0 0;
+  height: clamp(65px, 9vw, 112px);
+  background: url("/images/fire-bottom.webp") center bottom / auto 100% repeat-x;
+  mask-image: radial-gradient(
+    ellipse 24% 65% at 50% 0,
+    transparent 5%,
+    #000 85%
+  );
+  pointer-events: none;
+}
 .yk-profile-showcase > header,
 .yk-profile-showcase > .yk-profile-section-heading,
 .yk-profile-showcase > .yk-showcase-description {
@@ -456,29 +483,9 @@
   filter: drop-shadow(0 0 5px #a1b5ff);
   animation: yk-showcase-lightning 6s ease-in-out infinite;
 }
-.yk-showcase-scene-choice[data-scene="flames"] > span,
-:is(
-    .yk-showcase-design,
-    .yk-featured-stage
-  )[data-showcase-scene="flames"]::before {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='160' viewBox='0 0 240 160'%3E%3Cdefs%3E%3ClinearGradient id='f' x2='0' y2='1'%3E%3Cstop stop-color='%23ffd976'/%3E%3Cstop offset='.55' stop-color='%23ff792c'/%3E%3Cstop offset='1' stop-color='%23bc2d4260'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23f)' d='M0 160V127C19 115 7 87 24 67 14 100 48 99 41 122 62 103 39 70 69 33 55 81 92 76 82 115 108 99 83 70 116 12 101 77 142 66 131 119 149 104 134 83 158 57 148 101 179 100 171 130 204 108 170 83 206 31 190 85 230 81 218 128 230 113 235 97 240 92V160Z'/%3E%3Cpath fill='%23fff0a9' opacity='.55' d='M18 160c-13-26 12-31 9-49 19 23-3 28 9 49M65 160c-16-25 13-32 10-51 19 27-4 32 9 51M111 160c-17-32 11-41 10-65 23 34-2 38 14 65M178 160c-10-19 10-29 8-42 16 20-1 23 9 42M213 160c-12-21 11-27 9-45 17 22-3 30 9 45'/%3E%3C/svg%3E");
-  background-repeat: repeat-x;
-  background-size: 240px 160px;
-  background-position: center bottom;
-}
-:is(
-    .yk-showcase-design,
-    .yk-featured-stage
-  )[data-showcase-scene="flames"]::before {
-  animation: yk-showcase-flames 3s ease-in-out infinite alternate;
-}
 .yk-showcase-scene-choice[data-scene="flames"] > span {
-  background-size: 90px 60px;
+  background: url("/images/fire-bottom.webp") center bottom / auto 100% repeat-x;
 }
-:is(
-    .yk-showcase-design,
-    .yk-featured-stage
-  )[data-showcase-scene="flames"]::after,
 :is(
     .yk-showcase-design,
     .yk-featured-stage
@@ -562,16 +569,6 @@
   42%,
   58% {
     filter: drop-shadow(0 0 7px #a1b5ff) brightness(1.2);
-  }
-}
-@keyframes yk-showcase-flames {
-  from {
-    background-position: 0 bottom;
-    filter: brightness(0.9);
-  }
-  to {
-    background-position: 12px bottom;
-    filter: brightness(1.15);
   }
 }
 @keyframes yk-showcase-drift {
