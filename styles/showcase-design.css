@@ -191,7 +191,7 @@
 .yk-profile-showcase .yk-featured-stage,
 .yk-showcase-live-preview .yk-featured-stage {
   scrollbar-width: none;
-  cursor: grab;
+  cursor: default;
   user-select: none;
 }
 .yk-profile-showcase .yk-featured-stage::-webkit-scrollbar,
@@ -200,7 +200,7 @@
 }
 .yk-featured-stage[data-dragging="true"],
 .yk-featured-stage[data-dragging="true"] * {
-  cursor: grabbing;
+  cursor: default;
 }
 .yk-profile-showcase {
   position: relative;
