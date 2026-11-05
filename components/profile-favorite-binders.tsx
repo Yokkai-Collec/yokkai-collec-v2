@@ -1,5 +1,7 @@
 "use client";
 
+import dynamic from "next/dynamic";
+import type { Card } from "@/lib/data/cards";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 import { BinderCover } from "@/components/binder-cover";
@@ -14,6 +16,12 @@ import type { PaniniAlbumCardPage } from "@/lib/data/cards";
 import { binderIdentity } from "@/lib/ui/binder-identity";
 import "@/styles/binder-discovery.css";
 import "@/styles/profile-favorite-binders.css";
+
+const CatalogueCardModal = dynamic(() =>
+  import("@/components/community-views").then(
+    module => module.CatalogueCardModal
+  )
+);
 
 export type ProfileFavoriteAlbum = ProfileDetails["favoriteAlbums"][number] & {
   kind?: "binder" | "folder";
@@ -31,15 +39,18 @@ export function BinderContents({
   ownerId,
   album,
   loadCards,
-  canEditCover = false
+  canEditCover = false,
+  onCardSelect
 }: {
   ownerId: string;
   album: ProfileFavoriteAlbum;
   loadCards: CardLoader;
   canEditCover?: boolean;
+  onCardSelect?: (card: Card) => void;
 }) {
   const t = useTranslations("profileUi");
   const tc = useTranslations("collectionUi");
+
   const [page, setPage] = useState(1),
     [ownedOnly, setOwnedOnly] = useState(false),
     [retry, setRetry] = useState(0);
@@ -130,7 +141,15 @@ export function BinderContents({
             <ul className="yk-profile-binder-cards">
               {data.items.map(card => (
                 <li key={card.id} data-owned={card.owned ? "true" : "false"}>
-                  <YokaiCard {...card} animated={false} />
+                  <button
+                    type="button"
+                    className="yk-profile-binder-card-button"
+                    aria-label={tc("viewCard", { name: card.name })}
+                    aria-haspopup="dialog"
+                    onClick={() => onCardSelect?.(card)}
+                  >
+                    <YokaiCard {...card} animated={false} />
+                  </button>
                   <p className="yk-profile-binder-card-name">{card.name}</p>
                   <small>
                     {t(
@@ -174,6 +193,7 @@ export function ProfileFavoriteBinders({
   canEditCover?: boolean;
 }) {
   const t = useTranslations("profileUi");
+  const [selectedCard, setSelectedCard] = useState<Card | null>(null);
   const wide = useSyncExternalStore(
     subscribeWidth,
     wideSnapshot,
@@ -346,7 +366,7 @@ export function ProfileFavoriteBinders({
         </footer>
       )}
       <Modal
-        open={!!selected}
+        open={!!selected && !selectedCard}
         onClose={() => setSelected(undefined)}
         title={
           selected
@@ -374,9 +394,16 @@ export function ProfileFavoriteBinders({
             }
             loadCards={loadCards}
             canEditCover={canEditCover}
+            onCardSelect={setSelectedCard}
           />
         )}
       </Modal>
+      {selectedCard && (
+        <CatalogueCardModal
+          selected={selectedCard}
+          onClose={() => setSelectedCard(null)}
+        />
+      )}
     </section>
   );
 }

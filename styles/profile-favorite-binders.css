@@ -221,3 +221,42 @@
   font-weight: 700;
   margin-bottom: 24px;
 }
+
+.yk-profile-binder-card-button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  text-align: start;
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+.yk-profile-binder-card-button:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 5px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .yk-profile-binder-card-button:hover {
+    transform: translateY(-5px) scale(1.025);
+    box-shadow: 0 12px 24px #00000045;
+  }
+  .yk-profile-binder-cards
+    > li[data-owned="false"]
+    .yk-profile-binder-card-button:hover
+    .yk-card {
+    filter: grayscale(0.35);
+    opacity: 0.85;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .yk-profile-binder-card-button {
+    transition: none;
+  }
+  .yk-profile-binder-card-button:hover {
+    transform: none;
+  }
+}
