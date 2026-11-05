@@ -1,6 +1,6 @@
 "use client";
 import { useSyncExternalStore } from "react";
-import { useShowcaseScroll } from "@/hooks/use-showcase-scroll";
+import { useShowcaseScroll } from "@/lib/ui/profile-style";
 import { i18nEnabled } from "@/i18n/locale";
 const subscribeToHydration = () => () => {};
 import { gameErrorKey } from "@/i18n/game-messages";

@@ -1,6 +1,6 @@
 "use client";
 import { useTranslations } from "next-intl";
-import { useShowcaseScroll } from "@/hooks/use-showcase-scroll";
+import { useShowcaseScroll } from "@/lib/ui/profile-style";
 import type { CSSProperties } from "react";
 import { YokaiCard } from "@/components/yokai-card";
 import { ShowcaseAtmosphere } from "@/components/showcase-atmosphere";
