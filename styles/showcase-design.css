@@ -275,6 +275,67 @@
   background-image: url("/images/ice-bottom.webp");
   background-position: center bottom;
 }
+.yk-showcase-ice > .yk-showcase-cold-mist {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: none;
+  background: radial-gradient(
+    ellipse 80% 30% at 50% 105%,
+    #afdfff25,
+    transparent 85%
+  );
+}
+.yk-showcase-cold-mist::before,
+.yk-showcase-cold-mist::after {
+  content: "";
+  position: absolute;
+  left: -12%;
+  width: 124%;
+  pointer-events: none;
+  filter: blur(9px);
+  animation: yk-cold-mist-drift 22s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+.yk-showcase-cold-mist::before {
+  bottom: 4%;
+  height: 50%;
+  opacity: 0.65;
+  background:
+    radial-gradient(ellipse 24% 15% at 12% 78%, #e2f8ff6b, transparent 90%),
+    radial-gradient(ellipse 30% 18% at 40% 62%, #bdddf352, transparent 90%),
+    radial-gradient(ellipse 21% 15% at 65% 85%, #ebfaff70, transparent 90%),
+    radial-gradient(ellipse 32% 18% at 88% 52%, #bcdff552, transparent 90%);
+}
+.yk-showcase-cold-mist::after {
+  top: 3%;
+  height: 40%;
+  opacity: 0.4;
+  background:
+    radial-gradient(ellipse 28% 17% at 12% 20%, #d1ecff66, transparent 90%),
+    radial-gradient(ellipse 35% 22% at 55% 44%, #a7d4ec45, transparent 90%),
+    radial-gradient(ellipse 24% 20% at 87% 15%, #d9f5ff6b, transparent 90%);
+  animation-direction: alternate-reverse;
+  animation-duration: 29s;
+}
+.yk-showcase-ice[data-motion="running"] .yk-showcase-cold-mist::before,
+.yk-showcase-ice[data-motion="running"] .yk-showcase-cold-mist::after {
+  animation-play-state: running;
+}
+@keyframes yk-cold-mist-drift {
+  from {
+    transform: translate3d(-4%, 4px, 0) scaleY(0.9);
+  }
+  to {
+    transform: translate3d(5%, -7px, 0) scaleY(1.12);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .yk-showcase-cold-mist::before,
+  .yk-showcase-cold-mist::after {
+    animation: none !important;
+  }
+}
 .yk-showcase-live-preview .yk-card.yk-rarity-LR {
   box-shadow: none;
   animation: none;

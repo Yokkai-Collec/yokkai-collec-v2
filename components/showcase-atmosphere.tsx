@@ -22,11 +22,27 @@ export function ShowcaseAtmosphere({
       overlay.style.top = `${Math.max(0, heading.getBoundingClientRect().bottom - surface.getBoundingClientRect().top + 8)}px`;
     };
     const observer = new ResizeObserver(place);
+    let visible = true;
+    const pause = () => {
+      overlay.dataset.motion =
+        visible && !document.hidden && intensity > 0 ? "running" : "paused";
+    };
+    const intersection = new IntersectionObserver(entries => {
+      visible = entries[0].isIntersecting;
+      pause();
+    });
+    intersection.observe(overlay);
+    document.addEventListener("visibilitychange", pause);
     observer.observe(heading);
     observer.observe(surface);
     place();
-    return () => observer.disconnect();
-  }, [scene]);
+    pause();
+    return () => {
+      observer.disconnect();
+      intersection.disconnect();
+      document.removeEventListener("visibilitychange", pause);
+    };
+  }, [scene, intensity]);
   useEffect(() => {
     const canvas = ref.current;
     if (
@@ -351,6 +367,7 @@ export function ShowcaseAtmosphere({
       >
         <span className="yk-showcase-ice-top" />
         <span className="yk-showcase-ice-bottom" />
+        <span className="yk-showcase-cold-mist" />
       </div>
     );
   if (!["flames", "lightning", "mist", "aurora"].includes(scene ?? ""))
