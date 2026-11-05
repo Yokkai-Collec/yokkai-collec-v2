@@ -1570,7 +1570,7 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   .yk-profile-showcase
   .yk-featured-stage:not(:has(> div:nth-child(2):not(.yk-featured-empty)))
   > div:not(.yk-featured-empty) {
-  flex-basis: clamp(140px, 16vw, 160px);
+  flex-basis: clamp(116px, 13vw, 132px);
 }
 
 /* A single piece needs a compact stage so collections stay within reach. */
@@ -1580,5 +1580,5 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   .yk-featured-stage:has(> div:not(.yk-featured-empty)):not(
     :has(> div:nth-child(2):not(.yk-featured-empty))
   ) {
-  padding-block: 12px 16px;
+  padding-block: 8px 10px;
 }
