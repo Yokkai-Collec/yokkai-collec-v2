@@ -207,39 +207,20 @@
   isolation: isolate;
   overflow: hidden;
 }
-.yk-showcase-fire {
+.yk-showcase-embers {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: 2;
+  pointer-events: none;
   overflow: hidden;
   border-radius: inherit;
-  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 110%, #c9571920, transparent 65%);
 }
-.yk-showcase-fire::before {
-  content: "";
-  position: absolute;
-  inset: auto 0 0;
-  height: clamp(80px, 12vw, 150px);
-  background: radial-gradient(ellipse at 50% 100%, #fa6a1824, transparent 72%);
-}
-.yk-showcase-fire-canvas {
-  position: absolute;
-  inset: auto 0 0;
+.yk-showcase-embers-canvas {
+  display: block;
   width: 100%;
-  height: clamp(92px, 13vw, 160px);
+  height: 100%;
   pointer-events: none;
-  background: url("/images/showcase-fire-still.webp") center bottom / auto 100%
-    repeat-x;
-  mask-image: linear-gradient(
-    to right,
-    transparent,
-    #000 4%,
-    #000 96%,
-    transparent
-  );
-}
-.yk-showcase-fire-canvas[data-ready="true"] {
-  background: none;
 }
 .yk-profile-showcase > header,
 .yk-profile-showcase > .yk-profile-section-heading,
@@ -271,7 +252,8 @@
     [data-showcase-scene="flames"],
     [data-showcase-scene="mist"],
     [data-showcase-scene="aurora"],
-    [data-showcase-scene="frost"]
+    [data-showcase-scene="frost"],
+    [data-showcase-scene="embers"]
   )::before,
 :is(.yk-showcase-design, .yk-featured-stage):is(
     .yk-showcase-design,
@@ -281,7 +263,8 @@
     [data-showcase-scene="flames"],
     [data-showcase-scene="mist"],
     [data-showcase-scene="aurora"],
-    [data-showcase-scene="frost"]
+    [data-showcase-scene="frost"],
+    [data-showcase-scene="embers"]
   )::after {
   content: none;
 }
@@ -490,22 +473,6 @@
   filter: drop-shadow(0 0 5px #a1b5ff);
   animation: yk-showcase-lightning 6s ease-in-out infinite;
 }
-.yk-showcase-scene-choice[data-scene="flames"] > span {
-  background: url("/images/showcase-fire-still.webp") center bottom / auto 100%
-    repeat-x;
-}
-:is(
-    .yk-showcase-design,
-    .yk-featured-stage
-  )[data-showcase-scene="embers"]::after {
-  background:
-    radial-gradient(ellipse 1px 3px at 23px 26px, #ffd277 70%, transparent),
-    radial-gradient(circle at 63px 11px, #ff7744 0 1px, transparent 2px);
-  background-size:
-    101px 67px,
-    71px 53px;
-  animation: yk-showcase-embers 8s linear infinite;
-}
 .yk-showcase-scene-choice[data-scene="mist"] > span,
 :is(
     .yk-showcase-design,
@@ -545,19 +512,12 @@
   background-size: 140% 100%;
   animation: yk-showcase-drift 14s ease-in-out infinite alternate;
 }
-.yk-showcase-scene-choice[data-scene="embers"] > span,
-:is(
-    .yk-showcase-design,
-    .yk-featured-stage
-  )[data-showcase-scene="embers"]::before {
+.yk-showcase-scene-choice[data-scene="embers"] > span {
   background:
-    radial-gradient(circle at 20% 30%, #ffce76 0 1px, transparent 3px),
-    radial-gradient(circle at 72% 66%, #ff8a56 0 2px, transparent 4px),
+    radial-gradient(circle at 18% 30%, #ffc675 0 1px, transparent 3px),
+    radial-gradient(circle at 70% 64%, #ff8a56 0 2px, transparent 5px),
+    radial-gradient(circle at 43% 18%, #ffb45d 0 1px, transparent 3px),
     radial-gradient(ellipse at bottom, #e553344d, transparent 75%);
-  background-size:
-    79px 53px,
-    113px 83px,
-    100% 100%;
 }
 @keyframes yk-showcase-twinkle {
   from {
@@ -585,18 +545,6 @@
   }
   to {
     background-position: 100% 50%;
-  }
-}
-@keyframes yk-showcase-embers {
-  from {
-    background-position:
-      0 67px,
-      0 53px;
-  }
-  to {
-    background-position:
-      0 0,
-      0 0;
   }
 }
 :is(

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { ShowcaseFire } from "@/components/showcase-fire";
+import { ShowcaseEmbers } from "@/components/showcase-embers";
 
 /** Decorative atmosphere: photographic fire/ice and procedural sky, all click-through. */
 export function ShowcaseAtmosphere({
@@ -258,15 +258,15 @@ export function ShowcaseAtmosphere({
       motion.removeEventListener("change", restart);
     };
   }, [scene, intensity]);
-  if (scene === "flames")
+  if (scene === "embers" || scene === "flames")
     return (
       <div
-        className="yk-showcase-fire"
-        data-atmosphere="flames"
+        className="yk-showcase-embers"
+        data-atmosphere="embers"
         style={{ opacity: Math.max(0, Math.min(100, intensity)) / 100 }}
         aria-hidden="true"
       >
-        <ShowcaseFire enabled={intensity > 0} />
+        <ShowcaseEmbers enabled={intensity > 0} />
       </div>
     );
   if (scene === "frost")

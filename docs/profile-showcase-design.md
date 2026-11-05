@@ -31,6 +31,10 @@ Une brume froide accompagne les deux bordures : voiles bleutés sous les stalact
 
 La vitrine et son aper�u masquent leur barre horizontale. La molette fait d�filer les cartes horizontalement seulement tant que la vitrine peut avancer dans ce sens ; aux extr�mit�s, la page reprend son d�filement normal. Le cliquer-glisser � la souris commence apr�s un seuil de 6 px et ne d�clenche pas la modale d�une carte. Le clic simple, le clavier et le balayage tactile natif restent disponibles. Aucun changement SQL.
 
-### Feu photographique
+### Braises sur toute la vitrine
 
-Les anciennes bordures ont ete remplacees par une sequence photographique generee, animee en foyers independants au pied des cartes. Voir [la description, les assets et le prompt](showcase-fire-asset.md). Les cartes restent au premier plan et les animations reduites affichent une image fixe. Aucun changement SQL.
+Le choix Flammes a ete retire. Les anciennes preferences flames affichent les braises sans modifier les donnees en base. Le renderer de feu et ses references ont ete retires ; aucun asset de flamme n'est charge.
+
+Le composant ShowcaseEmbers dessine un nuage non repetitif de particules sur toute la surface, avec tailles/profondeurs, derive laterale, vitesses de montee, scintillement doux et petites trainees differents. Les halos sont precalcules dans trois minuscules textures en memoire. La densite suit la surface, plafonnee a 180 particules. Le calque reste transparent et pointer-events:none ; le titre et les commandes gardent le premier plan, et les cartes restent cliquables et defilables.
+
+Animation plafonnee a 30 images/s, DPR a 1,5, arret hors ecran et onglet masque. Une image fixe est dessinee avec prefers-reduced-motion. Une intensite nulle desactive le renderer. Aucun asset distant, aucune dependance ni migration SQL ajoutee.

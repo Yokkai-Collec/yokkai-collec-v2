@@ -1,5 +1,7 @@
 # Feu photographique de la vitrine
 
+> Rendu retiré à la demande du propriétaire : le thème Braises le remplace désormais. Ce document conserve uniquement la provenance des assets générés, qui ne sont plus chargés par la vitrine.
+
 Les anciennes bordures animées haut/bas ne sont plus affichées. Le thème présente uniquement des foyers irréguliers au pied des cartes, derrière leur illustration.
 
 Assets créés avec l’outil intégré imagegen, puis optimisés avec Sharp :

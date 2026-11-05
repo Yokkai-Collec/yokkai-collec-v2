@@ -51,7 +51,6 @@ export function ShowcaseDesignFields({
                 "stars",
                 "marble",
                 "lightning",
-                "flames",
                 "mist",
                 "aurora",
                 "embers",
@@ -63,7 +62,11 @@ export function ShowcaseDesignFields({
                 key={scene}
                 className="yk-showcase-scene-choice"
                 data-scene={scene}
-                aria-pressed={(value.showcaseScene ?? "velvet") === scene}
+                aria-pressed={
+                  (value.showcaseScene === "flames"
+                    ? "embers"
+                    : (value.showcaseScene ?? "velvet")) === scene
+                }
                 onClick={() =>
                   onChange({
                     ...value,
