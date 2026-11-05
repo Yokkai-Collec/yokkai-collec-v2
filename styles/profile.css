@@ -1235,13 +1235,6 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   z-index: 1;
   overflow: hidden;
   pointer-events: none;
-  mask-image: linear-gradient(
-    to right,
-    transparent,
-    #000 6%,
-    #000 94%,
-    transparent
-  );
 }
 .yk-profile-identity
   .yk-profile-banner.has-image
@@ -1261,6 +1254,7 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   transform-origin: center;
   pointer-events: none;
 }
+.yk-profile-identity .yk-profile-banner > .yk-banner-blurred-background,
 .yk-banner-blurred-background {
   position: absolute;
   inset: 0;

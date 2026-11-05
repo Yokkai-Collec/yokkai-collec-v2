@@ -59,11 +59,14 @@ export function BannerImage({
       container.style.removeProperty("--profile-cover-aspect");
     };
   }, [fillContainer, coverAspect]);
-  const geometry = bannerGeometry(
-    ready ? loaded.aspect : 2.3,
-    frame,
-    (fillContainer ? viewportAspect : aspectRatio) * (blended ? 0.82 : 1)
-  );
+  const targetAspect =
+    (fillContainer ? viewportAspect : aspectRatio) * (blended ? 0.82 : 1);
+  const imageAspect = ready ? loaded.aspect : 2.3;
+  const geometry = bannerGeometry(imageAspect, frame, targetAspect);
+  // Feather the actual painted image edges, including when zoomed out inside
+  // its element box. Masking only the outer layer leaves hard seams at low zoom.
+  const edge = (1 - Math.min(1, imageAspect / targetAspect)) * 50;
+  const feather = Math.min(4, (50 - edge) * 0.12);
   return (
     <>
       {blended && (
@@ -90,6 +93,9 @@ export function BannerImage({
           draggable={false}
           style={{
             visibility: ready ? "visible" : "hidden",
+            maskImage: blended
+              ? `linear-gradient(to right, transparent ${edge}%, #000 ${edge + feather}%, #000 ${100 - edge - feather}%, transparent ${100 - edge}%)`
+              : undefined,
             transform: `translate(${geometry.offsetX}%, ${geometry.offsetY}%) scale(${geometry.scale}) rotate(${geometry.rotation}deg)`
           }}
           onLoad={event => {
