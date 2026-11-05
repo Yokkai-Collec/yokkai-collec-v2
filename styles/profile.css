@@ -1206,7 +1206,7 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
 .yk-profile-hub:not([data-profile-compact]) .yk-profile-banner-shade {
   background: linear-gradient(100deg, #080d1799, #080d17ec);
 }
-/* Compact full-width cover; crop editor measures this same viewport. */
+/* Keep the existing banner dimensions; only its image fills the surface. */
 .yk-profile-hub:not([data-profile-compact])
   .yk-profile-identity
   > .yk-profile-banner.has-image {
@@ -1226,17 +1226,16 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   .yk-profile-identity
   > .yk-profile-banner.has-image
   > img {
-  height: 100%;
-  object-fit: cover;
-}
-.yk-profile-hub:not([data-profile-compact])
-  .yk-profile-identity
-  > .yk-profile-banner.has-frame
-  > .yk-banner-framed-image {
-  inset-inline: 0;
-  margin-inline: auto;
+  inset: 0;
   width: 100%;
-  object-fit: contain;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  object-fit: cover;
+  object-position: center;
+  /* Saved crop transforms must not shrink the image or expose empty edges. */
+  transform: none !important;
 }
 .yk-profile-hub:not([data-profile-compact])
   .yk-profile-identity
