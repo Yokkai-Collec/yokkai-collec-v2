@@ -35,7 +35,10 @@ export function BannerImage({
   const [loaded, setLoaded] = useState<{ src: string; aspect: number }>();
   const imageRef = useRef<HTMLImageElement>(null);
   const ready = loaded?.src === src;
-  const [viewportAspect, setViewportAspect] = useState(2.3);
+  const coverAspect = profileBannerAspect(
+    ready ? loaded.aspect : undefined,
+    frame.rotation
+  );
   useEffect(() => {
     const container = imageRef.current?.parentElement;
     if (!fillContainer || !container) return;
@@ -45,23 +48,14 @@ export function BannerImage({
         profileBannerAspect(ready ? loaded.aspect : undefined, frame.rotation)
       )
     );
-    const measure = () => {
-      if (container.clientHeight > 0) {
-        setViewportAspect(container.clientWidth / container.clientHeight);
-      }
-    };
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(container);
     return () => {
-      observer.disconnect();
       container.style.removeProperty("--profile-cover-aspect");
     };
   }, [fillContainer, ready, loaded?.aspect, frame.rotation]);
   const geometry = bannerGeometry(
     ready ? loaded.aspect : 2.3,
     frame,
-    fillContainer ? viewportAspect : aspectRatio
+    fillContainer ? coverAspect : aspectRatio
   );
   return (
     <img
