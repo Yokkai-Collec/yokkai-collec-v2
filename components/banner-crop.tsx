@@ -1,14 +1,18 @@
 "use client";
 import { useTranslations } from "next-intl";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Button, Modal } from "@/components/ui";
-import { BannerImage } from "@/components/banner-image";
+
+import {
+  BannerImage,
+  useProfileBannerAspect,
+  useBannerPan
+} from "@/components/banner-image";
 import {
   bannerGeometry,
   DEFAULT_BANNER_FRAME,
   normalizeBannerFrame,
-  panBanner,
   rotateBanner,
   type BannerFrame
 } from "@/lib/ui/banner-frame";
@@ -30,14 +34,17 @@ export function BannerCrop({
   );
   const [aspect, setAspect] = useState<number>();
   const [failed, setFailed] = useState(false);
-  const drag = useRef<{
-    id: number;
-    x: number;
-    y: number;
-    frame: BannerFrame;
-  } | null>(null);
-  const geometry = bannerGeometry(aspect ?? 2.3, frame);
+  const viewportAspect = useProfileBannerAspect();
   const ready = !!aspect && !failed;
+  const panHandlers = useBannerPan(
+    frame,
+    aspect,
+    viewportAspect,
+    ready,
+    setFrame
+  );
+  const geometry = bannerGeometry(aspect ?? 2.3, frame, viewportAspect);
+
   return (
     <Modal
       open
@@ -51,60 +58,17 @@ export function BannerCrop({
       <div className="yk-banner-crop-mat">
         <div
           className="yk-banner-crop-stage"
+          style={{ aspectRatio: viewportAspect }}
           role="group"
           tabIndex={0}
           aria-label={t("profileUi.bannerCropPosition")}
           aria-describedby="banner-crop-help"
-          onKeyDown={event => {
-            const movement: Record<string, [number, number]> = {
-              ArrowLeft: [-0.02, 0],
-              ArrowRight: [0.02, 0],
-              ArrowUp: [0, -0.02],
-              ArrowDown: [0, 0.02]
-            };
-            const delta = movement[event.key];
-            if (!delta || !ready) return;
-            event.preventDefault();
-            setFrame(current =>
-              panBanner(current, aspect!, delta[0], delta[1])
-            );
-          }}
-          onPointerDown={event => {
-            if (!ready || drag.current || event.button !== 0) return;
-            event.currentTarget.setPointerCapture(event.pointerId);
-            drag.current = {
-              id: event.pointerId,
-              x: event.clientX,
-              y: event.clientY,
-              frame
-            };
-          }}
-          onPointerMove={event => {
-            const start = drag.current;
-            if (!start || start.id !== event.pointerId || !aspect) return;
-            const box = event.currentTarget.getBoundingClientRect();
-            setFrame(
-              panBanner(
-                start.frame,
-                aspect,
-                (event.clientX - start.x) / box.width,
-                (event.clientY - start.y) / box.height
-              )
-            );
-          }}
-          onPointerUp={() => {
-            drag.current = null;
-          }}
-          onPointerCancel={() => {
-            drag.current = null;
-          }}
-          onLostPointerCapture={() => {
-            drag.current = null;
-          }}
+          {...panHandlers}
         >
           <BannerImage
             src={src}
             frame={frame}
+            aspectRatio={viewportAspect}
             onReady={setAspect}
             onError={() => setFailed(true)}
           />
@@ -160,7 +124,9 @@ export function BannerCrop({
           variant="secondary"
           disabled={!ready}
           aria-label={t("profileUi.rotateImageClockwise")}
-          onClick={() => setFrame(current => rotateBanner(current, aspect!))}
+          onClick={() =>
+            setFrame(current => rotateBanner(current, aspect!, viewportAspect))
+          }
         >
           {t("profileUi.rotate90")}{" "}
         </Button>

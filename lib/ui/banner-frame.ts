@@ -77,17 +77,22 @@ export function responsiveBannerFrame(
   return { ...frame, zoom: target.minZoom + progress * (1 - target.minZoom) };
 }
 
-export function rotateBanner(input: BannerFrame, aspect: number): BannerFrame {
+export function rotateBanner(
+  input: BannerFrame,
+  aspect: number,
+  viewportAspect = BANNER_ASPECT
+): BannerFrame {
   const frame = normalizeBannerFrame(input);
   const entireImage =
-    frame.zoom <= bannerGeometry(aspect, frame).minZoom + 0.00001;
+    frame.zoom <=
+    bannerGeometry(aspect, frame, viewportAspect).minZoom + 0.00001;
   const rotated = {
     ...frame,
     x: 50,
     y: 50,
     rotation: ((frame.rotation ?? 0) + 90) % 360
   };
-  const minZoom = bannerGeometry(aspect, rotated).minZoom;
+  const minZoom = bannerGeometry(aspect, rotated, viewportAspect).minZoom;
   return normalizeBannerFrame({
     ...rotated,
     zoom: entireImage ? minZoom : Math.max(minZoom, frame.zoom)
@@ -98,9 +103,14 @@ export function panBanner(
   frame: BannerFrame,
   aspect: number,
   dx: number,
-  dy: number
+  dy: number,
+  viewportAspect = BANNER_ASPECT
 ): BannerFrame {
-  const { overflowX, overflowY } = bannerGeometry(aspect, frame);
+  const { overflowX, overflowY } = bannerGeometry(
+    aspect,
+    frame,
+    viewportAspect
+  );
   return normalizeBannerFrame({
     ...frame,
     x: overflowX > 0.00001 ? frame.x - (dx * 100) / overflowX : 50,

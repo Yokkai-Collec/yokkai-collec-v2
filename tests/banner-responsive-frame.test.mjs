@@ -35,3 +35,16 @@ test("zoomed framing retains its selected position and magnification", () => {
   const adjusted = exports.responsiveBannerFrame(1.75, frame, 8);
   for (const key of Object.keys(frame)) assert.equal(adjusted[key], frame[key]);
 });
+
+test("panning and fit rotation use the same wide viewport as the displayed banner", () => {
+  const aspect = 1.75;
+  const viewport = 5;
+  const frame = { x: 50, y: 50, zoom: 1.5, rotation: 0 };
+  const geometry = exports.bannerGeometry(aspect, frame, viewport);
+  const moved = exports.panBanner(frame, aspect, 0, 0.1, viewport);
+  assert.ok(Math.abs(moved.y - (50 - 10 / geometry.overflowY)) < 1e-9);
+  const fit = { ...frame, zoom: geometry.minZoom };
+  const rotated = exports.rotateBanner(fit, aspect, viewport);
+  const result = exports.bannerGeometry(aspect, rotated, viewport);
+  assert.ok(result.overflowX < 1e-9 && result.overflowY < 1e-9);
+});
