@@ -1,6 +1,6 @@
 "use client";
 import { useSyncExternalStore } from "react";
-import { useShowcaseScroll } from "@/lib/ui/profile-style";
+import { showcaseScrollRef } from "@/lib/ui/profile-style";
 import { i18nEnabled } from "@/i18n/locale";
 const subscribeToHydration = () => () => {};
 import { gameErrorKey } from "@/i18n/game-messages";
@@ -143,7 +143,6 @@ function Featured({
 }) {
   const t = useTranslations();
   const [selected, setSelected] = useState<Card | null>(null);
-  const scrollRef = useShowcaseScroll(cards.length);
   const pathname = usePathname();
   const publicPseudo = pathname.startsWith("/profile/")
     ? decodeURIComponent(pathname.slice("/profile/".length))
@@ -171,7 +170,7 @@ function Featured({
       )}
       <div
         className="yk-card-grid yk-featured-stage"
-        ref={scrollRef}
+        ref={showcaseScrollRef}
         {...showcaseDesignAttributes(design)}
       >
         {cards.map((card, index) => (

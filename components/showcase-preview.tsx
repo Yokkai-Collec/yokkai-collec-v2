@@ -1,6 +1,6 @@
 "use client";
 import { useTranslations } from "next-intl";
-import { useShowcaseScroll } from "@/lib/ui/profile-style";
+import { showcaseScrollRef } from "@/lib/ui/profile-style";
 import type { CSSProperties } from "react";
 import { YokaiCard } from "@/components/yokai-card";
 import { ShowcaseAtmosphere } from "@/components/showcase-atmosphere";
@@ -20,7 +20,6 @@ export function ShowcasePreview({
   value: ProfileStyle;
 }) {
   const t = useTranslations("profileUi");
-  const scrollRef = useShowcaseScroll(cards.length);
   return (
     <section className="yk-showcase-live-preview" aria-label={t("livepreview")}>
       <ShowcaseAtmosphere
@@ -40,7 +39,7 @@ export function ShowcasePreview({
         >
           <div
             className="yk-featured-stage yk-showcase-design"
-            ref={scrollRef}
+            ref={showcaseScrollRef}
             {...showcaseDesignAttributes(value)}
           >
             {cards.map((card, index) => (
