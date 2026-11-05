@@ -1226,16 +1226,23 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   .yk-profile-identity
   > .yk-profile-banner.has-image
   > .yk-banner-framed-image {
-  inset: 0;
-  width: 100%;
+  inset: 0 auto 0 50%;
+  width: 82%;
   height: 100%;
   max-width: none;
   max-height: none;
   margin: 0;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
-  /* Saved crop transforms must not shrink the image or expose empty edges. */
-  transform: none !important;
+  /* A gentler crop fills most of the banner; blurred sides soften the edges. */
+  transform: translateX(-50%) !important;
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 6%,
+    #000 94%,
+    transparent
+  );
 }
 .yk-profile-hub:not([data-profile-compact])
   .yk-profile-identity
