@@ -10,6 +10,14 @@ export const DEFAULT_BANNER_FRAME: BannerFrame = { x: 50, y: 28, zoom: 1 };
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
 
+/** Keep landscape covers generous without turning portrait uploads into tall headers. */
+export function profileBannerAspect(imageAspect = 3, rotation = 0) {
+  const aspect =
+    Number.isFinite(imageAspect) && imageAspect > 0 ? imageAspect : 3;
+  const rotated = Math.abs(rotation % 180) === 90 ? 1 / aspect : aspect;
+  return clamp(rotated, 3, 5);
+}
+
 export function normalizeBannerFrame(frame: BannerFrame): BannerFrame {
   const finite = (value: number, fallback: number) =>
     Number.isFinite(value) ? value : fallback;

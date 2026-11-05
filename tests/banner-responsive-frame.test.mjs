@@ -48,3 +48,13 @@ test("panning and fit rotation use the same wide viewport as the displayed banne
   const result = exports.bannerGeometry(aspect, rotated, viewport);
   assert.ok(result.overflowX < 1e-9 && result.overflowY < 1e-9);
 });
+
+test("profile cover proportions follow the uploaded image within a compact landscape range", () => {
+  for (const aspect of [0.5, 1, 1070 / 602, 498 / 281, 3])
+    assert.equal(exports.profileBannerAspect(aspect), 3);
+  assert.equal(exports.profileBannerAspect(4), 4);
+  assert.equal(exports.profileBannerAspect(12), 5);
+  assert.equal(exports.profileBannerAspect(4, 90), 3);
+  assert.equal(exports.profileBannerAspect(0.25, 270), 4);
+  assert.equal(exports.profileBannerAspect(NaN), 3);
+});

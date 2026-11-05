@@ -13,6 +13,7 @@ import {
 import {
   bannerGeometry,
   panBanner,
+  profileBannerAspect,
   type BannerFrame
 } from "@/lib/ui/banner-frame";
 
@@ -38,6 +39,12 @@ export function BannerImage({
   useEffect(() => {
     const container = imageRef.current?.parentElement;
     if (!fillContainer || !container) return;
+    container.style.setProperty(
+      "--profile-cover-aspect",
+      String(
+        profileBannerAspect(ready ? loaded.aspect : undefined, frame.rotation)
+      )
+    );
     const measure = () => {
       if (container.clientHeight > 0) {
         setViewportAspect(container.clientWidth / container.clientHeight);
@@ -46,8 +53,11 @@ export function BannerImage({
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(container);
-    return () => observer.disconnect();
-  }, [fillContainer]);
+    return () => {
+      observer.disconnect();
+      container.style.removeProperty("--profile-cover-aspect");
+    };
+  }, [fillContainer, ready, loaded?.aspect, frame.rotation]);
   const geometry = bannerGeometry(
     ready ? loaded.aspect : 2.3,
     frame,
@@ -76,33 +86,8 @@ export function BannerImage({
     />
   );
 }
-export function useProfileBannerAspect() {
-  const [viewportAspect, setViewportAspect] = useState(2.3);
-  useEffect(() => {
-    const header = document.querySelector<HTMLElement>(
-      ".yk-profile-hub:not([data-profile-compact]) > .yk-profile-identity"
-    );
-    if (!header) return;
-    const measure = () => {
-      const banner = header.querySelector<HTMLElement>(
-        ".yk-profile-banner.has-image"
-      );
-      const height =
-        banner?.clientHeight ||
-        Math.min(280, Math.max(140, window.innerWidth * 0.22));
-      if (header.clientWidth > 0)
-        setViewportAspect(header.clientWidth / height);
-    };
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(header);
-    window.addEventListener("resize", measure);
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("resize", measure);
-    };
-  }, []);
-  return viewportAspect;
+export function useProfileBannerAspect(aspect?: number, rotation = 0) {
+  return profileBannerAspect(aspect, rotation);
 }
 
 export function useBannerPan(

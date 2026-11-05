@@ -34,7 +34,7 @@ export function BannerCrop({
   );
   const [aspect, setAspect] = useState<number>();
   const [failed, setFailed] = useState(false);
-  const viewportAspect = useProfileBannerAspect();
+  const viewportAspect = useProfileBannerAspect(aspect, frame.rotation);
   const ready = !!aspect && !failed;
   const panHandlers = useBannerPan(
     frame,
