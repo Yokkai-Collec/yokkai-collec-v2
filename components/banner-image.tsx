@@ -2,7 +2,11 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { useEffect, useRef, useState } from "react";
-import { bannerGeometry, type BannerFrame } from "@/lib/ui/banner-frame";
+import {
+  bannerGeometry,
+  responsiveBannerFrame,
+  type BannerFrame
+} from "@/lib/ui/banner-frame";
 
 export function BannerImage({
   src,
@@ -36,29 +40,47 @@ export function BannerImage({
   const ready = loaded?.src === src;
   const geometry = bannerGeometry(
     ready ? loaded.aspect : 2.3,
-    fillContainer ? { ...frame, zoom: Math.max(1, frame.zoom) } : frame,
+    fillContainer
+      ? responsiveBannerFrame(
+          ready ? loaded.aspect : 2.3,
+          frame,
+          viewportAspect
+        )
+      : frame,
     fillContainer ? viewportAspect : 2.3
   );
   return (
-    <img
-      ref={imageRef}
-      className="yk-banner-framed-image"
-      src={src}
-      alt=""
-      aria-hidden="true"
-      decoding="async"
-      draggable={false}
-      style={{
-        visibility: ready ? "visible" : "hidden",
-        transform: `translate(${geometry.offsetX}%, ${geometry.offsetY}%) scale(${geometry.scale}) rotate(${geometry.rotation}deg)`
-      }}
-      onLoad={event => {
-        const image = event.currentTarget;
-        const aspect = image.naturalWidth / image.naturalHeight;
-        setLoaded({ src, aspect });
-        onReady?.(aspect);
-      }}
-      onError={onError}
-    />
+    <>
+      {fillContainer && (
+        <img
+          className="yk-banner-backdrop"
+          src={src}
+          alt=""
+          aria-hidden="true"
+          decoding="async"
+          draggable={false}
+        />
+      )}
+      <img
+        ref={imageRef}
+        className="yk-banner-framed-image"
+        src={src}
+        alt=""
+        aria-hidden="true"
+        decoding="async"
+        draggable={false}
+        style={{
+          visibility: ready ? "visible" : "hidden",
+          transform: `translate(${geometry.offsetX}%, ${geometry.offsetY}%) scale(${geometry.scale}) rotate(${geometry.rotation}deg)`
+        }}
+        onLoad={event => {
+          const image = event.currentTarget;
+          const aspect = image.naturalWidth / image.naturalHeight;
+          setLoaded({ src, aspect });
+          onReady?.(aspect);
+        }}
+        onError={onError}
+      />
+    </>
   );
 }

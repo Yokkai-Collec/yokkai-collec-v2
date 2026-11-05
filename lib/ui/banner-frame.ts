@@ -59,6 +59,24 @@ export function bannerGeometry(
   };
 }
 
+/** Preserve fit-to-cover zoom intent when the displayed banner changes shape. */
+export function responsiveBannerFrame(
+  imageAspect: number,
+  input: BannerFrame,
+  viewportAspect: number
+): BannerFrame {
+  const frame = normalizeBannerFrame(input);
+  if (frame.zoom > 1) return frame;
+  const source = bannerGeometry(imageAspect, frame);
+  if (frame.zoom === 1 && source.minZoom < 1) return frame;
+  const target = bannerGeometry(imageAspect, frame, viewportAspect);
+  const progress =
+    source.minZoom < 1
+      ? clamp((frame.zoom - source.minZoom) / (1 - source.minZoom), 0, 1)
+      : 0;
+  return { ...frame, zoom: target.minZoom + progress * (1 - target.minZoom) };
+}
+
 export function rotateBanner(input: BannerFrame, aspect: number): BannerFrame {
   const frame = normalizeBannerFrame(input);
   const entireImage =
