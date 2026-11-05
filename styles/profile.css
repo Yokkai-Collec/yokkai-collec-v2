@@ -1549,36 +1549,18 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   flex: 0 0 var(--profile-showcase-card-width);
 }
 
-/* Give the artwork room rather than shrinking ten copies into a narrow strip. */
+/* Keep the same compact artwork size and stage height at every card count. */
 .yk-profile-hub:not([data-profile-compact])
   > .yk-profile-main
   .yk-profile-showcase
   .yk-featured-stage
   > div:not(.yk-featured-empty) {
-  flex: 0 0 clamp(138px, 13vw, 164px);
+  flex: 0 0 clamp(116px, 13vw, 132px);
   min-width: 0;
 }
 .yk-profile-hub:not([data-profile-compact])
   > .yk-profile-main
   .yk-profile-showcase
-  .yk-featured-stage:not(:has(> div:nth-child(5):not(.yk-featured-empty)))
-  > div:not(.yk-featured-empty) {
-  flex-basis: clamp(160px, 18vw, 192px);
-}
-.yk-profile-hub:not([data-profile-compact])
-  > .yk-profile-main
-  .yk-profile-showcase
-  .yk-featured-stage:not(:has(> div:nth-child(2):not(.yk-featured-empty)))
-  > div:not(.yk-featured-empty) {
-  flex-basis: clamp(116px, 13vw, 132px);
-}
-
-/* A single piece needs a compact stage so collections stay within reach. */
-.yk-profile-hub:not([data-profile-compact])
-  > .yk-profile-main
-  .yk-profile-showcase
-  .yk-featured-stage:has(> div:not(.yk-featured-empty)):not(
-    :has(> div:nth-child(2):not(.yk-featured-empty))
-  ) {
+  .yk-featured-stage:has(> div:not(.yk-featured-empty)) {
   padding-block: 8px 10px;
 }
