@@ -22,10 +22,13 @@ export function ShowcaseAtmosphere({
       overlay.style.top = `${Math.max(0, heading.getBoundingClientRect().bottom - surface.getBoundingClientRect().top + 8)}px`;
     };
     const observer = new ResizeObserver(place);
+    const motion = matchMedia("(prefers-reduced-motion: reduce)");
     let visible = true;
     const pause = () => {
       overlay.dataset.motion =
-        visible && !document.hidden && intensity > 0 ? "running" : "paused";
+        visible && !document.hidden && !motion.matches && intensity > 0
+          ? "running"
+          : "paused";
     };
     const intersection = new IntersectionObserver(entries => {
       visible = entries[0].isIntersecting;
@@ -33,6 +36,7 @@ export function ShowcaseAtmosphere({
     });
     intersection.observe(overlay);
     document.addEventListener("visibilitychange", pause);
+    motion.addEventListener("change", pause);
     observer.observe(heading);
     observer.observe(surface);
     place();
@@ -41,6 +45,7 @@ export function ShowcaseAtmosphere({
       observer.disconnect();
       intersection.disconnect();
       document.removeEventListener("visibilitychange", pause);
+      motion.removeEventListener("change", pause);
     };
   }, [scene, intensity]);
   useEffect(() => {
@@ -255,11 +260,13 @@ export function ShowcaseAtmosphere({
   if (scene === "flames")
     return (
       <div
+        ref={iceRef}
         className="yk-showcase-fire"
         data-atmosphere="flames"
         style={{ opacity: Math.max(0, Math.min(100, intensity)) / 100 }}
         aria-hidden="true"
       >
+        <span className="yk-showcase-fire-top" />
         <span className="yk-showcase-fire-bottom" />
       </div>
     );

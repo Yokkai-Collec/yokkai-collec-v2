@@ -2059,4 +2059,4 @@ body:has(.yk-pro-site-background) {
   gap: 14px;
 }
 
-/* Photographic fire and ice frame the interactive showcase without intercepting gestures. */
+/* Alpha fire animations use static frames when motion is reduced or the showcase is hidden. */

@@ -33,4 +33,8 @@ La vitrine et son aper�u masquent leur barre horizontale. La molette fait d�
 
 ### Feu photographique
 
-Le th�me feu utilise maintenant `public/images/fire-bottom.webp`, extrait de la bande inf�rieure (2172 � 304 px) de l�image fournie par le propri�taire du projet. Le canal alpha est conserv� � l�identique ; les pixels sombres de la texture ne sont pas transform�s en transparence. L�asset optimis� p�se 304 624 octets. Aucune animation de feu avec alpha n��tant disponible dans le projet, ce rendu est statique : aucun faux mouvement de flamme CSS/SVG/canvas. Une lueur chaude discr�te accompagne la bande, avec un masque qui att�nue les pointes au centre. Les dimensions de la vitrine, les cartes et les autres th�mes restent inchang�s. Aucun changement SQL.
+Le feu dessine en CSS/SVG/canvas a ete retire. Le theme charge les deux WebP animes fournis : fire-top-animated.webp (612 596 octets) et fire-bottom-animated.webp (872 880 octets), 12 images et une boucle de 1,2 seconde chacun. Le canal alpha reel a ete verifie sur chaque image, avec des zones totalement transparentes et des bords translucides. Aucun damier opaque n'est integre.
+
+Les bandes conservent leurs proportions, se repetent sur la largeur et restent derriere les cartes (pointer-events: none). Le bandeau superieur commence sous le titre et les commandes ; le bas est attenue au centre. Les dimensions et la position des cartes sont conservees.
+
+Des images fixes extraites des premiers frames prennent le relais lorsque prefers-reduced-motion est actif, que la vitrine sort de l'ecran, que l'onglet est masque ou que l'intensite est nulle. Aucune animation JavaScript de flamme ne tourne. L'ancienne bande statique fire-bottom.webp reste disponible et sert de miniature au selecteur. Aucun changement SQL.

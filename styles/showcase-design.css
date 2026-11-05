@@ -210,7 +210,7 @@
 .yk-showcase-fire {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: 0;
   overflow: hidden;
   border-radius: inherit;
   pointer-events: none;
@@ -222,17 +222,40 @@
   height: clamp(80px, 12vw, 150px);
   background: radial-gradient(ellipse at 50% 100%, #fa6a1824, transparent 72%);
 }
+.yk-showcase-fire-top,
 .yk-showcase-fire-bottom {
   position: absolute;
   inset: auto 0 0;
   height: clamp(65px, 9vw, 112px);
-  background: url("/images/fire-bottom.webp") center bottom / auto 100% repeat-x;
+  background: url("/images/fire-bottom-still.webp") center bottom / auto 100%
+    repeat-x;
   mask-image: radial-gradient(
     ellipse 24% 65% at 50% 0,
     transparent 5%,
     #000 85%
   );
   pointer-events: none;
+}
+.yk-showcase-fire-top {
+  inset: 0 0 auto;
+  height: clamp(45px, 6vw, 80px);
+  background-image: url("/images/fire-top-still.webp");
+  background-position: center top;
+  mask-image: none;
+}
+.yk-showcase-fire[data-motion="running"] .yk-showcase-fire-top {
+  background-image: url("/images/fire-top-animated.webp");
+}
+.yk-showcase-fire[data-motion="running"] .yk-showcase-fire-bottom {
+  background-image: url("/images/fire-bottom-animated.webp");
+}
+@media (prefers-reduced-motion: reduce) {
+  .yk-showcase-fire[data-motion] .yk-showcase-fire-top {
+    background-image: url("/images/fire-top-still.webp");
+  }
+  .yk-showcase-fire[data-motion] .yk-showcase-fire-bottom {
+    background-image: url("/images/fire-bottom-still.webp");
+  }
 }
 .yk-profile-showcase > header,
 .yk-profile-showcase > .yk-profile-section-heading,
