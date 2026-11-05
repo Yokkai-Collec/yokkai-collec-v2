@@ -204,24 +204,28 @@ export function ShowcaseAtmosphere({
       for (let i = 0; i < tongues; i++) {
         const base =
           ((i + 0.5) * width) / tongues + Math.sin(time * 0.6 + i) * 9;
-        const tall = height * (0.3 + hash(i, 5) * 0.6);
-        const sway = Math.sin(time * 1.1 + i * 2) * 24;
+        const tall =
+          height *
+          (0.3 + hash(i, 5) * 0.6) *
+          (0.88 + Math.sin(time * 1.7 + i) * 0.12);
+        const sway = Math.sin(time * 1.1 + i * 2) * 36;
+        const breadth = 12 + hash(i, 9) * 15;
         ctx.beginPath();
-        ctx.moveTo(base - 13, height + 6);
+        ctx.moveTo(base - breadth, height + 6);
         ctx.bezierCurveTo(
-          base - 26,
+          base - breadth * 1.7,
           height - tall * 0.32,
-          base + sway + 18,
-          height - tall * 0.54,
-          base + sway,
+          base + sway - breadth,
+          height - tall * 0.63,
+          base + sway * 1.6,
           height - tall
         );
         ctx.bezierCurveTo(
-          base + sway + 5,
-          height - tall * 0.49,
-          base + 25,
-          height - tall * 0.24,
-          base + 13,
+          base + sway * 1.6 - breadth * 0.8,
+          height - tall * 0.64,
+          base + breadth * 1.9,
+          height - tall * 0.42,
+          base + breadth,
           height + 6
         );
         const gradient = ctx.createLinearGradient(
@@ -230,17 +234,50 @@ export function ShowcaseAtmosphere({
           base,
           height - tall
         );
-        gradient.addColorStop(0, "#ffdba833");
-        gradient.addColorStop(0.45, "#ff9a3e18");
+        gradient.addColorStop(0, "#fff1ba9c");
+        gradient.addColorStop(0.2, "#ffcb6590");
+        gradient.addColorStop(0.52, "#ff7b305c");
+        gradient.addColorStop(0.84, "#f448252b");
         gradient.addColorStop(1, "#ff5f2800");
         ctx.fillStyle = gradient;
+        ctx.shadowColor = "#ff822e";
+        ctx.shadowBlur = 9;
         ctx.fill();
         ctx.shadowColor = "#ff762b";
         ctx.shadowBlur = 14;
-        ctx.strokeStyle = `rgba(255,157,68,${0.2 + hash(i, 2) * 0.32})`;
-        ctx.lineWidth = 1.3;
+        ctx.strokeStyle = `rgba(255,181,88,${0.15 + hash(i, 2) * 0.25})`;
+        ctx.lineWidth = 0.8;
         ctx.stroke();
         ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.moveTo(base - breadth * 0.45, height);
+        ctx.bezierCurveTo(
+          base + breadth,
+          height - tall * 0.2,
+          base - breadth,
+          height - tall * 0.3,
+          base + sway * 0.4,
+          height - tall * 0.58
+        );
+        ctx.bezierCurveTo(
+          base + breadth * 0.4,
+          height - tall * 0.28,
+          base + breadth * 0.6,
+          height - tall * 0.16,
+          base + breadth * 0.45,
+          height
+        );
+        const core = ctx.createLinearGradient(
+          base,
+          height,
+          base,
+          height - tall * 0.58
+        );
+        core.addColorStop(0, "#fff7d696");
+        core.addColorStop(0.55, "#ffe8a844");
+        core.addColorStop(1, "#ffcb6500");
+        ctx.fillStyle = core;
+        ctx.fill();
         const rise = (time * (0.045 + hash(i, 8) * 0.035) + hash(i, 7)) % 1;
         ctx.fillStyle = "#ffd8a1";
         ctx.globalAlpha = Math.sin(rise * Math.PI) * 0.7;
@@ -266,6 +303,49 @@ export function ShowcaseAtmosphere({
       haze.addColorStop(1, "#a9eaff36");
       ctx.fillStyle = haze;
       ctx.fillRect(0, 0, width, height);
+      // Faceted ice shelves grow inward from both edges, leaving the art clear.
+      for (const top of [true, false]) {
+        ctx.save();
+        if (!top) {
+          ctx.translate(0, height);
+          ctx.scale(1, -1);
+        }
+        const shelf = ctx.createLinearGradient(0, 0, 0, height * 0.25);
+        shelf.addColorStop(0, "#e2faffc0");
+        shelf.addColorStop(0.2, "#91d7f18c");
+        shelf.addColorStop(0.65, "#4da0c735");
+        shelf.addColorStop(1, "#87dfff00");
+        ctx.fillStyle = shelf;
+        ctx.strokeStyle = "#c8f4ff85";
+        ctx.lineWidth = 0.65;
+        const shards = Math.ceil(width / 36);
+        for (let i = 0; i < shards; i++) {
+          const x = i * 36,
+            seed = top ? 13 : 27;
+          const length = 19 + hash(i, seed) * Math.min(84, height * 0.23);
+          const tip = x + 9 + hash(i, seed + 1) * 22;
+          ctx.beginPath();
+          ctx.moveTo(x - 10, 0);
+          ctx.lineTo(x + 42, 0);
+          ctx.lineTo(x + 30, length * 0.3);
+          ctx.lineTo(tip, length);
+          ctx.lineTo(x + 7, length * 0.43);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(x + 19, 0);
+          ctx.lineTo(tip, length);
+          ctx.lineTo(x + 28, length * 0.29);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(x - 10, 12 + hash(i, 3) * 9);
+          ctx.lineTo(x + 18, 26 + hash(i, 6) * 10);
+          ctx.lineTo(x + 39, 13);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
       function crystal(
         x: number,
         y: number,
