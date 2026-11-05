@@ -67,6 +67,11 @@ export function bannerGeometry(
   };
 }
 
+/** Zoom is relative to cover, so 1 and above leave no uncovered space. */
+export function bannerNeedsBackdrop(input: BannerFrame) {
+  return normalizeBannerFrame(input).zoom < 1;
+}
+
 /** Preserve fit-to-cover zoom intent when the displayed banner changes shape. */
 export function responsiveBannerFrame(
   imageAspect: number,

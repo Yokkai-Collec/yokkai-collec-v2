@@ -12,6 +12,7 @@ import {
 } from "react";
 import {
   bannerGeometry,
+  bannerNeedsBackdrop,
   panBanner,
   profileBannerAspect,
   type BannerFrame
@@ -59,17 +60,19 @@ export function BannerImage({
       container.style.removeProperty("--profile-cover-aspect");
     };
   }, [fillContainer, coverAspect]);
-  const targetAspect =
-    (fillContainer ? viewportAspect : aspectRatio) * (blended ? 0.82 : 1);
+  const targetAspect = fillContainer ? viewportAspect : aspectRatio;
   const imageAspect = ready ? loaded.aspect : 2.3;
   const geometry = bannerGeometry(imageAspect, frame, targetAspect);
+  const showBackdrop = blended && bannerNeedsBackdrop(frame);
   // Feather the actual painted image edges, including when zoomed out inside
   // its element box. Masking only the outer layer leaves hard seams at low zoom.
   const edge = (1 - Math.min(1, imageAspect / targetAspect)) * 50;
-  const feather = Math.min(4, (50 - edge) * 0.12);
+  const feather =
+    Math.min(4, (50 - edge) * 0.12) *
+    Math.min(1, Math.max(0, 1 - frame.zoom) * 8);
   return (
     <>
-      {blended && (
+      {showBackdrop && (
         <img
           className="yk-banner-blurred-background"
           src={src}
@@ -93,7 +96,7 @@ export function BannerImage({
           draggable={false}
           style={{
             visibility: ready ? "visible" : "hidden",
-            maskImage: blended
+            maskImage: showBackdrop
               ? `linear-gradient(to right, transparent ${edge}%, #000 ${edge + feather}%, #000 ${100 - edge - feather}%, transparent ${100 - edge}%)`
               : undefined,
             transform: `translate(${geometry.offsetX}%, ${geometry.offsetY}%) scale(${geometry.scale}) rotate(${geometry.rotation}deg)`

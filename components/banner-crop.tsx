@@ -39,12 +39,11 @@ export function BannerCrop({
   const panHandlers = useBannerPan(
     frame,
     aspect,
-    viewportAspect * 0.82,
+    viewportAspect,
     ready,
-    setFrame,
-    0.82
+    setFrame
   );
-  const geometry = bannerGeometry(aspect ?? 2.3, frame, viewportAspect * 0.82);
+  const geometry = bannerGeometry(aspect ?? 2.3, frame, viewportAspect);
 
   return (
     <Modal
@@ -127,9 +126,7 @@ export function BannerCrop({
           disabled={!ready}
           aria-label={t("profileUi.rotateImageClockwise")}
           onClick={() =>
-            setFrame(current =>
-              rotateBanner(current, aspect!, viewportAspect * 0.82)
-            )
+            setFrame(current => rotateBanner(current, aspect!, viewportAspect))
           }
         >
           {t("profileUi.rotate90")}{" "}
