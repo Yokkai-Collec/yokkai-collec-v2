@@ -35,6 +35,7 @@ export function BannerImage({
   const [loaded, setLoaded] = useState<{ src: string; aspect: number }>();
   const imageRef = useRef<HTMLImageElement>(null);
   const ready = loaded?.src === src;
+  const [viewportAspect, setViewportAspect] = useState(3);
   const coverAspect = profileBannerAspect(
     ready ? loaded.aspect : undefined,
     frame.rotation
@@ -42,20 +43,23 @@ export function BannerImage({
   useEffect(() => {
     const container = imageRef.current?.parentElement;
     if (!fillContainer || !container) return;
-    container.style.setProperty(
-      "--profile-cover-aspect",
-      String(
-        profileBannerAspect(ready ? loaded.aspect : undefined, frame.rotation)
-      )
-    );
+    container.style.setProperty("--profile-cover-aspect", String(coverAspect));
+    const measure = () => {
+      if (container.clientHeight > 0)
+        setViewportAspect(container.clientWidth / container.clientHeight);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(container);
     return () => {
+      observer.disconnect();
       container.style.removeProperty("--profile-cover-aspect");
     };
-  }, [fillContainer, ready, loaded?.aspect, frame.rotation]);
+  }, [fillContainer, coverAspect]);
   const geometry = bannerGeometry(
     ready ? loaded.aspect : 2.3,
     frame,
-    fillContainer ? coverAspect : aspectRatio
+    fillContainer ? viewportAspect : aspectRatio
   );
   return (
     <img
@@ -81,7 +85,20 @@ export function BannerImage({
   );
 }
 export function useProfileBannerAspect(aspect?: number, rotation = 0) {
-  return profileBannerAspect(aspect, rotation);
+  const sourceAspect = profileBannerAspect(aspect, rotation);
+  const [width, setWidth] = useState(0);
+  useEffect(() => {
+    const header = document.querySelector<HTMLElement>(
+      ".yk-profile-hub:not([data-profile-compact]) > .yk-profile-identity"
+    );
+    if (!header) return;
+    const measure = () => setWidth(header.clientWidth);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, []);
+  return Math.max(sourceAspect, width / 220);
 }
 
 export function useBannerPan(
