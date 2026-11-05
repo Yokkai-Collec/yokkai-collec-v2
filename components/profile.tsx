@@ -36,7 +36,7 @@ import { AvatarDecoration } from "@/components/avatar-decoration";
 import { StyledPlayerName } from "@/components/styled-player-name";
 import {
   DEFAULT_PROFILE_STYLE,
-  PROFILE_WIDGET_LABELS,
+  profileWidgetLabel as widgetLabel,
   tiltShowcaseCard,
   resetShowcaseCard,
   showcaseCardPosition,
@@ -112,12 +112,6 @@ const FEATURED_CARD_LIMIT = 5;
 const PROFILE_CARD_IMAGE_SIZES =
   "(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 190px";
 
-function widgetLabel(category: string, t: ReturnType<typeof useTranslations>) {
-  return PROFILE_WIDGET_LABELS[category]
-    ? t(`profileUi.${PROFILE_WIDGET_LABELS[category]}`)
-    : category;
-}
-
 const PreferencesEditor = dynamic(() =>
   import("@/components/profile-preferences-editor").then(
     module => module.PreferencesEditor
@@ -128,17 +122,11 @@ const ShowcaseStyleFields = dynamic(() =>
     module => module.ShowcaseStyleFields
   )
 );
-
-async function persistProfileStyle(style: ProfileStyle) {
-  const response = await fetch("/api/pro/profile-style", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ style })
-  });
-  if (!response.ok)
-    throw new Error("Your profile style couldn't be saved. Try again.");
-  window.dispatchEvent(new Event("yokkai:profile-style-updated"));
-}
+const ShowcaseAtmosphere = dynamic(() =>
+  import("@/components/showcase-atmosphere").then(
+    module => module.ShowcaseAtmosphere
+  )
+);
 
 function Featured({
   cards,
@@ -173,11 +161,15 @@ function Featured({
     );
   return (
     <>
+      <ShowcaseAtmosphere
+        scene={design?.showcaseScene}
+        intensity={design?.showcaseIntensity}
+      />
       {design?.showcaseDescription && (
         <p className="yk-showcase-description">{design.showcaseDescription}</p>
       )}
       <div
-        className="yk-card-grid yk-featured-stage yk-showcase-design"
+        className="yk-card-grid yk-featured-stage"
         {...showcaseDesignAttributes(design)}
       >
         {cards.map((card, index) => (
@@ -384,7 +376,9 @@ function Editor({
             })
           )
         )
-          await persistProfileStyle(style);
+          await import("@/lib/data/showcase-style").then(module =>
+            module.persistProfileStyle(style)
+          );
         updated.profileStyle = { active: true, style };
       }
       onSaved(updated);

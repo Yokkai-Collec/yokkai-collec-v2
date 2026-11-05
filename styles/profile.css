@@ -1551,3 +1551,27 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   > div {
   flex: 0 0 var(--profile-showcase-card-width);
 }
+
+/* Give the artwork room rather than shrinking ten copies into a narrow strip. */
+.yk-profile-hub:not([data-profile-compact])
+  > .yk-profile-main
+  .yk-profile-showcase
+  .yk-featured-stage
+  > div:not(.yk-featured-empty) {
+  flex: 0 0 clamp(138px, 13vw, 164px);
+  min-width: 0;
+}
+.yk-profile-hub:not([data-profile-compact])
+  > .yk-profile-main
+  .yk-profile-showcase
+  .yk-featured-stage:not(:has(> div:nth-child(5):not(.yk-featured-empty)))
+  > div:not(.yk-featured-empty) {
+  flex-basis: clamp(160px, 18vw, 192px);
+}
+.yk-profile-hub:not([data-profile-compact])
+  > .yk-profile-main
+  .yk-profile-showcase
+  .yk-featured-stage:not(:has(> div:nth-child(2):not(.yk-featured-empty)))
+  > div:not(.yk-featured-empty) {
+  flex-basis: clamp(185px, 22vw, 220px);
+}

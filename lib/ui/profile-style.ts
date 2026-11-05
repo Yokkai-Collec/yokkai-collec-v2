@@ -170,7 +170,8 @@ export type ProfileStyle = {
     | "flames"
     | "mist"
     | "aurora"
-    | "embers";
+    | "embers"
+    | "frost";
   showcaseLayout?: "row" | "fan" | "spotlight";
   showcaseIntensity?: number;
   showcaseTitle?: string;
@@ -218,7 +219,8 @@ export function normalizeProfileStyle(input: ProfileStyle): ProfileStyle {
       "flames",
       "mist",
       "aurora",
-      "embers"
+      "embers",
+      "frost"
     ].includes(input.showcaseScene ?? "")
       ? { showcaseScene: input.showcaseScene }
       : {}),
@@ -339,6 +341,15 @@ export const PROFILE_WIDGET_LABELS: Record<string, string> = {
   MEME: "favoritememes",
   BRAINROT: "favoritebrainrot"
 };
+
+export function profileWidgetLabel(
+  category: string,
+  translate: (key: string) => string
+) {
+  return PROFILE_WIDGET_LABELS[category]
+    ? translate(`profileUi.${PROFILE_WIDGET_LABELS[category]}`)
+    : category;
+}
 
 export function tiltShowcaseCard(event: {
   currentTarget: HTMLElement;

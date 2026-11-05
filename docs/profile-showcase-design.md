@@ -14,3 +14,7 @@ Les anciennes valeurs `showcaseEffect` restent lisibles. Les nouvelles préfére
 Migration : `20261105010000_showcase_design.sql`, appliquée uniquement à la base Docker locale après sauvegarde. Non appliquée sur le VPS. Aucun déploiement en production.
 
 Migration complémentaire : `20261105020000_showcase_atmospheres.sql`, même périmètre local uniquement. Elle étend la liste des ambiances autorisées dans le garde PRO existant, sans nouveau droit SQL. La modale utilise jusqu’à 1480 px sur ordinateur et conserve une largeur adaptée au téléphone.
+
+Flammes, éclairs, brume et aurore utilisent un canvas décoratif sur toute la surface de vitrine, en dehors du rail défilant des cartes. Le rendu reste derrière les commandes et illustrations, sans intercepter les clics. Textures de bruit pour le feu et la brume, éclairs avec subdivisions et branches, rideau lumineux continu pour l’aurore. Aucun média distant ni téléchargement de vidéo. Résolution et cadence plafonnées ; le rendu s’arrête hors écran, dans un onglet masqué, à intensité zéro et en mode réduit (image statique). Les cartes sont agrandies ; leur rail reste accessible au toucher.
+
+Les flammes utilisent désormais des volutes lumineuses et des étincelles, sans aplat opaque. L’ambiance Glace et givre ajoute des cristaux ramifiés sur les bords et des particules de neige. Migration `20261105030000_showcase_frost.sql` appliquée uniquement en local après sauvegarde ; aucun nouvel accès SQL. Le lecteur de vitrine conserve les classes attendues par le contrat mobile existant.

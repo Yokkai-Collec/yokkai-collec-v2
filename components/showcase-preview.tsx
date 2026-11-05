@@ -2,6 +2,7 @@
 import { useTranslations } from "next-intl";
 import type { CSSProperties } from "react";
 import { YokaiCard } from "@/components/yokai-card";
+import { ShowcaseAtmosphere } from "@/components/showcase-atmosphere";
 import {
   showcaseColorVariables,
   showcaseCardPosition,
@@ -20,6 +21,10 @@ export function ShowcasePreview({
   const t = useTranslations("profileUi");
   return (
     <section className="yk-showcase-live-preview" aria-label={t("livepreview")}>
+      <ShowcaseAtmosphere
+        scene={value.showcaseScene}
+        intensity={value.showcaseIntensity}
+      />
       <header>
         <span>{t("livepreview")}</span>
         <h3>{value.showcaseTitle || t("featuredCards")}</h3>

@@ -54,7 +54,8 @@ export function ShowcaseDesignFields({
                 "flames",
                 "mist",
                 "aurora",
-                "embers"
+                "embers",
+                "frost"
               ] as const
             ).map(scene => (
               <button
