@@ -2,11 +2,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { useEffect, useRef, useState } from "react";
-import {
-  bannerGeometry,
-  responsiveBannerFrame,
-  type BannerFrame
-} from "@/lib/ui/banner-frame";
+import { bannerGeometry, type BannerFrame } from "@/lib/ui/banner-frame";
 
 export function BannerImage({
   src,
@@ -24,27 +20,23 @@ export function BannerImage({
   const [loaded, setLoaded] = useState<{ src: string; aspect: number }>();
   const imageRef = useRef<HTMLImageElement>(null);
   const ready = loaded?.src === src;
-  const viewportAspect = ready ? loaded.aspect : 498 / 281;
+  const [viewportAspect, setViewportAspect] = useState(2.3);
   useEffect(() => {
     const container = imageRef.current?.parentElement;
     if (!fillContainer || !container) return;
-    container.style.setProperty(
-      "--profile-cover-aspect",
-      String(viewportAspect)
-    );
-    return () => {
-      container.style.removeProperty("--profile-cover-aspect");
+    const measure = () => {
+      if (container.clientHeight > 0) {
+        setViewportAspect(container.clientWidth / container.clientHeight);
+      }
     };
-  }, [fillContainer, viewportAspect]);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [fillContainer]);
   const geometry = bannerGeometry(
     ready ? loaded.aspect : 2.3,
-    fillContainer
-      ? responsiveBannerFrame(
-          ready ? loaded.aspect : 2.3,
-          frame,
-          viewportAspect
-        )
-      : frame,
+    fillContainer ? { ...frame, zoom: Math.max(1, frame.zoom) } : frame,
     fillContainer ? viewportAspect : 2.3
   );
   return (

@@ -1206,14 +1206,14 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
 .yk-profile-hub:not([data-profile-compact]) .yk-profile-banner-shade {
   background: linear-gradient(100deg, #080d1799, #080d17ec);
 }
-/* Match the original image proportions rather than cropping into a cover strip. */
+/* Full-width cover with a bounded height to keep the collection in view. */
 .yk-profile-hub:not([data-profile-compact])
   .yk-profile-identity
   > .yk-profile-banner.has-image {
   position: relative;
   inset: auto;
-  height: auto;
-  aspect-ratio: var(--profile-cover-aspect, 498 / 281);
+  height: clamp(140px, 22vw, 280px);
+  aspect-ratio: auto;
   border-radius: 0;
   overflow: hidden;
   opacity: 1;
