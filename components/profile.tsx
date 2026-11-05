@@ -1368,7 +1368,11 @@ export function ProfileExperience({
             {bannerImage && (
               <>
                 {bannerFrame ? (
-                  <BannerImage src={bannerImage} frame={bannerFrame} />
+                  <BannerImage
+                    src={bannerImage}
+                    frame={bannerFrame}
+                    fillContainer={!compact}
+                  />
                 ) : (
                   <img
                     src={bannerImage}

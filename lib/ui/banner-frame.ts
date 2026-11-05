@@ -24,7 +24,15 @@ export function normalizeBannerFrame(frame: BannerFrame): BannerFrame {
 }
 
 /** Relative geometry: no raster export, CORS canvas access or GIF conversion. */
-export function bannerGeometry(imageAspect: number, input: BannerFrame) {
+export function bannerGeometry(
+  imageAspect: number,
+  input: BannerFrame,
+  viewportAspect = BANNER_ASPECT
+) {
+  const target =
+    Number.isFinite(viewportAspect) && viewportAspect > 0
+      ? viewportAspect
+      : BANNER_ASPECT;
   const aspect =
     Number.isFinite(imageAspect) && imageAspect > 0
       ? imageAspect
@@ -32,16 +40,13 @@ export function bannerGeometry(imageAspect: number, input: BannerFrame) {
   const frame = normalizeBannerFrame(input);
   // CSS first contains the unrotated image, then rotates/scales it. Account for
   // that initial fit before calculating cover/contain for the rotated bounds.
-  const fit = Math.min(BANNER_ASPECT / aspect, 1);
+  const fit = Math.min(target / aspect, 1);
   const quarterTurn = frame.rotation === 90 || frame.rotation === 270;
   const width = quarterTurn ? fit : aspect * fit;
   const height = quarterTurn ? aspect * fit : fit;
-  const cover = Math.max(BANNER_ASPECT / width, 1 / height);
-  const contain = Math.min(BANNER_ASPECT / width, 1 / height);
-  const overflowX = Math.max(
-    0,
-    (width * cover * frame.zoom) / BANNER_ASPECT - 1
-  );
+  const cover = Math.max(target / width, 1 / height);
+  const contain = Math.min(target / width, 1 / height);
+  const overflowX = Math.max(0, (width * cover * frame.zoom) / target - 1);
   const overflowY = Math.max(0, height * cover * frame.zoom - 1);
   return {
     minZoom: contain / cover,
