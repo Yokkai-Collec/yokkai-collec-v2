@@ -4081,13 +4081,13 @@
   },
   "licenseFolders": {
     "create": "Create folder",
-    "createTitle": "Create a folder in this binder",
+    "createTitle": "Create a folder",
     "editTitle": "Edit folder",
-    "hint": "Choose cards from this license to build a themed folder. Your copies stay in your collection. Missing cards can be included to track your progress.",
+    "hint": "Create a folder with cards from any license or category. Your copies stay in your collection.",
     "name": "Folder name",
     "namePlaceholder": "For example: Akatsuki",
     "feature": "Feature this folder on my profile",
-    "search": "Search cards in this license…",
+    "search": "Search cards or licenses…",
     "ownedOnly": "Owned cards only",
     "owned": "Owned",
     "missing": "Missing",
@@ -4112,11 +4112,13 @@
     "deleted": "Folder deleted. Your cards are unchanged.",
     "error": "The folder could not be updated. Please try again.",
     "loadError": "Featured folders could not be loaded.",
-    "nameTaken": "A folder with this name already exists in this license.",
+    "nameTaken": "A folder with this name already exists.",
     "invalidName": "Enter a folder name between 1 and 60 characters.",
     "folderLimit": "You can create up to 100 folders.",
-    "invalidCards": "Choose up to 500 cards from this license only.",
-    "notFound": "This folder no longer exists."
+    "invalidCards": "Choose up to 500 valid cards.",
+    "notFound": "This folder no longer exists.",
+    "allFolders": "My folders",
+    "manage": "Manage folders"
   },
   "profileFeatured": {
     "title": "Featured collection",

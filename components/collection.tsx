@@ -473,6 +473,7 @@ export function CollectionView({
           rarity,
           shinyOnly,
           folder,
+          folders,
           auctionOnly,
           lockedOnly,
           duplicatesOnly,
@@ -488,6 +489,7 @@ export function CollectionView({
       remote,
       category,
       folder,
+      folders,
       presentation,
       query,
       rarity,
@@ -1231,7 +1233,13 @@ export function CollectionView({
             <strong>
               {remote
                 ? (remote.counts?.unfiled ?? 0)
-                : groupCollection(cards.filter(card => !card.folderId)).length}
+                : groupCollection(
+                    cards.filter(
+                      card =>
+                        !card.folderId &&
+                        !folders.some(f => f.cardIds?.includes(card.id))
+                    )
+                  ).length}
             </strong>
           </button>
           {folders.map(item => (
@@ -1251,11 +1259,16 @@ export function CollectionView({
                 {remote
                   ? (remote.counts?.folders[item.id] ?? 0)
                   : groupCollection(
-                      cards.filter(card => card.folderId === item.id)
+                      cards.filter(
+                        card =>
+                          card.folderId === item.id ||
+                          item.cardIds?.includes(card.id)
+                      )
                     ).length}
               </strong>
             </button>
           ))}
+          {onCreateFolder && <LicenseFolderManager compact />}
           {onCreateFolder && (
             <button
               type="button"

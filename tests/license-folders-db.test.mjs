@@ -78,8 +78,15 @@ test("license folders validate membership, preserve copies, export own data and 
   assert.equal((await read(owner, id)).items.length, 24);
   assert.equal((await read(owner, id, 24)).items.length, 3);
   assert.equal((await read(owner, id, 0, true)).items.length, 1);
+  const mixed = await save(owner, null, "Other", [cards[0], other]);
+  assert.equal(
+    (await read(owner, mixed)).total,
+    2,
+    "Folders may mix licenses even when created inside a license"
+  );
+  await as(owner, "select public.delete_license_folder($1) v", [mixed]);
   await assert.rejects(
-    save(owner, null, "Other", [other]),
+    save(owner, null, "Invalid", ["85000000-0000-4000-8000-000000000099"]),
     /LICENSE_FOLDER_CARDS_INVALID/
   );
   await assert.rejects(

@@ -43,8 +43,7 @@ function FeaturedPicker({
     [retry, setRetry] = useState(0);
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(false);
-  const [creating, setCreating] = useState(false),
-    [chosenBinder, setChosenBinder] = useState<{ key: string; name: string }>();
+  const [creating, setCreating] = useState(false);
   const activeType = creating ? "binder" : tab;
   const requestKey = JSON.stringify([activeType, query, page, retry, creating]);
   const [result, setResult] = useState<{
@@ -55,7 +54,7 @@ function FeaturedPicker({
   }>();
   const current = result?.key === requestKey ? result : undefined;
   useEffect(() => {
-    if (chosenBinder) return;
+    if (creating) return;
     let active = true;
     const timer = setTimeout(() => {
       void (
@@ -77,7 +76,7 @@ function FeaturedPicker({
       active = false;
       clearTimeout(timer);
     };
-  }, [activeType, query, page, retry, requestKey, chosenBinder]);
+  }, [activeType, query, page, retry, requestKey, creating]);
   const matchingFolders =
     current?.folders?.filter(folder =>
       folder.name.toLocaleLowerCase().includes(query.toLocaleLowerCase())
@@ -129,24 +128,14 @@ function FeaturedPicker({
   }
   function returnToSelection() {
     setCreating(false);
-    setChosenBinder(undefined);
     setQuery("");
     setPage(1);
   }
-  if (creating && chosenBinder)
+  if (creating)
     return (
       <div className="yk-profile-highlight-create">
-        <Button
-          variant="secondary"
-          disabled={busy}
-          onClick={() => setChosenBinder(undefined)}
-        >
-          {t("changeLicense")}
-        </Button>
-        <h3>{t("creationTitle", { name: chosenBinder.name })}</h3>
         <FolderEditor
-          key={chosenBinder.key}
-          binderKey={chosenBinder.key}
+          binderKey={null}
           showFeaturedOption={false}
           description={t("creationHint")}
           onSavingChange={saving => {
@@ -265,9 +254,7 @@ function FeaturedPicker({
                       selected.size >= 100)
                   }
                   onClick={() => {
-                    if (creating)
-                      setChosenBinder({ key: option.key, name: option.name });
-                    else toggle(option.key);
+                    toggle(option.key);
                   }}
                 >
                   <BinderCover image={option.image} license={option.name} />

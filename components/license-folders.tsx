@@ -9,10 +9,7 @@ import {
   BinderContents,
   type ProfileFavoriteAlbum
 } from "@/components/profile-favorite-binders";
-import {
-  getPaniniAlbumCardsPage,
-  type PaniniAlbumCardPage
-} from "@/lib/data/cards";
+import { type PaniniAlbumCardPage } from "@/lib/data/cards";
 import {
   getLicenseFolders,
   getLicenseFolderCards,
@@ -63,7 +60,7 @@ export function FolderEditor({
   showFeaturedOption = true,
   description
 }: {
-  binderKey: string;
+  binderKey: string | null;
   folder?: LicenseFolder;
   onSaved: (id: string) => void;
   onClose: () => void;
@@ -91,13 +88,7 @@ export function FolderEditor({
   useEffect(() => {
     let active = true;
     const timer = setTimeout(() => {
-      void getPaniniAlbumCardsPage({
-        license: binderKey,
-        query,
-        page,
-        pageSize: 24,
-        ownedOnly
-      }).then(
+      void getLicenseFolderCards(null, page, ownedOnly, query).then(
         data => {
           if (active) setResult({ key: request, data });
         },
@@ -252,12 +243,15 @@ export function FolderEditor({
 
 export function LicenseFolderManager({
   binderKey,
-  binderName
+  binderName,
+  compact = false
 }: {
-  binderKey: string;
-  binderName: string;
+  binderKey?: string;
+  binderName?: string;
+  compact?: boolean;
 }) {
   const t = useTranslations("licenseFolders");
+  const [manage, setManage] = useState(false);
   const [folders, setFolders] = useState<LicenseFolder[]>([]),
     [refresh, setRefresh] = useState(0),
     [page, setPage] = useState(1);
@@ -277,6 +271,7 @@ export function LicenseFolderManager({
     [notice, setNotice] = useState(""),
     [busy, setBusy] = useState(false);
   useEffect(() => {
+    if (compact) return;
     let active = true;
     void getLicenseFolders(undefined, binderKey).then(
       data => {
@@ -292,7 +287,7 @@ export function LicenseFolderManager({
     return () => {
       active = false;
     };
-  }, [binderKey, refresh]);
+  }, [binderKey, refresh, compact]);
   const activePage = Math.min(page, Math.max(1, Math.ceil(folders.length / 6)));
   async function remove() {
     if (!removing) return;
@@ -311,17 +306,34 @@ export function LicenseFolderManager({
   }
   return (
     <>
-      <Button
-        variant="secondary"
-        className="yk-license-folder-create"
-        onClick={() => setEditor("new")}
+      {compact && (
+        <Button variant="secondary" onClick={() => setManage(true)}>
+          {t("manage")}
+        </Button>
+      )}
+      <Modal
+        open={compact && manage}
+        onClose={() => setManage(false)}
+        title={t("allFolders")}
+        className="yk-license-folder-modal"
       >
-        <span aria-hidden="true">＋</span>
-        {t("create")}
-      </Button>
-      {(folders.length > 0 || error || notice) && (
+        {compact && manage && <LicenseFolderManager />}
+      </Modal>
+      {!compact && (
+        <Button
+          variant="secondary"
+          className="yk-license-folder-create"
+          onClick={() => setEditor("new")}
+        >
+          <span aria-hidden="true">＋</span>
+          {t("create")}
+        </Button>
+      )}
+      {!compact && (folders.length > 0 || error || notice) && (
         <div className="yk-license-folder-list">
-          <h3>{t("inBinder", { name: binderName })}</h3>
+          <h3>
+            {binderName ? t("inBinder", { name: binderName }) : t("allFolders")}
+          </h3>
           {error && (
             <p role="alert" className="yk-license-folder-error">
               {t(error)}{" "}
@@ -396,7 +408,9 @@ export function LicenseFolderManager({
         {editor && (
           <FolderEditor
             key={editor === "new" ? "new" : editor.id}
-            binderKey={binderKey}
+            binderKey={
+              editor === "new" ? (binderKey ?? null) : editor.binderKey
+            }
             folder={editor === "new" ? undefined : editor}
             onClose={() => setEditor(undefined)}
             onSavingChange={setBusy}

@@ -46,7 +46,7 @@ export type PaniniAlbumCardPage = {
   binderOwned?: number;
 };
 export type CollectedCard = Card & { instanceId: string; obtainedAt: string; shiny: boolean; isEvolved: boolean; isFirstOwner: boolean; locked?: boolean; folderId: string | null; catalogueImage: string; customImageUrl: string | null; destructionValue?: number };
-export type Folder = { id: string; name: string };
+export type Folder = { id: string; name: string; cardIds?: string[] };
 export type ActiveAuctionCard = { instanceId: string; auctionId: string; endsAt: string };
 export type PackStatus = {
   available: number;
@@ -96,6 +96,10 @@ function failure(error: { message?: string; code?: string }) {
   "CARD_FROZEN": "cardErrors.cardFrozen",
   "CARD_LOCKED": "cardErrors.cardLocked",
   "INVALID_CARD_SELECTION": "cardErrors.invalidCardSelection",
+  "LICENSE_FOLDER_NAME_TAKEN": "licenseFolders.nameTaken",
+  "LICENSE_FOLDER_NAME_INVALID": "licenseFolders.invalidName",
+  "LICENSE_FOLDER_LIMIT": "licenseFolders.folderLimit",
+  "LICENSE_FOLDER_NOT_FOUND": "licenseFolders.notFound",
   "FOLDER_NAME_TAKEN": "cardErrors.folderNameTaken",
   "FOLDER_NOT_FOUND": "cardErrors.folderNotFound",
   "PGRST301": "cardErrors.authRequired",
@@ -630,31 +634,11 @@ export async function discardCollectionCards(instanceIds: string[]): Promise<num
 
 export async function getFolders(sharePending = false): Promise<Folder[]> {
   const id = await playerId(true);
-  const { data, error } = await (sharePending
-    ? cache.memo(`read:folders:${id}`, 0, () =>
-        readRequest(signal =>
-          db()
-            .from("folders")
-            .select("id,nom")
-            .eq("user_id", id)
-            .order("nom")
-            .abortSignal(signal)
-        )
-      )
-    : readRequest(signal =>
-        db()
-          .from("folders")
-          .select("id,nom")
-          .eq("user_id", id)
-          .order("nom")
-          .abortSignal(signal)
-      ));
+  const read = () => readRequest(signal => db().rpc("get_license_folders", {p_owner_id: null, p_binder_key: null, p_featured_only: false}).abortSignal(signal));
+  const {data,error} = await (sharePending ? cache.memo(`read:folders:${id}`, 0, read) : read());
   if (error) throw failure(error);
-  await assertPlayer(id, true);
-  return (data as { id: string; nom: string }[]).map(folder => ({
-    id: folder.id,
-    name: folder.nom
-  }));
+  await assertPlayer(id,true);
+  return ((data ?? []) as Folder[]).sort((a,b)=>a.name.localeCompare(b.name));
 }
 
 export async function createFolder(name: string): Promise<Folder> {

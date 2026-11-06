@@ -4081,13 +4081,13 @@
   },
   "licenseFolders": {
     "create": "Créer un dossier",
-    "createTitle": "Créer un dossier dans ce classeur",
+    "createTitle": "Créer un dossier",
     "editTitle": "Modifier le dossier",
-    "hint": "Choisis des cartes de cette licence pour créer un dossier thématique. Tes exemplaires restent dans ta collection. Tu peux inclure les cartes manquantes pour suivre ta progression.",
+    "hint": "Crée un dossier avec des cartes de toutes les licences et catégories. Tes exemplaires restent dans ta collection.",
     "name": "Nom du dossier",
     "namePlaceholder": "Par exemple : Akatsuki",
     "feature": "Mettre ce dossier en avant sur mon profil",
-    "search": "Rechercher des cartes dans cette licence…",
+    "search": "Rechercher des cartes ou licences…",
     "ownedOnly": "Cartes possédées uniquement",
     "owned": "Possédée",
     "missing": "Manquante",
@@ -4112,11 +4112,13 @@
     "deleted": "Dossier supprimé. Tes cartes sont conservées.",
     "error": "Impossible de modifier le dossier. Réessaie.",
     "loadError": "Impossible de charger les dossiers mis en avant.",
-    "nameTaken": "Un dossier portant ce nom existe déjà dans cette licence.",
+    "nameTaken": "Un dossier portant ce nom existe déjà.",
     "invalidName": "Choisis un nom de dossier de 1 à 60 caractères.",
     "folderLimit": "Tu peux créer jusqu’à 100 dossiers.",
-    "invalidCards": "Choisis au maximum 500 cartes de cette licence uniquement.",
-    "notFound": "Ce dossier n’existe plus."
+    "invalidCards": "Choisis jusqu’à 500 cartes valides.",
+    "notFound": "Ce dossier n’existe plus.",
+    "allFolders": "Mes dossiers",
+    "manage": "Gérer les dossiers"
   },
   "profileFeatured": {
     "title": "Collection mise en avant",
