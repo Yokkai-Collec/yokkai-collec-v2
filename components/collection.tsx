@@ -284,6 +284,7 @@ export function CollectionView({
 }) {
   const tError = useTranslations();
   const tc = useTranslations("collectionUi");
+  const tf = useTranslations("licenseFolders");
   const format = useFormatter();
   const formatDate = (value: string, long = false) =>
     format.dateTime(new Date(value), {
@@ -318,6 +319,8 @@ export function CollectionView({
   const [showFolderCreator, setShowFolderCreator] = useState(false);
   const [folderBusy, setFolderBusy] = useState(false);
   const [folderError, setFolderError] = useState("");
+  const [removingFolder, setRemovingFolder] = useState<Folder | null>(null);
+  const [folderDeleteFailed, setFolderDeleteFailed] = useState(false);
   const [auctionPrice, setAuctionPrice] = useState("10");
   const [auctionDuration, setAuctionDuration] = useState("60");
   const [auctionBusy, setAuctionBusy] = useState(false);
@@ -1315,7 +1318,12 @@ export function CollectionView({
             <button
               type="button"
               className="yk-folder-delete"
-              onClick={() => void onDeleteFolder(folder)}
+              onClick={() => {
+                setFolderDeleteFailed(false);
+                setRemovingFolder(
+                  folders.find(item => item.id === folder) ?? null
+                );
+              }}
             >
               {tc("deleteThisFolder")}
             </button>
@@ -3203,6 +3211,50 @@ export function CollectionView({
         selected={selectedMissingCard}
         onClose={() => setSelectedMissingCard(null)}
       />
+      <Modal
+        open={!!removingFolder}
+        title={tf("deleteTitle")}
+        onClose={() => {
+          if (!folderBusy) setRemovingFolder(null);
+        }}
+      >
+        <p>{tf("deleteHint", { name: removingFolder?.name ?? "" })}</p>
+        {folderDeleteFailed && (
+          <p role="alert" className="text-danger">
+            {tf("error")}
+          </p>
+        )}
+        <div className="mt-6 flex flex-wrap justify-end gap-3">
+          <Button
+            variant="secondary"
+            disabled={folderBusy}
+            onClick={() => setRemovingFolder(null)}
+          >
+            {tf("cancel")}
+          </Button>
+          <Button
+            variant="danger"
+            disabled={folderBusy}
+            aria-busy={folderBusy || undefined}
+            onClick={async () => {
+              if (!removingFolder || !onDeleteFolder || folderBusy) return;
+              setFolderBusy(true);
+              setFolderDeleteFailed(false);
+              try {
+                await onDeleteFolder(removingFolder.id);
+                setFolder("");
+                setRemovingFolder(null);
+              } catch {
+                setFolderDeleteFailed(true);
+              } finally {
+                setFolderBusy(false);
+              }
+            }}
+          >
+            {tf("delete")}
+          </Button>
+        </div>
+      </Modal>
     </section>
   );
 }

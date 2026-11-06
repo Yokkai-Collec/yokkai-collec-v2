@@ -168,179 +168,190 @@ export function FolderEditor({
   }
   return (
     <div className="yk-license-folder-editor">
-      <p className="yk-license-folder-hint">{description ?? t("hint")}</p>
-      <label className="yk-license-folder-name">
-        {t("name")}
-        <input
-          autoFocus
-          maxLength={60}
-          value={name}
-          onChange={e => setName(e.target.value)}
-          placeholder={t("namePlaceholder")}
-          disabled={busy}
-        />
-      </label>
-      {showFeaturedOption && (
-        <label className="yk-license-folder-featured">
+      <div className="yk-license-folder-editor-scroll">
+        <p className="yk-license-folder-hint">{description ?? t("hint")}</p>
+        <label className="yk-license-folder-name">
+          {t("name")}
           <input
-            type="checkbox"
-            checked={featured}
-            onChange={e => setFeatured(e.target.checked)}
+            autoFocus
+            maxLength={60}
+            value={name}
+            onChange={e => setName(e.target.value)}
+            placeholder={t("namePlaceholder")}
             disabled={busy}
           />
-          {t("feature")}
         </label>
-      )}
-      <div className="yk-license-folder-browser">
-        <details
-          className="yk-license-folder-filters"
-          open={filtersOpen}
-          onToggle={event => setFiltersOpen(event.currentTarget.open)}
-        >
-          <summary>{filters("filters")}</summary>
-          <div className="yk-license-folder-filter-body">
-            <Button
-              variant="secondary"
-              disabled={
-                busy ||
-                (!query && !ownedOnly && !rarities.length && !categories.length)
-              }
-              onClick={() => {
-                setQuery("");
-                setOwnedOnly(false);
-                setRarities([]);
-                setCategories([]);
-                setPage(1);
-              }}
-            >
-              {filters("resetFilters")}
-            </Button>
-            <fieldset>
-              <legend>{filters("rarity")}</legend>
-              {(["LR", "SSR", "SR", "R", "C"] as Rarity[]).map(rarity => (
-                <label key={rarity} data-rarity={rarity}>
-                  <input
-                    type="checkbox"
-                    checked={rarities.includes(rarity)}
-                    disabled={busy}
-                    onChange={() => {
-                      setRarities(values => toggleFilterValue(values, rarity));
-                      setPage(1);
-                    }}
-                  />
-                  {rarity}
-                </label>
-              ))}
-            </fieldset>
-            <fieldset>
-              <legend>{filters("category")}</legend>
-              {availableCategories.map(category => (
-                <label key={category}>
-                  <input
-                    type="checkbox"
-                    checked={categories.includes(category)}
-                    disabled={busy}
-                    onChange={() => {
-                      setCategories(values =>
-                        toggleFilterValue(values, category)
-                      );
-                      setPage(1);
-                    }}
-                  />
-                  {category}
-                </label>
-              ))}
-            </fieldset>
-          </div>
-        </details>
-        <div className="yk-license-folder-results">
-          <div className="yk-license-folder-search">
+        {showFeaturedOption && (
+          <label className="yk-license-folder-featured">
             <input
-              aria-label={t("search")}
-              type="search"
-              value={query}
-              placeholder={t("search")}
-              onChange={e => {
-                setQuery(e.target.value);
-                setPage(1);
-              }}
+              type="checkbox"
+              checked={featured}
+              onChange={e => setFeatured(e.target.checked)}
               disabled={busy}
             />
-            <label>
+            {t("feature")}
+          </label>
+        )}
+        <div className="yk-license-folder-browser">
+          <details
+            className="yk-license-folder-filters"
+            open={filtersOpen}
+            onToggle={event => setFiltersOpen(event.currentTarget.open)}
+          >
+            <summary>{filters("filters")}</summary>
+            <div className="yk-license-folder-filter-body">
+              <Button
+                variant="secondary"
+                disabled={
+                  busy ||
+                  (!query &&
+                    !ownedOnly &&
+                    !rarities.length &&
+                    !categories.length)
+                }
+                onClick={() => {
+                  setQuery("");
+                  setOwnedOnly(false);
+                  setRarities([]);
+                  setCategories([]);
+                  setPage(1);
+                }}
+              >
+                {filters("resetFilters")}
+              </Button>
+              <fieldset>
+                <legend>{filters("rarity")}</legend>
+                {(["LR", "SSR", "SR", "R", "C"] as Rarity[]).map(rarity => (
+                  <label key={rarity} data-rarity={rarity}>
+                    <input
+                      type="checkbox"
+                      checked={rarities.includes(rarity)}
+                      disabled={busy}
+                      onChange={() => {
+                        setRarities(values =>
+                          toggleFilterValue(values, rarity)
+                        );
+                        setPage(1);
+                      }}
+                    />
+                    {rarity}
+                  </label>
+                ))}
+              </fieldset>
+              <fieldset>
+                <legend>{filters("category")}</legend>
+                {availableCategories.map(category => (
+                  <label key={category}>
+                    <input
+                      type="checkbox"
+                      checked={categories.includes(category)}
+                      disabled={busy}
+                      onChange={() => {
+                        setCategories(values =>
+                          toggleFilterValue(values, category)
+                        );
+                        setPage(1);
+                      }}
+                    />
+                    {category}
+                  </label>
+                ))}
+              </fieldset>
+            </div>
+          </details>
+          <div className="yk-license-folder-results">
+            <div className="yk-license-folder-search">
               <input
-                type="checkbox"
-                checked={ownedOnly}
+                aria-label={t("search")}
+                type="search"
+                value={query}
+                placeholder={t("search")}
                 onChange={e => {
-                  setOwnedOnly(e.target.checked);
+                  setQuery(e.target.value);
                   setPage(1);
                 }}
                 disabled={busy}
               />
-              {t("ownedOnly")}
-            </label>
-          </div>
-          {error && (
-            <p role="alert" className="yk-license-folder-error">
-              {t(error)}
-            </p>
-          )}
-          {!current ? (
-            <p role="status">{t("loading")}</p>
-          ) : current.error ? (
-            <div role="alert">
-              <p>{t("error")}</p>
-              <Button variant="secondary" onClick={() => setRetry(n => n + 1)}>
-                {t("retry")}
-              </Button>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={ownedOnly}
+                  onChange={e => {
+                    setOwnedOnly(e.target.checked);
+                    setPage(1);
+                  }}
+                  disabled={busy}
+                />
+                {t("ownedOnly")}
+              </label>
             </div>
-          ) : (
-            <>
-              {!current.data?.items.length && <p>{t("noCards")}</p>}
-              <ul className="yk-license-folder-card-grid">
-                {current.data?.items.map(card => (
-                  <li key={card.id}>
-                    <button
-                      type="button"
-                      className="yk-license-folder-card"
-                      aria-pressed={selected.has(card.id)}
-                      aria-label={t(
-                        selected.has(card.id) ? "unselect" : "select",
-                        {
-                          name: card.name
+            {error && (
+              <p role="alert" className="yk-license-folder-error">
+                {t(error)}
+              </p>
+            )}
+            {!current ? (
+              <p role="status">{t("loading")}</p>
+            ) : current.error ? (
+              <div role="alert">
+                <p>{t("error")}</p>
+                <Button
+                  variant="secondary"
+                  onClick={() => setRetry(n => n + 1)}
+                >
+                  {t("retry")}
+                </Button>
+              </div>
+            ) : (
+              <>
+                {!current.data?.items.length && <p>{t("noCards")}</p>}
+                <ul className="yk-license-folder-card-grid">
+                  {current.data?.items.map(card => (
+                    <li key={card.id}>
+                      <button
+                        type="button"
+                        className="yk-license-folder-card"
+                        aria-pressed={selected.has(card.id)}
+                        aria-label={t(
+                          selected.has(card.id) ? "unselect" : "select",
+                          {
+                            name: card.name
+                          }
+                        )}
+                        disabled={
+                          busy ||
+                          (!selected.has(card.id) && selected.size >= 500)
                         }
-                      )}
-                      disabled={
-                        busy || (!selected.has(card.id) && selected.size >= 500)
-                      }
-                      onClick={() =>
-                        setSelected(previous => {
-                          const next = new Set(previous);
-                          if (next.has(card.id)) next.delete(card.id);
-                          else next.add(card.id);
-                          return next;
-                        })
-                      }
-                    >
-                      <YokaiCard {...card} animated={false} />
-                      <span className="yk-license-folder-card-label">
-                        <strong>{card.name}</strong>
-                        <span>{selected.has(card.id) ? "✓" : "+"}</span>
-                      </span>
-                      <small>{t(card.owned ? "owned" : "missing")}</small>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-              <Pagination
-                page={page}
-                pageCount={Math.max(
-                  1,
-                  Math.ceil((current.data?.total ?? 0) / 24)
-                )}
-                onPageChange={setPage}
-              />
-            </>
-          )}
+                        onClick={() =>
+                          setSelected(previous => {
+                            const next = new Set(previous);
+                            if (next.has(card.id)) next.delete(card.id);
+                            else next.add(card.id);
+                            return next;
+                          })
+                        }
+                      >
+                        <YokaiCard {...card} animated={false} />
+                        <span className="yk-license-folder-card-label">
+                          <strong>{card.name}</strong>
+                          <span>{selected.has(card.id) ? "✓" : "+"}</span>
+                        </span>
+                        <small>{t(card.owned ? "owned" : "missing")}</small>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                <Pagination
+                  page={page}
+                  pageCount={Math.max(
+                    1,
+                    Math.ceil((current.data?.total ?? 0) / 24)
+                  )}
+                  onPageChange={setPage}
+                />
+              </>
+            )}
+          </div>
         </div>
       </div>
       <footer className="yk-license-folder-save">
