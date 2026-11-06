@@ -9,10 +9,16 @@ import {
   BinderContents,
   type ProfileFavoriteAlbum
 } from "@/components/profile-favorite-binders";
-import { type PaniniAlbumCardPage } from "@/lib/data/cards";
+import {
+  getGameInfo,
+  type Rarity,
+  type PaniniAlbumCardPage
+} from "@/lib/data/cards";
+import { toggleFilterValue } from "@/lib/ui/card-search";
 import {
   getLicenseFolders,
   getLicenseFolderCards,
+  getFolderSelectionCards,
   saveLicenseFolder,
   deleteLicenseFolder,
   type LicenseFolder
@@ -69,6 +75,30 @@ export function FolderEditor({
   description?: string;
 }) {
   const t = useTranslations("licenseFolders");
+  const filters = useTranslations("collectionUi");
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 768px)");
+    const update = () => setFiltersOpen(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+  const [rarities, setRarities] = useState<Rarity[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [availableCategories, setAvailableCategories] = useState<string[]>([]);
+  useEffect(() => {
+    let active = true;
+    void getGameInfo().then(
+      info => {
+        if (active) setAvailableCategories(info.categories);
+      },
+      () => {}
+    );
+    return () => {
+      active = false;
+    };
+  }, []);
   const [name, setName] = useState(folder?.name ?? ""),
     [featured, setFeatured] = useState(folder?.featured ?? false);
   const [selected, setSelected] = useState(new Set(folder?.cardIds ?? []));
@@ -78,7 +108,15 @@ export function FolderEditor({
     [retry, setRetry] = useState(0);
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
-  const request = JSON.stringify([binderKey, query, page, ownedOnly, retry]);
+  const request = JSON.stringify([
+    binderKey,
+    query,
+    page,
+    ownedOnly,
+    rarities,
+    categories,
+    retry
+  ]);
   const [result, setResult] = useState<{
     key: string;
     data?: PaniniAlbumCardPage;
@@ -88,7 +126,13 @@ export function FolderEditor({
   useEffect(() => {
     let active = true;
     const timer = setTimeout(() => {
-      void getLicenseFolderCards(null, page, ownedOnly, query).then(
+      void getFolderSelectionCards({
+        page,
+        ownedOnly,
+        query,
+        rarities,
+        categories
+      }).then(
         data => {
           if (active) setResult({ key: request, data });
         },
@@ -101,7 +145,7 @@ export function FolderEditor({
       active = false;
       clearTimeout(timer);
     };
-  }, [binderKey, query, page, ownedOnly, request]);
+  }, [binderKey, query, page, ownedOnly, rarities, categories, request]);
   async function save() {
     setBusy(true);
     onSavingChange(true);
@@ -147,87 +191,158 @@ export function FolderEditor({
           {t("feature")}
         </label>
       )}
-      <div className="yk-license-folder-search">
-        <input
-          aria-label={t("search")}
-          type="search"
-          value={query}
-          placeholder={t("search")}
-          onChange={e => {
-            setQuery(e.target.value);
-            setPage(1);
-          }}
-          disabled={busy}
-        />
-        <label>
-          <input
-            type="checkbox"
-            checked={ownedOnly}
-            onChange={e => {
-              setOwnedOnly(e.target.checked);
-              setPage(1);
-            }}
-            disabled={busy}
-          />
-          {t("ownedOnly")}
-        </label>
-      </div>
-      {error && (
-        <p role="alert" className="yk-license-folder-error">
-          {t(error)}
-        </p>
-      )}
-      {!current ? (
-        <p role="status">{t("loading")}</p>
-      ) : current.error ? (
-        <div role="alert">
-          <p>{t("error")}</p>
-          <Button variant="secondary" onClick={() => setRetry(n => n + 1)}>
-            {t("retry")}
-          </Button>
+      <div className="yk-license-folder-browser">
+        <details
+          className="yk-license-folder-filters"
+          open={filtersOpen}
+          onToggle={event => setFiltersOpen(event.currentTarget.open)}
+        >
+          <summary>{filters("filters")}</summary>
+          <div className="yk-license-folder-filter-body">
+            <Button
+              variant="secondary"
+              disabled={
+                busy ||
+                (!query && !ownedOnly && !rarities.length && !categories.length)
+              }
+              onClick={() => {
+                setQuery("");
+                setOwnedOnly(false);
+                setRarities([]);
+                setCategories([]);
+                setPage(1);
+              }}
+            >
+              {filters("resetFilters")}
+            </Button>
+            <fieldset>
+              <legend>{filters("rarity")}</legend>
+              {(["LR", "SSR", "SR", "R", "C"] as Rarity[]).map(rarity => (
+                <label key={rarity} data-rarity={rarity}>
+                  <input
+                    type="checkbox"
+                    checked={rarities.includes(rarity)}
+                    disabled={busy}
+                    onChange={() => {
+                      setRarities(values => toggleFilterValue(values, rarity));
+                      setPage(1);
+                    }}
+                  />
+                  {rarity}
+                </label>
+              ))}
+            </fieldset>
+            <fieldset>
+              <legend>{filters("category")}</legend>
+              {availableCategories.map(category => (
+                <label key={category}>
+                  <input
+                    type="checkbox"
+                    checked={categories.includes(category)}
+                    disabled={busy}
+                    onChange={() => {
+                      setCategories(values =>
+                        toggleFilterValue(values, category)
+                      );
+                      setPage(1);
+                    }}
+                  />
+                  {category}
+                </label>
+              ))}
+            </fieldset>
+          </div>
+        </details>
+        <div className="yk-license-folder-results">
+          <div className="yk-license-folder-search">
+            <input
+              aria-label={t("search")}
+              type="search"
+              value={query}
+              placeholder={t("search")}
+              onChange={e => {
+                setQuery(e.target.value);
+                setPage(1);
+              }}
+              disabled={busy}
+            />
+            <label>
+              <input
+                type="checkbox"
+                checked={ownedOnly}
+                onChange={e => {
+                  setOwnedOnly(e.target.checked);
+                  setPage(1);
+                }}
+                disabled={busy}
+              />
+              {t("ownedOnly")}
+            </label>
+          </div>
+          {error && (
+            <p role="alert" className="yk-license-folder-error">
+              {t(error)}
+            </p>
+          )}
+          {!current ? (
+            <p role="status">{t("loading")}</p>
+          ) : current.error ? (
+            <div role="alert">
+              <p>{t("error")}</p>
+              <Button variant="secondary" onClick={() => setRetry(n => n + 1)}>
+                {t("retry")}
+              </Button>
+            </div>
+          ) : (
+            <>
+              {!current.data?.items.length && <p>{t("noCards")}</p>}
+              <ul className="yk-license-folder-card-grid">
+                {current.data?.items.map(card => (
+                  <li key={card.id}>
+                    <button
+                      type="button"
+                      className="yk-license-folder-card"
+                      aria-pressed={selected.has(card.id)}
+                      aria-label={t(
+                        selected.has(card.id) ? "unselect" : "select",
+                        {
+                          name: card.name
+                        }
+                      )}
+                      disabled={
+                        busy || (!selected.has(card.id) && selected.size >= 500)
+                      }
+                      onClick={() =>
+                        setSelected(previous => {
+                          const next = new Set(previous);
+                          if (next.has(card.id)) next.delete(card.id);
+                          else next.add(card.id);
+                          return next;
+                        })
+                      }
+                    >
+                      <YokaiCard {...card} animated={false} />
+                      <span className="yk-license-folder-card-label">
+                        <strong>{card.name}</strong>
+                        <span>{selected.has(card.id) ? "✓" : "+"}</span>
+                      </span>
+                      <small>{t(card.owned ? "owned" : "missing")}</small>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <Pagination
+                page={page}
+                pageCount={Math.max(
+                  1,
+                  Math.ceil((current.data?.total ?? 0) / 24)
+                )}
+                onPageChange={setPage}
+              />
+            </>
+          )}
         </div>
-      ) : (
-        <>
-          {!current.data?.items.length && <p>{t("noCards")}</p>}
-          <ul className="yk-license-folder-card-grid">
-            {current.data?.items.map(card => (
-              <li key={card.id}>
-                <button
-                  type="button"
-                  className="yk-license-folder-card"
-                  aria-pressed={selected.has(card.id)}
-                  aria-label={t(selected.has(card.id) ? "unselect" : "select", {
-                    name: card.name
-                  })}
-                  disabled={
-                    busy || (!selected.has(card.id) && selected.size >= 500)
-                  }
-                  onClick={() =>
-                    setSelected(previous => {
-                      const next = new Set(previous);
-                      if (next.has(card.id)) next.delete(card.id);
-                      else next.add(card.id);
-                      return next;
-                    })
-                  }
-                >
-                  <YokaiCard {...card} animated={false} />
-                  <span className="yk-license-folder-card-label">
-                    <strong>{card.name}</strong>
-                    <span>{selected.has(card.id) ? "✓" : "+"}</span>
-                  </span>
-                  <small>{t(card.owned ? "owned" : "missing")}</small>
-                </button>
-              </li>
-            ))}
-          </ul>
-          <Pagination
-            page={page}
-            pageCount={Math.max(1, Math.ceil((current.data?.total ?? 0) / 24))}
-            onPageChange={setPage}
-          />
-        </>
-      )}
+      </div>
       <footer className="yk-license-folder-save">
         <span role="status">{t("selected", { count: selected.size })}</span>
         <Button variant="secondary" disabled={busy} onClick={onClose}>
