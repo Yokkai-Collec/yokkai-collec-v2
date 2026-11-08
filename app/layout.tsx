@@ -11,6 +11,7 @@ import localFont from "next/font/local";
 import { BoostersLoadPriority } from "@/components/boosters-load-priority";
 import { PresenceHeartbeat } from "@/components/presence-heartbeat";
 import { ProAccessProvider } from "@/components/pro-access";
+import { PushInvitation } from "@/components/push-settings";
 import { ReferralReminder } from "@/components/referral-reminder";
 import { DiscordPromo } from "@/components/discord-promo";
 import { FloatingMessenger } from "@/components/floating-messenger";
@@ -209,6 +210,7 @@ export default async function RootLayout({
               <PresenceHeartbeat />
               <ProAccessProvider>
                 {children}
+                <PushInvitation />
                 <LinkedAccountNotice />
                 <AccountSanctionNotice />
                 <ReferralReminder />

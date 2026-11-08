@@ -1872,6 +1872,12 @@
     "replyTargetUnavailable": "Ce commentaire n’est plus disponible. Choisis un autre commentaire ou réponds au post."
   },
   "settingsUi": {
+    "pushInviteTitle": "Garde le contact avec Yokkai",
+    "pushInviteBody": "Reçois tes notifications de jeu sur cet appareil, même quand Yokkai est fermé.",
+    "pushInviteEnable": "Activer les notifications",
+    "pushInviteDismiss": "Non merci",
+    "pushInviteSettings": "Tu peux modifier ce choix à tout moment dans les paramètres.",
+
     "passwordUpdated": "Ton mot de passe a été mis à jour.",
     "currentPassword": "Mot de passe actuel",
     "confirmNewPassword": "Confirmer le nouveau mot de passe",
