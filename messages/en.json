@@ -1872,6 +1872,12 @@
     "replyTargetUnavailable": "This comment is no longer available. Choose another comment or reply to the post."
   },
   "settingsUi": {
+    "pushInviteTitle": "Stay in the loop",
+    "pushInviteBody": "Get your game notifications on this device, even when Yokkai is closed.",
+    "pushInviteEnable": "Enable notifications",
+    "pushInviteDismiss": "No thanks",
+    "pushInviteSettings": "You can change this anytime in Settings.",
+
     "passwordUpdated": "Your password has been updated.",
     "currentPassword": "Current password",
     "confirmNewPassword": "Confirm new password",
