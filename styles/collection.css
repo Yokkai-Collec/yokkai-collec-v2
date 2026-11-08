@@ -323,7 +323,11 @@
   display: flex;
   align-items: center;
   gap: calc(var(--spacing) * 2);
-  margin-left: auto;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 44px;
+  margin-block: calc(var(--spacing) * 2);
+  padding-inline: calc(var(--spacing) * 4);
   color: var(--color-ink-2);
   font-size: var(--text-xs);
 }
@@ -361,26 +365,7 @@
   background: var(--color-accent-neon);
   transform: translate(calc(var(--spacing) * 4), -50%);
 }
-.yk-view-toggle {
-  display: flex;
-  overflow: hidden;
-  border: 1px solid var(--color-veil);
-  border-radius: var(--radius-input);
-}
-.yk-view-toggle button {
-  display: grid;
-  place-items: center;
-  width: calc(var(--spacing) * 9);
-  aspect-ratio: 1;
-  color: var(--color-ink-3);
-}
-.yk-view-toggle button + button {
-  border-left: 1px solid var(--color-veil);
-}
-.yk-view-toggle button[aria-pressed="true"] {
-  background: var(--color-veil);
-  color: var(--color-ink);
-}
+
 .yk-panini {
   padding: clamp(1rem, 2vw, 1.5rem);
   border: 1px solid var(--color-veil);
@@ -687,22 +672,7 @@
 .yk-collection-card-meta {
   margin-top: calc(var(--spacing) * 3);
 }
-.yk-collection-grid-list {
-  grid-template-columns: 1fr;
-}
-.yk-collection-grid-list > li {
-  display: grid;
-  grid-template-columns: var(--collection-list-card-width) minmax(0, 1fr);
-  align-items: center;
-  gap: var(--layout-gutter);
-  border: 1px solid var(--color-veil);
-  border-radius: var(--radius-panel);
-  padding: calc(var(--spacing) * 3);
-  background: color-mix(in srgb, var(--color-surface) 72%, transparent);
-}
-.yk-collection-grid-list .yk-collection-card-meta {
-  margin-top: 0;
-}
+
 .yk-selected-card {
   outline: 2px solid var(--color-accent-gold);
   outline-offset: calc(var(--spacing) * 1);
@@ -1578,24 +1548,6 @@
     clip: rect(0 0 0 0);
     white-space: nowrap;
   }
-  .yk-collection-toolbar .yk-panini-mode {
-    order: 3;
-    width: calc(var(--spacing) * 9);
-    min-height: calc(var(--spacing) * 9);
-    padding: 0;
-    border-radius: 50%;
-  }
-  .yk-collection-toolbar .yk-panini-mode span {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-  }
-  .yk-collection-toolbar .yk-view-toggle {
-    order: 4;
-  }
   .yk-collection-toolbar .yk-sort-control {
     order: 5;
     flex: 1 0 40%;
@@ -1610,21 +1562,7 @@
   .yk-collection-toolbar .yk-sort-control svg {
     margin-left: 0;
   }
-  .yk-collection-toolbar .yk-shiny-toggle {
-    order: 6;
-    margin-left: auto;
-    white-space: nowrap;
-  }
-  .yk-collection-grid-list {
-    grid-template-columns: 1fr;
-  }
-  .yk-collection-grid-list > li {
-    grid-template-columns: var(--collection-list-card-width-mobile) minmax(
-        0,
-        1fr
-      );
-    gap: var(--layout-gutter-compact);
-  }
+
   .yk-collection-pagination {
     flex-direction: column;
     gap: calc(var(--spacing) * 3);
@@ -1705,5 +1643,25 @@
 @media (max-width: 359px) {
   .yk-collection-toolbar .yk-sort-control > span {
     display: none;
+  }
+}
+
+.yk-collection-toolbar > .yk-collection-tabs {
+  flex: 0 1 auto;
+  margin: 0 0 0 auto;
+  min-width: 0;
+}
+.yk-collection-toolbar > .yk-collection-tabs button {
+  min-width: 0;
+}
+@media (max-width: 760px) {
+  .yk-collection-toolbar > .yk-collection-tabs {
+    order: 6;
+    flex: 1 1 100%;
+    width: 100%;
+  }
+  .yk-collection-toolbar > .yk-collection-tabs button {
+    flex: 1;
+    padding-inline: calc(var(--spacing) * 2);
   }
 }

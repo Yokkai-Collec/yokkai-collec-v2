@@ -311,7 +311,7 @@ export function CollectionView({
   const [bulkFolderBusy, setBulkFolderBusy] = useState(false);
   const [bulkFolderError, setBulkFolderError] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<"grid" | "list" | "panini">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "panini">("grid");
   const [selectedLicense, setSelectedLicense] = useState<string | null>(null);
   const [linkedBinderName, setLinkedBinderName] = useState("");
   const td = useTranslations("binderDiscovery");
@@ -1047,6 +1047,19 @@ export function CollectionView({
           placeholder={tc("search")}
         />
       </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={shinyOnly}
+        className="yk-shiny-toggle"
+        onClick={() => {
+          setShinyOnly(current => !current);
+          setPage(1);
+        }}
+      >
+        <span>{tc("shinyEvolved")}</span>
+        <i />
+      </button>
       <FilterSection
         title={tc("rarity")}
         count={rarity.length}
@@ -1324,6 +1337,7 @@ export function CollectionView({
         {query ||
         rarity.length ||
         category.length ||
+        shinyOnly ||
         folder ||
         auctionOnly ||
         lockedOnly ? (
@@ -1374,63 +1388,7 @@ export function CollectionView({
           />
         )}
       </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={shinyOnly}
-        className="yk-shiny-toggle"
-        onClick={() => {
-          setShinyOnly(current => !current);
-          setPage(1);
-        }}
-      >
-        <span>Shiny / Evolved</span>
-        <i />
-      </button>
-      <div className="yk-view-toggle" aria-label={tc("displayMode")}>
-        <button
-          type="button"
-          aria-label={tc("gridView")}
-          aria-pressed={viewMode === "grid"}
-          onClick={() => setViewMode("grid")}
-        >
-          <svg
-            aria-hidden="true"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-          >
-            <rect x="4" y="4" width="6" height="6" />
-            <rect x="14" y="4" width="6" height="6" />
-            <rect x="4" y="14" width="6" height="6" />
-            <rect x="14" y="14" width="6" height="6" />
-          </svg>
-        </button>
-        <button
-          type="button"
-          aria-label={tc("listView")}
-          aria-pressed={viewMode === "list"}
-          onClick={() => setViewMode("list")}
-        >
-          <svg
-            aria-hidden="true"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-          >
-            <path d="M8 6h12M8 12h12M8 18h12" />
-            <circle cx="4" cy="6" r="1" fill="currentColor" />
-            <circle cx="4" cy="12" r="1" fill="currentColor" />
-            <circle cx="4" cy="18" r="1" fill="currentColor" />
-          </svg>
-        </button>
-      </div>
+      {!renderCardControls && collectionTabs}
     </div>
   );
   return (
@@ -1456,8 +1414,6 @@ export function CollectionView({
               {toolbar}
             </header>
           )}
-
-          {!renderCardControls && collectionTabs}
 
           <div className="yk-collection-layout">
             <aside
@@ -2021,7 +1977,7 @@ export function CollectionView({
                 <ul
                   id="collection-cards-list"
                   tabIndex={0}
-                  className={`yk-card-grid yk-collection-grid ${viewMode === "list" ? "yk-collection-grid-list" : ""}`}
+                  className="yk-card-grid yk-collection-grid"
                   aria-label={tc("ownedCardGroups")}
                 >
                   {visibleGroups.map(group => {
