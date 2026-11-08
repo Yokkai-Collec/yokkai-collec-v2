@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { getLocalePreference } from "@/i18n/server";
@@ -213,7 +214,9 @@ export default async function RootLayout({
                 <LinkedAccountNotice />
                 <AccountSanctionNotice />
                 <ReferralReminder />
-                <DiscordPromo enabled={discordEnabled} />
+                <Suspense fallback={null}>
+                  <DiscordPromo enabled={discordEnabled} />
+                </Suspense>
               </ProAccessProvider>
             </BoostersLoadPriority>
             <FloatingMessenger />

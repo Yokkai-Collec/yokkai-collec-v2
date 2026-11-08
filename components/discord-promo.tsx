@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Modal } from "@/components/ui";
 
@@ -40,6 +40,7 @@ export function DiscordPromo({ enabled }: { enabled: boolean }) {
   const t = useTranslations("discordReward");
   const pathname = usePathname();
   const router = useRouter();
+  const requested = useSearchParams().get("discord-reward");
   const [visible, setVisible] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -50,7 +51,6 @@ export function DiscordPromo({ enabled }: { enabled: boolean }) {
     let active = true;
     async function preparePromo() {
       const url = new URL(window.location.href);
-      const requested = url.searchParams.get("discord-reward");
       try {
         const response = await fetch("/api/discord-reward", {
           cache: "no-store"
@@ -100,7 +100,7 @@ export function DiscordPromo({ enabled }: { enabled: boolean }) {
     return () => {
       active = false;
     };
-  }, [enabled, pathname, router, t]);
+  }, [enabled, pathname, requested, router, t]);
 
   function rememberDismissal() {
     if (userId) {

@@ -56,12 +56,12 @@ export function HomeLinks({ discordEnabled }: { discordEnabled: boolean }) {
               <h2 id="home-discord">{t("joinTheYokkaiCommunity")}</h2>
               <p>{t("discordReward", { count: 5 })}</p>
             </div>
-            <a
+            <Link
               href="/?discord-reward=claim"
               className="yk-button yk-button-primary yk-home-panel-action min-h-11 whitespace-normal"
             >
               {t("joinDiscord")}
-            </a>
+            </Link>
             <svg
               className="yk-home-discord-logo"
               aria-hidden="true"
