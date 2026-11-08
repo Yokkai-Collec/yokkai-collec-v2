@@ -1,4 +1,28 @@
 {
+  "discordReward": {
+    "close": "Close Discord invitation",
+    "dismissal": "Close this invitation and it will never open automatically again on your account. You can still claim your gift from the Discord card on the home page.",
+    "afterJoin": "Once you've joined the server, verify your Discord account to get your five packs.",
+    "eyebrow": "The Yokkai community",
+    "title": "Join Discord, get rewarded",
+    "description": "Join the Yokkai Discord to meet collectors, trade and follow events. Get {count, plural, one {# free Regular Pack} other {# free Regular Packs}} as a one-time gift.",
+    "reward": "{count, plural, one {# free Regular Pack} other {# free Regular Packs}}",
+    "existingMembers": "Already on the server? You can claim the same gift. Join the server, then authorize Discord so we can check your membership.",
+    "once": "One gift per Yokkai account and Discord account. Leaving and rejoining, changing your linked account or deleting your Yokkai account does not reset this gift.",
+    "join": "Join the Discord server",
+    "claim": "Verify Discord and claim my packs",
+    "claimed": "Your {count, plural, one {# Regular Pack has} other {# Regular Packs have}} already been added to your bonus packs. You can open them whenever you like.",
+    "openPacks": "Go to my packs",
+    "notMember": "We couldn't find you on the Yokkai server. Join using the button below, then verify Discord again with the same Discord account.",
+    "pending": "Complete the server's welcome steps and accept its rules on Discord, then verify again.",
+    "discordUsed": "This Discord account has already received the gift on a Yokkai account. It cannot claim it again.",
+    "denied": "Discord authorization was cancelled. You can try again whenever you're ready.",
+    "error": "We couldn't confirm your reward. Check your bonus packs, then try again. A retry cannot grant this gift twice.",
+    "unavailable": "The Discord gift is temporarily unavailable. Please try again later.",
+    "consent": "We check your Discord identity and membership of the Yokkai server. We keep the two account identifiers and the claim date to prevent repeat claims, including after account deletion. We don't store Discord access tokens.",
+    "privacy": "How we use your data",
+    "settingsLink": "Discord gift: {count, plural, one {# free Regular Pack} other {# free Regular Packs}}"
+  },
   "packs": {
     "clickTheFanToRevealCards": "Click the fan or press Enter to reveal your cards",
     "loadingCollection": "Loading collection…",
@@ -650,6 +674,7 @@
     "bidAmount": "Enter a whole amount between {minimum} and 1,000,000 Karas."
   },
   "homeContent": {
+    "discordReward": "{count, plural, one {# free Regular Pack} other {# free Regular Packs}} for new and existing Discord members.",
     "aNewDiscoveryInEveryCard": "A new discovery in every card",
     "yourFavorites": "Your favorites.",
     "yourCollection": "Your collection.",
@@ -2832,6 +2857,8 @@
     "addressUnavailable": "The site's public address is unavailable."
   },
   "legalUi": {
+    "discordRewardData": "Discord gift: when you claim the gift, we check your Discord identity and membership of the Yokkai server, then record your Yokkai account ID, Discord account ID and claim date. Discord access tokens are used only during verification and are not stored. A temporary cookie protects this verification for ten minutes. Closing the invitation saves a preference on your account until account deletion, with a browser copy, so it never opens automatically again.",
+    "discordRewardRetention": "Discord gift receipts (the two account identifiers and claim date) are retained for as long as this one-time offer is available, including after account deletion, to prevent repeat claims. These receipts contain no email address or Discord credentials.",
     "termsOfUse": "Terms of Use",
     "termsOfUseForYokkaiCollecAccounts": "Terms of Use for Yokkai Collec': accounts, fair play, virtual cards, optional purchases, and community content.",
     "playingTogether": "Playing together",

@@ -1,5 +1,6 @@
 // Exact overloads and roles only. Every addition requires an access justification.
 export const ownerOnly = [
+  "public.build_data_export_without_discord_reward(uuid, uuid)", // Existing reservation-gated export builder; only the owning wrapper adds the caller's Discord receipt.
   "public.anticheat_deleted_account_snapshot_trigger()", // Trigger-only identity/transfer snapshot, private 90-day identity retention. Walid approved.
   "public.prevent_anticheat_ledger_mutation()", // Trigger-only append-only ledger fence; no API execution. Walid approved the anti-cheat rights model.
   "public.record_anticheat_event(text, uuid, uuid, uuid, integer, integer, jsonb, timestamp with time zone)", // Internal trigger/backfill recorder; private aggregates only, never an API entry point. Walid approved.
@@ -47,6 +48,7 @@ export const ownerOnly = [
 ]; // Internal helpers: owning SECURITY DEFINER wrappers/triggers only, never service_role or players.
 
 export const serverOnly = {
+  "public.claim_discord_reward(uuid, text)": ["service_role"], // Server-verified Discord membership only; atomic fixed five-pack credit, permanent unique receipts per player and Discord identity. No player execution.
   "public.set_card_custom_image_for_player(uuid, uuid, text)": ["service_role"], // /api/collection/custom-image only: verified session player, 8 MB weight check, same host/ownership/Pro/ban rules. PhyesGG approved.
   "public.begin_self_requested_account_deletion(uuid)": ["service_role"], // Server-only provenance after recent authentication and explicit self-deletion confirmation; same deletion fence, no browser access. Walid approved.
   "public.record_anticheat_network_observation(uuid, text)": ["service_role"], // Trusted same-origin route only; verified session plus Cloudflare-produced versioned HMAC, never a raw IP. Walid approved.
@@ -59,6 +61,8 @@ export const serverOnly = {
 };
 
 const allowlist = {
+  "public.get_discord_reward_status()": ["authenticated"], // Own gift/prompt booleans only, no caller-supplied identity or Discord id.
+  "public.dismiss_discord_reward_prompt()": ["authenticated"], // Permanently dismisses only auth.uid()'s home invitation after ban/deletion guards; grants no reward.
   "public.admin_list_anticheat_related_accounts(uuid, text, text, integer, integer)":
     ["authenticated"], // Bounded, read-only admin overview of existing/deleted economic and recent connection links; identities expire after 90 days. Walid approved.
   "public.admin_get_referral_pack_provenance(uuid[])": ["authenticated"], // Admin-only bounded source and transfer trail for referral-funded pack cards. Walid approved.

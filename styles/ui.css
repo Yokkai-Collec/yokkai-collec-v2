@@ -244,6 +244,10 @@ a[aria-current="page"] {
   backdrop-filter: blur(8px);
   animation: yk-ui-fade-in var(--modal-duration) var(--ease-standard) both;
 }
+.yk-discord-reward-modal > div:first-child > button {
+  width: 44px;
+  height: 44px;
+}
 .yk-modal.yk-card-report-modal {
   width: min(34rem, calc(100% - 32px));
 }

@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { LocaleSelector } from "@/components/locale-controls";
 import { redirect } from "next/navigation";
 import { Topbar } from "@/components/topbar";
@@ -58,6 +59,14 @@ export default async function SettingsPage() {
           <LocaleSelector full />
           <SubscriptionSettings billing={billing} />
           <ReferralPanel initialStatus={referral} siteOrigin={siteOrigin} />
+          {getDiscordInviteUrl() && (
+            <Link
+              href="/?discord-reward=claim"
+              className="yk-button my-6 min-h-11 whitespace-normal"
+            >
+              {t("discordReward.settingsLink", { count: 5 })}
+            </Link>
+          )}
           <SettingsPanel />
           <PushSettings userId={user.id} />
           <DataExportForm />

@@ -1,4 +1,8 @@
 {
+  "public.discord_reward_claims": {
+    "sections": ["discord_reward"],
+    "note": "Own Discord identifier and claim date only; receipt survives account deletion to prevent repeat claims while the offer remains available. No OAuth tokens."
+  },
   "auth.identities": {
     "sections": ["login_providers"],
     "note": "Own provider names and dates; no provider identifiers or identity JSON."
@@ -364,7 +368,7 @@
     "sections": ["collection"]
   },
   "public.user_profiles": {
-    "sections": ["profile"]
+    "sections": ["profile", "discord_reward_prompt"]
   },
   "public.user_reports": {
     "sections": ["submitted_reports"],

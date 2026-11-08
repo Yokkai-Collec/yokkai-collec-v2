@@ -33,6 +33,7 @@ const browserStorage = [
   ["yokkai-sound-enabled", "soundPurpose"],
   ["yokkai:pro-promotion:v1:dismissed-at", "proPurpose"],
   ["yokkai-discord-promo-dismissed:<account ID>", "discordPurpose"],
+  ["yokkai-discord-reward-dismissed:<account ID>", "discordPurpose"],
   ["yokkai-referral-reminder-dismissed:<account ID>", "referralPurpose"],
   ["yokkai:social-unread-invalidation", "unreadPurpose"]
 ];
@@ -96,6 +97,7 @@ export default async function PrivacyPage() {
               strong0: chunks => <strong>{chunks}</strong>
             })}
           </li>
+          <li>{t("discordRewardData")}</li>
           <li>
             {t.rich("profileAvatarBannerBackgroundAndCardBack", {
               strong0: chunks => <strong>{chunks}</strong>
@@ -261,6 +263,7 @@ export default async function PrivacyPage() {
           </li>
           <li>{t("deletedSecurityIdentityRetention", { days: 90 })}</li>
           <li>{t("deletedEmailCooldownRetention", { days: 14 })}</li>
+          <li>{t("discordRewardRetention")}</li>
         </ul>
       </InfoSection>
 
@@ -289,6 +292,7 @@ export default async function PrivacyPage() {
             })}
           </li>
           <li>{t("deletedSecurityIdentityException", { days: 90 })}</li>
+          <li>{t("discordRewardRetention")}</li>
         </ul>
       </InfoSection>
 

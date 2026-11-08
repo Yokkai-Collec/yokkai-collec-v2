@@ -48,21 +48,28 @@ test("the account menu and public footer expose the Discord invitation safely", 
     );
 });
 
-test("authenticated players get a dismissible one-time Discord promotion", () => {
+test("the home Discord gift uses the accessible centered modal and remembers dismissal on the account", () => {
   const promo = read("components/discord-promo.tsx");
   const layout = read("app/layout.tsx");
 
-  assert.match(promo, /supabase\.auth\.getSession\(\)/);
-  assert.match(promo, /yokkai-discord-promo-dismissed:/);
+  assert.match(promo, /fetch\("\/api\/discord-reward"/);
+  assert.match(read("app/api/discord-reward/route.ts"), /getVerifiedUser\(\)/);
+  assert.match(promo, /yokkai-discord-reward-dismissed:/);
   assert.match(promo, /localStorage\.setItem/);
-  assert.match(promo, /aria-label=\{t\("dismissDiscordInvitation"\)\}/);
+  assert.match(promo, /<Modal\s+open=\{visible\}\s+onClose=\{dismiss\}/);
+  assert.match(promo, /pathname !== "\/"/);
+  assert.match(promo, /status\.claimed/);
+  assert.match(promo, /status\.dismissed/);
+  assert.match(promo, /\/api\/discord-reward\?action=dismiss/);
+  assert.match(promo, /keepalive: true/);
   assert.equal(
     englishMessages.discordPromo.dismissDiscordInvitation,
     "Dismiss Discord invitation"
   );
-  assert.match(promo, /t\("joinDiscord"\)/);
+  assert.match(promo, /t\("join"\)/);
   assert.equal(englishMessages.discordPromo.joinDiscord, "Join Discord");
-  assert.match(promo, /fixed right-4 bottom-4/);
-  assert.match(promo, /max-sm:bottom-24/);
+  const modal = read("components/ui/index.tsx");
+  assert.match(modal, /dialog\.showModal\(\)/);
+  assert.match(modal, /onCancel=/);
   assert.match(layout, /<DiscordPromo enabled=\{discordEnabled\} \/>/);
 });
