@@ -4,7 +4,6 @@ import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { getLocalePreference } from "@/i18n/server";
 import { i18nEnabled } from "@/i18n/locale";
 import { LocalePreferenceProvider } from "@/components/locale-provider";
-import { LocaleBanner } from "@/components/locale-controls";
 import "@/styles/locale.css";
 import { Cinzel, Noto_Serif_JP } from "next/font/google";
 import localFont from "next/font/local";
@@ -204,7 +203,6 @@ export default async function RootLayout({
               dismissed: preference.dismissed
             }}
           >
-            <LocaleBanner />
             <NetworkSecurityObserver />
             <BoostersLoadPriority>
               <PresenceHeartbeat />
