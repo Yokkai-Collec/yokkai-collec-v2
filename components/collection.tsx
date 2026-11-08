@@ -1977,7 +1977,7 @@ export function CollectionView({
                 <ul
                   id="collection-cards-list"
                   tabIndex={0}
-                  className="yk-card-grid yk-collection-grid"
+                  className={`yk-card-grid yk-collection-grid`}
                   aria-label={tc("ownedCardGroups")}
                 >
                   {visibleGroups.map(group => {
