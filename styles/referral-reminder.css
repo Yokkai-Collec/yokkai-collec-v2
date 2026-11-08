@@ -224,11 +224,11 @@ ul.yk-referral-option-detail {
   .yk-referral-reminder--boosters {
     position: fixed;
     z-index: 60;
-    left: max(0px, calc((100% - 1104px) / 2));
-    right: auto;
+    left: 0;
+    right: 0;
     bottom: 66px;
     width: min(calc(100vw - 480px), 720px);
-    margin: 0;
+    margin: 0 auto;
   }
   .yk-boosters-page .yk-game-main:has(.yk-referral-reminder--boosters) {
     padding-bottom: calc(var(--pack-choices-height, 80px) + 24px);
