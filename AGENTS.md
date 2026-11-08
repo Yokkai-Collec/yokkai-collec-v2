@@ -22,7 +22,7 @@ Règles non négociables :
 - La CI complète est exécutée par GitHub Actions. Les agents ne lancent jamais `npm run verify`, `npm run ci` ni `npm run ci:db` en local, y compris dans les plans des PR de traduction.
 - En local : lancer `npm run format` avant chaque commit et laisser le hook pre-push bloquer uniquement les pushes directs sur `master`. Ne jamais contourner les hooks.
 - Les triggers `push` et `pull_request` vers `master` de `.github/workflows/ci.yml` restent actifs. Ne jamais les désactiver sans accord explicite de PhyesGG.
-- Après le push, ouvrir la PR puis surveiller `gh pr checks`. Lire les logs seulement en cas d'échec (`gh run view <id> --log-failed`, fin utile uniquement), corriger puis repousser. Une PR est prête à merger quand la CI GitHub est verte sur la branche à jour avec `origin/master`.
+- Après le push, ouvrir la PR et transmettre son lien. Ne pas surveiller la CI GitHub, lancer `gh pr checks` ni consulter les runs ou leurs logs, sauf demande explicite de PhyesGG. PhyesGG surveille lui-même la CI et signale les problèmes à corriger. Ne jamais merger sans CI verte sur la branche à jour avec `origin/master`.
 - Dans la partie validation de la PR, indiquer seulement les checks passés ou la cause de l'échec ; ne jamais coller de sortie de vérification locale.
 - Pushes groupés : regrouper les commits puis pousser une version relisible ; repousser uniquement les corrections nécessaires, notamment celles de CI.
 
