@@ -74,4 +74,10 @@ test("the home Discord gift uses the accessible centered modal and remembers dis
   assert.match(layout, /<DiscordPromo enabled \/>/);
   assert.match(promo, /requested !== "claim"/);
   assert.match(promo, /action="\/twitter"/);
+  const twitterForm = promo.match(
+    /<form\s+id="community-twitter-claim"[\s\S]*?\/>/
+  )?.[0];
+  assert.ok(twitterForm);
+  assert.match(twitterForm, /rel="noopener"/);
+  assert.doesNotMatch(twitterForm, /noreferrer/);
 });

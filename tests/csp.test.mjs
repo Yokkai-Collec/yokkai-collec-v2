@@ -80,7 +80,11 @@ test("CSP is Report-Only and covers Supabase, catalogue images and card sharing"
   ]);
   assert.deepEqual(directives.get("object-src"), ["'none'"]);
   assert.deepEqual(directives.get("base-uri"), ["'self'"]);
-  assert.deepEqual(directives.get("form-action"), ["'self'"]);
+  assert.deepEqual(directives.get("form-action"), [
+    "'self'",
+    "https://discord.com",
+    "https://x.com"
+  ]);
   assert.deepEqual(directives.get("frame-src"), [
     "https://challenges.cloudflare.com"
   ]);
