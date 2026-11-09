@@ -91,7 +91,8 @@ const nextConfig: NextConfig = {
       "media-src 'self' blob: https://i.imgur.com",
       "object-src 'none'",
       "base-uri 'self'",
-      "form-action 'self'",
+      // Chromium also checks the destination of a form POST's redirect.
+      "form-action 'self' https://discord.com https://x.com",
       "frame-src https://challenges.cloudflare.com",
       // report-uri for Firefox/Safari; report-to (Reporting API) for Chromium.
       "report-uri /api/security/csp-report",

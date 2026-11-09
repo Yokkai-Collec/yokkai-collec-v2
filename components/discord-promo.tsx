@@ -256,7 +256,7 @@ export function DiscordPromo({ enabled }: { enabled: boolean }) {
         action="/twitter"
         method="post"
         target="_blank"
-        rel="noopener noreferrer"
+        rel="noopener"
         onSubmit={dismiss}
         hidden
       />
