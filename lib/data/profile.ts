@@ -152,6 +152,7 @@ export async function getProfileDetails(
       .abortSignal(signal)
   );
   if (error) throw fail(error);
+  if (identifier) void db().rpc("record_friend_visit", { p_identifier: identifier }).then(() => undefined, () => undefined);
   return data as ProfileDetails;
 }
 export async function saveProfileInterests(

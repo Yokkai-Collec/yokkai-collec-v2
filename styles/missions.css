@@ -1,0 +1,200 @@
+.yk-missions {
+  margin: 1.5rem 0;
+  padding: clamp(1rem, 3vw, 1.75rem);
+  border: 1px solid var(--color-veil);
+  border-radius: 1rem;
+  background: var(--color-surface, #0b1220);
+  min-width: 0;
+}
+.yk-mission-heading,
+.yk-mission-gauge > header,
+.yk-mission-total {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.yk-mission-heading {
+  margin-bottom: 1.5rem;
+  align-items: flex-start;
+}
+.yk-mission-heading h2 {
+  font-size: clamp(1.35rem, 4vw, 1.8rem);
+  margin: 0.25rem 0 0.5rem;
+}
+.yk-mission-heading p,
+.yk-mission-countdown,
+.yk-mission-total > span {
+  color: var(--color-ink-2);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+.yk-mission-pro {
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--color-karas);
+  border-radius: 2rem;
+  color: var(--color-karas);
+  font-size: 0.8rem;
+}
+.yk-mission-gauges {
+  display: grid;
+  gap: 1.5rem;
+  min-width: 0;
+}
+.yk-mission-gauge {
+  min-width: 0;
+}
+.yk-mission-gauge h3 {
+  font-size: 1.1rem;
+}
+.yk-mission-total {
+  margin: 1rem 0 0.5rem;
+}
+.yk-mission-total > strong {
+  font-size: 1.75rem;
+  color: var(--color-karas);
+}
+.yk-mission-total > strong span {
+  font-size: 1rem;
+  color: var(--color-ink-2);
+}
+.yk-mission-gauge progress {
+  display: block;
+  width: 100%;
+  height: 0.65rem;
+  border: 0;
+  border-radius: 1rem;
+  overflow: hidden;
+  accent-color: var(--color-karas);
+  background: #1d2939;
+}
+.yk-mission-gauge progress::-webkit-progress-bar {
+  background: #1d2939;
+}
+.yk-mission-gauge progress::-webkit-progress-value {
+  background: var(--color-karas);
+  border-radius: 1rem;
+}
+.yk-mission-gauge progress::-moz-progress-bar {
+  background: var(--color-karas);
+}
+.yk-mission-milestones {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(5.2rem, 1fr));
+  gap: 0.5rem;
+  margin: 1rem 0;
+  padding: 0;
+  list-style: none;
+}
+.yk-mission-milestones li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  border: 1px solid var(--color-veil);
+  border-radius: 0.75rem;
+  padding: 0.65rem 0.35rem;
+  font-size: 0.75rem;
+}
+.yk-mission-milestones .yk-button {
+  min-height: 44px;
+  padding: 0.5rem;
+  width: 100%;
+  font-size: 0.7rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.yk-mission-milestones .is-ready {
+  border-color: var(--color-karas);
+}
+.yk-mission-milestones .is-claimed {
+  opacity: 0.7;
+}
+.yk-mission-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.yk-mission-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--color-veil);
+}
+.yk-mission-list li > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.yk-mission-list p {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 0.2rem 0;
+}
+.yk-mission-list li > strong {
+  flex-shrink: 0;
+  color: var(--color-karas);
+  font-size: 0.8rem;
+}
+.yk-mission-category,
+.yk-mission-list li > div > span:last-child {
+  font-size: 0.7rem;
+  color: var(--color-ink-2);
+}
+.yk-mission-list .is-complete p {
+  color: var(--color-ink-2);
+}
+.yk-mission-launch {
+  padding: 1rem 0;
+}
+.yk-achievement-family {
+  min-width: 0;
+  margin-top: 1rem;
+}
+.yk-achievement-family summary {
+  min-height: 44px;
+  cursor: pointer;
+  padding: 0.75rem;
+  color: var(--color-ink-2);
+}
+.yk-achievement-family .yk-achievement-card {
+  margin-top: 0.75rem;
+}
+.yk-achievement-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 2rem 0 1rem;
+}
+.yk-achievement-filters button {
+  min-height: 44px;
+}
+.yk-achievement-card header > div,
+.yk-achievement-title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+@media (min-width: 1024px) {
+  .yk-mission-gauges {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem;
+  }
+}
+@media (max-width: 480px) {
+  .yk-achievement-summary {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .yk-achievement-global-track {
+    grid-column: 1/-1;
+  }
+  .yk-achievement-card footer {
+    flex-wrap: wrap;
+  }
+  .yk-mission-list li > strong {
+    max-width: 5rem;
+    text-align: right;
+  }
+}

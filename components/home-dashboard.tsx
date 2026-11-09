@@ -1,3 +1,4 @@
+import { MissionsPanel } from "@/components/missions";
 import { ProductUpdates } from "@/components/product-updates";
 import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
@@ -261,6 +262,7 @@ export function HomeDashboard({
             <PanelData load={() => packs("decision")} />
           </Suspense>
         </HomePacks>
+        <MissionsPanel compact />
         <HomePanel
           id="home-latest"
           title={t("yourLatestPulls")}

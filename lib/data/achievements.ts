@@ -3,6 +3,12 @@ import { invalidatePlayerSnapshots } from "@/lib/data/cards";
 
 export type Achievement = {
   id: string;
+  family?: string;
+  section?: string;
+  secret?: boolean;
+  proRequired?: boolean;
+  locked?: boolean;
+  upgradeReward?: number;
   title: string;
   description: string;
   conditionType: string;

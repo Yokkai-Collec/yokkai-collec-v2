@@ -3,6 +3,8 @@
 import { useTranslations, useFormatter } from "next-intl";
 import { gameErrorKey } from "@/i18n/game-messages";
 import { useEffect, useState, type ReactNode } from "react";
+import { claimAchievementUpgrade } from "@/lib/data/achievement-upgrades";
+import { MissionsPanel } from "@/components/missions";
 import { Topbar } from "@/components/topbar";
 import { Button, Karas, StatusPill, Toast } from "@/components/ui";
 import { getGameInfo } from "@/lib/data/cards";
@@ -24,12 +26,25 @@ export function AchievementCard({
 }) {
   const t = useTranslations("achievementUi");
   const fmt = useFormatter();
+  const catalog = useTranslations("achievementCatalog");
+  const hidden = item.secret && !item.completedAt;
+  const familyTitle =
+    item.family && catalog.has(`${item.family}.title`)
+      ? catalog(`${item.family}.title`)
+      : null;
+  const familyDescription =
+    item.family && catalog.has(`${item.family}.description`)
+      ? catalog(`${item.family}.description`, { target: item.conditionValue })
+      : null;
   const titleKey = `title${item.id.replace(/-([a-z])/g, (_, c) => c.toUpperCase())}`;
   const descriptionKey = `description${item.id.replace(/-([a-z])/g, (_, c) => c.toUpperCase())}`;
-  const title = t.has(titleKey) ? t(titleKey) : item.title;
-  const description = t.has(descriptionKey)
-    ? t(descriptionKey)
-    : item.description;
+  const title = hidden
+    ? t("secretTitle")
+    : (familyTitle ?? (t.has(titleKey) ? t(titleKey) : item.title));
+  const description = hidden
+    ? t("secretDescription")
+    : (familyDescription ??
+      (t.has(descriptionKey) ? t(descriptionKey) : item.description));
   const state = item.claimedAt
     ? "claimed"
     : item.completedAt
@@ -70,14 +85,19 @@ export function AchievementCard({
       <div className="yk-achievement-progress">
         <div>
           <span>
-            {t("progressText", {
-              current: fmt.number(item.progressCurrent),
-              target: fmt.number(item.progressTarget),
-              count: item.progressTarget,
-              kind: item.conditionType,
-              label: item.progressLabel ?? "",
-              hasLabel: item.progressLabel ? "yes" : "no"
-            })}
+            {item.family
+              ? t("numericProgress", {
+                  current: item.progressCurrent,
+                  target: item.progressTarget
+                })
+              : t("progressText", {
+                  current: fmt.number(item.progressCurrent),
+                  target: fmt.number(item.progressTarget),
+                  count: item.progressTarget,
+                  kind: item.conditionType,
+                  label: item.progressLabel ?? "",
+                  hasLabel: item.progressLabel ? "yes" : "no"
+                })}
           </span>
           <strong>{fmt.number(Math.round(percent))}%</strong>
         </div>
@@ -100,7 +120,13 @@ export function AchievementCard({
         <span>
           {t("reward")} <Karas amount={item.karasReward} />
         </span>
-        {state === "completed" ? (
+        {item.upgradeReward ? (
+          <Button disabled={busy} onClick={() => void onClaim(item)}>
+            {t("upgrade", { amount: item.upgradeReward })}
+          </Button>
+        ) : item.locked ? (
+          <StatusPill tone="info">{t("proLocked")}</StatusPill>
+        ) : state === "completed" ? (
           <Button disabled={busy} onClick={() => void onClaim(item)}>
             {busy
               ? t("claiming")
@@ -133,6 +159,23 @@ export function AchievementsGallery({
 }) {
   const t = useTranslations("achievementUi");
   const fmt = useFormatter();
+  const [section, setSection] = useState("all");
+  const sections = [
+    ...new Set(
+      items
+        .map(item => item.section)
+        .filter((value): value is string => Boolean(value))
+    )
+  ];
+  const groups = new Map<string, Achievement[]>();
+  for (const item of items) {
+    if (section !== "all" && item.section !== section) continue;
+    const key =
+      item.family && item.family !== "secret"
+        ? `${item.family}:${item.conditionCategory ?? ""}`
+        : item.id;
+    groups.set(key, [...(groups.get(key) ?? []), item]);
+  }
   const unlocked = items.filter(item => item.completedAt).length;
   const percent = items.length ? (unlocked / items.length) * 100 : 0;
   return (
@@ -156,15 +199,57 @@ export function AchievementsGallery({
         </div>
         <span>{Math.round(percent)}%</span>
       </section>
-      <section aria-label={t("achievements")} className="yk-achievement-grid">
-        {items.map(item => (
-          <AchievementCard
-            key={item.id}
-            item={item}
-            busy={busyId === item.id}
-            onClaim={onClaim}
-          />
+      <div className="yk-achievement-filters" aria-label={t("achievements")}>
+        {["all", ...sections].map(value => (
+          <Button
+            key={value}
+            variant="secondary"
+            aria-pressed={section === value}
+            onClick={() => setSection(value)}
+          >
+            {t(value === "all" ? "allSections" : `section${value}`)}
+          </Button>
         ))}
+      </div>
+      <section aria-label={t("achievements")} className="yk-achievement-grid">
+        {[...groups.entries()].map(([key, tiers]) => {
+          const ordered = [...tiers].sort(
+            (a, b) => a.conditionValue - b.conditionValue
+          );
+          const next =
+            ordered.find(
+              item =>
+                item.upgradeReward || (item.completedAt && !item.claimedAt)
+            ) ??
+            ordered.find(item => !item.completedAt) ??
+            ordered[ordered.length - 1];
+          const others = ordered.filter(item => item.id !== next.id);
+          return (
+            <div key={key} className="yk-achievement-family">
+              {next.conditionCategory && (
+                <p className="eyebrow">{next.conditionCategory}</p>
+              )}
+              <AchievementCard
+                item={next}
+                busy={busyId === next.id}
+                onClaim={onClaim}
+              />
+              {others.length > 0 && (
+                <details>
+                  <summary>{t("tiers", { count: others.length })}</summary>
+                  {others.map(item => (
+                    <AchievementCard
+                      key={item.id}
+                      item={item}
+                      busy={busyId === item.id}
+                      onClaim={onClaim}
+                    />
+                  ))}
+                </details>
+              )}
+            </div>
+          );
+        })}
       </section>
     </>
   );
@@ -183,13 +268,20 @@ export function AchievementsPage({ account }: { account?: ReactNode }) {
   useEffect(() => {
     let active = true;
     const unsubscribe = subscribePlayerSnapshotInvalidation(scopes => {
-      if (scopes.includes("balance"))
+      if (scopes.includes("balance")) {
+        void getAchievements().then(
+          next => {
+            if (active) setItems(next);
+          },
+          () => undefined
+        );
         void getGameInfo().then(
           game => {
             if (active) setBalance(game.karasBalance);
           },
           () => undefined
         );
+      }
     });
     return () => {
       active = false;
@@ -219,12 +311,18 @@ export function AchievementsPage({ account }: { account?: ReactNode }) {
     setBusy(item.id);
     setError("");
     try {
-      const result = await claimAchievement(item.id);
+      const result = await (item.upgradeReward
+        ? claimAchievementUpgrade(item.id)
+        : claimAchievement(item.id));
       setBalance(result.balance);
       setItems(current =>
         current.map(entry =>
           entry.id === item.id
-            ? { ...entry, claimedAt: result.claimedAt }
+            ? {
+                ...entry,
+                claimedAt: entry.claimedAt ?? result.claimedAt,
+                upgradeReward: 0
+              }
             : entry
         )
       );
@@ -245,10 +343,14 @@ export function AchievementsPage({ account }: { account?: ReactNode }) {
       />
       <main id="main-content" className="mx-auto w-full max-w-6xl px-6 py-10">
         <p className="eyebrow">{t("journey")}</p>
-        <h1 className="yk-title mt-3">{t("achievements")}</h1>
+        <h1 className="yk-title mt-3">{t("pageTitle")}</h1>
         <p className="mt-4 max-w-xl text-sm leading-6 text-ink-2">
           {t("intro")}
         </p>
+        <MissionsPanel />
+        <h2 id="achievements" className="yk-title mt-10">
+          {t("achievements")}
+        </h2>
         {error && (
           <p role="alert" className="yk-social-alert mt-6">
             {rootT(error)}

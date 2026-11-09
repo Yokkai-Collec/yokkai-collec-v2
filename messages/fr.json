@@ -1919,7 +1919,6 @@
     "pushInviteEnable": "Activer les notifications",
     "pushInviteDismiss": "Non merci",
     "pushInviteSettings": "Tu peux modifier ce choix à tout moment dans les paramètres.",
-
     "passwordUpdated": "Ton mot de passe a été mis à jour.",
     "currentPassword": "Mot de passe actuel",
     "confirmNewPassword": "Confirmer le nouveau mot de passe",
@@ -3205,7 +3204,25 @@
     "profileMissing": "Ton profil est introuvable.",
     "locked": "Ce succès n’est pas encore terminé.",
     "alreadyClaimed": "Cette récompense a déjà été récupérée.",
-    "unavailable": "Impossible de charger les succès. Réessaie dans un instant."
+    "unavailable": "Impossible de charger les succès. Réessaie dans un instant.",
+    "secretTitle": "???",
+    "secretDescription": "Continuez à jouer pour découvrir ce succès secret.",
+    "proLocked": "Pro requis",
+    "tiers": "{count, plural, one {# autre palier} other {# autres paliers}}",
+    "numericProgress": "{current, number} / {target, number}",
+    "upgrade": "Réclamer le bonus de migration : {amount, number} Karas",
+    "allSections": "Tous",
+    "sectioncollection": "Collection",
+    "sectionpacks": "Packs",
+    "sectioneconomy": "Économie",
+    "sectionmarket": "Marché",
+    "sectionsocial": "Social",
+    "sectionprofile": "Profil",
+    "sectionmissions": "Missions",
+    "sectionreferral": "Parrainage",
+    "sectionsecret": "Secrets",
+    "sectionpro": "Pro",
+    "pageTitle": "Missions et succès"
   },
   "accountSanctions": {
     "cardsRemoved": "Cartes retirées",
@@ -3720,5 +3737,290 @@
     "body": "Désolés pour la maintenance. Nous avons ajouté ces packs bonus à ton compte.",
     "availability": "Ils sont déjà crédités. Ouvre-les quand tu veux : ces packs bonus n’expirent pas et ne remplacent pas tes packs quotidiens.",
     "done": "Merci !"
+  },
+  "achievementCatalog": {
+    "collector": {
+      "title": "Collector",
+      "description": "Posséder {target, number} cartes différentes."
+    },
+    "completionist": {
+      "title": "Completionist",
+      "description": "Compléter {target, number} % d’une catégorie."
+    },
+    "explorer": {
+      "title": "Explorer",
+      "description": "Posséder des cartes de {target, number} catégories."
+    },
+    "first-sr": {
+      "title": "First SR",
+      "description": "Obtenir votre première carte SR."
+    },
+    "first-ssr": {
+      "title": "First SSR",
+      "description": "Obtenir votre première carte SSR."
+    },
+    "legend-pulled": {
+      "title": "Legend Pulled",
+      "description": "Obtenir {target, plural, one {# carte LR} other {# cartes LR}}."
+    },
+    "shiny-hunter": {
+      "title": "Shiny Hunter",
+      "description": "Tirer {target, plural, one {# LR Shiny} other {# LR Shiny}} dans des packs."
+    },
+    "evolution": {
+      "title": "Evolution",
+      "description": "Faire évoluer des doublons de SSR en Infinity {target, number} fois."
+    },
+    "rarity-master": {
+      "title": "Rarity Master",
+      "description": "Posséder au moins une carte de chaque rareté, de C à LR."
+    },
+    "fan": {
+      "title": "Fan",
+      "description": "Posséder {target, number} exemplaires d’une même carte."
+    },
+    "pack-opener": {
+      "title": "Pack Opener",
+      "description": "Ouvrir {target, number} Regular Packs."
+    },
+    "decisive": {
+      "title": "Decisive",
+      "description": "Finaliser {target, number} Decision Packs."
+    },
+    "full-stack": {
+      "title": "Full Stack",
+      "description": "Ouvrir un lot d’au moins cinq Regular Packs depuis un stock plein {target, number} fois."
+    },
+    "recycler": {
+      "title": "Recycler",
+      "description": "Détruire {target, number} cartes."
+    },
+    "karas-earner": {
+      "title": "Karas Earner",
+      "description": "Gagner {target, number} Karas au total, hors remboursements."
+    },
+    "wishful": {
+      "title": "Wishful",
+      "description": "Ajouter une carte à votre wishlist."
+    },
+    "wish-granted": {
+      "title": "Wish Granted",
+      "description": "Obtenir {target, number} cartes différentes présentes dans votre wishlist."
+    },
+    "first-sale": {
+      "title": "First Sale",
+      "description": "Vendre votre première carte aux enchères."
+    },
+    "merchant": {
+      "title": "Merchant",
+      "description": "Vendre {target, number} cartes aux enchères."
+    },
+    "auction-winner": {
+      "title": "Auction Winner",
+      "description": "Remporter {target, number} enchères."
+    },
+    "sniper": {
+      "title": "Sniper",
+      "description": "Remporter {target, number} enchères avec une offre dans la dernière minute."
+    },
+    "friendly": {
+      "title": "Friendly",
+      "description": "Avoir {target, number} amis."
+    },
+    "trader": {
+      "title": "Trader",
+      "description": "Finaliser {target, plural, one {# échange} other {# échanges}}. Les paliers suivants comptent les amis depuis trois jours, une fois par ami et par jour."
+    },
+    "negotiator": {
+      "title": "Negotiator",
+      "description": "Faire accepter {target, number} contre-offres à des amis depuis au moins trois jours."
+    },
+    "generous": {
+      "title": "Generous",
+      "description": "Donner une SSR ou mieux dans un échange avec un ami depuis au moins trois jours."
+    },
+    "showcase": {
+      "title": "Showcase",
+      "description": "Présenter cinq cartes dans votre vitrine."
+    },
+    "identity": {
+      "title": "Identity",
+      "description": "Renseigner un avatar et une bio."
+    },
+    "daily-grinder": {
+      "title": "Daily Grinder",
+      "description": "Terminer {target, number} missions quotidiennes."
+    },
+    "all-clear": {
+      "title": "All Clear",
+      "description": "Remplir votre jauge quotidienne {target, number} fois."
+    },
+    "weekly-champion": {
+      "title": "Weekly Champion",
+      "description": "Remplir votre jauge hebdomadaire {target, number} fois."
+    },
+    "perfect-week": {
+      "title": "Perfect Week",
+      "description": "Remplir les deux jauges durant {target, number} semaines différentes."
+    },
+    "veteran": {
+      "title": "Veteran",
+      "description": "Atteindre {target, number} jours d’ancienneté."
+    },
+    "recruiter": {
+      "title": "Recruiter",
+      "description": "Parrainer {target, number} joueurs vérifiés avec trois jours consécutifs d’activité."
+    },
+    "mentor": {
+      "title": "Mentor",
+      "description": "Parrainer {target, number} joueurs vérifiés ayant ouvert 50 packs."
+    },
+    "ambassador": {
+      "title": "Ambassador",
+      "description": "Parrainer {target, number} joueurs qui deviennent Pro."
+    },
+    "welcome-aboard": {
+      "title": "Welcome Aboard",
+      "description": "S’inscrire avec un code de parrainage."
+    },
+    "deja-vu": {
+      "title": "Deja Vu",
+      "description": "Tirer deux fois la même carte dans un Regular Pack."
+    },
+    "all-common": {
+      "title": "All Common",
+      "description": "Tirer cinq cartes C dans un Regular Pack."
+    },
+    "rainbow": {
+      "title": "Rainbow",
+      "description": "Tirer C, R, SR, SSR et LR dans un Regular Pack."
+    },
+    "same-family": {
+      "title": "Same Family",
+      "description": "Tirer cinq cartes de la même catégorie dans un Regular Pack."
+    },
+    "lucky-start": {
+      "title": "Lucky Start",
+      "description": "Tirer une LR dans votre premier Regular Pack du jour."
+    },
+    "dry-spell": {
+      "title": "Dry Spell",
+      "description": "Ouvrir dix Regular Packs consécutifs sans SR ou mieux."
+    },
+    "right-on-time": {
+      "title": "Right on Time",
+      "description": "Ouvrir un Regular Pack dans la première minute après le reset quotidien."
+    },
+    "patience": {
+      "title": "Patience",
+      "description": "Laisser votre réserve de Regular Packs pleine pendant 24 heures."
+    },
+    "comeback": {
+      "title": "Comeback",
+      "description": "Revenir après 30 jours d’absence."
+    },
+    "last-second": {
+      "title": "Last Second",
+      "description": "Enchérir lorsqu’il reste moins de cinq secondes."
+    },
+    "so-close": {
+      "title": "So Close",
+      "description": "Perdre une enchère après avoir enchéri dans ses cinq dernières secondes."
+    },
+    "mirror": {
+      "title": "Mirror",
+      "description": "Échanger une carte contre un autre exemplaire de la même carte avec un ami depuis au moins trois jours."
+    },
+    "regret": {
+      "title": "Regret",
+      "description": "Détruire une SSR. Un petit lot de consolation."
+    },
+    "same-again": {
+      "title": "Same Again",
+      "description": "Garder une carte de Decision Pack déjà possédée en cinq exemplaires."
+    },
+    "speed-opener": {
+      "title": "Speed Opener",
+      "description": "Ouvrir {target, number} Regular Packs en Pro."
+    },
+    "double-decision": {
+      "title": "Double Decision",
+      "description": "Finaliser deux Decision Packs standards sur {target, number} jours différents en Pro."
+    },
+    "auction-house": {
+      "title": "Auction House",
+      "description": "Avoir six enchères actives sur {target, number} jours différents en Pro."
+    },
+    "grand-gallery": {
+      "title": "Grand Gallery",
+      "description": "Présenter dix cartes dans votre vitrine en Pro."
+    },
+    "curator": {
+      "title": "Curator",
+      "description": "Présenter dix cartes SSR ou mieux dans votre vitrine en Pro."
+    },
+    "artist": {
+      "title": "Artist",
+      "description": "Personnaliser l’image de {target, plural, one {# carte} other {# cartes différentes}} en Pro."
+    },
+    "animated": {
+      "title": "Animated",
+      "description": "Utiliser une bannière ou un avatar animé en Pro."
+    }
+  },
+  "missionUi": {
+    "title": "Missions",
+    "eyebrow": "Votre prochaine récompense",
+    "intro": "Choisissez vos missions. Atteignez 100 points dans chaque jauge sans devoir tout terminer.",
+    "daily": "Missions quotidiennes",
+    "weekly": "Missions hebdomadaires",
+    "proBonus": "Pro · +50 % de Karas",
+    "launch": "Les missions commencent bientôt. Seules les actions après le lancement compteront.",
+    "resetsIn": "Encore {days, plural, =0 {} other {# j }}{hours} h {minutes} min {seconds} s",
+    "gaugeLabel": "Progression : {period}",
+    "complete": "Jauge terminée — les autres missions sont facultatives",
+    "choose": "Jouez comme vous voulez",
+    "milestones": "Récompenses de la jauge",
+    "points": "{count} pts",
+    "claimed": "Réclamé",
+    "claim": "Réclamer",
+    "claiming": "En cours…",
+    "lockedLabel": "Verrouillé",
+    "missionProgress": "{current, number} / {target, number}",
+    "donePoints": "✓ {count} pts",
+    "missionPoints": "+{count} pts",
+    "viewAll": "Voir toutes les missions et les succès",
+    "retry": "Réessayer",
+    "loading": "Chargement des missions…",
+    "rewardClaimed": "Récompense réclamée : {amount, number} Karas",
+    "alreadyClaimed": "Cette récompense a déjà été réclamée.",
+    "locked": "Ce palier n’est pas encore disponible.",
+    "unavailable": "Les missions sont temporairement indisponibles. Réessayez.",
+    "categories": {
+      "packs": "Packs",
+      "collection": "Collection",
+      "market": "Marché",
+      "social": "Social",
+      "missions": "Missions"
+    },
+    "objectives": {
+      "regular_packs_opened": "Ouvrir {count, number} Regular Packs",
+      "decision_days": "Finaliser un Decision Pack sur {count, plural, one {# jour} other {# jours différents}}",
+      "sr_acquired": "Obtenir {count, plural, one {# carte SR ou mieux} other {# cartes SR ou mieux}}",
+      "ssr_acquired": "Obtenir {count, plural, one {# carte SSR ou mieux} other {# cartes SSR ou mieux}}",
+      "lr_acquired": "Obtenir {count, plural, one {# carte LR} other {# cartes LR}}",
+      "cards_destroyed": "Détruire {count, number} cartes",
+      "wishlist_added": "Ajouter {count, plural, one {une carte} other {# cartes}} à votre wishlist",
+      "new_cards": "Découvrir {count, number} nouvelles cartes",
+      "bids_placed": "Placer {count, plural, one {une enchère} other {# enchères}}",
+      "auctions_listed": "Mettre {count, plural, one {une carte} other {# cartes}} aux enchères",
+      "friend_requests": "Envoyer {count, plural, one {une demande d’ami} other {# demandes d’ami}}",
+      "friend_visits": "Visiter {count, plural, one {le profil d’un ami} other {les profils de # amis}}",
+      "trades_proposed": "Proposer {count, plural, one {un échange} other {# échanges}} à un ami",
+      "daily_full": "Remplir votre jauge quotidienne {count, plural, one {une fois} other {# fois}}",
+      "auctions_sold": "Vendre {count, number} cartes aux enchères",
+      "auctions_won": "Remporter {count, plural, one {une enchère} other {# enchères}}",
+      "trades_completed": "Finaliser {count, plural, one {un échange} other {# échanges}}"
+    }
   }
 }
