@@ -8,7 +8,7 @@ L’option Twitter ouvre `https://x.com/YokkaiCollec` dans un nouvel onglet. Un 
 
 Conformément à la décision du propriétaire, **aucun follow n’est vérifié** : le cadeau récompense l’ouverture du profil. Aucun compte Twitter, jeton, abonnement API ou secret supplémentaire n’est nécessaire. Les appels directs à la RPC peuvent également récupérer ce cadeau unique ; ce n’est pas une preuve de visite ou de follow. La création de nouveaux comptes Yokkai reste soumise aux contrôles multicomptes existants.
 
-Migration supplémentaire `20261109010000_twitter_visit_reward.sql`, **pas appliquée au VPS**. Le reçu minimal (UUID Yokkai/date) est permanent pendant l’offre, inclus dans l’export et décrit dans la confidentialité. Seul `auth.uid()` reçoit les packs, avec gardes de bannissement, vérification email et suppression. L’attribution et le reçu partagent la même transaction.
+Migration supplémentaire `20261109231000_twitter_visit_reward.sql`, **appliquée au VPS le 9 novembre 2026**. Le reçu minimal (UUID Yokkai/date) est permanent pendant l’offre, inclus dans l’export et décrit dans la confidentialité. Seul `auth.uid()` reçoit les packs, avec gardes de bannissement, vérification email et suppression. L’attribution et le reçu partagent la même transaction.
 
 ## Parcours
 
@@ -28,6 +28,8 @@ Dans l’application Discord **1564269299944788049**, ajouter à **OAuth2 → Re
 <origine publique de Yokkai>/auth/discord-reward/callback
 ```
 
+Pour la production actuelle : `https://yokkai-collec.com/auth/discord-reward/callback`.
+
 Conserver l’URL de retour Supabase existante : la connexion Discord habituelle ne change pas. L’URL doit correspondre exactement à `NEXT_PUBLIC_SITE_URL`, avec le domaine canonique HTTPS.
 
 Variables du serveur Next (jamais dans le navigateur ou une PR) :
@@ -41,7 +43,9 @@ DISCORD_INVITE_URL=<invitation permanente du serveur Yokkai>
 
 `SUPABASE_SECRET_KEY` (ou `SUPABASE_SERVICE_ROLE_KEY`) et `NEXT_PUBLIC_SITE_URL` sont également requis. Le secret Discord déjà utilisé par GoTrue peut être réutilisé, mais doit être configuré séparément dans le service Next. Ne pas le transmettre dans le chat. Redémarrer le service après configuration.
 
-Migration : `20261108230000_discord_reward.sql`, **pas appliquée sur le VPS** dans cette PR. Coordonner son application selon `COLLABORATION.md`, puis déployer la branche validée par la CI. Sans configuration Discord, seule cette option est indisponible : Twitter et la fermeture persistante restent accessibles. Une migration manquante empêche l’ouverture automatique des options.
+Au contrôle du 9 novembre 2026, le conteneur Next actif possède déjà l’invitation et la clé service Supabase, avec `NEXT_PUBLIC_SITE_URL=https://yokkai-collec.com`. Les trois variables `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET` et `DISCORD_GUILD_ID` sont absentes. Les ajouter dans les variables du service Yokkai sur Coolify, puis redéployer après merge de la PR avec CI verte. Twitter ne nécessite aucune variable supplémentaire. Après déploiement, vérifier les deux cadeaux avec un compte de test et retenter chaque action pour confirmer l’absence de second crédit.
+
+Migration : `20261109230000_discord_reward.sql`, **appliquée sur le VPS le 9 novembre 2026**, avec la migration Twitter dans une seule transaction après sauvegarde validée. Les deux migrations ont été renumérotées après la migration de collection déjà déployée. Contrôle final : 308 migrations, aucune divergence. Déployer ensuite la branche validée par la CI. Sans configuration Discord, seule cette option est indisponible : Twitter et la fermeture persistante restent accessibles. Une migration manquante empêche l’ouverture automatique des options.
 
 ## Garanties et limites
 

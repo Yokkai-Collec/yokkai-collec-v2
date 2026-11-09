@@ -177,6 +177,7 @@
     "favoriteCollection": "Collection favorite"
   },
   "collectionUi": {
+    "duplicatesOnly": "Doublons uniquement",
     "binder": "Classeur",
     "couldntLoadBinders": "Impossible de charger les classeurs.",
     "couldntUpdateThisFavorite": "Impossible de modifier ce favori.",

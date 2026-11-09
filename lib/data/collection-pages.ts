@@ -62,6 +62,7 @@ export async function getCollectionGroupsPage(
     p_folder: filters.folder || null,
     p_auction_only: filters.auctionOnly,
     p_locked_only: filters.lockedOnly,
+    ...(filters.duplicatesOnly ? { p_duplicates_only: true } : {}),
     p_sort: filters.sort,
     p_after: position.after ?? null,
     p_offset: position.offset ?? 0,
