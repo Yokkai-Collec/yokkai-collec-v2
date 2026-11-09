@@ -173,3 +173,67 @@ test("ownership milestones survive recycling before the first catalogue visit", 
     "legacy Specialist replaces one category tier, not a second reward"
   );
 });
+
+test("personal export includes own progress and claims without internal counterparty keys", async t => {
+  const { db } = await replayMigrations();
+  t.after(() => db.close());
+  const other = "10000000-0000-4000-8000-000000000089";
+  const request = "10000000-0000-4000-8000-000000000099";
+  await db.exec(
+    "create table auth.identities(user_id uuid,provider text,created_at timestamptz,updated_at timestamptz)"
+  );
+  await db.query(
+    'insert into auth.users(id,raw_user_meta_data) values($1,\'{"pseudo":"ExportProgress"}\'),($2,\'{"pseudo":"OtherProgress"}\')',
+    [user, other]
+  );
+  await db.query(
+    "insert into public.user_progress_counters values($1,'export-test',9),($2,'other-private',7)",
+    [user, other]
+  );
+  await db.query(
+    "insert into public.user_progress_marks(user_id,metric,mark) values($1,'friend_visit',$2)",
+    [user, other]
+  );
+  await db.query(
+    "insert into public.user_catalogue_achievements values($1,'premier-rituel',now(),now())",
+    [user]
+  );
+  await db.exec("set role service_role");
+  await db.query("select public.reserve_data_export($1,$2)", [user, request]);
+  const data = (
+    await db.query("select public.build_data_export($1,$2) result", [
+      user,
+      request
+    ])
+  ).rows[0].result;
+  assert.ok(
+    data.achievement_progress.some(
+      row => row.metric === "export-test" && row.value === 9
+    )
+  );
+  assert.ok(
+    data.catalogue_achievements.some(
+      row => row.achievement_id === "premier-rituel" && row.claimed_at
+    )
+  );
+  assert.deepEqual(Object.keys(data.progress_events[0]).sort(), [
+    "metric",
+    "recorded_at"
+  ]);
+  assert.doesNotMatch(
+    JSON.stringify(data.achievement_progress),
+    /other-private/
+  );
+  assert.doesNotMatch(JSON.stringify(data.progress_events), new RegExp(other));
+  await assert.rejects(
+    db.query("select public.build_data_export($1,$2)", [other, request]),
+    /EXPORT_RESERVATION_REQUIRED/
+  );
+  await assert.rejects(
+    db.query("select public.build_data_export_without_progress($1,$2)", [
+      user,
+      request
+    ]),
+    /permission denied/
+  );
+});

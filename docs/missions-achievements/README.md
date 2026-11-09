@@ -33,6 +33,8 @@ Les taux de drop ne sont pas modifiés. La dernière définition de tirage d'ori
 
 Les tables dédiées `achievement_catalogue` et `user_catalogue_achievements` portent les nouveaux paliers. Les tables et réclamations historiques restent inchangées ; les nouvelles réclamations délèguent les paiements historiques à leur fonction existante. Les notifications historiques restent conservées ; les nouveaux paliers sont signalés dans la page de succès. La lecture historique `get_achievements()` conserve ses 11 entrées pour les anciens clients ; la page utilise la nouvelle lecture `get_achievement_catalogue()`.
 
+Les données de progression et réclamations sont incluses dans l’export personnel existant, avec les mêmes limites de taille et la même réservation. Les clés internes de dédoublonnage susceptibles de référencer un autre joueur restent masquées.
+
 ## Livraison et validation
 
 Une seule PR ; migrations à appliquer dans l'ordre :

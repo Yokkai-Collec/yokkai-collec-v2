@@ -510,5 +510,60 @@ insert into public.user_progress_marks(user_id,metric,mark,recorded_at)
 insert into public.user_progress_counters select user_id,metric,count(*) from public.user_progress_marks where metric in('counteroffers','generous','mirror','wish_granted','auction_house') group by user_id,metric
  on conflict(user_id,metric) do update set value=greatest(public.user_progress_counters.value,excluded.value);
 
+-- Extend the existing reservation-gated, snapshot-consistent export. Only own
+-- explicit projections are added; internal marks can contain counterparty IDs,
+-- so export their metric/date without the identifying deduplication key.
+alter function public.build_data_export(uuid,uuid) rename to build_data_export_without_progress;
+revoke all on function public.build_data_export_without_progress(uuid,uuid) from public,anon,authenticated,service_role;
+create function public.build_data_export(p_user_id uuid,p_request_id uuid) returns jsonb
+language plpgsql stable security definer set search_path='' set timezone='UTC' as $$
+declare result jsonb;
+begin
+ select public.build_data_export_without_progress(p_user_id,p_request_id) || jsonb_build_object(
+    'achievement_upgrade_credits',coalesce((select jsonb_agg(value order by value::text) from (
+      select jsonb_build_object('achievement_id',achievement_id,'reward',reward,'claimed_at',claimed_at) value
+      from public.achievement_upgrade_credits where user_id=p_user_id limit 100001
+    ) own_rows),'[]'::jsonb),
+    'catalogue_achievements',coalesce((select jsonb_agg(value order by value::text) from (
+      select jsonb_build_object('achievement_id',achievement_id,'completed_at',completed_at,'claimed_at',claimed_at) value
+      from public.user_catalogue_achievements where user_id=p_user_id limit 100001
+    ) own_rows),'[]'::jsonb),
+    'mission_gauge_completions',coalesce((select jsonb_agg(value order by value::text) from (
+      select jsonb_build_object('period',period,'period_start',period_start,'completed_at',completed_at) value
+      from public.user_gauge_completions where user_id=p_user_id limit 100001
+    ) own_rows),'[]'::jsonb),
+    'legacy_specialist_categories',coalesce((select jsonb_agg(value order by value::text) from (
+      select jsonb_build_object('category',category) value
+      from public.user_legacy_specialist_categories where user_id=p_user_id limit 100001
+    ) own_rows),'[]'::jsonb),
+    'mission_reward_claims',coalesce((select jsonb_agg(value order by value::text) from (
+      select jsonb_build_object('period',period,'period_start',period_start,'points',points,'reward',reward,'claimed_at',claimed_at) value
+      from public.user_milestone_claims where user_id=p_user_id limit 100001
+    ) own_rows),'[]'::jsonb),
+    'mission_progress',coalesce((select jsonb_agg(value order by value::text) from (
+      select jsonb_build_object('period',period,'period_start',period_start,'metric',metric,'value',value) value
+      from public.user_mission_progress where user_id=p_user_id limit 100001
+    ) own_rows),'[]'::jsonb),
+    'achievement_progress',coalesce((select jsonb_agg(value order by value::text) from (
+      select jsonb_build_object('metric',metric,'value',value) value
+      from public.user_progress_counters where user_id=p_user_id limit 100001
+    ) own_rows),'[]'::jsonb),
+    'progress_events',coalesce((select jsonb_agg(value order by value::text) from (
+      select jsonb_build_object('metric',metric,'recorded_at',recorded_at) value
+      from public.user_progress_marks where user_id=p_user_id limit 100001
+    ) own_rows),'[]'::jsonb),
+    'discovered_cards',coalesce((select jsonb_agg(value order by value::text) from (
+      select jsonb_build_object('card_id',card_id,'owned_copies',owned_copies) value
+      from public.user_seen_cards where user_id=p_user_id limit 100001
+    ) own_rows),'[]'::jsonb)
+ ) into result;
+ if (select coalesce(sum(case when jsonb_typeof(value)='array' then jsonb_array_length(value)
+   when jsonb_typeof(value)='object' then 1 else 0 end),0) from jsonb_each(result))>100000
+   or octet_length(result::text)>26214400 then raise exception 'EXPORT_TOO_LARGE'; end if;
+ return result;
+end; $$;
+revoke all on function public.build_data_export(uuid,uuid) from public,anon,authenticated,service_role;
+grant execute on function public.build_data_export(uuid,uuid) to service_role;
+
 notify pgrst,'reload schema';
 commit;

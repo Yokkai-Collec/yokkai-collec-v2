@@ -410,5 +410,42 @@
   },
   "public.maintenance_pack_grants": {
     "excluded": "Private operational compensation receipt and consumption ledger. Available for manual account-data review; not included in the existing self-service export."
+  },
+  "public.achievement_upgrade_credits": {
+    "sections": ["achievement_upgrade_credits"]
+  },
+  "public.user_catalogue_achievements": {
+    "sections": ["catalogue_achievements"]
+  },
+  "public.user_gauge_completions": {
+    "sections": ["mission_gauge_completions"]
+  },
+  "public.user_legacy_specialist_categories": {
+    "sections": ["legacy_specialist_categories"]
+  },
+  "public.user_milestone_claims": {
+    "sections": ["mission_reward_claims"]
+  },
+  "public.user_mission_progress": {
+    "sections": ["mission_progress"]
+  },
+  "public.user_progress_counters": {
+    "sections": ["achievement_progress"]
+  },
+  "public.user_progress_marks": {
+    "sections": ["progress_events"],
+    "note": "Own metric and recording date only; internal deduplication keys can identify counterparties and are omitted."
+  },
+  "public.user_seen_cards": {
+    "sections": ["discovered_cards"]
+  },
+  "public.achievement_catalogue": {
+    "excluded": "Global game objectives and reward configuration; no individual account records."
+  },
+  "public.gauge_milestones": {
+    "excluded": "Global game objectives and reward configuration; no individual account records."
+  },
+  "public.mission_definitions": {
+    "excluded": "Global game objectives and reward configuration; no individual account records."
   }
 }
