@@ -230,7 +230,7 @@ test("personal export includes own progress and claims without internal counterp
     /EXPORT_RESERVATION_REQUIRED/
   );
   await assert.rejects(
-    db.query("select public.build_data_export_without_progress($1,$2)", [
+    db.query("select public.build_data_export_without_binders($1,$2)", [
       user,
       request
     ]),

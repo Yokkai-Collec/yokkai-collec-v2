@@ -1,6 +1,5 @@
 // Exact overloads and roles only. Every addition requires an access justification.
 export const ownerOnly = [
-  "public.build_data_export_without_progress(uuid, uuid)", // Existing reservation-gated export body; only the owning wrapper adds own progress, never direct API access.
   "public.build_data_export_without_twitter_reward(uuid, uuid)", // Existing reservation-gated export; only the owning wrapper adds the caller's Twitter visit receipt.
   "public.build_data_export_without_discord_reward(uuid, uuid)", // Existing reservation-gated export builder; only the owning wrapper adds the caller's Discord receipt.
   "public.anticheat_deleted_account_snapshot_trigger()", // Trigger-only identity/transfer snapshot, private 90-day identity retention. Walid approved.
