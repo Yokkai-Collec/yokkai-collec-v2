@@ -140,6 +140,7 @@
     "favoriteCollection": "Favorite collection"
   },
   "collectionUi": {
+    "duplicatesOnly": "Duplicates only",
     "binder": "Binder",
     "couldntLoadBinders": "Couldn't load binders.",
     "couldntUpdateThisFavorite": "Couldn't update this favorite.",

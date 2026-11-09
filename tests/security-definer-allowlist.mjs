@@ -284,7 +284,7 @@ const allowlist = {
   "public.report_user(uuid, text, text, uuid, text, boolean)": [
     "authenticated"
   ], // Creates a validated report under the current player's identity.
-  "public.get_collection_groups_page(text, text[], text[], boolean, text, boolean, boolean, text, text, integer, integer)":
+  "public.get_collection_groups_page(text, text[], text[], boolean, text, boolean, boolean, text, text, integer, integer, boolean)":
     ["authenticated"], // Read-only page of the caller's own collection groups (auth.uid()), bounded page size and validated sort.
   "public.get_collection_counts()": ["authenticated"], // Read-only distinct-group counters of the caller's own collection (auth.uid()).
   "public.get_collection_group_copies(text)": ["authenticated"], // Read-only copies of one group of the caller's own collection (auth.uid()), validated key.
