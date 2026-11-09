@@ -15,8 +15,15 @@ test("retroactive catalogue preserves claims, hides secret conditions and unlock
   );
   await db.query(`select set_config('request.jwt.claim.sub',$1,false)`, [user]);
   await db.exec("set role authenticated");
-  const first = (await db.query("select public.get_achievements() result"))
-    .rows[0].result;
+  assert.equal(
+    (await db.query("select public.get_achievements() result")).rows[0].result
+      .length,
+    11,
+    "legacy reader preserves its 11-achievement contract"
+  );
+  const first = (
+    await db.query("select public.get_achievement_catalogue() result")
+  ).rows[0].result;
   assert.ok(first.length > 100);
   assert.ok(
     first.find(a => a.family === "pack-opener" && a.conditionValue === 100)
@@ -34,8 +41,9 @@ test("retroactive catalogue preserves claims, hides secret conditions and unlock
     db.query(`select public.claim_achievement('premier-rituel')`),
     /ACHIEVEMENT_ALREADY_CLAIMED/
   );
-  const second = (await db.query("select public.get_achievements() result"))
-    .rows[0].result;
+  const second = (
+    await db.query("select public.get_achievement_catalogue() result")
+  ).rows[0].result;
   assert.ok(second.find(a => a.id === "premier-rituel").claimedAt);
   assert.equal(
     (await db.query("select public.get_missions() result")).rows[0].result
@@ -100,8 +108,9 @@ test("legacy upgrades preserve original claims and prepare exactly one player-cl
   );
   await db.query(`select set_config('request.jwt.claim.sub',$1,false)`, [user]);
   await db.exec("set role authenticated");
-  const catalogue = (await db.query("select public.get_achievements() result"))
-    .rows[0].result;
+  const catalogue = (
+    await db.query("select public.get_achievement_catalogue() result")
+  ).rows[0].result;
   assert.equal(
     catalogue.find(a => a.id === "eclat-inattendu").upgradeReward,
     2500
@@ -147,8 +156,9 @@ test("ownership milestones survive recycling before the first catalogue visit", 
   await db.query("select set_config('request.jwt.claim.sub',$1,false)", [user]);
   await db.exec("set role authenticated");
   await db.query("select public.discard_collection_cards($1::uuid[])", [ids]);
-  const items = (await db.query("select public.get_achievements() result"))
-    .rows[0].result;
+  const items = (
+    await db.query("select public.get_achievement_catalogue() result")
+  ).rows[0].result;
   assert.ok(
     items.find(a => a.family === "collector" && a.conditionValue === 50)
       .completedAt

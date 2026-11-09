@@ -230,7 +230,7 @@ revoke all on public.achievement_upgrade_credits from public,anon,authenticated,
 insert into public.achievement_upgrade_credits(user_id,achievement_id,reward)
  select u.user_id,u.achievement_id,a.karas_reward from public.user_achievements u join public.achievements a on a.id=u.achievement_id
  where u.claimed_at is not null and u.achievement_id in('eclat-inattendu','specialiste','transcendance');
-create or replace function public.get_achievements()
+create or replace function public.get_achievement_catalogue()
 returns jsonb language plpgsql volatile security definer set search_path='' as $$
 declare player uuid:=auth.uid(); snapshot jsonb; result jsonb; pro boolean; stamp timestamptz:=clock_timestamp();
 begin
@@ -307,8 +307,8 @@ insert into public.user_progress_counters select d.user_id,'shiny_drawn',count(*
  on conflict(user_id,metric) do update set value=public.user_progress_counters.value+excluded.value;
 revoke all on function public.achievement_snapshot(uuid),public.catalogue_achievement_value(jsonb,text,text),public.claim_achievement_upgrade(text) from public,anon,authenticated,service_role;
 grant execute on function public.claim_achievement_upgrade(text) to authenticated;
-revoke all on function public.get_achievements() from public,anon,service_role;
-grant execute on function public.get_achievements() to authenticated;
+revoke all on function public.get_achievement_catalogue() from public,anon,authenticated,service_role;
+grant execute on function public.get_achievement_catalogue() to authenticated;
 create trigger account_deletion_write_guard before insert or update or delete on public.achievement_upgrade_credits for each statement execute function public.guard_deleted_account();
 
 create or replace function public.claim_achievement(p_achievement_id text)

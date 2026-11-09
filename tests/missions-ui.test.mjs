@@ -60,8 +60,8 @@ for (const locale of ["en", "fr"])
         return "export const getGameInfo=async()=>({}); export const invalidatePlayerSnapshots=()=>{};";
       if (file === "lib/data/achievements.ts")
         return "export const getAchievements=async()=>[];export const claimAchievement=async()=>({});";
-      if (file === "lib/data/achievement-upgrades.ts")
-        return "export const claimAchievementUpgrade=async()=>({});";
+      if (file === "lib/data/achievement-catalogue.ts")
+        return "export const claimAchievementUpgrade=async()=>({});export const getAchievementCatalogue=async()=>[];";
       if (file === "lib/data/missions.ts")
         return "export const getMissions=async()=>({});export const claimMissionMilestone=async()=>({});";
       return readFileSync(file, "utf8");

@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/client";
 import { invalidatePlayerSnapshots } from "@/lib/data/cards";
-import type { ClaimResult } from "@/lib/data/achievements";
+import type { Achievement, ClaimResult } from "@/lib/data/achievements";
 export async function claimAchievementUpgrade(
   id: string
 ): Promise<ClaimResult> {
@@ -19,4 +19,13 @@ export async function claimAchievementUpgrade(
     });
   invalidatePlayerSnapshots(["balance"]);
   return data as ClaimResult;
+}
+
+export async function getAchievementCatalogue(): Promise<Achievement[]> {
+  const { data, error } = await createClient().rpc("get_achievement_catalogue");
+  if (error)
+    throw new Error("Achievement catalogue unavailable", {
+      cause: { i18nKey: "achievementUi.loadError" }
+    });
+  return data as Achievement[];
 }

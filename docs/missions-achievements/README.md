@@ -29,6 +29,8 @@ Les 11 identifiants historiques et leurs dates restent conservés. Specialist re
 
 Les taux de drop ne sont pas modifiés. La dernière définition de tirage d'origin/master au développement (`20261105230000_maintenance_pack_compensation.sql`) utilise 1 % de Shiny parmi les LR, contrairement à la migration du 23 octobre précédemment citée dans la discussion.
 
+La lecture historique `get_achievements()` conserve ses 11 entrées pour les anciens clients ; la page utilise la nouvelle lecture `get_achievement_catalogue()`.
+
 ## Livraison et validation
 
 Une seule PR ; migrations à appliquer dans l'ordre :
@@ -43,6 +45,6 @@ Contrôles ciblés : frontières lundi/quotidien et été/hiver, absence de prog
 
 Chrome sur données fictives : EN/FR à 320, 375, 540, 768, 1024, 1440 px et zoom 200 %, sans débordement ; filtres, paliers dépliables et boutons vérifiés. Aucun compte ou solde de production utilisé.
 
-Le registre `tests/security-definer-allowlist.mjs` ajoute uniquement les quatre nouvelles RPC propres au joueur : `get_missions`, `claim_mission_milestone`, `claim_achievement_upgrade`, `record_friend_visit`. **Extension des accès SQL à relire/valider par Walid** ; aucune assertion existante supprimée, aucun droit ancien élargi, aucun contrôle ignoré.
+Le registre `tests/security-definer-allowlist.mjs` ajoute uniquement les cinq nouvelles RPC propres au joueur : `get_achievement_catalogue`, `get_missions`, `claim_mission_milestone`, `claim_achievement_upgrade`, `record_friend_visit`. **Extension des accès SQL à relire/valider par Walid** ; aucune assertion existante supprimée, aucun droit ancien élargi, aucun contrôle ignoré.
 
 Rollback : avant exposition, retirer le front et conserver les tables privées ; après utilisation, ne supprimer ni réclamations ni compteurs et ne tenter aucun débit de compensation. Préparer une migration corrective additive si nécessaire. Aucun merge sans CI GitHub verte sur la branche à jour.

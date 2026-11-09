@@ -3,16 +3,15 @@
 import { useTranslations, useFormatter } from "next-intl";
 import { gameErrorKey } from "@/i18n/game-messages";
 import { useEffect, useState, type ReactNode } from "react";
-import { claimAchievementUpgrade } from "@/lib/data/achievement-upgrades";
+import {
+  claimAchievementUpgrade,
+  getAchievementCatalogue
+} from "@/lib/data/achievement-catalogue";
 import { MissionsPanel } from "@/components/missions";
 import { Topbar } from "@/components/topbar";
 import { Button, Karas, StatusPill, Toast } from "@/components/ui";
 import { getGameInfo } from "@/lib/data/cards";
-import {
-  claimAchievement,
-  getAchievements,
-  type Achievement
-} from "@/lib/data/achievements";
+import { claimAchievement, type Achievement } from "@/lib/data/achievements";
 import { subscribePlayerSnapshotInvalidation } from "@/lib/data/player-state";
 
 export function AchievementCard({
@@ -269,7 +268,7 @@ export function AchievementsPage({ account }: { account?: ReactNode }) {
     let active = true;
     const unsubscribe = subscribePlayerSnapshotInvalidation(scopes => {
       if (scopes.includes("balance")) {
-        void getAchievements().then(
+        void getAchievementCatalogue().then(
           next => {
             if (active) setItems(next);
           },
@@ -290,7 +289,7 @@ export function AchievementsPage({ account }: { account?: ReactNode }) {
   }, []);
   useEffect(() => {
     let active = true;
-    Promise.all([getAchievements(), getGameInfo()]).then(
+    Promise.all([getAchievementCatalogue(), getGameInfo()]).then(
       ([achievements, game]) => {
         if (!active) return;
         setItems(achievements);

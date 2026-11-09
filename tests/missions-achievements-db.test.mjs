@@ -226,8 +226,9 @@ test("real recycling counts once, reveals Regret and never counts evolution ingr
     db.query("select public.discard_collection_card($1)", [copy]),
     /CARD_NOT_OWNED/
   );
-  const catalogue = (await db.query("select public.get_achievements() result"))
-    .rows[0].result;
+  const catalogue = (
+    await db.query("select public.get_achievement_catalogue() result")
+  ).rows[0].result;
   assert.ok(catalogue.find(a => a.id === "regret-1").completedAt);
   await db.exec("reset role");
   const copies = (

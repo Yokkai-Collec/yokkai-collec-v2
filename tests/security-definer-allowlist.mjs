@@ -62,6 +62,7 @@ export const serverOnly = {
 };
 
 const allowlist = {
+  "public.get_achievement_catalogue()": ["authenticated"], // New own catalogue reader; the legacy eleven-achievement reader remains unchanged.
   "public.get_missions()": ["authenticated"], // Own fixed missions; settles only the caller's earned historical milestones.
   "public.claim_mission_milestone(text, timestamp with time zone, integer)": [
     "authenticated"
