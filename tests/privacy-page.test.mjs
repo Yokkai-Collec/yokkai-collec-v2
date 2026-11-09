@@ -101,7 +101,7 @@ test("the privacy page renders one h1, every required section, and English metad
   ]);
   assert.match(
     html,
-    /Last updated: <time dateTime="2026-11-02">November 2, 2026<\/time>/
+    /Last updated: <time dateTime="2026-11-09">November 9, 2026<\/time>/
   );
   assert.match(html, /href="https:\/\/stripe\.com\/privacy"/);
   assert.match(html, /never see or store your card number/);

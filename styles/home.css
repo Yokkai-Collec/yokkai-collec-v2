@@ -625,7 +625,8 @@
   align-items: center;
   gap: 20px 16px;
 }
-.yk-home-discord > .yk-button {
+.yk-home-discord > .yk-button,
+.yk-home-discord > form {
   grid-column: 1;
   justify-self: start;
   max-width: 100%;

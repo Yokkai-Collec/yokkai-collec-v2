@@ -244,6 +244,177 @@ a[aria-current="page"] {
   backdrop-filter: blur(8px);
   animation: yk-ui-fade-in var(--modal-duration) var(--ease-standard) both;
 }
+.yk-discord-reward-modal > div:first-child > button {
+  width: 44px;
+  height: 44px;
+}
+.yk-modal.yk-discord-reward-modal {
+  width: min(800px, calc(100% - 24px));
+  padding: 20px;
+}
+.yk-discord-reward-modal > div:first-child {
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+.yk-discord-reward-modal > div:first-child h2 {
+  font-size: clamp(20px, 3vw, 24px);
+  line-height: 1.3;
+}
+.yk-community-intro {
+  margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-ink-2);
+}
+.yk-community-options {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+.yk-community-reward {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--color-veil-strong);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-surface) 80%, var(--color-veil));
+}
+.yk-community-network {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.yk-community-network h3 {
+  font-size: 18px;
+  font-weight: 700;
+}
+.yk-community-brand {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--color-veil-strong);
+  border-radius: 10px;
+  background: var(--color-surface);
+  flex-shrink: 0;
+}
+.yk-community-brand svg {
+  width: 24px;
+  height: 24px;
+}
+[data-network="discord"] .yk-community-brand {
+  color: #9ba4ff;
+}
+.yk-community-gift {
+  margin-top: 18px;
+  font-size: clamp(22px, 3vw, 28px);
+  line-height: 1.25;
+  font-weight: 750;
+  color: var(--color-accent-gold);
+}
+.yk-community-description {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--color-ink-2);
+}
+.yk-community-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 22px;
+}
+.yk-community-twitter-actions {
+  margin-top: auto;
+  padding-top: 22px;
+}
+.yk-community-step {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-ink-3);
+}
+.yk-community-step span {
+  font-size: 12px;
+  color: var(--color-ink-2);
+}
+.yk-community-actions > .yk-community-step {
+  margin-bottom: 0;
+}
+.yk-community-actions form {
+  margin-top: 8px;
+}
+.yk-community-reward .yk-button {
+  width: 100%;
+  min-height: 44px;
+  padding: 12px;
+  white-space: normal;
+  text-align: center;
+}
+.yk-community-reward .yk-community-secondary {
+  border-color: var(--color-veil-strong);
+  background: transparent;
+  color: var(--color-ink-2);
+}
+.yk-community-reward .yk-community-claim {
+  border-color: var(--color-accent-gold);
+  background: var(--color-accent-gold);
+  color: var(--color-void);
+}
+.yk-community-reward .yk-community-claim:hover:not(:disabled),
+.yk-community-reward .yk-community-claim:active:not(:disabled) {
+  background: color-mix(in srgb, var(--color-accent-gold) 85%, white);
+}
+.yk-community-claimed {
+  align-self: flex-start;
+  margin-top: 16px;
+  padding: 6px 10px;
+  border: 1px solid var(--color-veil-strong);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--color-success);
+}
+.yk-community-footer {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-veil);
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--color-ink-3);
+}
+.yk-community-once {
+  color: var(--color-ink-2);
+  font-weight: 500;
+}
+.yk-community-privacy {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  min-height: 32px;
+  color: var(--color-ink-2);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+@media (min-width: 680px) {
+  .yk-modal.yk-discord-reward-modal {
+    padding: 28px;
+  }
+  .yk-community-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .yk-community-privacy {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    justify-self: end;
+  }
+}
 .yk-modal.yk-card-report-modal {
   width: min(34rem, calc(100% - 32px));
 }

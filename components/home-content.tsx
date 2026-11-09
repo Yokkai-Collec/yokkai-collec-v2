@@ -50,17 +50,18 @@ export function HomeLinks({ discordEnabled }: { discordEnabled: boolean }) {
   return (
     <>
       <div className="yk-home-community-grid">
-        {discordEnabled && (
-          <section aria-labelledby="home-discord" className="yk-home-discord">
-            <div>
-              <h2 id="home-discord">{t("joinTheYokkaiCommunity")}</h2>
-            </div>
-            <Link
-              href="/discord"
-              className="yk-button yk-button-primary yk-home-panel-action"
-            >
-              {t("joinDiscord")}
-            </Link>
+        <section aria-labelledby="home-community" className="yk-home-discord">
+          <div>
+            <h2 id="home-community">{t("joinTheYokkaiCommunity")}</h2>
+            <p>{t("communityPacks")}</p>
+          </div>
+          <Link
+            href="/?discord-reward=claim"
+            className="yk-button yk-button-primary yk-home-panel-action min-h-11 whitespace-normal"
+          >
+            {t("communityOptions")}
+          </Link>
+          {discordEnabled && (
             <svg
               className="yk-home-discord-logo"
               aria-hidden="true"
@@ -71,8 +72,8 @@ export function HomeLinks({ discordEnabled }: { discordEnabled: boolean }) {
             >
               <path d={DISCORD_MARK_PATH} />
             </svg>
-          </section>
-        )}
+          )}
+        </section>
         <ReferralReminder packChoices homeCard />
       </div>
       <section aria-labelledby="home-learn" className="yk-home-panel">

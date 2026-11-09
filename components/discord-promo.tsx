@@ -1,89 +1,291 @@
 "use client";
-import { useTranslations } from "next-intl";
 
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Modal } from "@/components/ui";
+import { DISCORD_MARK_PATH } from "@/components/site-footer";
 
 function dismissalKey(userId: string) {
-  return `yokkai-discord-promo-dismissed:${userId}`;
+  return `yokkai-discord-reward-dismissed:${userId}`;
 }
 
+function locallyDismissed(userId: string) {
+  try {
+    return localStorage.getItem(dismissalKey(userId)) === "1";
+  } catch {
+    return false;
+  }
+}
+
+async function persistDismissal() {
+  try {
+    await fetch("/api/discord-reward?action=dismiss", {
+      method: "POST",
+      keepalive: true
+    });
+  } catch {
+    /* The local receipt is retried when this player visits home again. */
+  }
+}
+
+const resultMessages = {
+  "not-member": "notMember",
+  pending: "pending",
+  "discord-used": "discordUsed",
+  denied: "denied",
+  error: "error"
+} as const;
+
 export function DiscordPromo({ enabled }: { enabled: boolean }) {
-  const t = useTranslations("discordPromo");
+  const t = useTranslations("discordReward");
   const pathname = usePathname();
-  const isHome = pathname === "/" || pathname === "/design-system/home-preview";
+  const router = useRouter();
+  const requested = useSearchParams().get("discord-reward");
   const [visible, setVisible] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [afterJoin, setAfterJoin] = useState(false);
+  const [discordAvailable, setDiscordAvailable] = useState(false);
+  const [discordClaimed, setDiscordClaimed] = useState(false);
+  const [twitterClaimed, setTwitterClaimed] = useState(false);
 
   useEffect(() => {
-    if (!enabled || isHome) return;
-
+    if (!enabled || pathname !== "/") return;
     let active = true;
-    const supabase = createClient();
-
     async function preparePromo() {
-      // Display gating only (local session, no Auth round trip): every
-      // protected read below is still authorized by the database.
-      const {
-        data: { session }
-      } = await supabase.auth.getSession();
-      const user = session?.user;
-      if (!active || !user) return;
-      if (localStorage.getItem(dismissalKey(user.id)) === "1") return;
-
-      setUserId(user.id);
-      setVisible(true);
+      const url = new URL(window.location.href);
+      try {
+        const response = await fetch("/api/discord-reward", {
+          cache: "no-store"
+        });
+        if (!active) return;
+        if (response.status === 401) {
+          if (requested === "claim") router.push("/login");
+          return;
+        }
+        if (!response.ok) {
+          if (requested) setFeedback(t("unavailable"));
+          return;
+        }
+        const status = await response.json();
+        if (!active) return;
+        if (!status.available) {
+          if (requested) setFeedback(t("unavailable"));
+          return;
+        }
+        if (typeof status.userId !== "string") return;
+        setUserId(status.userId);
+        setDiscordAvailable(status.discordAvailable === true);
+        setDiscordClaimed(status.claimed === true);
+        setTwitterClaimed(status.twitterClaimed === true);
+        if (requested) {
+          url.searchParams.delete("discord-reward");
+          window.history.replaceState(
+            null,
+            "",
+            url.pathname + url.search + url.hash
+          );
+        }
+        if (
+          requested !== "claim" &&
+          (status.claimed || (!requested && status.twitterClaimed))
+        ) {
+          if (requested) setFeedback(t("claimed", { count: 5 }));
+          return;
+        }
+        if (requested && requested !== "claim") {
+          const key = Object.hasOwn(resultMessages, requested)
+            ? resultMessages[requested as keyof typeof resultMessages]
+            : null;
+          if (key) setFeedback(t(key));
+          return;
+        }
+        const local = locallyDismissed(status.userId);
+        if (local && !status.dismissed) void persistDismissal();
+        if (requested === "claim" || (!local && !status.dismissed))
+          setVisible(true);
+      } catch {
+        /* An unavailable status must never force an invitation to appear. */
+      }
     }
-
     void preparePromo();
     return () => {
       active = false;
     };
-  }, [enabled, isHome]);
+  }, [enabled, pathname, requested, router, t]);
 
+  function rememberDismissal() {
+    if (userId) {
+      try {
+        localStorage.setItem(dismissalKey(userId), "1");
+      } catch {
+        /* Server persistence still works. */
+      }
+    }
+    void persistDismissal();
+  }
   function dismiss() {
-    if (userId) localStorage.setItem(dismissalKey(userId), "1");
+    rememberDismissal();
     setVisible(false);
   }
+  function join() {
+    dismiss();
+    setFeedback(t(discordClaimed ? "alreadyClaimed" : "afterJoin"));
+    setAfterJoin(!discordClaimed);
+  }
 
-  if (!visible || isHome) return null;
-
+  if (!enabled || pathname !== "/") return null;
   return (
-    <aside
-      aria-label={t("yokkaiDiscordCommunity")}
-      className={[
-        "yk-discord-promo fixed right-4 bottom-4 z-[69] grid w-[min(calc(100vw-2rem),27rem)]",
-        "grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 rounded-[18px]",
-        "border border-[#5865f2]/45 bg-surface/95 px-4 py-2.5 backdrop-blur-md",
-        "shadow-[0_14px_45px_rgba(0,0,0,0.55),0_0_28px_rgba(88,101,242,0.16)]",
-        "max-sm:right-3 max-sm:bottom-24 max-sm:w-[calc(100vw-1.5rem)]"
-      ].join(" ")}
-    >
-      <div className="min-w-0">
-        <p className="truncate font-display text-sm font-bold tracking-wide text-ink">
-          {t("joinTheYokkaiCommunity")}
-        </p>
-        <p className="mt-0.5 truncate text-[11px] text-ink-3">
-          {t("meetCollectorsTradeCardsAndFollowTheLatestNews")}
-        </p>
-      </div>
-      <a
-        href="/discord"
+    <>
+      <Modal
+        open={visible}
+        onClose={dismiss}
+        title={t("title")}
+        className="yk-discord-reward-modal max-w-3xl"
+      >
+        <p className="yk-community-intro">{t("optionsIntro")}</p>
+        <div className="yk-community-options">
+          <section
+            aria-labelledby="reward-discord"
+            className="yk-community-reward"
+            data-network="discord"
+          >
+            <div className="yk-community-network">
+              <span className="yk-community-brand" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d={DISCORD_MARK_PATH} />
+                </svg>
+              </span>
+              <h3 id="reward-discord">{t("discordLabel")}</h3>
+            </div>
+            <p className="yk-community-gift">{t("reward", { count: 5 })}</p>
+            <p className="yk-community-description">{t("existingMembers")}</p>
+            {discordClaimed && (
+              <p role="status" className="yk-community-claimed">
+                {t("alreadyClaimed")}
+              </p>
+            )}
+            {discordAvailable ? (
+              <div className="yk-community-actions">
+                {!discordClaimed && (
+                  <p className="yk-community-step">
+                    {t("step", { number: 1 })}
+                    <span>{t("discordJoinStep")}</span>
+                  </p>
+                )}
+                <a
+                  href="/discord"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={join}
+                  className="yk-button yk-community-secondary"
+                >
+                  {t("join")}
+                </a>
+                {!discordClaimed && (
+                  <form
+                    action="/api/discord-reward"
+                    method="post"
+                    onSubmit={rememberDismissal}
+                  >
+                    <p className="yk-community-step">
+                      {t("step", { number: 2 })}
+                      <span>{t("discordClaimStep")}</span>
+                    </p>
+                    <button
+                      type="submit"
+                      className="yk-button yk-community-claim"
+                    >
+                      {t("claim")}
+                    </button>
+                  </form>
+                )}
+              </div>
+            ) : (
+              <p role="status" className="mt-5 text-sm leading-6 text-ink-3">
+                {t("discordUnavailable")}
+              </p>
+            )}
+          </section>
+          <section
+            aria-labelledby="reward-twitter"
+            className="yk-community-reward"
+            data-network="twitter"
+          >
+            <div className="yk-community-network">
+              <span className="yk-community-brand" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3L12 15.6 6.4 22H3.1l7.3-8.4L.8 2h6.5l4.4 5.8L18.9 2Zm-1.1 18h1.8L6.3 3.9H4.4L17.8 20Z" />
+                </svg>
+              </span>
+              <h3 id="reward-twitter">{t("twitterLabel")}</h3>
+            </div>
+            <p className="yk-community-gift">{t("reward", { count: 5 })}</p>
+            <p className="yk-community-description">{t("twitterDetails")}</p>
+            {twitterClaimed && (
+              <p role="status" className="yk-community-claimed">
+                {t("alreadyClaimed")}
+              </p>
+            )}
+            <div className="yk-community-actions yk-community-twitter-actions">
+              {!twitterClaimed && (
+                <p className="yk-community-step">{t("twitterClaimStep")}</p>
+              )}
+              <button
+                type="submit"
+                form="community-twitter-claim"
+                className={`yk-button ${twitterClaimed ? "yk-community-secondary" : "yk-community-claim"}`}
+              >
+                {t(twitterClaimed ? "twitterVisit" : "twitterAction")}
+              </button>
+            </div>
+          </section>
+        </div>
+        <div className="yk-community-footer">
+          <p className="yk-community-once">{t("eachGiftOnce")}</p>
+          <p>{t("dismissal")}</p>
+          <a href="/privacy" className="yk-community-privacy">
+            {t("privacy")}
+          </a>
+        </div>
+      </Modal>
+      {/* Keep the submitting form mounted while the dialog closes. */}
+      <form
+        id="community-twitter-claim"
+        action="/twitter"
+        method="post"
         target="_blank"
         rel="noopener noreferrer"
-        className="yk-button yk-button-primary min-h-9 whitespace-nowrap !rounded-full px-5 py-2 text-xs"
-      >
-        {t("joinDiscord")}
-      </a>
-      <button
-        type="button"
-        aria-label={t("dismissDiscordInvitation")}
-        onClick={dismiss}
-        className="grid h-7 w-7 place-items-center rounded-full border border-veil text-base leading-none text-ink-3 transition hover:border-focus hover:bg-veil hover:text-ink"
-      >
-        ×
-      </button>
-    </aside>
+        onSubmit={dismiss}
+        hidden
+      />
+      {feedback && (
+        <aside
+          role="status"
+          className="fixed right-4 bottom-24 z-[70] w-[min(calc(100vw-2rem),28rem)] rounded-2xl border border-veil bg-surface p-5 shadow-xl sm:bottom-4"
+        >
+          <p className="pr-10 text-sm leading-6 text-ink">{feedback}</p>
+          <button
+            type="button"
+            onClick={() => setFeedback(null)}
+            aria-label={t("close")}
+            className="absolute top-2 right-2 grid h-11 w-11 place-items-center rounded-full text-ink-2"
+          >
+            ×
+          </button>
+          {afterJoin && (
+            <form action="/api/discord-reward" method="post" className="mt-4">
+              <button
+                type="submit"
+                className="yk-button yk-button-primary min-h-11 w-full whitespace-normal"
+              >
+                {t("claim")}
+              </button>
+            </form>
+          )}
+        </aside>
+      )}
+    </>
   );
 }
