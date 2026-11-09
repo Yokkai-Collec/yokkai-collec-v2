@@ -1066,6 +1066,21 @@ export function CollectionView({
         <span>{tc("shinyEvolved")}</span>
         <i />
       </button>
+      {viewMode !== "panini" && (
+        <button
+          type="button"
+          role="switch"
+          className="yk-shiny-toggle"
+          aria-checked={duplicatesOnly}
+          onClick={() => {
+            setDuplicatesOnly(current => !current);
+            setPage(1);
+          }}
+        >
+          <span>{tc("duplicatesOnly")}</span>
+          <i />
+        </button>
+      )}
       <FilterSection
         title={tc("rarity")}
         count={rarity.length}
@@ -1114,20 +1129,6 @@ export function CollectionView({
           </button>
         ))}
       </FilterSection>
-      {viewMode !== "panini" && (
-        <button
-          type="button"
-          className="yk-filter-option"
-          aria-pressed={duplicatesOnly}
-          onClick={() => {
-            setDuplicatesOnly(current => !current);
-            setPage(1);
-          }}
-        >
-          <span className="yk-filter-check" />
-          <span>{tc("duplicatesOnly")}</span>
-        </button>
-      )}
       {!readOnly && (
         <FilterSection
           title={tc("status")}
