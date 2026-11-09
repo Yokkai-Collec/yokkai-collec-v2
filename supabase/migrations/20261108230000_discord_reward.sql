@@ -91,6 +91,8 @@ begin
     'discord_reward_prompt', (select jsonb_build_object('dismissed_at', discord_reward_dismissed_at)
       from public.user_profiles where user_id = p_user_id)
   ) into result;
+  result := jsonb_set(result, '{profile,discord_reward_dismissed_at}',
+    coalesce(result #> '{discord_reward_prompt,dismissed_at}', 'null'::jsonb));
   if (select coalesce(sum(case when jsonb_typeof(value) = 'array' then jsonb_array_length(value)
       when jsonb_typeof(value) = 'object' then 1 else 0 end), 0) from jsonb_each(result)) > 100000
     or octet_length(result::text) > 26214400 then raise exception 'EXPORT_TOO_LARGE'; end if;

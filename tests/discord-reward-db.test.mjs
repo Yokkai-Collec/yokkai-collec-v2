@@ -58,6 +58,10 @@ test("Discord reward is server-only, atomic and permanent for both identities", 
   assert.equal(exported.discord_reward.discord_id, "123456789012345678");
   assert.ok(exported.discord_reward.claimed_at);
   assert.ok(exported.discord_reward_prompt.dismissed_at);
+  assert.equal(
+    exported.profile.discord_reward_dismissed_at,
+    exported.discord_reward_prompt.dismissed_at
+  );
   assert.deepEqual(
     (
       await db.query(

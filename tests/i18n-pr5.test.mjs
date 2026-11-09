@@ -49,13 +49,13 @@ const golden = {
     "app/robots.ts":
       "a6fa476a50d5d07e5e136209e4b1a3d5c6cb44d36f8dd66c67109d2bb3b5fe4c",
     "lib/legal/privacy.ts":
-      "61f4b750993801753b2d8e0fb93c76c33579e0870c69ca8d5a565c2a7517c58b",
+      "aa24deca97101de55bf166def5197f8c131b8df810f6434ce59f3c2d721b08dc",
     "lib/premium/profile-example.json":
       "6b95d6f441dc84a7fd08b9bca1a667899979af1a4da241f47ff5b071124eda82"
   },
   englishHtml: {
     terms: "915fb129a2ec7855185124d8c75ac141d66bfa9e88f387364504742b6ae9ebb9",
-    privacy: "390193521c143e7cb182a057bb73bf510003bf1a465561a44e74f45d6b793721", // Walid approved the disclosed 90-day deleted identity retention and 14-day email cooldown; exact HTML assertion retained.
+    privacy: "1d1c326d87dde2527feb6870a1e81c1c51ed509e81964fe17a8e941acbe93e10", // Includes the one-time community gifts and their retention; exact HTML assertion retained.
     rules: "984e1a56cd9b0dbd51aeb7b8dc1b86943712230bebe49d4d43afe0115f1951f7",
     info: "3a7002eef8f2ed6df50e903ee49da122249f279aef77fc2d6ffcf199e879cc22",
     rarities: "9a3c2d4707692a9f8e1eccc9ecf12a39b94a8bdae2ec7e841cded0313e2cde9b"
