@@ -230,10 +230,7 @@ export function DiscordPromo({ enabled }: { enabled: boolean }) {
             )}
             <div className="yk-community-actions yk-community-twitter-actions">
               {!twitterClaimed && (
-                <p className="yk-community-step">
-                  {t("oneClick")}
-                  <span>{t("twitterClaimStep")}</span>
-                </p>
+                <p className="yk-community-step">{t("twitterClaimStep")}</p>
               )}
               <button
                 type="submit"
