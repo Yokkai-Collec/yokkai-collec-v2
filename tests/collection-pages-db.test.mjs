@@ -27,6 +27,45 @@ function load(specifier) {
 const { filterCollection } = load("@/lib/ui/collection-filter");
 const { groupCollection } = load("@/lib/ui/collection-groups");
 
+test("duplicates use the whole collection and keep variants separate", () => {
+  const base = {
+    id: "a",
+    name: "a",
+    rarity: "C",
+    category: "Anime",
+    obtainedAt: "2026-01-01",
+    shiny: false
+  };
+  const cards = [
+    { ...base, instanceId: "1", folderId: "folder" },
+    { ...base, instanceId: "2", locked: true },
+    { ...base, instanceId: "3", shiny: true },
+    { ...base, instanceId: "4", isEvolved: true },
+    { ...base, id: "b", instanceId: "5" }
+  ];
+  const filters = {
+    query: "",
+    category: [],
+    rarity: [],
+    shinyOnly: false,
+    folder: "",
+    auctionOnly: false,
+    lockedOnly: false,
+    sort: "rarity",
+    duplicatesOnly: true
+  };
+  const ids = extra =>
+    Array.from(
+      filterCollection(cards, { ...filters, ...extra }, () => false),
+      card => card.instanceId
+    );
+  assert.deepEqual(ids({}), ["1", "2"]);
+  assert.deepEqual(ids({ folder: "folder" }), ["1"]);
+  assert.deepEqual(ids({ lockedOnly: true }), ["2"]);
+  assert.deepEqual(ids({ shinyOnly: true }), []);
+  assert.equal(ids({ duplicatesOnly: false }).length, 5);
+});
+
 // PGlite has no ICU: names stay plain lowercase ASCII here, so both orders
 // agree. tests/postgres17-collection-order.mjs checks ICU names (case,
 // accents, numbers) on the production PostgreSQL image.
@@ -179,7 +218,7 @@ test("collection pages match the client's filters, order, grouping and counters"
   const page = async args =>
     (
       await db.query(
-        "select public.get_collection_groups_page(p_query=>$1,p_categories=>$2,p_rarities=>$3,p_shiny_only=>$4,p_folder=>$5,p_auction_only=>$6,p_locked_only=>$7,p_sort=>$8,p_after=>$9,p_offset=>$10,p_limit=>$11) page",
+        "select public.get_collection_groups_page(p_query=>$1,p_categories=>$2,p_rarities=>$3,p_shiny_only=>$4,p_folder=>$5,p_auction_only=>$6,p_locked_only=>$7,p_sort=>$8,p_after=>$9,p_offset=>$10,p_limit=>$11,p_duplicates_only=>$12) page",
         [
           args.query,
           args.category.length ? args.category : null,
@@ -191,7 +230,8 @@ test("collection pages match the client's filters, order, grouping and counters"
           args.sort,
           args.after ?? null,
           args.offset ?? 0,
-          args.limit ?? 24
+          args.limit ?? 24,
+          args.duplicatesOnly ?? false
         ]
       )
     ).rows[0].page;
@@ -216,6 +256,10 @@ test("collection pages match the client's filters, order, grouping and counters"
     { folder: "unfiled" },
     { auctionOnly: true },
     { lockedOnly: true },
+    { duplicatesOnly: true },
+    { duplicatesOnly: true, folder: folders[0] },
+    { duplicatesOnly: true, lockedOnly: true },
+    { duplicatesOnly: true, shinyOnly: true },
     { query: "e", rarity: ["C", "R"], folder: "unfiled" }
   ];
   for (const sort of ["rarity", "recent", "oldest", "name"])

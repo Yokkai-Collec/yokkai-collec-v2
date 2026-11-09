@@ -3,6 +3,8 @@ import type { CardBinder } from "@/lib/ui/binder-identity";
 import { matchesCardSearch } from "@/lib/ui/card-search";
 import { sortCollection, type CollectionSort } from "@/lib/ui/collection-sort";
 
+import { collectionGroupKey } from "@/lib/ui/collection-groups";
+
 export type CollectionFilters = {
   query: string;
   category: string[];
@@ -11,6 +13,7 @@ export type CollectionFilters = {
   folder: string | "unfiled" | "";
   auctionOnly: boolean;
   lockedOnly: boolean;
+  duplicatesOnly?: boolean;
   sort: CollectionSort;
 };
 
@@ -30,6 +33,12 @@ export function filterCollection(
     auctionOnly,
     lockedOnly
   } = filters;
+  const counts = new Map<string, number>();
+  if (filters.duplicatesOnly)
+    for (const card of cards) {
+      const key = collectionGroupKey(card);
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
   return sortCollection(
     cards.filter(
       c =>
@@ -49,7 +58,9 @@ export function filterCollection(
         (!folder ||
           (folder === "unfiled" ? !c.folderId : c.folderId === folder)) &&
         (!auctionOnly || isFrozen(c.instanceId)) &&
-        (!lockedOnly || !!c.locked)
+        (!lockedOnly || !!c.locked) &&
+        (!filters.duplicatesOnly ||
+          (counts.get(collectionGroupKey(c)) ?? 0) > 1)
     ),
     filters.sort
   );

@@ -264,6 +264,7 @@ export function CollectionView({
   const [folder, setFolder] = useState<string | "unfiled" | "">("");
   const [auctionOnly, setAuctionOnly] = useState(false);
   const [lockedOnly, setLockedOnly] = useState(false);
+  const [duplicatesOnly, setDuplicatesOnly] = useState(false);
   const [page, setPage] = useState(1);
   const [sort, setSort] = useCollectionSort();
   const [pageSize, setPageSize] = useState<number>(CARD_PAGE_SIZES[0]);
@@ -385,6 +386,7 @@ export function CollectionView({
       folder,
       auctionOnly,
       lockedOnly,
+      duplicatesOnly,
       sort
     },
     page,
@@ -427,6 +429,7 @@ export function CollectionView({
           folder,
           auctionOnly,
           lockedOnly,
+          duplicatesOnly,
           sort
         },
         instanceId => !!presentation[instanceId]?.frozen
@@ -434,6 +437,7 @@ export function CollectionView({
     [
       auctionOnly,
       lockedOnly,
+      duplicatesOnly,
       cards,
       remote,
       category,
@@ -985,6 +989,7 @@ export function CollectionView({
     setFolder("");
     setAuctionOnly(false);
     setLockedOnly(false);
+    setDuplicatesOnly(false);
     setPage(1);
     setPaniniPage(1);
   };
@@ -1001,7 +1006,8 @@ export function CollectionView({
             shinyOnly ||
             folder ||
             auctionOnly ||
-            lockedOnly
+            lockedOnly ||
+            duplicatesOnly
           )
         }
         onClick={resetFilters}
@@ -1108,6 +1114,20 @@ export function CollectionView({
           </button>
         ))}
       </FilterSection>
+      {viewMode !== "panini" && (
+        <button
+          type="button"
+          className="yk-filter-option"
+          aria-pressed={duplicatesOnly}
+          onClick={() => {
+            setDuplicatesOnly(current => !current);
+            setPage(1);
+          }}
+        >
+          <span className="yk-filter-check" />
+          <span>{tc("duplicatesOnly")}</span>
+        </button>
+      )}
       {!readOnly && (
         <FilterSection
           title={tc("status")}
@@ -1340,7 +1360,8 @@ export function CollectionView({
         shinyOnly ||
         folder ||
         auctionOnly ||
-        lockedOnly ? (
+        lockedOnly ||
+        duplicatesOnly ? (
           <span>•</span>
         ) : null}
       </button>
