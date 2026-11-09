@@ -61,7 +61,7 @@ for (const locale of ["en", "fr"])
       if (file === "lib/data/achievements.ts")
         return "export const getAchievements=async()=>[];export const claimAchievement=async()=>({});";
       if (file === "lib/data/achievement-catalogue.ts")
-        return "export const claimAchievementUpgrade=async()=>({});export const getAchievementCatalogue=async()=>[];";
+        return "export const claimCatalogueAchievement=async()=>({});export const claimAchievementUpgrade=async()=>({});export const getAchievementCatalogue=async()=>[];";
       if (file === "lib/data/missions.ts")
         return "export const getMissions=async()=>({});export const claimMissionMilestone=async()=>({});";
       return readFileSync(file, "utf8");
@@ -80,7 +80,7 @@ for (const locale of ["en", "fr"])
     assert.doesNotMatch(html, /missionUi\.|MISSING_MESSAGE|INVALID_MESSAGE/);
     assert.match(
       html,
-      locale === "en" ? /Choose your missions/ : /Choisissez vos missions/
+      locale === "en" ? /Choose your missions/ : /Choisis tes missions/
     );
     const base = {
       title: "Pack Opener",

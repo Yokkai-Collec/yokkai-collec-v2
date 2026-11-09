@@ -1,8 +1,12 @@
 begin;
 set local lock_timeout='3s';
-alter table public.achievements add column family_key text,add column section text not null default 'collection',
+create table public.achievement_catalogue (like public.achievements including defaults including constraints);
+alter table public.achievement_catalogue add primary key(id);
+alter table public.achievement_catalogue enable row level security;
+revoke all on public.achievement_catalogue from public,anon,authenticated,service_role;
+alter table public.achievement_catalogue add column family_key text,add column section text not null default 'collection',
  add column secret boolean not null default false,add column pro_required boolean not null default false;
-insert into public.achievements(id,titre,description,condition_type,condition_value,condition_categorie,karas_reward,family_key,section,secret,pro_required) values
+insert into public.achievement_catalogue(id,titre,description,condition_type,condition_value,condition_categorie,karas_reward,family_key,section,secret,pro_required) values
 ('collection-en-marche','Collector','Own {target, number} different cards.','unique_cards_collected',25,null,30,'collector','collection',false,false),
 ('collector-50','Collector','Own {target, number} different cards.','catalog_unique_cards_collected',50,null,50,'collector','collection',false,false),
 ('collector-250','Collector','Own {target, number} different cards.','catalog_unique_cards_collected',250,null,100,'collector','collection',false,false),
@@ -23,7 +27,7 @@ insert into public.achievements(id,titre,description,condition_type,condition_va
 ('legend-pulled-100','Legend Pulled','Obtain {target, number} LR cards.','catalog_first_lr_card',100,null,2500,'legend-pulled','collection',false,false),
 ('eclat-inattendu','Shiny Hunter','Draw {target, number} Shiny LR cards from packs.','catalog_shiny_drawn',1,null,2500,'shiny-hunter','collection',false,false),
 ('shiny-hunter-2','Shiny Hunter','Draw {target, number} Shiny LR cards from packs.','catalog_shiny_drawn',2,null,5000,'shiny-hunter','collection',false,false),
-('transcendance','Evolution','Evolve SSR duplicates into Infinity {target, number} times.','ssr_evolved_to_lr',1,null,1000,'evolution','collection',false,false),
+('transcendance','Evolution','Evolve SSR duplicates into Infinity {target, number} times.','catalog_ssr_infinity',1,null,1000,'evolution','collection',false,false),
 ('evolution-2','Evolution','Evolve SSR duplicates into Infinity {target, number} times.','catalog_ssr_infinity',2,null,2000,'evolution','collection',false,false),
 ('evolution-3','Evolution','Evolve SSR duplicates into Infinity {target, number} times.','catalog_ssr_infinity',3,null,3000,'evolution','collection',false,false),
 ('rarity-master-5','Rarity Master','Own at least one card of every rarity, C through LR.','catalog_rarities_owned',5,null,100,'rarity-master','collection',false,false),
@@ -153,6 +157,22 @@ insert into public.achievements(id,titre,description,condition_type,condition_va
 ('artist-50','Artist','Personalize the image of {target, number} different cards while Pro.','catalog_custom_images',50,null,600,'artist','pro',false,true),
 ('animated-1','Animated','Use an animated banner or avatar while Pro.','catalog_animated_profile',1,null,50,'animated','pro',false,true)
 on conflict(id) do update set titre=excluded.titre,description=excluded.description,condition_type=excluded.condition_type,condition_value=excluded.condition_value,karas_reward=excluded.karas_reward,family_key=excluded.family_key,section=excluded.section,secret=excluded.secret,pro_required=excluded.pro_required;
+
+create table public.user_catalogue_achievements(
+ user_id uuid not null references auth.users(id) on delete cascade,
+ achievement_id text not null references public.achievement_catalogue(id) on delete cascade,
+ completed_at timestamptz,claimed_at timestamptz,primary key(user_id,achievement_id),
+ check(claimed_at is null or completed_at is not null)
+);
+alter table public.user_catalogue_achievements enable row level security;
+revoke all on public.user_catalogue_achievements from public,anon,authenticated,service_role;
+-- Grandfather the eleven existing accomplishments and payments exactly once.
+insert into public.user_catalogue_achievements select u.* from public.user_achievements u
+ where exists(select 1 from public.user_profiles p where p.user_id=u.user_id)
+ and not exists(select 1 from public.account_deletion_log d where d.user_id=u.user_id);
+create trigger account_deletion_write_guard before insert or update or delete on public.user_catalogue_achievements for each statement execute function public.guard_deleted_account();
+create trigger account_deletion_reference_guard before insert or update on public.user_catalogue_achievements for each row execute function public.guard_deleted_account();
+create trigger account_deletion_write_guard before insert or update or delete on public.achievement_catalogue for each statement execute function public.guard_deleted_account();
 -- The original Specialist replaces one category's 50% tier for each player,
 -- rather than granting the same milestone twice. Retain its original id and claim.
 create table public.user_legacy_specialist_categories(
@@ -199,7 +219,7 @@ begin
  'ssr_infinity',greatest(coalesce((result->>'ssr_infinity')::bigint,0),(inventory->>'infinity_owned')::bigint),
  'rare_showcase',greatest((inventory->>'rare_showcase')::bigint,coalesce((result->>'pro_rare_showcase')::bigint,0)),
  'custom_images',greatest(coalesce((result->>'custom_images')::bigint,0),(inventory->>'custom_images')::bigint),
- 'friends_owned',(select count(*) from public.friendships where status='accepted' and p_user in(user_id,friend_id)),
+ 'friends_owned',greatest(coalesce((result->>'friends_owned')::bigint,0),(select count(*) from public.friendships where status='accepted' and p_user in(user_id,friend_id))),
  'showcase_size',greatest(coalesce((result->>'showcase_size')::bigint,0),coalesce(cardinality(profile.featured_card_ids),0)),'identity',case when nullif(btrim(profile.bio),'') is not null and profile.avatar_url is not null then 1 else coalesce((result->>'identity')::integer,0) end,
  'account_days',greatest(0,coalesce(stamp::date-(select (to_jsonb(u)->>'created_at')::timestamptz::date from auth.users u where u.id=p_user),0)),
  'referred',case when exists(select 1 from public.referrals where referred_id=p_user) then 1 else 0 end,
@@ -222,13 +242,13 @@ $$;
 -- Upgraded legacy rewards are prepared as player-claimed bonuses. No mass wallet
 -- update occurs when this migration is applied; original claims remain intact.
 create table public.achievement_upgrade_credits(
- user_id uuid not null references auth.users(id) on delete cascade,achievement_id text not null references public.achievements(id),
+ user_id uuid not null references auth.users(id) on delete cascade,achievement_id text not null references public.achievement_catalogue(id),
  reward integer not null check(reward>0),claimed_at timestamptz,primary key(user_id,achievement_id)
 );
 alter table public.achievement_upgrade_credits enable row level security;
 revoke all on public.achievement_upgrade_credits from public,anon,authenticated,service_role;
 insert into public.achievement_upgrade_credits(user_id,achievement_id,reward)
- select u.user_id,u.achievement_id,a.karas_reward from public.user_achievements u join public.achievements a on a.id=u.achievement_id
+ select u.user_id,u.achievement_id,a.karas_reward from public.user_catalogue_achievements u join public.achievement_catalogue a on a.id=u.achievement_id
  where u.claimed_at is not null and u.achievement_id in('eclat-inattendu','specialiste','transcendance');
 create or replace function public.get_achievement_catalogue()
 returns jsonb language plpgsql volatile security definer set search_path='' as $$
@@ -239,7 +259,7 @@ begin
  perform 1 from public.user_profiles where user_id=player for update;
  if not found then raise exception 'PROFILE_MISSING'; end if;
  perform public.mark_player_progress(player,'activity_days',(stamp at time zone 'Europe/Paris')::date::text,stamp);
- insert into public.achievements(id,titre,description,condition_type,condition_value,condition_categorie,karas_reward,family_key,section)
+ insert into public.achievement_catalogue(id,titre,description,condition_type,condition_value,condition_categorie,karas_reward,family_key,section)
  select 'completionist-'||md5(c.categorie)||'-'||tier.target,'Completionist','Complete a category.','catalog_cards_collected_category_percent',tier.target,c.categorie,tier.reward,'completionist','collection'
  from(select distinct categorie from public.cards where categorie is not null)c cross join(values(25,250),(50,750),(75,2000),(100,5000))tier(target,reward)
  on conflict(id) do nothing;
@@ -247,17 +267,33 @@ begin
  insert into public.user_legacy_specialist_categories(user_id,category)
  select player,substr(e.key,10) from jsonb_each(snapshot) e where e.key like 'category:%' and (e.value::text)::numeric>=50
  order by(e.value::text)::numeric desc,e.key limit 1 on conflict(user_id) do nothing;
- with completed as(
- insert into public.user_achievements(user_id,achievement_id,completed_at)
- select player,a.id,stamp from public.achievements a where(not a.pro_required or pro or coalesce((snapshot->>case a.family_key
+ insert into public.user_catalogue_achievements(user_id,achievement_id,completed_at)
+ select player,a.id,stamp from public.achievement_catalogue a where(not a.pro_required or pro or coalesce((snapshot->>case a.family_key
   when 'speed-opener' then 'pro_packs' when 'double-decision' then 'double_decision' when 'auction-house' then 'auction_house'
   when 'grand-gallery' then 'pro_showcase' when 'curator' then 'pro_rare_showcase' when 'artist' then 'custom_images' when 'animated' then 'pro_animated' else '' end)::bigint,0)>=a.condition_value)
  and not(a.family_key='completionist' and a.condition_value=50 and a.condition_categorie is not null and exists(
   select 1 from public.user_legacy_specialist_categories l where l.user_id=player and l.category=a.condition_categorie))
  and public.catalogue_achievement_value(snapshot,a.condition_type,a.condition_categorie)>=case when a.family_key='explorer' and a.condition_value=999 then greatest(1,(snapshot->>'categories_total')::integer) else a.condition_value end
- and not exists(select 1 from public.user_achievements u where u.user_id=player and u.achievement_id=a.id and u.completed_at is not null)
- on conflict(user_id,achievement_id) do update set completed_at=excluded.completed_at where public.user_achievements.completed_at is null returning achievement_id
- ) insert into public.notifications(user_id,type,reference_id,achievement_id) select player,'achievement_completed',null,achievement_id from completed on conflict do nothing;
+ and not exists(select 1 from public.user_catalogue_achievements u where u.user_id=player and u.achievement_id=a.id and u.completed_at is not null)
+ on conflict(user_id,achievement_id) do update set completed_at=excluded.completed_at where public.user_catalogue_achievements.completed_at is null;
+ -- Complete only missing/pending legacy rows. Never lock a completed legacy
+ -- row here: the original claim keeps its existing row-first lock order.
+ insert into public.user_achievements(user_id,achievement_id,completed_at)
+ select player,u.achievement_id,u.completed_at from public.user_catalogue_achievements u join public.achievements a on a.id=u.achievement_id
+ where u.user_id=player and u.completed_at is not null
+ and not exists(select 1 from public.user_achievements old where old.user_id=player and old.achievement_id=u.achievement_id and old.completed_at is not null)
+ on conflict(user_id,achievement_id) do update set completed_at=excluded.completed_at where public.user_achievements.completed_at is null;
+ -- A still-open older client may claim during rollout. Respect that payment;
+ -- only upgraded legacy rewards prepare the same one-time migration bonus.
+ insert into public.achievement_upgrade_credits(user_id,achievement_id,reward)
+ select player,u.achievement_id,a.karas_reward from public.user_catalogue_achievements u
+ join public.user_achievements old on old.user_id=u.user_id and old.achievement_id=u.achievement_id
+ join public.achievement_catalogue a on a.id=u.achievement_id
+ where u.user_id=player and u.completed_at is not null and u.claimed_at is null and old.claimed_at is not null
+ and u.achievement_id in('eclat-inattendu','specialiste','transcendance') on conflict do nothing;
+ update public.user_catalogue_achievements u set claimed_at=old.claimed_at from public.user_achievements old
+ where u.user_id=player and old.user_id=u.user_id and old.achievement_id=u.achievement_id
+ and u.completed_at is not null and u.claimed_at is null and old.claimed_at is not null;
  select coalesce(jsonb_agg(jsonb_build_object(
  'id',a.id,'family',case when a.secret and u.completed_at is null then 'secret' else a.family_key end,'section',a.section,'secret',a.secret,'proRequired',a.pro_required,
  'locked',a.pro_required and not pro and u.completed_at is null,
@@ -269,7 +305,7 @@ begin
  'progressTarget',case when a.family_key='explorer' and a.condition_value=999 then greatest(1,(snapshot->>'categories_total')::integer) else a.condition_value end,
  'progressLabel',coalesce(a.condition_categorie,case when a.id='specialiste' then legacy.category end),'completedAt',u.completed_at,'claimedAt',u.claimed_at,'upgradeReward',case when b.claimed_at is null then coalesce(b.reward,0) else 0 end
  ) order by a.section,a.family_key,a.condition_categorie nulls first,a.condition_value),'[]'::jsonb) into result
- from public.achievements a left join public.user_achievements u on u.user_id=player and u.achievement_id=a.id
+ from public.achievement_catalogue a left join public.user_catalogue_achievements u on u.user_id=player and u.achievement_id=a.id
  left join public.achievement_upgrade_credits b on b.user_id=player and b.achievement_id=a.id
  left join public.user_legacy_specialist_categories legacy on legacy.user_id=player
  where (a.family_key<>'completionist' or a.condition_categorie is not null or u.completed_at is not null)
@@ -297,7 +333,7 @@ end;
 $$;
 -- Recover only facts preserved by authoritative history. No pre-launch missions.
 insert into public.user_progress_counters select p.original_owner_id,'lr_acquired',count(*) from public.regular_pack_opening_cards p join public.cards c on c.id=p.card_id
- where c.rarete_base='LR' and exists(select 1 from auth.users u where u.id=p.original_owner_id) group by p.original_owner_id
+ where c.rarete_base='LR' and exists(select 1 from public.user_profiles u where u.user_id=p.original_owner_id) group by p.original_owner_id
  on conflict(user_id,metric) do update set value=greatest(public.user_progress_counters.value,excluded.value);
 insert into public.user_progress_counters select u.user_id,'shiny_drawn',count(*) from public.user_cards u where u.rarity='LR' and u.is_shiny and not u.is_evolved
  and exists(select 1 from public.regular_pack_opening_cards p where p.card_instance_id=u.id and p.original_owner_id=u.user_id)
@@ -311,44 +347,23 @@ revoke all on function public.get_achievement_catalogue() from public,anon,authe
 grant execute on function public.get_achievement_catalogue() to authenticated;
 create trigger account_deletion_write_guard before insert or update or delete on public.achievement_upgrade_credits for each statement execute function public.guard_deleted_account();
 
-create or replace function public.claim_achievement(p_achievement_id text)
-returns jsonb language plpgsql volatile security definer set search_path='' as $$
-declare player_id uuid:=auth.uid(); earned public.user_achievements%rowtype; reward integer; balance integer; claimed timestamptz:=clock_timestamp();
-begin
- perform public.assert_player_not_banned();
- if player_id is null then raise exception 'AUTH_REQUIRED' using errcode='P0001'; end if;
- perform 1 from public.user_profiles where user_id=player_id for update;
- if not found then raise exception 'PROFILE_MISSING' using errcode='P0001'; end if;
- select * into earned from public.user_achievements where user_id=player_id and achievement_id=p_achievement_id for update;
- if not found or earned.completed_at is null then raise exception 'ACHIEVEMENT_LOCKED' using errcode='P0001'; end if;
- if earned.claimed_at is not null then raise exception 'ACHIEVEMENT_ALREADY_CLAIMED' using errcode='P0001'; end if;
- select karas_reward into reward from public.achievements where id=p_achievement_id;
- balance:=public.credit_karas(player_id,reward);
- update public.user_achievements set claimed_at=claimed where user_id=player_id and achievement_id=p_achievement_id;
- perform public.advance_player_progress(player_id,'karas_earned',reward,claimed);
- return jsonb_build_object('balance',balance,'claimedAt',claimed,'reward',reward);
-end;
-$$;
-revoke all on function public.claim_achievement(text) from public,anon,service_role;
-grant execute on function public.claim_achievement(text) to authenticated;
-
 -- Retained regular contents prove these secrets even after a transfer/removal.
 with packs as(
  select p.original_owner_id user_id,p.pack_opening_id,count(*) n,count(distinct p.card_id) distinct_cards,
  count(distinct c.categorie) categories,count(distinct c.rarete_base) rarities,bool_and(c.rarete_base='C') all_common
  from public.regular_pack_opening_cards p join public.cards c on c.id=p.card_id
- where exists(select 1 from auth.users u where u.id=p.original_owner_id) group by p.original_owner_id,p.pack_opening_id
+ where exists(select 1 from public.user_profiles u where u.user_id=p.original_owner_id) group by p.original_owner_id,p.pack_opening_id
 ), facts as(select user_id,v.metric from packs cross join lateral(values
  ('deja_vu',n=5 and distinct_cards<5),('same_family',n=5 and categories=1),('rainbow',n=5 and rarities=5),('all_common',n=5 and all_common))v(metric,earned) where v.earned)
 insert into public.user_progress_counters select distinct user_id,metric,1 from facts
 on conflict(user_id,metric) do update set value=greatest(public.user_progress_counters.value,excluded.value);
 insert into public.user_progress_marks(user_id,metric,mark,recorded_at)
  select opened_by,'activity_days',(opened_at at time zone 'Europe/Paris')::date::text,min(opened_at)
- from public.regular_pack_openings p where exists(select 1 from auth.users u where u.id=p.opened_by)
+ from public.regular_pack_openings p where exists(select 1 from public.user_profiles u where u.user_id=p.opened_by)
  group by opened_by,(opened_at at time zone 'Europe/Paris')::date on conflict do nothing;
 with draws as(
  select p.original_owner_id user_id,c.rarete_base rarity from public.regular_pack_opening_cards p join public.cards c on c.id=p.card_id
- where exists(select 1 from auth.users u where u.id=p.original_owner_id)
+ where exists(select 1 from public.user_profiles u where u.user_id=p.original_owner_id)
  union all select d.user_id,c.rarity from public.decision_packs d join public.decision_pack_choices c on c.id=d.kept_choice_id where d.status='claimed'
 ), values_by_player as(select user_id,count(*) filter(where rarity in('SR','SSR','LR')) sr,count(*) filter(where rarity in('SSR','LR')) ssr,count(*) filter(where rarity='LR') lr,count(*) filter(where rarity='SR') exact_sr,count(*) filter(where rarity='SSR') exact_ssr from draws group by user_id)
 insert into public.user_progress_counters select user_id,v.metric,v.amount from values_by_player cross join lateral(values('sr_acquired',sr),('ssr_acquired',ssr),('lr_acquired',lr),('first_sr',exact_sr),('first_ssr',exact_ssr))v(metric,amount)
@@ -365,7 +380,7 @@ with packs as(
  select o.opened_by user_id,o.id,o.opened_at,bool_or(c.rarete_base in('SR','SSR','LR')) has_sr,bool_or(c.rarete_base='LR') has_lr,
  row_number() over(partition by o.opened_by,public.mission_period_start(o.opened_at,'daily') order by o.opened_at,o.id) day_position
  from public.regular_pack_openings o join public.regular_pack_opening_cards p on p.pack_opening_id=o.id join public.cards c on c.id=p.card_id
- where exists(select 1 from auth.users u where u.id=o.opened_by) group by o.opened_by,o.id,o.opened_at
+ where exists(select 1 from public.user_profiles u where u.user_id=o.opened_by) group by o.opened_by,o.id,o.opened_at
 ), runs as(select *,sum(has_sr::integer) over(partition by user_id order by opened_at,id) run from packs),
  facts as(
  select user_id,'dry_spell' metric from runs where not has_sr group by user_id,run having count(*)>=10
@@ -402,6 +417,97 @@ insert into public.user_progress_marks(user_id,metric,mark,recorded_at)
  select w.user_id,'wish_granted',w.card_id::text,min(u.date_obtention) from public.wishlists w join public.user_cards u on u.user_id=w.user_id and u.card_id=w.card_id and u.date_obtention>=w.created_at
  group by w.user_id,w.card_id on conflict do nothing;
 insert into public.user_progress_counters select user_id,'wish_granted',count(*) from public.user_progress_marks where metric='wish_granted' group by user_id
+ on conflict(user_id,metric) do update set value=greatest(public.user_progress_counters.value,excluded.value);
+
+
+-- Stored ten-card showcases and validated animated uploads prove the former
+-- entitlement even if the subscriber has already canceled before this release.
+insert into public.user_progress_counters select user_id,'pro_showcase',cardinality(featured_card_ids) from public.user_profiles where cardinality(featured_card_ids)>=10
+ on conflict(user_id,metric) do update set value=greatest(public.user_progress_counters.value,excluded.value);
+insert into public.user_progress_counters select p.user_id,'pro_rare_showcase',count(*) from public.user_profiles p join public.user_cards u on u.user_id=p.user_id and u.id=any(p.featured_card_ids)
+ where cardinality(p.featured_card_ids)>=10 and u.rarity in('SSR','LR') group by p.user_id
+ on conflict(user_id,metric) do update set value=greatest(public.user_progress_counters.value,excluded.value);
+insert into public.user_progress_counters select distinct p.user_id,'pro_animated',1 from public.user_profiles p join public.profile_media_assets a on a.user_id=p.user_id
+ and a.animated and a.purpose in('avatar','banner') and a.public_url in(p.avatar_url,p.banner_url)
+ on conflict(user_id,metric) do update set value=greatest(public.user_progress_counters.value,excluded.value);
+insert into public.user_progress_counters select user_id,'identity',1 from public.user_profiles where avatar_url is not null and nullif(btrim(bio),'') is not null
+ on conflict(user_id,metric) do update set value=greatest(public.user_progress_counters.value,excluded.value);
+insert into public.user_progress_counters select user_id,'showcase_size',coalesce(cardinality(featured_card_ids),0) from public.user_profiles
+ on conflict(user_id,metric) do update set value=greatest(public.user_progress_counters.value,excluded.value);
+insert into public.user_progress_counters select player,'friends_owned',count(*) from(select user_id player from public.friendships where status='accepted' union all select friend_id from public.friendships where status='accepted') friends group by player
+ on conflict(user_id,metric) do update set value=greatest(public.user_progress_counters.value,excluded.value);
+
+
+-- Only the new endpoint pays the extended amounts. It delegates legacy payments
+-- to the unchanged, tested original claim function, then adds its server-owned
+-- upgrade within the same transaction. No mass wallet updates in the migration.
+create function public.claim_catalogue_achievement(p_achievement_id text)
+returns jsonb language plpgsql volatile security definer set search_path='' as $$
+declare player uuid:=auth.uid(); earned public.user_catalogue_achievements%rowtype; amount integer; extra integer; balance integer; original jsonb; stamp timestamptz:=clock_timestamp();
+begin
+ perform public.assert_player_not_banned();
+ if player is null then raise exception 'AUTH_REQUIRED'; end if;
+ select * into earned from public.user_catalogue_achievements where user_id=player and achievement_id=p_achievement_id;
+ if not found or earned.completed_at is null then raise exception 'ACHIEVEMENT_LOCKED'; end if;
+ if earned.claimed_at is not null then raise exception 'ACHIEVEMENT_ALREADY_CLAIMED'; end if;
+ select karas_reward into amount from public.achievement_catalogue where id=p_achievement_id;
+ if exists(select 1 from public.achievements where id=p_achievement_id) then
+  original:=public.claim_achievement(p_achievement_id);
+  extra:=greatest(0,amount-(original->>'reward')::integer);
+  balance:=(original->>'balance')::integer; stamp:=(original->>'claimedAt')::timestamptz;
+  if extra>0 then balance:=public.credit_karas(player,extra); end if;
+  amount:=(original->>'reward')::integer+extra;
+ else
+  perform 1 from public.user_profiles where user_id=player for update;
+  if not found then raise exception 'PROFILE_MISSING'; end if;
+  select * into earned from public.user_catalogue_achievements where user_id=player and achievement_id=p_achievement_id for update;
+  if earned.completed_at is null then raise exception 'ACHIEVEMENT_LOCKED'; end if;
+  if earned.claimed_at is not null then raise exception 'ACHIEVEMENT_ALREADY_CLAIMED'; end if;
+  balance:=public.credit_karas(player,amount);
+ end if;
+ update public.user_catalogue_achievements set claimed_at=stamp where user_id=player and achievement_id=p_achievement_id;
+ perform public.advance_player_progress(player,'karas_earned',amount,stamp);
+ return jsonb_build_object('balance',balance,'reward',amount,'claimedAt',stamp);
+end;
+$$;
+revoke all on function public.claim_catalogue_achievement(text) from public,anon,authenticated,service_role;
+grant execute on function public.claim_catalogue_achievement(text) to authenticated;
+
+
+-- Additional retrospective evidence from retained accepted trades. Missing
+-- cards/snapshots never become assumed gifts or mirror exchanges.
+with eligible as(
+ select t.* from public.trade_offers t where t.status='accepted' and exists(select 1 from public.friendships f where f.status='accepted'
+  and f.updated_at<=t.updated_at-interval '3 days' and((f.user_id=t.from_user and f.friend_id=t.to_user)or(f.user_id=t.to_user and f.friend_id=t.from_user)))
+)
+insert into public.user_progress_marks(user_id,metric,mark,recorded_at)
+ select from_user,'counteroffers',to_user::text||':'||public.mission_period_start(updated_at,'daily')::text,min(updated_at)
+ from eligible where parent_offer_id is not null group by from_user,to_user,public.mission_period_start(updated_at,'daily') on conflict do nothing;
+with eligible as(
+ select t.* from public.trade_offers t where t.status='accepted' and exists(select 1 from public.friendships f where f.status='accepted'
+  and f.updated_at<=t.updated_at-interval '3 days' and((f.user_id=t.from_user and f.friend_id=t.to_user)or(f.user_id=t.to_user and f.friend_id=t.from_user)))
+), facts as(
+ select from_user user_id,'generous' metric,updated_at stamp from eligible t where exists(select 1 from public.user_cards where id=any(t.offered_card_ids) and rarity in('SSR','LR'))
+ or exists(select 1 from jsonb_array_elements(coalesce(t.offered_cards_snapshot,'[]'::jsonb)) c where c->>'rarity' in('SSR','LR'))
+ union all select to_user,'generous',updated_at from eligible t where exists(select 1 from public.user_cards where id=any(t.requested_card_ids) and rarity in('SSR','LR'))
+ or exists(select 1 from jsonb_array_elements(coalesce(t.requested_cards_snapshot,'[]'::jsonb)) c where c->>'rarity' in('SSR','LR'))
+ union all select p.user_id,'mirror',t.updated_at from eligible t cross join lateral(values(t.from_user),(t.to_user))p(user_id)
+ where exists(select 1 from public.user_cards a join public.user_cards b on a.card_id=b.card_id where a.id=any(t.offered_card_ids) and b.id=any(t.requested_card_ids))
+ or exists(select 1 from jsonb_array_elements(coalesce(t.offered_cards_snapshot,'[]'::jsonb)) a join jsonb_array_elements(coalesce(t.requested_cards_snapshot,'[]'::jsonb)) b on a->>'id'=b->>'id')
+)
+insert into public.user_progress_marks select user_id,metric,'once',min(stamp) from facts group by user_id,metric on conflict do nothing;
+-- Retained draw/transfer timestamps can prove wishlist acquisition after the
+-- currently recorded wish, even when the player no longer owns that copy.
+with facts as(
+ select w.user_id,w.card_id,p.recorded_at stamp from public.wishlists w join public.regular_pack_opening_cards p on p.original_owner_id=w.user_id and p.card_id=w.card_id and p.recorded_at>=w.created_at
+ union all select w.user_id,w.card_id,t.occurred_at from public.wishlists w join public.regular_pack_card_transfers t on t.to_user_id=w.user_id and t.occurred_at>=w.created_at join public.regular_pack_opening_cards p on p.card_instance_id=t.card_instance_id and p.card_id=w.card_id
+ union all select w.user_id,w.card_id,d.claimed_at from public.wishlists w join public.decision_packs d on d.user_id=w.user_id and d.status='claimed' and d.claimed_at>=w.created_at join public.decision_pack_choices c on c.id=d.kept_choice_id and c.card_id=w.card_id
+)
+insert into public.user_progress_marks select user_id,'wish_granted',card_id::text,min(stamp) from facts group by user_id,card_id on conflict do nothing;
+insert into public.user_progress_marks(user_id,metric,mark,recorded_at)
+ select a.seller_id,'auction_house',public.mission_period_start(clock_timestamp(),'daily')::text,clock_timestamp() from public.auctions a
+ where a.status='active' and a.ends_at>clock_timestamp() and exists(select 1 from public.user_profiles p where p.user_id=a.seller_id) group by a.seller_id having count(*)>=6 on conflict do nothing;
+insert into public.user_progress_counters select user_id,metric,count(*) from public.user_progress_marks where metric in('counteroffers','generous','mirror','wish_granted','auction_house') group by user_id,metric
  on conflict(user_id,metric) do update set value=greatest(public.user_progress_counters.value,excluded.value);
 
 notify pgrst,'reload schema';

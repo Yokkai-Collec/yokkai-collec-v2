@@ -34,11 +34,13 @@ test("retroactive catalogue preserves claims, hides secret conditions and unlock
   assert.equal(secret.conditionType, "secret");
   assert.equal(secret.description, "");
   const claimed = (
-    await db.query(`select public.claim_achievement('premier-rituel') result`)
+    await db.query(
+      `select public.claim_catalogue_achievement('premier-rituel') result`
+    )
   ).rows[0].result;
   assert.equal(claimed.reward, 10);
   await assert.rejects(
-    db.query(`select public.claim_achievement('premier-rituel')`),
+    db.query(`select public.claim_catalogue_achievement('premier-rituel')`),
     /ACHIEVEMENT_ALREADY_CLAIMED/
   );
   const second = (

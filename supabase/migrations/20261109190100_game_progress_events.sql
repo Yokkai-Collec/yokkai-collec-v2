@@ -10,7 +10,7 @@ create table public.user_progress_marks(
 );
 insert into public.user_seen_cards select distinct user_id,card_id from public.user_cards on conflict do nothing;
 insert into public.user_seen_cards select distinct original_owner_id,card_id from public.regular_pack_opening_cards p
- where exists(select 1 from auth.users u where u.id=p.original_owner_id) and exists(select 1 from public.cards c where c.id=p.card_id) on conflict do nothing;
+ where exists(select 1 from public.user_profiles u where u.user_id=p.original_owner_id) and exists(select 1 from public.cards c where c.id=p.card_id) on conflict do nothing;
 alter table public.user_seen_cards enable row level security;
 alter table public.user_progress_marks enable row level security;
 revoke all on public.user_seen_cards,public.user_progress_marks from public,anon,authenticated,service_role;
@@ -166,11 +166,11 @@ create trigger user_cards_progress_destroy after delete on public.user_cards ref
 do $$ declare signature text; definition text; begin
  foreach signature in array array['public.discard_collection_card(uuid)','public.discard_collection_cards(uuid[])','public.discard_regular_pack_card(uuid)'] loop
   definition:=pg_get_functiondef(signature::regprocedure);
-  execute regexp_replace(definition,'\mbegin\M',E'begin\n perform set_config(''game.progress_action'',''destruction'',true);','i');
+  execute replace(definition,'perform public.assert_player_not_banned();',E'perform public.assert_player_not_banned();\n perform set_config(''game.progress_action'',''destruction'',true);');
  end loop;
  foreach signature in array array['public.evolve_ssr_card(uuid[])','public.evolve_lr_card(uuid[])'] loop
   definition:=pg_get_functiondef(signature::regprocedure);
-  execute regexp_replace(definition,'\mbegin\M',E'begin\n perform set_config(''game.progress_action'',''evolution'',true);','i');
+  execute replace(definition,'perform public.assert_player_not_banned();',E'perform public.assert_player_not_banned();\n perform set_config(''game.progress_action'',''evolution'',true);');
  end loop;
 end $$;
 create function public.capture_game_progress()
@@ -186,6 +186,13 @@ begin
   end if;
  elsif tg_table_name='friendships' then
   if tg_op='INSERT' then perform public.advance_player_progress(new.user_id,'friend_requests',1,stamp); end if;
+  if new.status='accepted' then
+   for player in select u from unnest(array[new.user_id,new.friend_id]) u order by u loop
+    perform pg_advisory_xact_lock(hashtextextended('player-progress:'||player::text,0));
+    insert into public.user_progress_counters select player,'friends_owned',count(*) from public.friendships where status='accepted' and player in(user_id,friend_id)
+    on conflict(user_id,metric) do update set value=greatest(public.user_progress_counters.value,excluded.value);
+   end loop;
+  end if;
  elsif tg_table_name='trade_offers' then
   if tg_op='INSERT' then perform public.advance_player_progress(new.from_user,'trades_proposed',1,stamp);
   elsif old.status<>'accepted' and new.status='accepted' then
@@ -212,19 +219,34 @@ begin
    end if;
   end if;
  elsif tg_table_name='auctions' then
+  -- place_bid extends ends_at before inserting the bid row. Only OLD.ends_at
+  -- represents the real deadline the bidder saw.
+  if tg_op='UPDATE' and new.status='active' and new.current_price>old.current_price and new.buyer_id is not null and old.ends_at>stamp then
+   if old.ends_at-stamp<=interval '1 minute' then
+    insert into public.user_progress_marks values(new.buyer_id,'sniper_candidate',new.id::text,stamp) on conflict do nothing;
+   end if;
+   if old.ends_at-stamp<interval '5 seconds' then
+    perform public.mark_player_progress(new.buyer_id,'last_second','once',stamp);
+    if old.buyer_id is not null and old.buyer_id<>new.buyer_id then
+     insert into public.user_progress_marks values(old.buyer_id,'late_outbid_candidate',new.id::text,stamp) on conflict do nothing;
+    end if;
+   end if;
+  end if;
   if tg_op='INSERT' then
    perform public.advance_player_progress(new.seller_id,'auctions_listed',1,stamp);
-   if public.billing_has_game_pro(new.seller_id) and (select count(*) from public.auctions where seller_id=new.seller_id and status='active')>=6 then
+   if public.billing_has_game_pro(new.seller_id) and (select count(*) from public.auctions where seller_id=new.seller_id and status='active' and ends_at>stamp)>=6 then
     perform public.mark_player_progress(new.seller_id,'auction_house',public.mission_period_start(stamp,'daily')::text,stamp);
    end if;
   elsif old.status='active' and new.status='sold' and new.buyer_id is not null then
    perform public.advance_player_progress(new.seller_id,'auctions_sold',1,stamp);
    perform public.advance_player_progress(new.seller_id,'karas_earned',new.current_price,stamp);
    perform public.advance_player_progress(new.buyer_id,'auctions_won',1,stamp);
-   if exists(select 1 from public.bids where auction_id=new.id and bidder_id=new.buyer_id and created_at>=new.ends_at-interval '1 minute' and created_at<new.ends_at) then
-    perform public.advance_player_progress(new.buyer_id,'sniper',1,stamp);
+   if exists(select 1 from public.user_progress_marks where user_id=new.buyer_id and metric='sniper_candidate' and mark=new.id::text)
+    or exists(select 1 from public.bids where auction_id=new.id and bidder_id=new.buyer_id and created_at>=new.ends_at-interval '1 minute' and created_at<new.ends_at) then
+    perform public.mark_player_progress(new.buyer_id,'sniper',new.id::text,stamp);
    end if;
-   for owner in select distinct bidder_id from public.bids where auction_id=new.id and bidder_id<>new.buyer_id
+   for owner in select user_id from public.user_progress_marks where metric='late_outbid_candidate' and mark=new.id::text and user_id<>new.buyer_id
+    union select distinct bidder_id from public.bids where auction_id=new.id and bidder_id<>new.buyer_id
     and created_at>=new.ends_at-interval '5 seconds' and created_at<new.ends_at
    loop perform public.mark_player_progress(owner,'so_close','once',stamp); end loop;
   end if;
@@ -268,9 +290,9 @@ end;
 $$;
 create trigger wishlist_progress after insert on public.wishlists for each row execute function public.capture_game_progress();
 create trigger bids_progress after insert on public.bids for each row execute function public.capture_game_progress();
-create trigger friendship_progress after insert on public.friendships for each row execute function public.capture_game_progress();
+create trigger friendship_progress after insert or update of status on public.friendships for each row execute function public.capture_game_progress();
 create trigger trade_progress after insert or update of status on public.trade_offers for each row execute function public.capture_game_progress();
-create trigger auction_progress after insert or update of status on public.auctions for each row execute function public.capture_game_progress();
+create trigger auction_progress after insert or update of status,buyer_id,current_price,ends_at on public.auctions for each row execute function public.capture_game_progress();
 create trigger decision_progress after update of status on public.decision_packs for each row execute function public.capture_game_progress();
 create trigger decision_destroy_progress after update of is_discarded on public.decision_pack_choices for each row execute function public.capture_game_progress();
 create trigger comeback_progress after update of last_seen_at,avatar_url,bio,featured_card_ids,banner_url on public.user_profiles for each row execute function public.capture_game_progress();

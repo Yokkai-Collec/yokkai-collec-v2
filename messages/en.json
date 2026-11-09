@@ -3805,7 +3805,7 @@
     },
     "wish-granted": {
       "title": "Wish Granted",
-      "description": "Obtain {target, number} different cards that were on your wishlist."
+      "description": "Obtain {target, plural, one {# card from your wishlist} other {# different cards from your wishlist}}."
     },
     "first-sale": {
       "title": "First Sale",
@@ -3857,11 +3857,11 @@
     },
     "weekly-champion": {
       "title": "Weekly Champion",
-      "description": "Fill your weekly gauge {target, number} times."
+      "description": "Fill your weekly gauge {target, plural, one {once} other {# times}}."
     },
     "perfect-week": {
       "title": "Perfect Week",
-      "description": "Fill both gauges during {target, number} different weeks."
+      "description": "Fill both gauges during {target, plural, one {# week} other {# different weeks}}."
     },
     "veteran": {
       "title": "Veteran",
@@ -3869,15 +3869,15 @@
     },
     "recruiter": {
       "title": "Recruiter",
-      "description": "Refer {target, number} verified players with a three-day activity streak."
+      "description": "Refer {target, plural, one {# verified player} other {# verified players}} with a three-day activity streak."
     },
     "mentor": {
       "title": "Mentor",
-      "description": "Refer {target, number} verified players who open 50 packs."
+      "description": "Refer {target, plural, one {# verified player who opens 50 Regular Packs} other {# verified players who open 50 Regular Packs}}."
     },
     "ambassador": {
       "title": "Ambassador",
-      "description": "Refer {target, number} players who become Pro."
+      "description": "Refer {target, plural, one {# player who becomes Pro} other {# players who become Pro}}."
     },
     "welcome-aboard": {
       "title": "Welcome Aboard",
@@ -3913,7 +3913,7 @@
     },
     "patience": {
       "title": "Patience",
-      "description": "Leave your timed Regular Pack reserve full for 24 hours."
+      "description": "Leave your timed reserve of Regular Packs full for 24 hours."
     },
     "comeback": {
       "title": "Comeback",
@@ -3945,11 +3945,11 @@
     },
     "double-decision": {
       "title": "Double Decision",
-      "description": "Complete two standard Decision Packs on {target, number} different days while Pro."
+      "description": "Complete two standard Decision Packs on {target, plural, one {# day} other {# different days}} while Pro."
     },
     "auction-house": {
       "title": "Auction House",
-      "description": "Have six active auctions on {target, number} different days while Pro."
+      "description": "Have six active auctions on {target, plural, one {# day} other {# different days}} while Pro."
     },
     "grand-gallery": {
       "title": "Grand Gallery",

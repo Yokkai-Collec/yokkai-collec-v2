@@ -3206,7 +3206,7 @@
     "alreadyClaimed": "Cette récompense a déjà été récupérée.",
     "unavailable": "Impossible de charger les succès. Réessaie dans un instant.",
     "secretTitle": "???",
-    "secretDescription": "Continuez à jouer pour découvrir ce succès secret.",
+    "secretDescription": "Continue à jouer pour découvrir ce succès secret.",
     "proLocked": "Pro requis",
     "tiers": "{count, plural, one {# autre palier} other {# autres paliers}}",
     "numericProgress": "{current, number} / {target, number}",
@@ -3753,11 +3753,11 @@
     },
     "first-sr": {
       "title": "First SR",
-      "description": "Obtenir votre première carte SR."
+      "description": "Obtenir ta première carte SR."
     },
     "first-ssr": {
       "title": "First SSR",
-      "description": "Obtenir votre première carte SSR."
+      "description": "Obtenir ta première carte SSR."
     },
     "legend-pulled": {
       "title": "Legend Pulled",
@@ -3769,7 +3769,7 @@
     },
     "evolution": {
       "title": "Evolution",
-      "description": "Faire évoluer des doublons de SSR en Infinity {target, number} fois."
+      "description": "Faire évoluer des doublons de SSR en Infinity {target, plural, one {une fois} other {# fois}}."
     },
     "rarity-master": {
       "title": "Rarity Master",
@@ -3781,15 +3781,15 @@
     },
     "pack-opener": {
       "title": "Pack Opener",
-      "description": "Ouvrir {target, number} Regular Packs."
+      "description": "Ouvrir {target, plural, one {# Regular Pack} other {# Regular Packs}}."
     },
     "decisive": {
       "title": "Decisive",
-      "description": "Finaliser {target, number} Decision Packs."
+      "description": "Finaliser {target, plural, one {# Decision Pack} other {# Decision Packs}}."
     },
     "full-stack": {
       "title": "Full Stack",
-      "description": "Ouvrir un lot d’au moins cinq Regular Packs depuis un stock plein {target, number} fois."
+      "description": "Ouvrir un lot d’au moins cinq Regular Packs depuis une réserve pleine {target, plural, one {une fois} other {# fois}}."
     },
     "recycler": {
       "title": "Recycler",
@@ -3801,15 +3801,15 @@
     },
     "wishful": {
       "title": "Wishful",
-      "description": "Ajouter une carte à votre wishlist."
+      "description": "Ajouter une carte à ta wishlist."
     },
     "wish-granted": {
       "title": "Wish Granted",
-      "description": "Obtenir {target, number} cartes différentes présentes dans votre wishlist."
+      "description": "Obtenir {target, plural, one {une carte de ta wishlist} other {# cartes différentes de ta wishlist}}."
     },
     "first-sale": {
       "title": "First Sale",
-      "description": "Vendre votre première carte aux enchères."
+      "description": "Vendre ta première carte aux enchères."
     },
     "merchant": {
       "title": "Merchant",
@@ -3817,15 +3817,15 @@
     },
     "auction-winner": {
       "title": "Auction Winner",
-      "description": "Remporter {target, number} enchères."
+      "description": "Remporter {target, plural, one {une enchère} other {# enchères}}."
     },
     "sniper": {
       "title": "Sniper",
-      "description": "Remporter {target, number} enchères avec une offre dans la dernière minute."
+      "description": "Remporter {target, plural, one {une enchère} other {# enchères}} avec une offre dans la dernière minute."
     },
     "friendly": {
       "title": "Friendly",
-      "description": "Avoir {target, number} amis."
+      "description": "Avoir {target, plural, one {un ami} other {# amis}}."
     },
     "trader": {
       "title": "Trader",
@@ -3833,7 +3833,7 @@
     },
     "negotiator": {
       "title": "Negotiator",
-      "description": "Faire accepter {target, number} contre-offres à des amis depuis au moins trois jours."
+      "description": "Faire accepter {target, plural, one {une contre-offre} other {# contre-offres}} à des amis depuis au moins trois jours."
     },
     "generous": {
       "title": "Generous",
@@ -3841,7 +3841,7 @@
     },
     "showcase": {
       "title": "Showcase",
-      "description": "Présenter cinq cartes dans votre vitrine."
+      "description": "Présenter cinq cartes dans ta vitrine."
     },
     "identity": {
       "title": "Identity",
@@ -3853,15 +3853,15 @@
     },
     "all-clear": {
       "title": "All Clear",
-      "description": "Remplir votre jauge quotidienne {target, number} fois."
+      "description": "Remplir ta jauge quotidienne {target, number} fois."
     },
     "weekly-champion": {
       "title": "Weekly Champion",
-      "description": "Remplir votre jauge hebdomadaire {target, number} fois."
+      "description": "Remplir ta jauge hebdomadaire {target, plural, one {une fois} other {# fois}}."
     },
     "perfect-week": {
       "title": "Perfect Week",
-      "description": "Remplir les deux jauges durant {target, number} semaines différentes."
+      "description": "Remplir les deux jauges durant {target, plural, one {une semaine} other {# semaines différentes}}."
     },
     "veteran": {
       "title": "Veteran",
@@ -3869,15 +3869,15 @@
     },
     "recruiter": {
       "title": "Recruiter",
-      "description": "Parrainer {target, number} joueurs vérifiés avec trois jours consécutifs d’activité."
+      "description": "Parrainer {target, plural, one {un joueur vérifié} other {# joueurs vérifiés}} avec trois jours consécutifs d’activité."
     },
     "mentor": {
       "title": "Mentor",
-      "description": "Parrainer {target, number} joueurs vérifiés ayant ouvert 50 packs."
+      "description": "Parrainer {target, plural, one {un joueur vérifié ayant ouvert 50 Regular Packs} other {# joueurs vérifiés ayant ouvert 50 Regular Packs}}."
     },
     "ambassador": {
       "title": "Ambassador",
-      "description": "Parrainer {target, number} joueurs qui deviennent Pro."
+      "description": "Parrainer {target, plural, one {un joueur qui devient Pro} other {# joueurs qui deviennent Pro}}."
     },
     "welcome-aboard": {
       "title": "Welcome Aboard",
@@ -3901,7 +3901,7 @@
     },
     "lucky-start": {
       "title": "Lucky Start",
-      "description": "Tirer une LR dans votre premier Regular Pack du jour."
+      "description": "Tirer une LR dans ton premier Regular Pack du jour."
     },
     "dry-spell": {
       "title": "Dry Spell",
@@ -3913,7 +3913,7 @@
     },
     "patience": {
       "title": "Patience",
-      "description": "Laisser votre réserve de Regular Packs pleine pendant 24 heures."
+      "description": "Laisser ta réserve de Regular Packs pleine pendant 24 heures."
     },
     "comeback": {
       "title": "Comeback",
@@ -3945,19 +3945,19 @@
     },
     "double-decision": {
       "title": "Double Decision",
-      "description": "Finaliser deux Decision Packs standards sur {target, number} jours différents en Pro."
+      "description": "Finaliser deux Decision Packs standards sur {target, plural, one {un jour} other {# jours différents}} en Pro."
     },
     "auction-house": {
       "title": "Auction House",
-      "description": "Avoir six enchères actives sur {target, number} jours différents en Pro."
+      "description": "Avoir six enchères actives sur {target, plural, one {un jour} other {# jours différents}} en Pro."
     },
     "grand-gallery": {
       "title": "Grand Gallery",
-      "description": "Présenter dix cartes dans votre vitrine en Pro."
+      "description": "Présenter dix cartes dans ta vitrine en Pro."
     },
     "curator": {
       "title": "Curator",
-      "description": "Présenter dix cartes SSR ou mieux dans votre vitrine en Pro."
+      "description": "Présenter dix cartes SSR ou mieux dans ta vitrine en Pro."
     },
     "artist": {
       "title": "Artist",
@@ -3970,8 +3970,8 @@
   },
   "missionUi": {
     "title": "Missions",
-    "eyebrow": "Votre prochaine récompense",
-    "intro": "Choisissez vos missions. Atteignez 100 points dans chaque jauge sans devoir tout terminer.",
+    "eyebrow": "Ta prochaine récompense",
+    "intro": "Choisis tes missions. Atteins 100 points dans chaque jauge sans devoir tout terminer.",
     "daily": "Missions quotidiennes",
     "weekly": "Missions hebdomadaires",
     "proBonus": "Pro · +50 % de Karas",
@@ -3979,7 +3979,7 @@
     "resetsIn": "Encore {days, plural, =0 {} other {# j }}{hours} h {minutes} min {seconds} s",
     "gaugeLabel": "Progression : {period}",
     "complete": "Jauge terminée — les autres missions sont facultatives",
-    "choose": "Jouez comme vous voulez",
+    "choose": "Joue comme tu veux",
     "milestones": "Récompenses de la jauge",
     "points": "{count} pts",
     "claimed": "Réclamé",
@@ -3995,7 +3995,7 @@
     "rewardClaimed": "Récompense réclamée : {amount, number} Karas",
     "alreadyClaimed": "Cette récompense a déjà été réclamée.",
     "locked": "Ce palier n’est pas encore disponible.",
-    "unavailable": "Les missions sont temporairement indisponibles. Réessayez.",
+    "unavailable": "Les missions sont temporairement indisponibles. Réessaie.",
     "categories": {
       "packs": "Packs",
       "collection": "Collection",
@@ -4010,14 +4010,14 @@
       "ssr_acquired": "Obtenir {count, plural, one {# carte SSR ou mieux} other {# cartes SSR ou mieux}}",
       "lr_acquired": "Obtenir {count, plural, one {# carte LR} other {# cartes LR}}",
       "cards_destroyed": "Détruire {count, number} cartes",
-      "wishlist_added": "Ajouter {count, plural, one {une carte} other {# cartes}} à votre wishlist",
+      "wishlist_added": "Ajouter {count, plural, one {une carte} other {# cartes}} à ta wishlist",
       "new_cards": "Découvrir {count, number} nouvelles cartes",
       "bids_placed": "Placer {count, plural, one {une enchère} other {# enchères}}",
       "auctions_listed": "Mettre {count, plural, one {une carte} other {# cartes}} aux enchères",
       "friend_requests": "Envoyer {count, plural, one {une demande d’ami} other {# demandes d’ami}}",
       "friend_visits": "Visiter {count, plural, one {le profil d’un ami} other {les profils de # amis}}",
       "trades_proposed": "Proposer {count, plural, one {un échange} other {# échanges}} à un ami",
-      "daily_full": "Remplir votre jauge quotidienne {count, plural, one {une fois} other {# fois}}",
+      "daily_full": "Remplir ta jauge quotidienne {count, plural, one {une fois} other {# fois}}",
       "auctions_sold": "Vendre {count, number} cartes aux enchères",
       "auctions_won": "Remporter {count, plural, one {une enchère} other {# enchères}}",
       "trades_completed": "Finaliser {count, plural, one {un échange} other {# échanges}}"

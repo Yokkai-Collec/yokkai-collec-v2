@@ -4,6 +4,7 @@ import { useTranslations, useFormatter } from "next-intl";
 import { gameErrorKey } from "@/i18n/game-messages";
 import { useEffect, useState, type ReactNode } from "react";
 import {
+  claimCatalogueAchievement,
   claimAchievementUpgrade,
   getAchievementCatalogue
 } from "@/lib/data/achievement-catalogue";
@@ -11,7 +12,7 @@ import { MissionsPanel } from "@/components/missions";
 import { Topbar } from "@/components/topbar";
 import { Button, Karas, StatusPill, Toast } from "@/components/ui";
 import { getGameInfo } from "@/lib/data/cards";
-import { claimAchievement, type Achievement } from "@/lib/data/achievements";
+import type { Achievement } from "@/lib/data/achievements";
 import { subscribePlayerSnapshotInvalidation } from "@/lib/data/player-state";
 
 export function AchievementCard({
@@ -312,7 +313,7 @@ export function AchievementsPage({ account }: { account?: ReactNode }) {
     try {
       const result = await (item.upgradeReward
         ? claimAchievementUpgrade(item.id)
-        : claimAchievement(item.id));
+        : claimCatalogueAchievement(item.id));
       setBalance(result.balance);
       setItems(current =>
         current.map(entry =>

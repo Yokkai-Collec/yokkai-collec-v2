@@ -55,3 +55,10 @@ export async function claimMissionMilestone(
   invalidatePlayerSnapshots(["balance"]);
   return data as { balance: number; reward: number };
 }
+
+export async function recordFriendVisit(identifier: string): Promise<void> {
+  const { error } = await createClient().rpc("record_friend_visit", {
+    p_identifier: identifier
+  });
+  if (error) throw failure(error.message);
+}
