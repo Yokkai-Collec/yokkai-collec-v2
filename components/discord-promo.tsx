@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Modal } from "@/components/ui";
+import { DISCORD_MARK_PATH } from "@/components/site-footer";
 
 function dismissalKey(userId: string) {
   return `yokkai-discord-reward-dismissed:${userId}`;
@@ -143,34 +144,42 @@ export function DiscordPromo({ enabled }: { enabled: boolean }) {
         title={t("title")}
         className="yk-discord-reward-modal max-w-3xl"
       >
-        <p className="mb-5 text-sm leading-6 text-ink-2">{t("optionsIntro")}</p>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <p className="yk-community-intro">{t("optionsIntro")}</p>
+        <div className="yk-community-options">
           <section
             aria-labelledby="reward-discord"
-            className="min-w-0 rounded-xl border border-veil p-4 sm:p-5"
+            className="yk-community-reward"
+            data-network="discord"
           >
-            <h3 id="reward-discord" className="font-display text-xl font-bold">
-              {t("discordLabel")}
-            </h3>
-            <p className="mt-2 font-semibold text-ink">
-              {t("reward", { count: 5 })}
-            </p>
-            <p className="mt-3 text-sm leading-6 text-ink-2">
-              {t("existingMembers")}
-            </p>
+            <div className="yk-community-network">
+              <span className="yk-community-brand" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d={DISCORD_MARK_PATH} />
+                </svg>
+              </span>
+              <h3 id="reward-discord">{t("discordLabel")}</h3>
+            </div>
+            <p className="yk-community-gift">{t("reward", { count: 5 })}</p>
+            <p className="yk-community-description">{t("existingMembers")}</p>
             {discordClaimed && (
-              <p role="status" className="mt-4 text-sm text-ink-2">
+              <p role="status" className="yk-community-claimed">
                 {t("alreadyClaimed")}
               </p>
             )}
             {discordAvailable ? (
-              <div className="mt-5 flex flex-col gap-3">
+              <div className="yk-community-actions">
+                {!discordClaimed && (
+                  <p className="yk-community-step">
+                    {t("step", { number: 1 })}
+                    <span>{t("discordJoinStep")}</span>
+                  </p>
+                )}
                 <a
                   href="/discord"
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={join}
-                  className="yk-button min-h-11 whitespace-normal text-center"
+                  className="yk-button yk-community-secondary"
                 >
                   {t("join")}
                 </a>
@@ -180,9 +189,13 @@ export function DiscordPromo({ enabled }: { enabled: boolean }) {
                     method="post"
                     onSubmit={rememberDismissal}
                   >
+                    <p className="yk-community-step">
+                      {t("step", { number: 2 })}
+                      <span>{t("discordClaimStep")}</span>
+                    </p>
                     <button
                       type="submit"
-                      className="yk-button yk-button-primary min-h-11 w-full whitespace-normal text-center"
+                      className="yk-button yk-community-claim"
                     >
                       {t("claim")}
                     </button>
@@ -197,48 +210,59 @@ export function DiscordPromo({ enabled }: { enabled: boolean }) {
           </section>
           <section
             aria-labelledby="reward-twitter"
-            className="min-w-0 rounded-xl border border-veil p-4 sm:p-5"
+            className="yk-community-reward"
+            data-network="twitter"
           >
-            <h3 id="reward-twitter" className="font-display text-xl font-bold">
-              {t("twitterLabel")}
-            </h3>
-            <p className="mt-2 font-semibold text-ink">
-              {t("reward", { count: 5 })}
-            </p>
-            <p className="mt-3 text-sm leading-6 text-ink-2">
-              {t("twitterDetails")}
-            </p>
+            <div className="yk-community-network">
+              <span className="yk-community-brand" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3L12 15.6 6.4 22H3.1l7.3-8.4L.8 2h6.5l4.4 5.8L18.9 2Zm-1.1 18h1.8L6.3 3.9H4.4L17.8 20Z" />
+                </svg>
+              </span>
+              <h3 id="reward-twitter">{t("twitterLabel")}</h3>
+            </div>
+            <p className="yk-community-gift">{t("reward", { count: 5 })}</p>
+            <p className="yk-community-description">{t("twitterDetails")}</p>
             {twitterClaimed && (
-              <p role="status" className="mt-4 text-sm text-ink-2">
+              <p role="status" className="yk-community-claimed">
                 {t("alreadyClaimed")}
               </p>
             )}
-            <form
-              action="/twitter"
-              method="post"
-              target="_blank"
-              rel="noopener noreferrer"
-              onSubmit={dismiss}
-              className="mt-5"
-            >
+            <div className="yk-community-actions yk-community-twitter-actions">
+              {!twitterClaimed && (
+                <p className="yk-community-step">
+                  {t("oneClick")}
+                  <span>{t("twitterClaimStep")}</span>
+                </p>
+              )}
               <button
                 type="submit"
-                className="yk-button yk-button-primary min-h-11 w-full whitespace-normal text-center"
+                form="community-twitter-claim"
+                className={`yk-button ${twitterClaimed ? "yk-community-secondary" : "yk-community-claim"}`}
               >
                 {t(twitterClaimed ? "twitterVisit" : "twitterAction")}
               </button>
-            </form>
+            </div>
           </section>
         </div>
-        <p className="mt-5 text-xs leading-6 text-ink-3">{t("eachGiftOnce")}</p>
-        <p className="mt-3 text-xs leading-6 text-ink-3">{t("dismissal")}</p>
-        <a
-          href="/privacy"
-          className="mt-3 inline-flex min-h-11 items-center text-xs text-ink-2 underline underline-offset-4"
-        >
-          {t("privacy")}
-        </a>
+        <div className="yk-community-footer">
+          <p className="yk-community-once">{t("eachGiftOnce")}</p>
+          <p>{t("dismissal")}</p>
+          <a href="/privacy" className="yk-community-privacy">
+            {t("privacy")}
+          </a>
+        </div>
       </Modal>
+      {/* Keep the submitting form mounted while the dialog closes. */}
+      <form
+        id="community-twitter-claim"
+        action="/twitter"
+        method="post"
+        target="_blank"
+        rel="noopener noreferrer"
+        onSubmit={dismiss}
+        hidden
+      />
       {feedback && (
         <aside
           role="status"
