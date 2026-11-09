@@ -64,7 +64,7 @@ export default async function SettingsPage() {
               href="/?discord-reward=claim"
               className="yk-button my-6 min-h-11 whitespace-normal"
             >
-              {t("discordReward.settingsLink", { count: 5 })}
+              {t("discordReward.settingsLink")}
             </Link>
           )}
           <SettingsPanel />

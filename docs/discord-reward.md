@@ -2,7 +2,9 @@
 
 ## Cadeau Twitter indépendant
 
-L’encart Twitter de l’accueil ouvre `https://x.com/YokkaiCollec` dans un nouvel onglet. Un POST de même origine, sous session vérifiée, attribue **5 Regular Packs une fois par compte Yokkai**, puis redirige vers ce profil fixe. Les doubles clics ou visites répétées n’attribuent rien de plus. Le cadeau est indépendant de Discord : les deux actions peuvent donc rapporter 10 packs au total.
+L’accueil présente un seul encart « Rejoins la communauté Yokkai », « Des packs offerts » et « Voir les options ». Le bouton ouvre la fenêtre commune avec les choix Discord et Twitter, chacun affichant son cadeau de cinq packs et son état de récupération. Twitter reste accessible même si Discord OAuth n’est pas configuré, et après récupération du cadeau Discord.
+
+L’option Twitter ouvre `https://x.com/YokkaiCollec` dans un nouvel onglet. Un POST de même origine, sous session vérifiée, attribue **5 Regular Packs une fois par compte Yokkai**, puis redirige vers ce profil fixe. Les doubles clics ou visites répétées n’attribuent rien de plus. Le cadeau est indépendant de Discord : les deux actions peuvent donc rapporter 10 packs au total.
 
 Conformément à la décision du propriétaire, **aucun follow n’est vérifié** : le cadeau récompense l’ouverture du profil. Aucun compte Twitter, jeton, abonnement API ou secret supplémentaire n’est nécessaire. Les appels directs à la RPC peuvent également récupérer ce cadeau unique ; ce n’est pas une preuve de visite ou de follow. La création de nouveaux comptes Yokkai reste soumise aux contrôles multicomptes existants.
 
@@ -10,7 +12,7 @@ Migration supplémentaire `20261109010000_twitter_visit_reward.sql`, **pas appli
 
 ## Parcours
 
-Une fenêtre centrée sur **l’accueil uniquement** propose le cadeau. Aucune page dédiée n’est créée. Le joueur rejoint le serveur via `/discord`, puis vérifie son Discord pour recevoir les packs. Les membres actuels passent directement à cette vérification.
+Une fenêtre centrée sur **l’accueil uniquement** propose les deux cadeaux. Aucune page dédiée n’est créée. Pour Discord, le joueur rejoint le serveur via `/discord`, puis vérifie son Discord pour recevoir les packs. Les membres actuels passent directement à cette vérification.
 
 La croix, Échap et le clic hors de la fenêtre enregistrent une fermeture définitive **sur le compte**. Cliquer sur « Rejoindre » ferme également la fenêtre et mémorise ce choix ; un petit message sur l’accueil permet ensuite de vérifier Discord sans rouvrir la fenêtre. Un cadeau déjà récupéré empêche toute réapparition automatique. Un reçu local couvre la fermeture hors ligne et se synchronise à la visite suivante.
 
@@ -39,7 +41,7 @@ DISCORD_INVITE_URL=<invitation permanente du serveur Yokkai>
 
 `SUPABASE_SECRET_KEY` (ou `SUPABASE_SERVICE_ROLE_KEY`) et `NEXT_PUBLIC_SITE_URL` sont également requis. Le secret Discord déjà utilisé par GoTrue peut être réutilisé, mais doit être configuré séparément dans le service Next. Ne pas le transmettre dans le chat. Redémarrer le service après configuration.
 
-Migration : `20261108230000_discord_reward.sql`, **pas appliquée sur le VPS** dans cette PR. Coordonner son application selon `COLLABORATION.md`, puis déployer la branche validée par la CI. La fenêtre ne s’affiche pas si sa configuration ou sa migration manque.
+Migration : `20261108230000_discord_reward.sql`, **pas appliquée sur le VPS** dans cette PR. Coordonner son application selon `COLLABORATION.md`, puis déployer la branche validée par la CI. Sans configuration Discord, seule cette option est indisponible : Twitter et la fermeture persistante restent accessibles. Une migration manquante empêche l’ouverture automatique des options.
 
 ## Garanties et limites
 

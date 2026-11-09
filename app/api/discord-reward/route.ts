@@ -13,15 +13,21 @@ import {
 const privateHeaders = { "Cache-Control": "private, no-store" };
 
 export async function GET() {
-  if (!discordRewardConfig() || !getDiscordInviteUrl())
-    return Response.json({ available: false }, { headers: privateHeaders });
   const user = await getVerifiedUser();
   if (!user)
     return new Response(null, { status: 401, headers: privateHeaders });
   const db = createClient(await cookies());
-  const { data, error } = await db.rpc("get_discord_reward_status");
+  const [{ data, error }, twitter] = await Promise.all([
+    db.rpc("get_discord_reward_status"),
+    db
+      .from("twitter_reward_claims")
+      .select("claimed_at")
+      .eq("user_id", user.id)
+      .maybeSingle()
+  ]);
   if (
     error ||
+    twitter.error ||
     typeof data?.claimed !== "boolean" ||
     typeof data?.dismissed !== "boolean"
   )
@@ -31,7 +37,9 @@ export async function GET() {
       available: true,
       userId: user.id,
       claimed: data.claimed,
-      dismissed: data.dismissed
+      dismissed: data.dismissed,
+      discordAvailable: Boolean(discordRewardConfig() && getDiscordInviteUrl()),
+      twitterClaimed: Boolean(twitter.data)
     },
     { headers: privateHeaders }
   );
@@ -39,14 +47,19 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const config = discordRewardConfig();
-  if (!config || request.headers.get("origin") !== config.origin)
+  let origin: string;
+  try {
+    origin = new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "").origin;
+  } catch {
+    return new Response(null, { status: 503, headers: privateHeaders });
+  }
+  if (request.headers.get("origin") !== origin)
     return new Response(null, {
       status: 403,
       headers: { "Cache-Control": "no-store" }
     });
   const user = await getVerifiedUser();
-  if (!user)
-    return NextResponse.redirect(new URL("/login", config.origin), 303);
+  if (!user) return NextResponse.redirect(new URL("/login", origin), 303);
   if (new URL(request.url).searchParams.get("action") === "dismiss") {
     const db = createClient(await cookies());
     const { error } = await db.rpc("dismiss_discord_reward_prompt");
@@ -55,6 +68,8 @@ export async function POST(request: Request) {
       headers: privateHeaders
     });
   }
+  if (!config)
+    return new Response(null, { status: 503, headers: privateHeaders });
   const { state, cookie } = beginDiscordReward(user.id);
   const store = await cookies();
   store.set(DISCORD_REWARD_COOKIE, cookie, {

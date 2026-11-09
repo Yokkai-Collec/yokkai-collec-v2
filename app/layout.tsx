@@ -18,7 +18,6 @@ import { FloatingMessenger } from "@/components/floating-messenger";
 import { LinkedAccountNotice } from "@/components/linked-account-notice";
 import { AccountSanctionNotice } from "@/components/account-sanction-notice";
 import { NetworkSecurityObserver } from "@/components/network-security-observer";
-import { getDiscordInviteUrl } from "@/lib/discord-invite";
 import "./globals.css";
 import "../styles/ui.css";
 import "../styles/referrals.css";
@@ -118,7 +117,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const discordEnabled = Boolean(getDiscordInviteUrl());
   const locale = await getLocale();
   const preference = await getLocalePreference();
   const messages = await getMessages();
@@ -215,7 +213,7 @@ export default async function RootLayout({
                 <AccountSanctionNotice />
                 <ReferralReminder />
                 <Suspense fallback={null}>
-                  <DiscordPromo enabled={discordEnabled} />
+                  <DiscordPromo enabled />
                 </Suspense>
               </ProAccessProvider>
             </BoostersLoadPriority>

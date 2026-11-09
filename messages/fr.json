@@ -1,13 +1,22 @@
 {
   "discordReward": {
+    "discordLabel": "Discord",
+    "twitterLabel": "Twitter",
+    "optionsIntro": "Choisis comment rejoindre la communauté Yokkai et récupérer tes cadeaux.",
+    "twitterDetails": "Ouvre notre profil Twitter pour recevoir tes packs.",
+    "twitterAction": "Suivre sur Twitter ↗",
+    "twitterVisit": "Ouvrir Twitter ↗",
+    "alreadyClaimed": "Cadeau déjà récupéré",
+    "eachGiftOnce": "Chaque cadeau est récupérable une seule fois par compte Yokkai et par réseau.",
+    "discordUnavailable": "Le cadeau Discord est temporairement indisponible.",
     "close": "Fermer l’invitation Discord",
-    "dismissal": "Ferme cette invitation et elle ne s’ouvrira plus jamais automatiquement sur ton compte. Tu pourras toujours récupérer ton cadeau depuis l’encart Discord de l’accueil.",
+    "dismissal": "Ferme cette invitation et elle ne s’ouvrira plus jamais automatiquement sur ton compte. Tes cadeaux restent accessibles via « Voir les options » sur l’accueil.",
     "afterJoin": "Une fois sur le serveur, vérifie ton compte Discord pour recevoir tes cinq packs.",
     "eyebrow": "La communauté Yokkai",
-    "title": "Rejoins Discord et reçois ton cadeau",
+    "title": "Rejoins la communauté Yokkai",
     "description": "Rejoins le Discord Yokkai pour rencontrer des collectionneurs, échanger et suivre les événements. Reçois {count, plural, one {# Regular Pack offert} other {# Regular Packs offerts}} en cadeau unique.",
-    "reward": "{count, plural, one {# Regular Pack offert} other {# Regular Packs offerts}}",
-    "existingMembers": "Tu es déjà sur le serveur ? Tu peux recevoir le même cadeau. Rejoins le serveur, puis autorise Discord pour nous permettre de vérifier ta présence.",
+    "reward": "{count, plural, one {# pack offert} other {# packs offerts}}",
+    "existingMembers": "Rejoins notre serveur, puis vérifie ta présence. Déjà membre ? Tu peux aussi récupérer le cadeau.",
     "once": "Un seul cadeau par compte Yokkai et par compte Discord. Quitter puis revenir, changer de compte lié ou supprimer ton compte Yokkai ne réinitialise pas ce cadeau.",
     "join": "Rejoindre le serveur Discord",
     "claim": "Vérifier Discord et récupérer mes packs",
@@ -18,10 +27,10 @@
     "discordUsed": "Ce compte Discord a déjà reçu le cadeau sur un compte Yokkai. Il ne peut pas le récupérer à nouveau.",
     "denied": "L’autorisation Discord a été annulée. Tu peux réessayer quand tu veux.",
     "error": "Nous n’avons pas pu confirmer ton cadeau. Vérifie tes packs bonus, puis réessaie. Une nouvelle tentative ne peut pas attribuer ce cadeau deux fois.",
-    "unavailable": "Le cadeau Discord est temporairement indisponible. Réessaie plus tard.",
+    "unavailable": "Les cadeaux de la communauté sont temporairement indisponibles. Réessaie plus tard.",
     "consent": "Nous vérifions ton identité Discord et ta présence sur le serveur Yokkai. Nous conservons les identifiants des deux comptes et la date de récupération pour empêcher les demandes répétées, même après suppression du compte. Nous ne stockons pas les jetons d’accès Discord.",
     "privacy": "Comment nous utilisons tes données",
-    "settingsLink": "Cadeau Discord : {count, plural, one {# Regular Pack offert} other {# Regular Packs offerts}}"
+    "settingsLink": "Cadeaux de la communauté"
   },
   "packs": {
     "clickTheFanToRevealCards": "Clique sur l’éventail ou appuie sur Entrée pour découvrir tes cartes",
@@ -674,10 +683,8 @@
     "bidAmount": "Saisis un montant entier entre {minimum} et 1 000 000 Karas."
   },
   "homeContent": {
-    "socialReward": "{count, plural, one {# pack offert} other {# packs offerts}}",
-    "twitterTitle": "Retrouve Yokkai sur Twitter",
-    "followTwitter": "Suivre sur Twitter ↗",
-    "twitterGiftDetails": "Ouvre notre profil Twitter pour recevoir {count, plural, one {# Regular Pack} other {# Regular Packs}} une seule fois par compte Yokkai. Aucune connexion Twitter ni vérification du suivi n’est nécessaire.",
+    "communityPacks": "Des packs offerts",
+    "communityOptions": "Voir les options",
     "twitterUnavailable": "Le cadeau Twitter est temporairement indisponible. Retourne sur Yokkai et réessaie plus tard. Ce cadeau ne peut pas être attribué deux fois.",
     "aNewDiscoveryInEveryCard": "Une découverte dans chaque carte",
     "yourFavorites": "Tes favoris.",

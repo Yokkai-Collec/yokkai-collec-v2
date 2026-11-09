@@ -1,13 +1,22 @@
 {
   "discordReward": {
+    "discordLabel": "Discord",
+    "twitterLabel": "Twitter",
+    "optionsIntro": "Choose how to join the Yokkai community and get your gifts.",
+    "twitterDetails": "Open our Twitter profile to receive your packs.",
+    "twitterAction": "Follow on Twitter ↗",
+    "twitterVisit": "Open Twitter ↗",
+    "alreadyClaimed": "Gift already claimed",
+    "eachGiftOnce": "Each gift can be claimed once per Yokkai account and social network.",
+    "discordUnavailable": "The Discord gift is temporarily unavailable.",
     "close": "Close Discord invitation",
-    "dismissal": "Close this invitation and it will never open automatically again on your account. You can still claim your gift from the Discord card on the home page.",
+    "dismissal": "Close this invitation and it will never open automatically again on your account. Your gifts remain available through View options on the home page.",
     "afterJoin": "Once you've joined the server, verify your Discord account to get your five packs.",
     "eyebrow": "The Yokkai community",
-    "title": "Join Discord, get rewarded",
+    "title": "Join the Yokkai community",
     "description": "Join the Yokkai Discord to meet collectors, trade and follow events. Get {count, plural, one {# free Regular Pack} other {# free Regular Packs}} as a one-time gift.",
-    "reward": "{count, plural, one {# free Regular Pack} other {# free Regular Packs}}",
-    "existingMembers": "Already on the server? You can claim the same gift. Join the server, then authorize Discord so we can check your membership.",
+    "reward": "{count, plural, one {# free pack} other {# free packs}}",
+    "existingMembers": "Join our server, then verify your membership. Already a member? You can claim the gift too.",
     "once": "One gift per Yokkai account and Discord account. Leaving and rejoining, changing your linked account or deleting your Yokkai account does not reset this gift.",
     "join": "Join the Discord server",
     "claim": "Verify Discord and claim my packs",
@@ -18,10 +27,10 @@
     "discordUsed": "This Discord account has already received the gift on a Yokkai account. It cannot claim it again.",
     "denied": "Discord authorization was cancelled. You can try again whenever you're ready.",
     "error": "We couldn't confirm your reward. Check your bonus packs, then try again. A retry cannot grant this gift twice.",
-    "unavailable": "The Discord gift is temporarily unavailable. Please try again later.",
+    "unavailable": "Community gifts are temporarily unavailable. Please try again later.",
     "consent": "We check your Discord identity and membership of the Yokkai server. We keep the two account identifiers and the claim date to prevent repeat claims, including after account deletion. We don't store Discord access tokens.",
     "privacy": "How we use your data",
-    "settingsLink": "Discord gift: {count, plural, one {# free Regular Pack} other {# free Regular Packs}}"
+    "settingsLink": "Community gifts"
   },
   "packs": {
     "clickTheFanToRevealCards": "Click the fan or press Enter to reveal your cards",
@@ -674,10 +683,8 @@
     "bidAmount": "Enter a whole amount between {minimum} and 1,000,000 Karas."
   },
   "homeContent": {
-    "socialReward": "{count, plural, one {# free pack} other {# free packs}}",
-    "twitterTitle": "Find Yokkai on Twitter",
-    "followTwitter": "Follow on Twitter ↗",
-    "twitterGiftDetails": "Open our Twitter profile to receive {count, plural, one {# Regular Pack} other {# Regular Packs}} once per Yokkai account. No Twitter sign-in or follow verification is required.",
+    "communityPacks": "Free packs",
+    "communityOptions": "View options",
     "twitterUnavailable": "The Twitter gift is temporarily unavailable. Please return to Yokkai and try again later. You will not receive this gift twice.",
     "aNewDiscoveryInEveryCard": "A new discovery in every card",
     "yourFavorites": "Your favorites.",

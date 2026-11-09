@@ -45,6 +45,9 @@ export function DiscordPromo({ enabled }: { enabled: boolean }) {
   const [userId, setUserId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [afterJoin, setAfterJoin] = useState(false);
+  const [discordAvailable, setDiscordAvailable] = useState(false);
+  const [discordClaimed, setDiscordClaimed] = useState(false);
+  const [twitterClaimed, setTwitterClaimed] = useState(false);
 
   useEffect(() => {
     if (!enabled || pathname !== "/") return;
@@ -60,7 +63,10 @@ export function DiscordPromo({ enabled }: { enabled: boolean }) {
           if (requested === "claim") router.push("/login");
           return;
         }
-        if (!response.ok) return;
+        if (!response.ok) {
+          if (requested) setFeedback(t("unavailable"));
+          return;
+        }
         const status = await response.json();
         if (!active) return;
         if (!status.available) {
@@ -69,6 +75,9 @@ export function DiscordPromo({ enabled }: { enabled: boolean }) {
         }
         if (typeof status.userId !== "string") return;
         setUserId(status.userId);
+        setDiscordAvailable(status.discordAvailable === true);
+        setDiscordClaimed(status.claimed === true);
+        setTwitterClaimed(status.twitterClaimed === true);
         if (requested) {
           url.searchParams.delete("discord-reward");
           window.history.replaceState(
@@ -77,7 +86,10 @@ export function DiscordPromo({ enabled }: { enabled: boolean }) {
             url.pathname + url.search + url.hash
           );
         }
-        if (status.claimed) {
+        if (
+          requested !== "claim" &&
+          (status.claimed || (!requested && status.twitterClaimed))
+        ) {
           if (requested) setFeedback(t("claimed", { count: 5 }));
           return;
         }
@@ -118,8 +130,8 @@ export function DiscordPromo({ enabled }: { enabled: boolean }) {
   }
   function join() {
     dismiss();
-    setFeedback(t("afterJoin"));
-    setAfterJoin(true);
+    setFeedback(t(discordClaimed ? "alreadyClaimed" : "afterJoin"));
+    setAfterJoin(!discordClaimed);
   }
 
   if (!enabled || pathname !== "/") return null;
@@ -129,39 +141,96 @@ export function DiscordPromo({ enabled }: { enabled: boolean }) {
         open={visible}
         onClose={dismiss}
         title={t("title")}
-        className="yk-discord-reward-modal max-w-lg"
+        className="yk-discord-reward-modal max-w-3xl"
       >
-        <p className="font-display text-2xl font-bold text-ink">
-          {t("reward", { count: 5 })}
-        </p>
-        <p className="mt-4 text-sm leading-7 text-ink-2">
-          {t("existingMembers")}
-        </p>
-        <p className="mt-3 text-sm leading-7 text-ink-3">{t("once")}</p>
-        <div className="mt-6 flex flex-col gap-3">
-          <a
-            href="/discord"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={join}
-            className="yk-button min-h-11 whitespace-normal text-center"
+        <p className="mb-5 text-sm leading-6 text-ink-2">{t("optionsIntro")}</p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <section
+            aria-labelledby="reward-discord"
+            className="min-w-0 rounded-xl border border-veil p-4 sm:p-5"
           >
-            {t("join")}
-          </a>
-          <form
-            action="/api/discord-reward"
-            method="post"
-            onSubmit={rememberDismissal}
+            <h3 id="reward-discord" className="font-display text-xl font-bold">
+              {t("discordLabel")}
+            </h3>
+            <p className="mt-2 font-semibold text-ink">
+              {t("reward", { count: 5 })}
+            </p>
+            <p className="mt-3 text-sm leading-6 text-ink-2">
+              {t("existingMembers")}
+            </p>
+            {discordClaimed && (
+              <p role="status" className="mt-4 text-sm text-ink-2">
+                {t("alreadyClaimed")}
+              </p>
+            )}
+            {discordAvailable ? (
+              <div className="mt-5 flex flex-col gap-3">
+                <a
+                  href="/discord"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={join}
+                  className="yk-button min-h-11 whitespace-normal text-center"
+                >
+                  {t("join")}
+                </a>
+                {!discordClaimed && (
+                  <form
+                    action="/api/discord-reward"
+                    method="post"
+                    onSubmit={rememberDismissal}
+                  >
+                    <button
+                      type="submit"
+                      className="yk-button yk-button-primary min-h-11 w-full whitespace-normal text-center"
+                    >
+                      {t("claim")}
+                    </button>
+                  </form>
+                )}
+              </div>
+            ) : (
+              <p role="status" className="mt-5 text-sm leading-6 text-ink-3">
+                {t("discordUnavailable")}
+              </p>
+            )}
+          </section>
+          <section
+            aria-labelledby="reward-twitter"
+            className="min-w-0 rounded-xl border border-veil p-4 sm:p-5"
           >
-            <button
-              type="submit"
-              className="yk-button yk-button-primary min-h-11 w-full whitespace-normal text-center"
+            <h3 id="reward-twitter" className="font-display text-xl font-bold">
+              {t("twitterLabel")}
+            </h3>
+            <p className="mt-2 font-semibold text-ink">
+              {t("reward", { count: 5 })}
+            </p>
+            <p className="mt-3 text-sm leading-6 text-ink-2">
+              {t("twitterDetails")}
+            </p>
+            {twitterClaimed && (
+              <p role="status" className="mt-4 text-sm text-ink-2">
+                {t("alreadyClaimed")}
+              </p>
+            )}
+            <form
+              action="/twitter"
+              method="post"
+              target="_blank"
+              rel="noopener noreferrer"
+              onSubmit={dismiss}
+              className="mt-5"
             >
-              {t("claim")}
-            </button>
-          </form>
+              <button
+                type="submit"
+                className="yk-button yk-button-primary min-h-11 w-full whitespace-normal text-center"
+              >
+                {t(twitterClaimed ? "twitterVisit" : "twitterAction")}
+              </button>
+            </form>
+          </section>
         </div>
-        <p className="mt-5 text-xs leading-6 text-ink-3">{t("consent")}</p>
+        <p className="mt-5 text-xs leading-6 text-ink-3">{t("eachGiftOnce")}</p>
         <p className="mt-3 text-xs leading-6 text-ink-3">{t("dismissal")}</p>
         <a
           href="/privacy"

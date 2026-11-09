@@ -71,5 +71,7 @@ test("the home Discord gift uses the accessible centered modal and remembers dis
   const modal = read("components/ui/index.tsx");
   assert.match(modal, /dialog\.showModal\(\)/);
   assert.match(modal, /onCancel=/);
-  assert.match(layout, /<DiscordPromo enabled=\{discordEnabled\} \/>/);
+  assert.match(layout, /<DiscordPromo enabled \/>/);
+  assert.match(promo, /requested !== "claim"/);
+  assert.match(promo, /action="\/twitter"/);
 });

@@ -50,18 +50,18 @@ export function HomeLinks({ discordEnabled }: { discordEnabled: boolean }) {
   return (
     <>
       <div className="yk-home-community-grid">
-        {discordEnabled && (
-          <section aria-labelledby="home-discord" className="yk-home-discord">
-            <div>
-              <h2 id="home-discord">{t("joinTheYokkaiCommunity")}</h2>
-              <p>{t("socialReward", { count: 5 })}</p>
-            </div>
-            <Link
-              href="/?discord-reward=claim"
-              className="yk-button yk-button-primary yk-home-panel-action min-h-11 whitespace-normal"
-            >
-              {t("joinDiscord")}
-            </Link>
+        <section aria-labelledby="home-community" className="yk-home-discord">
+          <div>
+            <h2 id="home-community">{t("joinTheYokkaiCommunity")}</h2>
+            <p>{t("communityPacks")}</p>
+          </div>
+          <Link
+            href="/?discord-reward=claim"
+            className="yk-button yk-button-primary yk-home-panel-action min-h-11 whitespace-normal"
+          >
+            {t("communityOptions")}
+          </Link>
+          {discordEnabled && (
             <svg
               className="yk-home-discord-logo"
               aria-hidden="true"
@@ -72,44 +72,7 @@ export function HomeLinks({ discordEnabled }: { discordEnabled: boolean }) {
             >
               <path d={DISCORD_MARK_PATH} />
             </svg>
-          </section>
-        )}
-        <section
-          aria-labelledby="home-twitter"
-          className="yk-home-discord yk-home-twitter"
-        >
-          <div>
-            <h2 id="home-twitter">{t("twitterTitle")}</h2>
-            <p>{t("socialReward", { count: 5 })}</p>
-          </div>
-          <form
-            action="/twitter"
-            method="post"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="max-w-full"
-          >
-            <button
-              type="submit"
-              className="yk-button yk-button-primary yk-home-panel-action min-h-11 max-w-full whitespace-normal"
-              aria-describedby="home-twitter-details"
-            >
-              {t("followTwitter")}
-            </button>
-          </form>
-          <p id="home-twitter-details" className="sr-only">
-            {t("twitterGiftDetails", { count: 5 })}
-          </p>
-          <svg
-            className="yk-home-discord-logo"
-            aria-hidden="true"
-            viewBox="0 0 24 24"
-            width="96"
-            height="96"
-            fill="currentColor"
-          >
-            <path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3L12 15.6 6.4 22H3.1l7.3-8.4L.8 2h6.5l4.4 5.8L18.9 2Zm-1.1 18h1.8L6.3 3.9H4.4L17.8 20Z" />
-          </svg>
+          )}
         </section>
         <ReferralReminder packChoices homeCard />
       </div>

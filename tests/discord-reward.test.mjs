@@ -196,18 +196,33 @@ test("start requires a same-origin POST and a verified Yokkai session", async ()
 test("home status and permanent dismissal use only the verified account", async () => {
   let player = { id: userId },
     claimed = false,
-    dismissed = false;
+    dismissed = false,
+    twitterClaimed = false,
+    discordConfigured = true;
   const calls = [];
   const route = load("app/api/discord-reward/route.ts", {
     "next/headers": { cookies: async () => ({}) },
     "next/server": { NextResponse },
     "@/lib/auth/session": { getVerifiedUser: async () => player },
-    "@/lib/discord-reward": core,
+    "@/lib/discord-reward": {
+      ...core,
+      discordRewardConfig: () => (discordConfigured ? config : null)
+    },
     "@/lib/discord-invite": {
       getDiscordInviteUrl: () => "https://discord.gg/test"
     },
     "@/utils/supabase/server": {
       createClient: () => ({
+        from: () => ({
+          select: () => ({
+            eq: () => ({
+              maybeSingle: async () => ({
+                error: null,
+                data: twitterClaimed ? { claimed_at: "2026-11-09" } : null
+              })
+            })
+          })
+        }),
         rpc: async name => {
           calls.push(name);
           if (name === "dismiss_discord_reward_prompt") dismissed = true;
@@ -224,7 +239,9 @@ test("home status and permanent dismissal use only the verified account", async 
     available: true,
     userId,
     claimed: false,
-    dismissed: false
+    dismissed: false,
+    discordAvailable: true,
+    twitterClaimed: false
   });
   const request = origin =>
     new Request(
@@ -242,6 +259,21 @@ test("home status and permanent dismissal use only the verified account", async 
   assert.equal(status.headers.get("cache-control"), "private, no-store");
   claimed = true;
   assert.equal((await (await route.GET()).json()).claimed, true);
+  discordConfigured = false;
+  twitterClaimed = true;
+  const withoutDiscord = await (await route.GET()).json();
+  assert.equal(
+    withoutDiscord.available,
+    true,
+    "Twitter options remain available without Discord OAuth configuration"
+  );
+  assert.equal(withoutDiscord.discordAvailable, false);
+  assert.equal(withoutDiscord.twitterClaimed, true);
+  assert.equal(
+    (await route.POST(request(env.NEXT_PUBLIC_SITE_URL))).status,
+    204,
+    "closing the community modal requires no Discord secret"
+  );
 });
 
 test("callback rejects forged state, issuer, or a changed Yokkai session before any Discord call", async () => {
