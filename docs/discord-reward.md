@@ -1,4 +1,12 @@
-# Cadeau Discord — 5 Regular Packs
+# Cadeaux Discord et Twitter — 5 packs par action
+
+## Cadeau Twitter indépendant
+
+L’encart Twitter de l’accueil ouvre `https://x.com/YokkaiCollec` dans un nouvel onglet. Un POST de même origine, sous session vérifiée, attribue **5 Regular Packs une fois par compte Yokkai**, puis redirige vers ce profil fixe. Les doubles clics ou visites répétées n’attribuent rien de plus. Le cadeau est indépendant de Discord : les deux actions peuvent donc rapporter 10 packs au total.
+
+Conformément à la décision du propriétaire, **aucun follow n’est vérifié** : le cadeau récompense l’ouverture du profil. Aucun compte Twitter, jeton, abonnement API ou secret supplémentaire n’est nécessaire. Les appels directs à la RPC peuvent également récupérer ce cadeau unique ; ce n’est pas une preuve de visite ou de follow. La création de nouveaux comptes Yokkai reste soumise aux contrôles multicomptes existants.
+
+Migration supplémentaire `20261109010000_twitter_visit_reward.sql`, **pas appliquée au VPS**. Le reçu minimal (UUID Yokkai/date) est permanent pendant l’offre, inclus dans l’export et décrit dans la confidentialité. Seul `auth.uid()` reçoit les packs, avec gardes de bannissement, vérification email et suppression. L’attribution et le reçu partagent la même transaction.
 
 ## Parcours
 

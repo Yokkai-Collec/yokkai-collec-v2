@@ -1,5 +1,6 @@
 // Exact overloads and roles only. Every addition requires an access justification.
 export const ownerOnly = [
+  "public.build_data_export_without_twitter_reward(uuid, uuid)", // Existing reservation-gated export; only the owning wrapper adds the caller's Twitter visit receipt.
   "public.build_data_export_without_discord_reward(uuid, uuid)", // Existing reservation-gated export builder; only the owning wrapper adds the caller's Discord receipt.
   "public.anticheat_deleted_account_snapshot_trigger()", // Trigger-only identity/transfer snapshot, private 90-day identity retention. Walid approved.
   "public.prevent_anticheat_ledger_mutation()", // Trigger-only append-only ledger fence; no API execution. Walid approved the anti-cheat rights model.
@@ -61,6 +62,7 @@ export const serverOnly = {
 };
 
 const allowlist = {
+  "public.claim_twitter_visit_reward()": ["authenticated"], // User-authorized one-time visit gift for auth.uid(), fixed five packs, ban/deletion/email guards; no follow verification claimed. Approved by the owner.
   "public.get_discord_reward_status()": ["authenticated"], // Own gift/prompt booleans only, no caller-supplied identity or Discord id.
   "public.dismiss_discord_reward_prompt()": ["authenticated"], // Permanently dismisses only auth.uid()'s home invitation after ban/deletion guards; grants no reward.
   "public.admin_list_anticheat_related_accounts(uuid, text, text, integer, integer)":

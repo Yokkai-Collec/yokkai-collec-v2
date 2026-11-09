@@ -1,4 +1,8 @@
 {
+  "public.twitter_reward_claims": {
+    "sections": ["twitter_reward"],
+    "note": "Own one-time profile visit reward date only. No Twitter account identifier, OAuth token or follow information is collected."
+  },
   "public.discord_reward_claims": {
     "sections": ["discord_reward"],
     "note": "Own Discord identifier and claim date only; receipt survives account deletion to prevent repeat claims while the offer remains available. No OAuth tokens."

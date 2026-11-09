@@ -674,7 +674,11 @@
     "bidAmount": "Enter a whole amount between {minimum} and 1,000,000 Karas."
   },
   "homeContent": {
-    "discordReward": "{count, plural, one {# free Regular Pack} other {# free Regular Packs}} for new and existing Discord members.",
+    "socialReward": "{count, plural, one {# free pack} other {# free packs}}",
+    "twitterTitle": "Find Yokkai on Twitter",
+    "followTwitter": "Follow on Twitter ↗",
+    "twitterGiftDetails": "Open our Twitter profile to receive {count, plural, one {# Regular Pack} other {# Regular Packs}} once per Yokkai account. No Twitter sign-in or follow verification is required.",
+    "twitterUnavailable": "The Twitter gift is temporarily unavailable. Please return to Yokkai and try again later. You will not receive this gift twice.",
     "aNewDiscoveryInEveryCard": "A new discovery in every card",
     "yourFavorites": "Your favorites.",
     "yourCollection": "Your collection.",
@@ -2858,7 +2862,9 @@
   },
   "legalUi": {
     "discordRewardData": "Discord gift: when you claim the gift, we check your Discord identity and membership of the Yokkai server, then record your Yokkai account ID, Discord account ID and claim date. Discord access tokens are used only during verification and are not stored. A temporary cookie protects this verification for ten minutes. Closing the invitation saves a preference on your account until account deletion, with a browser copy, so it never opens automatically again.",
+    "twitterRewardData": "Twitter gift: opening our profile through the gift button awards five Regular Packs once per Yokkai account. We record only your Yokkai account ID and the reward date. We do not connect your Twitter account or check whether you follow us.",
     "discordRewardRetention": "Discord gift receipts (the two account identifiers and claim date) are retained for as long as this one-time offer is available, including after account deletion, to prevent repeat claims. These receipts contain no email address or Discord credentials.",
+    "twitterRewardRetention": "Twitter gift receipts (your Yokkai account ID and reward date) are retained while the one-time offer remains available, including after account deletion, to prevent repeat claims. They contain no Twitter account data.",
     "termsOfUse": "Terms of Use",
     "termsOfUseForYokkaiCollecAccounts": "Terms of Use for Yokkai Collec': accounts, fair play, virtual cards, optional purchases, and community content.",
     "playingTogether": "Playing together",

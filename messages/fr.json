@@ -674,7 +674,11 @@
     "bidAmount": "Saisis un montant entier entre {minimum} et 1 000 000 Karas."
   },
   "homeContent": {
-    "discordReward": "{count, plural, one {# Regular Pack offert} other {# Regular Packs offerts}} aux nouveaux membres comme aux membres actuels du Discord.",
+    "socialReward": "{count, plural, one {# pack offert} other {# packs offerts}}",
+    "twitterTitle": "Retrouve Yokkai sur Twitter",
+    "followTwitter": "Suivre sur Twitter ↗",
+    "twitterGiftDetails": "Ouvre notre profil Twitter pour recevoir {count, plural, one {# Regular Pack} other {# Regular Packs}} une seule fois par compte Yokkai. Aucune connexion Twitter ni vérification du suivi n’est nécessaire.",
+    "twitterUnavailable": "Le cadeau Twitter est temporairement indisponible. Retourne sur Yokkai et réessaie plus tard. Ce cadeau ne peut pas être attribué deux fois.",
     "aNewDiscoveryInEveryCard": "Une découverte dans chaque carte",
     "yourFavorites": "Tes favoris.",
     "yourCollection": "Ta collection.",
@@ -2858,7 +2862,9 @@
   },
   "legalUi": {
     "discordRewardData": "Cadeau Discord : lors de sa récupération, nous vérifions votre identité Discord et votre présence sur le serveur Yokkai, puis enregistrons les identifiants de vos comptes Yokkai et Discord ainsi que la date de récupération. Les jetons d’accès Discord sont utilisés uniquement pendant la vérification et ne sont pas stockés. Un cookie temporaire protège cette vérification pendant dix minutes. La fermeture de l’invitation est mémorisée sur votre compte jusqu’à sa suppression, avec une copie dans le navigateur, pour qu’elle ne se rouvre plus automatiquement.",
+    "twitterRewardData": "Cadeau Twitter : ouvrir notre profil depuis le bouton du cadeau attribue cinq Regular Packs une seule fois par compte Yokkai. Nous enregistrons uniquement l’identifiant du compte Yokkai et la date de récompense. Nous ne connectons pas votre compte Twitter et ne vérifions pas si vous nous suivez.",
     "discordRewardRetention": "Les preuves de récupération du cadeau Discord (les identifiants des deux comptes et la date) sont conservées tant que cette offre unique reste disponible, y compris après suppression du compte, afin d’empêcher les demandes répétées. Elles ne contiennent ni adresse email ni identifiants de connexion Discord.",
+    "twitterRewardRetention": "Les preuves de récupération du cadeau Twitter (identifiant du compte Yokkai et date de récompense) sont conservées tant que l’offre unique reste disponible, y compris après suppression du compte, afin d’empêcher les demandes répétées. Elles ne contiennent aucune donnée de compte Twitter.",
     "termsOfUse": "Conditions d’utilisation",
     "termsOfUseForYokkaiCollecAccounts": "Conditions d’utilisation de Yokkai Collec’ : comptes, fair-play, cartes virtuelles, achats facultatifs et contenus de la communauté.",
     "playingTogether": "Jouer ensemble",

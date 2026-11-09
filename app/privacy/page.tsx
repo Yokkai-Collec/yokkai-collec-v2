@@ -98,6 +98,7 @@ export default async function PrivacyPage() {
             })}
           </li>
           <li>{t("discordRewardData")}</li>
+          <li>{t("twitterRewardData")}</li>
           <li>
             {t.rich("profileAvatarBannerBackgroundAndCardBack", {
               strong0: chunks => <strong>{chunks}</strong>
@@ -264,6 +265,7 @@ export default async function PrivacyPage() {
           <li>{t("deletedSecurityIdentityRetention", { days: 90 })}</li>
           <li>{t("deletedEmailCooldownRetention", { days: 14 })}</li>
           <li>{t("discordRewardRetention")}</li>
+          <li>{t("twitterRewardRetention")}</li>
         </ul>
       </InfoSection>
 
@@ -293,6 +295,7 @@ export default async function PrivacyPage() {
           </li>
           <li>{t("deletedSecurityIdentityException", { days: 90 })}</li>
           <li>{t("discordRewardRetention")}</li>
+          <li>{t("twitterRewardRetention")}</li>
         </ul>
       </InfoSection>
 
