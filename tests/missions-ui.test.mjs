@@ -80,7 +80,7 @@ for (const locale of ["en", "fr"])
     assert.doesNotMatch(html, /missionUi\.|MISSING_MESSAGE|INVALID_MESSAGE/);
     assert.match(
       html,
-      locale === "en" ? /Choose your missions/ : /Choisis tes missions/
+      locale === "en" ? /Daily missions/ : /Missions quotidiennes/
     );
     const base = {
       title: "Pack Opener",
@@ -105,7 +105,9 @@ for (const locale of ["en", "fr"])
         onClaim() {}
       })
     );
-    assert.equal((gallery.match(/<details/g) || []).length, 1);
+    // Tiers are browsed in place: both stay rendered, one shown at a time.
+    assert.equal((gallery.match(/yk-achievement-tiers/g) || []).length, 1);
+    assert.equal((gallery.match(/<article[^>]*hidden/g) || []).length, 1);
     assert.equal((gallery.match(/<article/g) || []).length, 2);
     assert.doesNotMatch(gallery, /achievementCatalog\.|MISSING_MESSAGE/);
   });

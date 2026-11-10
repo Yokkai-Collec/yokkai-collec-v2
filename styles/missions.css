@@ -1,14 +1,13 @@
 .yk-missions {
-  margin: 1.5rem 0;
-  padding: clamp(1rem, 3vw, 1.75rem);
+  margin: 1rem 0;
+  padding: clamp(1rem, 2.5vw, 1.25rem);
   border: 1px solid var(--color-veil);
   border-radius: 1rem;
   background: var(--color-surface, #0b1220);
   min-width: 0;
 }
 .yk-mission-heading,
-.yk-mission-gauge > header,
-.yk-mission-total {
+.yk-mission-gauge > header {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -16,16 +15,15 @@
   gap: 0.75rem;
 }
 .yk-mission-heading {
-  margin-bottom: 1.5rem;
-  align-items: flex-start;
+  margin-bottom: 0.75rem;
 }
 .yk-mission-heading h2 {
   font-size: clamp(1.35rem, 4vw, 1.8rem);
-  margin: 0.25rem 0 0.5rem;
+  margin: 0;
 }
 .yk-mission-heading p,
 .yk-mission-countdown,
-.yk-mission-total > span {
+.yk-mission-done {
   color: var(--color-ink-2);
   font-size: 0.85rem;
   line-height: 1.6;
@@ -48,14 +46,18 @@
 .yk-mission-gauge h3 {
   font-size: 1.1rem;
 }
-.yk-mission-total {
-  margin: 1rem 0 0.5rem;
+.yk-mission-gauge > header {
+  justify-content: flex-start;
+  margin-bottom: 0.5rem;
 }
-.yk-mission-total > strong {
-  font-size: 1.75rem;
+.yk-mission-countdown {
+  margin-left: auto;
+}
+.yk-mission-score {
+  font-size: 1.1rem;
   color: var(--color-karas);
 }
-.yk-mission-total > strong span {
+.yk-mission-score span {
   font-size: 1rem;
   color: var(--color-ink-2);
 }
@@ -81,9 +83,9 @@
 }
 .yk-mission-milestones {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(5.2rem, 1fr));
-  gap: 0.5rem;
-  margin: 1rem 0;
+  grid-template-columns: repeat(auto-fit, minmax(3.75rem, 1fr));
+  gap: 0.375rem;
+  margin: 0.75rem 0;
   padding: 0;
   list-style: none;
 }
@@ -91,26 +93,51 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.35rem;
   min-width: 0;
   border: 1px solid var(--color-veil);
   border-radius: 0.75rem;
-  padding: 0.65rem 0.35rem;
+  padding: 0.5rem 0.35rem;
   font-size: 0.75rem;
 }
-.yk-mission-milestones .yk-button {
-  min-height: 44px;
-  padding: 0.5rem;
-  width: 100%;
-  font-size: 0.7rem;
-  white-space: normal;
-  overflow-wrap: anywhere;
+/* Claimable blocks: an invisible button stretched over the highlighted block. */
+.yk-achievement-card,
+.yk-mission-milestones li {
+  position: relative;
+}
+.yk-claim-area {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+.yk-claim-area:hover:not(:disabled),
+.yk-claim-area:active:not(:disabled) {
+  background: color-mix(in srgb, var(--color-karas) 10%, transparent);
+}
+.yk-claim-area:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+.yk-claim-area:disabled {
+  cursor: progress;
+}
+.yk-mission-milestones .is-ready {
+  background: color-mix(in srgb, var(--color-karas) 8%, transparent);
+}
+/* Locked rewards recede; state is carried by the border, not by a label. */
+.yk-mission-milestones li:not(.is-ready, .is-claimed) {
+  opacity: 0.55;
 }
 .yk-mission-milestones .is-ready {
   border-color: var(--color-karas);
 }
 .yk-mission-milestones .is-claimed {
-  opacity: 0.7;
+  border-color: color-mix(in srgb, var(--color-success) 45%, transparent);
+}
+.yk-mission-milestones .is-claimed > span:first-child {
+  color: var(--color-success);
 }
 .yk-mission-list {
   list-style: none;
@@ -122,24 +149,27 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 0.9rem 0;
+  padding: 0.55rem 0;
   border-top: 1px solid var(--color-veil);
 }
 .yk-mission-list li > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.5rem;
   min-width: 0;
   overflow-wrap: anywhere;
 }
 .yk-mission-list p {
   font-size: 0.85rem;
   line-height: 1.5;
-  margin: 0.2rem 0;
+  margin: 0;
 }
 .yk-mission-list li > strong {
   flex-shrink: 0;
   color: var(--color-karas);
   font-size: 0.8rem;
 }
-.yk-mission-category,
 .yk-mission-list li > div > span:last-child {
   font-size: 0.7rem;
   color: var(--color-ink-2);
@@ -150,37 +180,96 @@
 .yk-mission-launch {
   padding: 1rem 0;
 }
+/* One card per family; the arrows browse its milestones in place. */
 .yk-achievement-family {
+  position: relative;
+  display: grid;
   min-width: 0;
-  margin-top: 1rem;
 }
-.yk-achievement-family summary {
-  min-height: 44px;
-  cursor: pointer;
-  padding: 0.75rem;
+.yk-achievement-card[hidden] {
+  display: none;
+}
+.yk-achievement-tiers {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  align-items: center;
   color: var(--color-ink-2);
+  font-size: 0.75rem;
 }
-.yk-achievement-family .yk-achievement-card {
-  margin-top: 0.75rem;
+.yk-achievement-tiers button {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+.yk-achievement-tiers button:hover:not(:disabled) {
+  background: var(--color-elevated);
+  color: var(--color-ink);
+}
+.yk-achievement-tiers button:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+.yk-achievement-tiers button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.has-tiers .yk-achievement-title {
+  padding-right: 5.5rem;
+}
+.yk-achievement-card .eyebrow {
+  margin-bottom: 0.25rem;
+}
+.yk-achievement-summary .yk-status-pill {
+  margin-top: 0.5rem;
 }
 .yk-achievement-filters {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin: 2rem 0 1rem;
+  margin: 1rem 0 0;
 }
 .yk-achievement-filters button {
   min-height: 44px;
+}
+.yk-achievement-filters button[aria-pressed="true"] {
+  border-color: var(--color-accent-gold);
+  background: color-mix(
+    in srgb,
+    var(--color-accent-gold) 12%,
+    var(--color-surface)
+  );
+  color: var(--color-ink);
 }
 .yk-achievement-card header > div,
 .yk-achievement-title {
   min-width: 0;
   overflow-wrap: anywhere;
 }
+@media (min-width: 860px) {
+  .yk-achievement-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
 @media (min-width: 1024px) {
   .yk-mission-gauges {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 2rem;
+  }
+}
+@media (max-width: 700px) {
+  /* One scrollable row instead of four wrapped rows of section filters. */
+  .yk-achievement-filters {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+  }
+  .yk-achievement-filters button {
+    flex: 0 0 auto;
   }
 }
 @media (max-width: 480px) {

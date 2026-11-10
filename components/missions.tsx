@@ -76,11 +76,7 @@ export function MissionGauges({
   return (
     <section className="yk-missions" aria-label={t("title")}>
       <header className="yk-mission-heading">
-        <div>
-          <p className="eyebrow">{t("eyebrow")}</p>
-          <h2>{t("title")}</h2>
-          <p>{t("intro")}</p>
-        </div>
+        <h2>{t("title")}</h2>
         {data.pro && <span className="yk-mission-pro">{t("proBonus")}</span>}
       </header>
       {!data.active ? (
@@ -105,19 +101,19 @@ export function MissionGauges({
               <article className="yk-mission-gauge" key={g.period}>
                 <header>
                   <h3>{t(g.period)}</h3>
+                  <strong className="yk-mission-score">
+                    {fmt.number(g.points)}
+                    <span>/100</span>
+                  </strong>
                   <ResetCountdown
                     end={g.endsAt}
                     serverNow={data.serverNow}
                     onReset={onRefresh}
                   />
                 </header>
-                <div className="yk-mission-total">
-                  <strong>
-                    {fmt.number(g.points)}
-                    <span>/100</span>
-                  </strong>
-                  <span>{g.points === 100 ? t("complete") : t("choose")}</span>
-                </div>
+                {g.points === 100 && (
+                  <p className="yk-mission-done">{t("complete")}</p>
+                )}
                 <progress
                   max={100}
                   value={g.points}
@@ -138,24 +134,29 @@ export function MissionGauges({
                             : ""
                       }
                     >
-                      <span>{t("points", { count: m.points })}</span>
+                      <span>
+                        {t(m.claimedAt ? "donePoints" : "points", {
+                          count: m.points
+                        })}
+                      </span>
                       <Karas amount={m.reward} />
-                      <Button
-                        disabled={
-                          Boolean(busy) ||
-                          Boolean(m.claimedAt) ||
-                          g.points < m.points
-                        }
-                        onClick={() => onClaim(g, m.points)}
-                      >
-                        {m.claimedAt
-                          ? t("claimed")
-                          : busy === `${g.period}-${m.points}`
-                            ? t("claiming")
-                            : g.points >= m.points
-                              ? t("claim")
-                              : t("lockedLabel")}
-                      </Button>
+                      {m.claimedAt || g.points < m.points ? (
+                        <span className="sr-only">
+                          {m.claimedAt ? t("claimed") : t("lockedLabel")}
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          className="yk-claim-area"
+                          disabled={Boolean(busy)}
+                          aria-label={
+                            busy === `${g.period}-${m.points}`
+                              ? t("claiming")
+                              : t("claim")
+                          }
+                          onClick={() => onClaim(g, m.points)}
+                        />
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -166,9 +167,6 @@ export function MissionGauges({
                       className={m.current >= m.target ? "is-complete" : ""}
                     >
                       <div>
-                        <span className="yk-mission-category">
-                          {t(`categories.${m.category}`)}
-                        </span>
                         <p>
                           {t(`objectives.${m.metric}`, { count: m.target })}
                         </p>
