@@ -62,6 +62,15 @@ export const serverOnly = {
 };
 
 const allowlist = {
+  "public.claim_catalogue_achievement(text)": ["authenticated"], // Own completed extended tier; delegates legacy claims without changing their locks.
+  "public.get_achievement_catalogue()": ["authenticated"], // New own catalogue reader; the legacy eleven-achievement reader remains unchanged.
+  "public.get_missions()": ["authenticated"], // Own fixed missions; settles only the caller's earned historical milestones.
+  "public.claim_mission_milestone(text, timestamp with time zone, integer)": [
+    "authenticated"
+  ], // Own validated milestone; server amount and unique claim ledger.
+  "public.claim_achievement_upgrade(text)": ["authenticated"], // Own seeded migration bonus; one player-initiated claim.
+  "public.record_friend_visit(text)": ["authenticated"], // Counts only the caller's visit to an accepted friend, once per day.
+
   "public.claim_twitter_visit_reward()": ["authenticated"], // User-authorized one-time visit gift for auth.uid(), fixed five packs, ban/deletion/email guards; no follow verification claimed. Approved by the owner.
   "public.get_discord_reward_status()": ["authenticated"], // Own gift/prompt booleans only, no caller-supplied identity or Discord id.
   "public.dismiss_discord_reward_prompt()": ["authenticated"], // Permanently dismisses only auth.uid()'s home invitation after ban/deletion guards; grants no reward.

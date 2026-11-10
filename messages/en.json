@@ -1919,7 +1919,6 @@
     "pushInviteEnable": "Enable notifications",
     "pushInviteDismiss": "No thanks",
     "pushInviteSettings": "You can change this anytime in Settings.",
-
     "passwordUpdated": "Your password has been updated.",
     "currentPassword": "Current password",
     "confirmNewPassword": "Confirm new password",
@@ -3205,7 +3204,25 @@
     "profileMissing": "Your profile couldn't be found.",
     "locked": "This achievement isn't complete yet.",
     "alreadyClaimed": "This reward has already been claimed.",
-    "unavailable": "Couldn't load achievements. Please try again in a moment."
+    "unavailable": "Couldn't load achievements. Please try again in a moment.",
+    "secretTitle": "???",
+    "secretDescription": "Keep playing to discover this secret achievement.",
+    "proLocked": "Pro required",
+    "tiers": "{count, plural, one {# other milestone} other {# other milestones}}",
+    "numericProgress": "{current, number} / {target, number}",
+    "upgrade": "Claim migration bonus: {amount, number} Karas",
+    "allSections": "All",
+    "sectioncollection": "Collection",
+    "sectionpacks": "Packs",
+    "sectioneconomy": "Economy",
+    "sectionmarket": "Market",
+    "sectionsocial": "Social",
+    "sectionprofile": "Profile",
+    "sectionmissions": "Missions",
+    "sectionreferral": "Referrals",
+    "sectionsecret": "Secrets",
+    "sectionpro": "Pro",
+    "pageTitle": "Missions & achievements"
   },
   "accountSanctions": {
     "cardsRemoved": "Cards removed",
@@ -3720,5 +3737,290 @@
     "body": "Sorry for the maintenance interruption. We have added these bonus packs to your account.",
     "availability": "Already credited. Open them whenever you like: these bonus packs never expire and do not replace your daily packs.",
     "done": "Thank you!"
+  },
+  "achievementCatalog": {
+    "collector": {
+      "title": "Collector",
+      "description": "Own {target, number} different cards."
+    },
+    "completionist": {
+      "title": "Completionist",
+      "description": "Complete {target, number}% of a category."
+    },
+    "explorer": {
+      "title": "Explorer",
+      "description": "Collect cards from {target, number} categories."
+    },
+    "first-sr": {
+      "title": "First SR",
+      "description": "Obtain your first SR card."
+    },
+    "first-ssr": {
+      "title": "First SSR",
+      "description": "Obtain your first SSR card."
+    },
+    "legend-pulled": {
+      "title": "Legend Pulled",
+      "description": "Obtain {target, plural, one {# LR card} other {# LR cards}}."
+    },
+    "shiny-hunter": {
+      "title": "Shiny Hunter",
+      "description": "Draw {target, plural, one {# Shiny LR card} other {# Shiny LR cards}} from packs."
+    },
+    "evolution": {
+      "title": "Evolution",
+      "description": "Evolve SSR duplicates into Infinity {target, plural, one {once} other {# times}}."
+    },
+    "rarity-master": {
+      "title": "Rarity Master",
+      "description": "Own at least one card of every rarity, C through LR."
+    },
+    "fan": {
+      "title": "Fan",
+      "description": "Own {target, number} copies of the same card."
+    },
+    "pack-opener": {
+      "title": "Pack Opener",
+      "description": "Open {target, plural, one {# Regular Pack} other {# Regular Packs}}."
+    },
+    "decisive": {
+      "title": "Decisive",
+      "description": "Complete {target, plural, one {# Decision Pack} other {# Decision Packs}}."
+    },
+    "full-stack": {
+      "title": "Full Stack",
+      "description": "Open a batch of at least five Regular Packs from a full timed reserve {target, plural, one {once} other {# times}}."
+    },
+    "recycler": {
+      "title": "Recycler",
+      "description": "Destroy {target, number} cards."
+    },
+    "karas-earner": {
+      "title": "Karas Earner",
+      "description": "Earn {target, number} Karas in total, excluding refunds."
+    },
+    "wishful": {
+      "title": "Wishful",
+      "description": "Add a card to your wishlist."
+    },
+    "wish-granted": {
+      "title": "Wish Granted",
+      "description": "Obtain {target, plural, one {# card from your wishlist} other {# different cards from your wishlist}}."
+    },
+    "first-sale": {
+      "title": "First Sale",
+      "description": "Sell your first card at auction."
+    },
+    "merchant": {
+      "title": "Merchant",
+      "description": "Sell {target, number} cards at auction."
+    },
+    "auction-winner": {
+      "title": "Auction Winner",
+      "description": "Win {target, plural, one {# auction} other {# auctions}}."
+    },
+    "sniper": {
+      "title": "Sniper",
+      "description": "Win {target, plural, one {# auction} other {# auctions}} with a bid in the final minute."
+    },
+    "friendly": {
+      "title": "Friendly",
+      "description": "Have {target, plural, one {# friend} other {# friends}}."
+    },
+    "trader": {
+      "title": "Trader",
+      "description": "Complete {target, plural, one {# trade} other {# trades}}. Later milestones count established friends, once per friend per day."
+    },
+    "negotiator": {
+      "title": "Negotiator",
+      "description": "Have {target, plural, one {# counteroffer} other {# counteroffers}} accepted by friends of at least three days."
+    },
+    "generous": {
+      "title": "Generous",
+      "description": "Give an SSR or better in a trade with an established friend."
+    },
+    "showcase": {
+      "title": "Showcase",
+      "description": "Display five cards in your showcase."
+    },
+    "identity": {
+      "title": "Identity",
+      "description": "Set an avatar and write a bio."
+    },
+    "daily-grinder": {
+      "title": "Daily Grinder",
+      "description": "Complete {target, number} daily missions."
+    },
+    "all-clear": {
+      "title": "All Clear",
+      "description": "Fill your daily gauge {target, number} times."
+    },
+    "weekly-champion": {
+      "title": "Weekly Champion",
+      "description": "Fill your weekly gauge {target, plural, one {once} other {# times}}."
+    },
+    "perfect-week": {
+      "title": "Perfect Week",
+      "description": "Fill both gauges during {target, plural, one {# week} other {# different weeks}}."
+    },
+    "veteran": {
+      "title": "Veteran",
+      "description": "Reach an account age of {target, number} days."
+    },
+    "recruiter": {
+      "title": "Recruiter",
+      "description": "Refer {target, plural, one {# verified player} other {# verified players}} with a three-day activity streak."
+    },
+    "mentor": {
+      "title": "Mentor",
+      "description": "Refer {target, plural, one {# verified player who opens 50 Regular Packs} other {# verified players who open 50 Regular Packs}}."
+    },
+    "ambassador": {
+      "title": "Ambassador",
+      "description": "Refer {target, plural, one {# player who becomes Pro} other {# players who become Pro}}."
+    },
+    "welcome-aboard": {
+      "title": "Welcome Aboard",
+      "description": "Join using a referral code."
+    },
+    "deja-vu": {
+      "title": "Deja Vu",
+      "description": "Draw the same card twice in one Regular Pack."
+    },
+    "all-common": {
+      "title": "All Common",
+      "description": "Draw five C cards in one Regular Pack."
+    },
+    "rainbow": {
+      "title": "Rainbow",
+      "description": "Draw C, R, SR, SSR and LR in one Regular Pack."
+    },
+    "same-family": {
+      "title": "Same Family",
+      "description": "Draw five cards from the same category in one Regular Pack."
+    },
+    "lucky-start": {
+      "title": "Lucky Start",
+      "description": "Draw an LR in your first Regular Pack of the day."
+    },
+    "dry-spell": {
+      "title": "Dry Spell",
+      "description": "Open ten consecutive Regular Packs without SR or better."
+    },
+    "right-on-time": {
+      "title": "Right on Time",
+      "description": "Open a Regular Pack in the first minute after the daily reset."
+    },
+    "patience": {
+      "title": "Patience",
+      "description": "Leave your timed reserve of Regular Packs full for 24 hours."
+    },
+    "comeback": {
+      "title": "Comeback",
+      "description": "Return after 30 days away."
+    },
+    "last-second": {
+      "title": "Last Second",
+      "description": "Place a bid with fewer than five seconds remaining."
+    },
+    "so-close": {
+      "title": "So Close",
+      "description": "Lose an auction after bidding in its final five seconds."
+    },
+    "mirror": {
+      "title": "Mirror",
+      "description": "Trade a card for another copy of itself with an established friend."
+    },
+    "regret": {
+      "title": "Regret",
+      "description": "Destroy an SSR. A little consolation."
+    },
+    "same-again": {
+      "title": "Same Again",
+      "description": "Keep a Decision Pack card you already owned five times."
+    },
+    "speed-opener": {
+      "title": "Speed Opener",
+      "description": "Open {target, number} Regular Packs while Pro."
+    },
+    "double-decision": {
+      "title": "Double Decision",
+      "description": "Complete two standard Decision Packs on {target, plural, one {# day} other {# different days}} while Pro."
+    },
+    "auction-house": {
+      "title": "Auction House",
+      "description": "Have six active auctions on {target, plural, one {# day} other {# different days}} while Pro."
+    },
+    "grand-gallery": {
+      "title": "Grand Gallery",
+      "description": "Display ten cards in your showcase while Pro."
+    },
+    "curator": {
+      "title": "Curator",
+      "description": "Display ten SSR or better cards in your showcase while Pro."
+    },
+    "artist": {
+      "title": "Artist",
+      "description": "Personalize the image of {target, plural, one {# card} other {# different cards}} while Pro."
+    },
+    "animated": {
+      "title": "Animated",
+      "description": "Use an animated banner or avatar while Pro."
+    }
+  },
+  "missionUi": {
+    "title": "Missions",
+    "eyebrow": "Your next reward",
+    "intro": "Choose your missions. Reach 100 points in each gauge without completing them all.",
+    "daily": "Daily missions",
+    "weekly": "Weekly missions",
+    "proBonus": "Pro · +50% Karas",
+    "launch": "Missions start soon. Only actions after launch will count.",
+    "resetsIn": "{days, plural, =0 {} other {#d }}{hours}h {minutes}m {seconds}s remaining",
+    "gaugeLabel": "{period} progress",
+    "complete": "Gauge complete — remaining missions are optional",
+    "choose": "Choose what you want to play",
+    "milestones": "Gauge rewards",
+    "points": "{count} pts",
+    "claimed": "Claimed",
+    "claim": "Claim",
+    "claiming": "Claiming…",
+    "lockedLabel": "Locked",
+    "missionProgress": "{current, number} / {target, number}",
+    "donePoints": "✓ {count} pts",
+    "missionPoints": "+{count} pts",
+    "viewAll": "View all missions and achievements",
+    "retry": "Retry",
+    "loading": "Loading missions…",
+    "rewardClaimed": "Reward claimed: {amount, number} Karas",
+    "alreadyClaimed": "This reward has already been claimed.",
+    "locked": "This milestone is not available yet.",
+    "unavailable": "Missions are temporarily unavailable. Please try again.",
+    "categories": {
+      "packs": "Packs",
+      "collection": "Collection",
+      "market": "Market",
+      "social": "Social",
+      "missions": "Missions"
+    },
+    "objectives": {
+      "regular_packs_opened": "Open {count, number} Regular Packs",
+      "decision_days": "Complete a Decision Pack on {count, plural, one {# day} other {# different days}}",
+      "sr_acquired": "Obtain {count, plural, one {# SR or better card} other {# SR or better cards}}",
+      "ssr_acquired": "Obtain {count, plural, one {# SSR or better card} other {# SSR or better cards}}",
+      "lr_acquired": "Obtain {count, plural, one {# LR card} other {# LR cards}}",
+      "cards_destroyed": "Destroy {count, number} cards",
+      "wishlist_added": "Add {count, plural, one {a card} other {# cards}} to your wishlist",
+      "new_cards": "Discover {count, number} new cards",
+      "bids_placed": "Place {count, plural, one {a bid} other {# bids}}",
+      "auctions_listed": "List {count, plural, one {a card} other {# cards}} at auction",
+      "friend_requests": "Send {count, plural, one {a friend request} other {# friend requests}}",
+      "friend_visits": "Visit {count, plural, one {a friend’s profile} other {# friends’ profiles}}",
+      "trades_proposed": "Propose {count, plural, one {a trade} other {# trades}} to a friend",
+      "daily_full": "Fill your daily gauge {count, plural, one {once} other {# times}}",
+      "auctions_sold": "Sell {count, number} cards at auction",
+      "auctions_won": "Win {count, plural, one {an auction} other {# auctions}}",
+      "trades_completed": "Complete {count, plural, one {a trade} other {# trades}}"
+    }
   }
 }

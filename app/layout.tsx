@@ -33,6 +33,7 @@ import "../styles/market.css";
 import "../styles/site-footer.css";
 import "../styles/info-pages.css";
 import "../styles/trades.css";
+import "../styles/missions.css";
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -175,6 +176,8 @@ export default async function RootLayout({
       "premiumUi",
       "shareUi",
       "achievementUi",
+      "achievementCatalog",
+      "missionUi",
       "settingsUi",
       "gifPicker"
     ].map(namespace => [namespace, messages[namespace]])

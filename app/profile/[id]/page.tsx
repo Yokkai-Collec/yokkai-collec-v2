@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
+import { MissionProfileVisit } from "@/components/mission-profile-visit";
 import { CommunityPage } from "@/components/community-page";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -12,5 +13,11 @@ export default async function Page({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  return <CommunityPage screen="profile" playerId={decodeURIComponent(id)} />;
+  const identifier = decodeURIComponent(id);
+  return (
+    <>
+      <CommunityPage screen="profile" playerId={identifier} />
+      <MissionProfileVisit identifier={identifier} />
+    </>
+  );
 }
