@@ -297,7 +297,7 @@ export function CollectionView({
     Record<string, string>
   >({});
   useEffect(() => {
-    const frame = requestAnimationFrame(() => {
+    const frame = window.setTimeout(() => {
       try {
         const saved = JSON.parse(
           localStorage.getItem(displayStorageKey) ?? "{}"
@@ -312,7 +312,7 @@ export function CollectionView({
         /* Storage may be unavailable; selection still works for this visit. */
       }
     });
-    return () => cancelAnimationFrame(frame);
+    return () => window.clearTimeout(frame);
   }, [displayStorageKey]);
   function viewCopy(card: CollectedCard) {
     setSelectedId(card.instanceId);

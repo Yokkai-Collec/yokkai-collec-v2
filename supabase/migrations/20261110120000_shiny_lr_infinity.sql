@@ -6,8 +6,16 @@ alter table public.user_cards drop constraint user_cards_evolved_variant_check;
 alter table public.user_cards add constraint user_cards_evolved_variant_check
   check (not is_evolved or (rarity='SSR' and is_shiny) or rarity='LR');
 
-create or replace function public.evolve_lr_card(p_card_instance_ids uuid[])
-returns jsonb language plpgsql volatile security definer set search_path = '' as $$
+CREATE OR REPLACE FUNCTION public.evolve_lr_card(p_card_instance_ids uuid[])
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+begin
+  perform public.assert_player_not_banned();
+ perform set_config('game.progress_action','evolution',true);
+
 declare
   player_id uuid := auth.uid(); target_card public.cards%rowtype;
   selected_count integer; evolved_id uuid; evolved_at timestamptz := clock_timestamp(); inherited_image text; result_shiny boolean;
@@ -23,11 +31,11 @@ begin
     order by owned.id for update;
   select c.* into target_card from public.user_cards owned join public.cards c on c.id=owned.card_id
     where owned.id=p_card_instance_ids[1] and owned.user_id=player_id
-      and c.rarete_base='LR' and owned.rarity='LR' and not owned.is_evolved;
+      and c.rarete_base='LR' and not owned.is_evolved;
   if not found then raise exception 'INVALID_LR_COPIES' using errcode='P0001'; end if;
   select count(*) into selected_count from public.user_cards owned
     where owned.id=any(p_card_instance_ids) and owned.user_id=player_id
-      and owned.card_id=target_card.id and owned.rarity='LR' and not owned.is_evolved;
+      and owned.card_id=target_card.id and not owned.is_evolved;
   if selected_count <> 3 then raise exception 'INVALID_LR_COPIES' using errcode='P0001'; end if;
   if exists(select 1 from public.user_cards where id=any(p_card_instance_ids) and is_locked) then
     raise exception 'CARD_LOCKED' using errcode='P0001';
@@ -47,7 +55,10 @@ begin
     'anime',target_card.franchise,'rarity','LR','image',coalesce(inherited_image,target_card.image_url),'catalogueImage',target_card.image_url,
     'customImageUrl',inherited_image,'instanceId',evolved_id,'obtainedAt',evolved_at,'shiny',result_shiny,
     'isEvolved',true,'isFirstOwner',false,'locked',false,'folderId',null);
-end; $$;
+end;
+end
+$function$
+;
 
 create or replace function public.collection_ranked_copies(
   p_player uuid, p_query text, p_categories text[], p_rarities text[],
