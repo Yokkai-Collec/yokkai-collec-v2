@@ -270,6 +270,92 @@
   display: flex;
   justify-content: flex-end;
 }
+.yk-profile-highlight-order {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--color-veil);
+  border-radius: 10px;
+  background: #0a101b;
+}
+.yk-profile-highlight-order-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.yk-profile-highlight-order h3 {
+  font-size: 14px;
+}
+.yk-profile-highlight-order p {
+  margin-top: 4px;
+  color: var(--color-ink-3);
+  font-size: 12px;
+}
+.yk-profile-highlight-order-heading > span {
+  flex-shrink: 0;
+  color: var(--color-accent);
+  font-size: 12px;
+}
+.yk-profile-highlight-order ol {
+  display: grid;
+  gap: 6px;
+  max-height: 184px;
+  margin: 0;
+  overflow-y: auto;
+}
+.yk-profile-highlight-order li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 5px 6px;
+  border: 1px solid var(--color-veil);
+  border-radius: 7px;
+  background: #070c15;
+}
+.yk-profile-highlight-order li > span:nth-child(2) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+}
+.yk-profile-highlight-order-position {
+  display: inline-grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: #10151f;
+  font-size: 11px;
+  font-weight: 800;
+}
+.yk-profile-highlight-order li > div {
+  display: flex;
+  gap: 4px;
+}
+.yk-profile-highlight-order button {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--color-veil-strong);
+  border-radius: 6px;
+  background: #111b2b;
+  color: var(--color-ink);
+  font-size: 16px;
+  line-height: 1;
+}
+.yk-profile-highlight-order button:not(:disabled):hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+.yk-profile-highlight-order button:disabled {
+  opacity: 0.35;
+}
+.yk-profile-highlight-order-empty {
+  padding: 8px 0;
+}
 .yk-profile-highlight-create {
   display: grid;
   gap: 16px;

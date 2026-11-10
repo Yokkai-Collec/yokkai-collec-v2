@@ -50,6 +50,11 @@ test("unified profile selection is atomic, owner-only, private and independent f
     "select public.save_license_folder(null,$1,'Akatsuki','{}',true) v",
     [keys[0]]
   );
+  const secondFolder = await as(
+    owner,
+    "select public.save_license_folder(null,$1,'Soul Society','{}',false) v",
+    [keys[1]]
+  );
   const foreign = await as(
     visitor,
     "select public.save_license_folder(null,$1,'Private folder','{}',true) v",
@@ -79,6 +84,27 @@ test("unified profile selection is atomic, owner-only, private and independent f
     result.items.find(item => item.kind === "binder").image,
     "https://example.test/lr.png"
   );
+  await save([keys[1], keys[0], keys[1]], [secondFolder, folder, secondFolder]);
+  result = await read();
+  assert.deepEqual(
+    result.binderKeys,
+    [keys[1], keys[0]],
+    "Binder order follows the player's first occurrence, not alphabetical order"
+  );
+  assert.deepEqual(
+    result.folderIds,
+    [secondFolder, folder],
+    "Folder order follows the player's first occurrence, not alphabetical order"
+  );
+  assert.deepEqual(
+    result.items.filter(item => item.kind === "binder").map(item => item.id),
+    [keys[1], keys[0]]
+  );
+  assert.deepEqual(
+    result.items.filter(item => item.kind === "folder").map(item => item.id),
+    [secondFolder, folder]
+  );
+  await save([keys[1]], [folder]);
   assert.deepEqual(
     (
       await db.query("select binder_key from public.binder_favorite_keys($1)", [
