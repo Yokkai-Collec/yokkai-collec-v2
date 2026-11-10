@@ -685,14 +685,10 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   border-radius: 8px;
   font-size: 12px;
 }
-.yk-profile-actions.is-friend > .yk-profile-like {
-  margin-top: 0;
-}
 .yk-profile-like.yk-button {
-  display: inline-grid;
-  grid-template-columns: 16px minmax(0, 1fr);
-  flex: 0 1 auto;
-  width: auto;
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) 16px;
+  width: min(220px, 100%);
   min-height: 38px;
   gap: 7px;
   padding: 8px 11px;
@@ -704,12 +700,14 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   font-weight: 600;
 }
 .yk-profile-like-heart {
+  width: 16px;
+  height: 16px;
   flex: 0 0 16px;
   color: var(--color-danger-ink);
 }
 .yk-profile-like-label {
   min-width: 0;
-  text-align: left;
+  text-align: center;
   overflow-wrap: anywhere;
 }
 .yk-profile-like.yk-button[aria-pressed="true"] {
@@ -1211,28 +1209,17 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
 .yk-profile-hub:not([data-profile-compact])
   .yk-profile-identity.no-banner
   > .yk-profile-banner {
+  position: relative;
+  inset: auto;
+  height: auto;
+  aspect-ratio: var(--profile-cover-aspect, 3);
+  max-height: 300px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  overflow: hidden;
   opacity: 1;
-  background:
-    radial-gradient(circle at 18% 8%, #6d87bd2b, transparent 32%),
-    radial-gradient(circle at 84% 92%, #d39d4230, transparent 35%),
-    linear-gradient(
-      118deg,
-      transparent 0 37%,
-      #c6d3ed0a 37.2% 37.8%,
-      transparent 38% 100%
-    ),
-    repeating-linear-gradient(90deg, #ffffff03 0 1px, transparent 1px 72px),
-    linear-gradient(135deg, #121e35, #080d17 62%, #101827);
-}
-.yk-profile-hub:not([data-profile-compact])
-  .yk-profile-identity.no-banner
-  > .yk-profile-banner::after {
-  content: "";
-  position: absolute;
-  inset: 18px;
-  border: 1px solid #c4d6f212;
-  border-radius: 16px;
-  pointer-events: none;
+  background: var(--color-night);
 }
 .yk-profile-hub:not([data-profile-compact]) .yk-profile-banner-shade {
   background: linear-gradient(100deg, #080d1799, #080d17ec);
@@ -1359,8 +1346,9 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   margin: 16px 0 0;
 }
 .yk-profile-hub:not([data-profile-compact]) .yk-profile-like {
-  margin-top: 10px;
-  max-width: 360px;
+  justify-self: center;
+  margin: 10px auto 0;
+  max-width: 220px;
 }
 .yk-profile-hub:not([data-profile-compact]) .yk-profile-metrics {
   display: grid;
