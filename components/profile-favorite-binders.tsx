@@ -85,7 +85,11 @@ export function BinderContents({
   return (
     <div className="yk-profile-binder-contents">
       <header>
-        <BinderCover image={album.image ?? undefined} license={album.license} />
+        <BinderCover
+          image={album.image ?? undefined}
+          frame={album.coverFrame}
+          license={album.license}
+        />
         <div className="yk-profile-binder-detail-copy">
           <strong>{album.license}</strong>
           <p>
@@ -283,6 +287,7 @@ export function ProfileFavoriteBinders({
             >
               <BinderCover
                 image={album.image ?? undefined}
+                frame={album.coverFrame}
                 license={album.license}
               />
               <span className="yk-profile-favorite-copy">

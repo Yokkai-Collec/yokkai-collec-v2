@@ -479,7 +479,11 @@ export function LicenseFolderManager({
                   className="yk-license-folder-open"
                   onClick={() => setView(folder)}
                 >
-                  <BinderCover image={folder.image} license={folder.name} />
+                  <BinderCover
+                    image={folder.image}
+                    frame={folder.coverFrame}
+                    license={folder.name}
+                  />
                   <span>
                     <strong>{folder.name}</strong>
                     <small>
