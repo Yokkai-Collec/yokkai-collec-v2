@@ -7,6 +7,8 @@ import {
   AchievementsGallery
 } from "@/components/achievements";
 import { WishlistView } from "@/components/community-views";
+import { MissionGauges } from "@/components/missions";
+import type { Missions } from "@/lib/data/missions";
 import { notificationItem, Topbar } from "@/components/topbar";
 import type { Achievement } from "@/lib/data/achievements";
 import type { WishlistCard } from "@/lib/data/wishlist";
@@ -69,8 +71,94 @@ const achievements: Achievement[] = [
     progressLabel: null,
     completedAt: null,
     claimedAt: null
+  },
+  ...tiers("collector", "collection", [10, 50, 250, 1000], 62),
+  ...tiers("pack-opener", "packs", [10, 100, 500], 100),
+  ...tiers("completionist", "collection", [25, 50, 100], 31, "Anime"),
+  ...tiers("merchant", "market", [5, 25], 0),
+  {
+    ...tiers("secret", "secret", [1], 0)[0],
+    id: "secret-one",
+    secret: true
+  },
+  {
+    ...tiers("fan", "pro", [10], 4)[0],
+    proRequired: true,
+    locked: true
   }
 ];
+function tiers(
+  family: string,
+  section: string,
+  targets: number[],
+  current: number,
+  conditionCategory: string | null = null
+): Achievement[] {
+  return targets.map((target, index) => ({
+    id: `${family}-${target}`,
+    family,
+    section,
+    title: family,
+    description: "",
+    conditionType: family,
+    conditionValue: target,
+    conditionCategory,
+    karasReward: 100 * (index + 1),
+    progressCurrent: Math.min(current, target),
+    progressTarget: target,
+    progressLabel: null,
+    completedAt: current >= target ? now : null,
+    claimedAt: current >= target && index === 0 ? now : null
+  }));
+}
+// Fixed clock: a live one would differ between server render and hydration.
+const missions: Missions = {
+  serverNow: "2026-11-10T10:00:00Z",
+  launchAt: "2026-11-09T19:00:00Z",
+  active: true,
+  pro: true,
+  periods: (["daily", "weekly"] as const).map(period => ({
+    period,
+    startAt: "2026-11-09T19:00:00Z",
+    endsAt:
+      period === "daily" ? "2026-11-10T15:00:00Z" : "2026-11-14T14:00:00Z",
+    points: period === "daily" ? 50 : 20,
+    missions: [
+      {
+        id: "packs",
+        metric: "regular_packs_opened",
+        target: 30,
+        points: 30,
+        category: "packs",
+        current: 30
+      },
+      {
+        id: "new",
+        metric: "new_cards",
+        target: 10,
+        points: 20,
+        category: "collection",
+        current: 8
+      },
+      {
+        id: "trade",
+        metric: "trades_proposed",
+        target: 1,
+        points: 20,
+        category: "social",
+        current: 0
+      }
+    ],
+    milestones: (period === "daily"
+      ? [20, 50, 80, 100]
+      : [20, 40, 60, 80, 100]
+    ).map(points => ({
+      points,
+      reward: points * 3,
+      claimedAt: points === 20 && period === "daily" ? now : null
+    }))
+  }))
+};
 const wishlistCards: WishlistCard[] = ["LR", "SSR", "SR", "R", "C"].map(
   (rarity, index) => ({
     id: `wish-${index}`,
@@ -160,16 +248,19 @@ const rawNotifications: AppNotification[] = [
 export function AchievementsPreview() {
   const [items, setItems] = useState(achievements);
   return (
-    <AchievementsGallery
-      items={items}
-      onClaim={async item =>
-        setItems(current =>
-          current.map(entry =>
-            entry.id === item.id ? { ...entry, claimedAt: now } : entry
+    <>
+      <MissionGauges data={missions} onClaim={() => {}} onRefresh={() => {}} />
+      <AchievementsGallery
+        items={items}
+        onClaim={async item =>
+          setItems(current =>
+            current.map(entry =>
+              entry.id === item.id ? { ...entry, claimedAt: now } : entry
+            )
           )
-        )
-      }
-    />
+        }
+      />
+    </>
   );
 }
 export function WishlistPreview({ empty = false }: { empty?: boolean }) {
