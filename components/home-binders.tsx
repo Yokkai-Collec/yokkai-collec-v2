@@ -91,7 +91,11 @@ export function HomeBinders({
           {albums.map(album => (
             <li key={binderIdentity(album)}>
               <Link href={binderHref(album)} className="yk-home-binder-card">
-                <BinderCover image={album.image} license={album.license} />
+                <BinderCover
+                  image={album.image}
+                  frame={album.coverFrame}
+                  license={album.license}
+                />
                 <span className="yk-binder-card-details">
                   <span className="yk-binder-tag">
                     {t(

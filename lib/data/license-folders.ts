@@ -3,9 +3,10 @@ import { readRequest } from "@/lib/data/read-request";
 import { withCollectionCovers } from "@/lib/data/collection-covers";
 import { cardSearchTerms } from "@/lib/ui/card-search";
 import type { Rarity } from "@/lib/data/cards";
+import type { CollectionCoverFrame } from "@/lib/ui/collection-cover-frame";
 import { invalidatePlayerSnapshots, type PaniniAlbumCardPage } from "@/lib/data/cards";
 
-export type LicenseFolder = { id: string; binderKey: string | null; name: string; featured: boolean; total: number; owned: number; image?: string; cardIds: string[] };
+export type LicenseFolder = { id: string; binderKey: string | null; name: string; featured: boolean; total: number; owned: number; image?: string; coverFrame?: CollectionCoverFrame | null; cardIds: string[] };
 export async function getLicenseFolders(ownerId?: string, binderKey?: string, featuredOnly = false): Promise<LicenseFolder[]> {
   const { data, error } = await readRequest(signal => createClient().rpc("get_license_folders", { p_owner_id: ownerId ?? null, p_binder_key: binderKey ?? null, p_featured_only: featuredOnly }).abortSignal(signal));
   if (error) throw error;

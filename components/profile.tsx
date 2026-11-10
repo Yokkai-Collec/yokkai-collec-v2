@@ -980,7 +980,9 @@ export function ProfileExperience({
             />
           </section>
         )}
-        <header className="yk-profile-identity">
+        <header
+          className={`yk-profile-identity ${bannerImage ? "" : "no-banner"}`}
+        >
           <div
             className={`yk-profile-banner ${bannerImage ? "has-image" : ""} ${bannerFrame ? "has-frame" : ""}`}
           >
