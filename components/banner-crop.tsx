@@ -20,11 +20,19 @@ import {
 export function BannerCrop({
   src,
   initial,
+  viewportAspect: fixedViewportAspect,
+  title,
+  hint,
+  positionLabel,
   onCancel,
   onApply
 }: {
   src: string;
   initial?: BannerFrame | null;
+  viewportAspect?: number;
+  title?: string;
+  hint?: string;
+  positionLabel?: string;
   onCancel: () => void;
   onApply: (frame: BannerFrame) => void;
 }) {
@@ -34,7 +42,8 @@ export function BannerCrop({
   );
   const [aspect, setAspect] = useState<number>();
   const [failed, setFailed] = useState(false);
-  const viewportAspect = useProfileBannerAspect(aspect, frame.rotation);
+  const profileViewportAspect = useProfileBannerAspect(aspect, frame.rotation);
+  const viewportAspect = fixedViewportAspect ?? profileViewportAspect;
   const ready = !!aspect && !failed;
   const panHandlers = useBannerPan(
     frame,
@@ -49,11 +58,11 @@ export function BannerCrop({
     <Modal
       open
       onClose={onCancel}
-      title={t("profileUi.cropBanner")}
+      title={title ?? t("profileUi.cropBanner")}
       className="yk-banner-crop-modal"
     >
       <p className="yk-profile-muted" id="banner-crop-help">
-        {t("profileUi.bannerCropHint")}{" "}
+        {hint ?? t("profileUi.bannerCropHint")}{" "}
       </p>
       <div className="yk-banner-crop-mat">
         <div
@@ -61,7 +70,7 @@ export function BannerCrop({
           style={{ aspectRatio: viewportAspect }}
           role="group"
           tabIndex={0}
-          aria-label={t("profileUi.bannerCropPosition")}
+          aria-label={positionLabel ?? t("profileUi.bannerCropPosition")}
           aria-describedby="banner-crop-help"
           {...panHandlers}
         >

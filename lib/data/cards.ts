@@ -1,5 +1,6 @@
 import { readRequest, resumePages, type PageCheckpoint } from "@/lib/data/read-request";
 import { createClient } from "@/utils/supabase/client";
+import type { CollectionCoverFrame } from "@/lib/ui/collection-cover-frame";
 import { cardSearchTerms } from "@/lib/ui/card-search";
 import type { CollectionSort } from "@/lib/ui/collection-sort";
 import { createPlayerSnapshotCache, PLAYER_SNAPSHOT_TTL, publishPlayerSnapshotInvalidation, subscribePlayerSnapshotInvalidation, type PlayerSnapshotScope } from "@/lib/data/player-state";
@@ -19,6 +20,7 @@ type CatalogueSearchPage = { items: Card[]; total: number };
 export type LicenseCatalogueTotal = { license: string; total: number; binderKey?: string; origin?: "series" | "source" };
 export type PaniniAlbumProgress = LicenseCatalogueTotal & {
   image?: string;
+  coverFrame?: CollectionCoverFrame | null;
   owned: number;
   percent: number;
   favorite: boolean;

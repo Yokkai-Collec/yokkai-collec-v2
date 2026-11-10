@@ -686,8 +686,10 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   font-size: 12px;
 }
 .yk-profile-like.yk-button {
-  display: grid;
-  grid-template-columns: 16px minmax(0, 1fr) 16px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: min(220px, 100%);
   min-height: 38px;
   gap: 7px;
@@ -700,6 +702,8 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   font-weight: 600;
 }
 .yk-profile-like-heart {
+  position: absolute;
+  left: 11px;
   width: 16px;
   height: 16px;
   flex: 0 0 16px;
@@ -707,7 +711,9 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
 }
 .yk-profile-like-label {
   min-width: 0;
+  width: 100%;
   text-align: center;
+  white-space: nowrap;
   overflow-wrap: anywhere;
 }
 .yk-profile-like.yk-button[aria-pressed="true"] {

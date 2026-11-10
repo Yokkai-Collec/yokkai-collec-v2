@@ -39,8 +39,16 @@ test("personal covers require own Pro media, respect privacy and expire without 
   };
   const save = (id, target, url) =>
     as(id, "select public.set_collection_cover($1,$2) v", [target, url]);
+  const saveFramed = (id, target, url, frame) =>
+    as(id, "select public.set_collection_cover_framed($1,$2,$3::jsonb) v", [
+      target,
+      url,
+      JSON.stringify(frame)
+    ]);
   const read = (id, keys) =>
     as(id, "select public.get_collection_covers($1,$2) v", [owner, keys]);
+  const readFrames = (id, keys) =>
+    as(id, "select public.get_collection_cover_frames($1,$2) v", [owner, keys]);
   await assert.rejects(
     save(owner, key, "https://example.test/arbitrary.gif"),
     /PRO_REQUIRED/
@@ -67,6 +75,19 @@ test("personal covers require own Pro media, respect privacy and expire without 
   );
   await save(owner, key, url);
   assert.deepEqual(await read(owner, [key]), { [key]: url });
+  await saveFramed(owner, key, url, {
+    x: 22,
+    y: 74,
+    zoom: 1.8,
+    rotation: 90
+  });
+  assert.deepEqual(await readFrames(owner, [key]), {
+    [key]: { x: 22, y: 74, zoom: 1.8, rotation: 90 }
+  });
+  await assert.rejects(
+    saveFramed(owner, key, url, { x: 101, y: 50, zoom: 1 }),
+    /COLLECTION_COVER_FRAME_INVALID/
+  );
   for (const external of [
     "https://i.imgur.com/cover.gif",
     "https://i.pinimg.com/originals/cover.gif"

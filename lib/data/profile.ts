@@ -1,6 +1,7 @@
 import { readRequest } from "@/lib/data/read-request";
 import type { CollectionSort } from "@/lib/ui/collection-sort";
 import { createClient } from "@/utils/supabase/client";
+import type { CollectionCoverFrame } from "@/lib/ui/collection-cover-frame";
 import {
   withAlbumCovers,
   withLiveCardFranchises,
@@ -85,6 +86,7 @@ export type ProfileDetails = {
   favoriteAlbums: {
     license: string;
     image?: string | null;
+    coverFrame?: CollectionCoverFrame | null;
     binderKey?: string;
     origin?: "series" | "source";
     total: number;

@@ -1953,6 +1953,7 @@ export function CollectionView({
                               >
                                 <BinderCover
                                   image={binderCover(item, cards)}
+                                  frame={item.coverFrame}
                                   license={item.license}
                                 />
                                 <span className="yk-panini-details">

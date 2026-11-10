@@ -87,6 +87,7 @@ function FeaturedPicker({
           key: b.binderKey ?? b.license,
           name: b.license,
           image: b.image,
+          coverFrame: b.coverFrame,
           owned: b.owned,
           total: b.total
         }))
@@ -94,6 +95,7 @@ function FeaturedPicker({
           key: folder.id,
           name: folder.name,
           image: folder.image,
+          coverFrame: folder.coverFrame,
           owned: folder.owned,
           total: folder.total
         }));
@@ -336,7 +338,11 @@ function FeaturedPicker({
                       toggle(option.key);
                     }}
                   >
-                    <BinderCover image={option.image} license={option.name} />
+                    <BinderCover
+                      image={option.image}
+                      frame={option.coverFrame}
+                      license={option.name}
+                    />
                     <span>
                       <strong>{option.name}</strong>
                       <small>
