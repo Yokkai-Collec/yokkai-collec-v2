@@ -2244,18 +2244,18 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   }
 }
 
-/* Panoramic covers with a separate, readable caption. */
+/* Large covers with a separate, readable caption. */
 .yk-profile-hub:not([data-profile-compact])
   .yk-profile-featured-collection
   .yk-profile-favorite-grid {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: 20px;
 }
 .yk-profile-hub:not([data-profile-compact])
   .yk-profile-featured-collection
   .yk-profile-favorite-binder {
   display: grid;
-  grid-template-rows: 170px auto;
+  grid-template-rows: 230px auto;
   min-height: 0;
   height: 100%;
   border-radius: 20px;
@@ -2275,9 +2275,12 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   inset: auto;
   z-index: 0;
   width: 100%;
-  height: 170px;
+  height: 230px;
   overflow: hidden;
   border-radius: 0;
+  background:
+    radial-gradient(circle at 25% 20%, #c99a3b4d, transparent 32%),
+    linear-gradient(135deg, #15233b, #070c15 72%);
 }
 .yk-profile-hub:not([data-profile-compact])
   .yk-profile-featured-collection
@@ -2287,6 +2290,18 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   height: 100%;
   object-fit: cover;
   object-position: center;
+  transition: transform 260ms ease;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-featured-collection
+  .yk-binder-cover-letter {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: #f7d676;
+  font-size: clamp(54px, 10cqi, 92px);
+  font-weight: 800;
+  text-shadow: 0 8px 30px #000a;
 }
 .yk-profile-hub:not([data-profile-compact])
   .yk-profile-featured-collection
@@ -2317,16 +2332,25 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   .yk-profile-favorite-open {
   z-index: 1;
 }
+@media (hover: hover) and (pointer: fine) {
+  .yk-profile-hub:not([data-profile-compact])
+    .yk-profile-featured-collection
+    .yk-profile-favorite-binder:hover
+    .yk-binder-cover
+    img {
+    transform: scale(1.035);
+  }
+}
 @media (max-width: 639px) {
   .yk-profile-hub:not([data-profile-compact])
     .yk-profile-featured-collection
     .yk-profile-favorite-binder {
-    grid-template-rows: 150px auto;
+    grid-template-rows: 180px auto;
   }
   .yk-profile-hub:not([data-profile-compact])
     .yk-profile-featured-collection
     .yk-profile-favorite-binder
     .yk-binder-cover {
-    height: 150px;
+    height: 180px;
   }
 }
