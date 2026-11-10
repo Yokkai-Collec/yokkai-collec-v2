@@ -20,7 +20,29 @@ begin
     with filters as materialized (select public.card_filter_values(upper(coalesce(p_category,''))) categories,
       public.card_filter_values(upper(coalesce(p_rarity,''))) rarities),
     terms as materialized (select term from regexp_split_to_table(lower(btrim(coalesce(p_query,''))),'[[:space:]]+') term where term<>''),
+    editorial_sources as materialized (
+      select m.category,m.source_license from public.catalogue_binder_group_merges m
+      join public.catalogue_binder_groups g on g.id=m.group_id and g.enabled
+      where 'series:' || g.id::text=chosen and m.source_license is not null
+    ), editorial_series as materialized (
+      select case when m.old_key like 'series:%' then substring(m.old_key from 8)::uuid end as id
+      from public.catalogue_binder_group_merges m
+      join public.catalogue_binder_groups g on g.id=m.group_id and g.enabled
+      where 'series:' || g.id::text=chosen and m.old_key like 'series:%'
+    ),
     candidate_ids as materialized (
+      select f.card_id from editorial_sources s join public.card_franchises f on f.franchise=s.source_license
+        join public.cards c on c.id=f.card_id and c.categorie=s.category
+      union
+      select f.card_id from editorial_series s join public.anime_license_source_rules r on r.binder_id=s.id
+        join public.card_franchises f on f.franchise=r.source_license
+        join public.cards c on c.id=f.card_id where licensed and c.categorie='ANIME/MANGA'
+      union
+      select e.card_id from public.anime_series_origin_evidence e
+        join public.anime_series_media_rules r on r.media_id=e.media_id
+        left join public.anime_license_media_rules n on n.media_id=e.media_id and licensed
+        join editorial_series s on s.id=coalesce(n.binder_id,r.binder_id) where enabled
+      union
       select f.card_id from public.anime_license_source_rules r join public.card_franchises f on f.franchise=r.source_license
         join public.cards c on c.id=f.card_id where licensed and chosen_id is not null and r.binder_id=chosen_id and c.categorie='ANIME/MANGA'
       union
