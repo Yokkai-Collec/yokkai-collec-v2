@@ -40,7 +40,14 @@ export async function withAlbumCovers(page: PaniniAlbumPage | null, owner?: stri
     return base;
   }
 }
-export type PaniniAlbumCard = Card & { owned: boolean };
+// A binder shows one entry per catalogue card. When the profile owner has
+// customised at least one copy, the page RPC exposes the newest custom art so
+// the public binder reflects that owner's collection rather than the catalogue.
+export type PaniniAlbumCard = Card & {
+  owned: boolean;
+  catalogueImage?: string;
+  customImageUrl?: string | null;
+};
 export type PaniniAlbumCardPage = {
   items: PaniniAlbumCard[];
   total: number;
