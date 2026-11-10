@@ -18,10 +18,12 @@ import { subscribePlayerSnapshotInvalidation } from "@/lib/data/player-state";
 export function AchievementCard({
   item,
   busy = false,
+  hidden: collapsed = false,
   onClaim
 }: {
   item: Achievement;
   busy?: boolean;
+  hidden?: boolean;
   onClaim: (item: Achievement) => Promise<void> | void;
 }) {
   const t = useTranslations("achievementUi");
@@ -55,29 +57,24 @@ export function AchievementCard({
     item.progressTarget ? (item.progressCurrent / item.progressTarget) * 100 : 0
   );
   return (
-    <article id={item.id} className={`yk-achievement-card is-${state}`}>
+    <article
+      id={item.id}
+      hidden={collapsed}
+      className={`yk-achievement-card is-${state}`}
+    >
       <header>
         <span className="yk-achievement-icon" aria-hidden="true">
           {state === "claimed" ? "✓" : state === "completed" ? "✦" : "◇"}
         </span>
         <div>
+          {item.family && item.conditionCategory && (
+            <p className="eyebrow">{item.conditionCategory}</p>
+          )}
           <div className="yk-achievement-title">
             <h2>{title}</h2>
-            <StatusPill
-              tone={
-                state === "claimed"
-                  ? "success"
-                  : state === "completed"
-                    ? "gold"
-                    : "info"
-              }
-            >
-              {state === "claimed"
-                ? t("claimed")
-                : state === "completed"
-                  ? t("ready")
-                  : t("progress")}
-            </StatusPill>
+            {state === "claimed" && (
+              <span className="sr-only">{t("claimed")}</span>
+            )}
           </div>
           <p>{description}</p>
         </div>
@@ -127,14 +124,19 @@ export function AchievementCard({
         ) : item.locked ? (
           <StatusPill tone="info">{t("proLocked")}</StatusPill>
         ) : state === "completed" ? (
-          <Button disabled={busy} onClick={() => void onClaim(item)}>
-            {busy
-              ? t("claiming")
-              : t("claim", { amount: fmt.number(item.karasReward) })}
-          </Button>
-        ) : state === "claimed" ? (
-          <StatusPill tone="success">{t("claimed")}</StatusPill>
-        ) : (
+          // The highlighted card itself is the claim control.
+          <button
+            type="button"
+            className="yk-claim-area"
+            disabled={busy}
+            aria-label={
+              busy
+                ? t("claiming")
+                : t("claim", { amount: fmt.number(item.karasReward) })
+            }
+            onClick={() => void onClaim(item)}
+          />
+        ) : state === "claimed" ? null : (
           <span className="yk-achievement-pending">
             {t("remaining", {
               amount: fmt.number(
@@ -145,6 +147,68 @@ export function AchievementCard({
         )}
       </footer>
     </article>
+  );
+}
+
+function AchievementFamily({
+  tiers,
+  next,
+  busyId,
+  onClaim
+}: {
+  tiers: Achievement[];
+  next: Achievement;
+  busyId?: string | null;
+  onClaim: (item: Achievement) => Promise<void> | void;
+}) {
+  const t = useTranslations("achievementUi");
+  // Until the player browses, the card follows the next tier to play or claim.
+  const [picked, setPicked] = useState<string | null>(null);
+  const found = tiers.findIndex(item => item.id === picked);
+  const index = found >= 0 ? found : tiers.indexOf(next);
+  return (
+    <div
+      className={`yk-achievement-family${tiers.length > 1 ? " has-tiers" : ""}`}
+    >
+      {tiers.map((item, position) => (
+        <AchievementCard
+          key={item.id}
+          item={item}
+          hidden={position !== index}
+          busy={busyId === item.id}
+          onClaim={onClaim}
+        />
+      ))}
+      {tiers.length > 1 && (
+        <div className="yk-achievement-tiers">
+          <button
+            type="button"
+            aria-label={t("previousTier")}
+            disabled={index === 0}
+            onClick={() => setPicked(tiers[index - 1].id)}
+          >
+            <span aria-hidden="true">‹</span>
+          </button>
+          <span
+            role="status"
+            aria-label={t("tierPositionLabel", {
+              current: index + 1,
+              total: tiers.length
+            })}
+          >
+            {t("tierPosition", { current: index + 1, total: tiers.length })}
+          </span>
+          <button
+            type="button"
+            aria-label={t("nextTier")}
+            disabled={index === tiers.length - 1}
+            onClick={() => setPicked(tiers[index + 1].id)}
+          >
+            <span aria-hidden="true">›</span>
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -176,6 +240,29 @@ export function AchievementsGallery({
         : item.id;
     groups.set(key, [...(groups.get(key) ?? []), item]);
   }
+  const claimable = (item: Achievement) =>
+    Boolean(
+      item.upgradeReward ||
+      (item.completedAt && !item.claimedAt && !item.locked)
+    );
+  // Rewards to claim first, fully claimed families last.
+  const rank = (item: Achievement) =>
+    claimable(item) ? 0 : item.completedAt ? 2 : 1;
+  const families = [...groups.entries()]
+    .map(([key, tiers]) => {
+      const ordered = [...tiers].sort(
+        (a, b) => a.conditionValue - b.conditionValue
+      );
+      const next =
+        ordered.find(
+          item => item.upgradeReward || (item.completedAt && !item.claimedAt)
+        ) ??
+        ordered.find(item => !item.completedAt) ??
+        ordered[ordered.length - 1];
+      return { key, next, tiers: ordered };
+    })
+    .sort((a, b) => rank(a.next) - rank(b.next));
+  const ready = items.filter(claimable).length;
   const unlocked = items.filter(item => item.completedAt).length;
   const percent = items.length ? (unlocked / items.length) * 100 : 0;
   return (
@@ -189,6 +276,11 @@ export function AchievementsGallery({
             </strong>{" "}
             {t("unlocked")}
           </p>
+          {ready > 0 && (
+            <StatusPill tone="gold">
+              {t("readyCount", { count: ready })}
+            </StatusPill>
+          )}
         </div>
         <div className="yk-achievement-global-track">
           <i
@@ -212,44 +304,15 @@ export function AchievementsGallery({
         ))}
       </div>
       <section aria-label={t("achievements")} className="yk-achievement-grid">
-        {[...groups.entries()].map(([key, tiers]) => {
-          const ordered = [...tiers].sort(
-            (a, b) => a.conditionValue - b.conditionValue
-          );
-          const next =
-            ordered.find(
-              item =>
-                item.upgradeReward || (item.completedAt && !item.claimedAt)
-            ) ??
-            ordered.find(item => !item.completedAt) ??
-            ordered[ordered.length - 1];
-          const others = ordered.filter(item => item.id !== next.id);
-          return (
-            <div key={key} className="yk-achievement-family">
-              {next.conditionCategory && (
-                <p className="eyebrow">{next.conditionCategory}</p>
-              )}
-              <AchievementCard
-                item={next}
-                busy={busyId === next.id}
-                onClaim={onClaim}
-              />
-              {others.length > 0 && (
-                <details>
-                  <summary>{t("tiers", { count: others.length })}</summary>
-                  {others.map(item => (
-                    <AchievementCard
-                      key={item.id}
-                      item={item}
-                      busy={busyId === item.id}
-                      onClaim={onClaim}
-                    />
-                  ))}
-                </details>
-              )}
-            </div>
-          );
-        })}
+        {families.map(({ key, next, tiers }) => (
+          <AchievementFamily
+            key={key}
+            next={next}
+            tiers={tiers}
+            busyId={busyId}
+            onClaim={onClaim}
+          />
+        ))}
       </section>
     </>
   );

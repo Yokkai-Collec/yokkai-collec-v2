@@ -292,6 +292,40 @@ export function CollectionView({
       timeZone: Intl.DateTimeFormat("en-US").resolvedOptions().timeZone
     });
   const pathname = usePathname();
+  const displayStorageKey = `yokkai:collection-display:${pathname ?? "/collection"}`;
+  const [displayedCopies, setDisplayedCopies] = useState<
+    Record<string, string>
+  >({});
+  useEffect(() => {
+    const frame = window.setTimeout(() => {
+      try {
+        const saved = JSON.parse(
+          localStorage.getItem(displayStorageKey) ?? "{}"
+        );
+        if (saved && typeof saved === "object" && !Array.isArray(saved))
+          setDisplayedCopies(
+            Object.fromEntries(
+              Object.entries(saved).filter(([, id]) => typeof id === "string")
+            ) as Record<string, string>
+          );
+      } catch {
+        /* Storage may be unavailable; selection still works for this visit. */
+      }
+    });
+    return () => window.clearTimeout(frame);
+  }, [displayStorageKey]);
+  function viewCopy(card: CollectedCard) {
+    setSelectedId(card.instanceId);
+    setPinned(card);
+    const next = {
+      ...displayedCopies,
+      [collectionGroupKey(card)]: card.instanceId
+    };
+    setDisplayedCopies(next);
+    try {
+      localStorage.setItem(displayStorageKey, JSON.stringify(next));
+    } catch {}
+  }
   const proAccess = useProAccess();
   const localPreview = previewOnly && process.env.NODE_ENV === "development";
   const pro = proAccess || localPreview;
@@ -504,12 +538,12 @@ export function CollectionView({
   const remoteGroups = useMemo(
     () =>
       remote?.page?.groups.map(group => ({
-        ...groupCollection(group.copies)[0],
+        ...groupCollection(group.copies, displayedCopies)[0],
         isFirstOwner: group.firstOwner
       })) ?? [],
-    [remote?.page]
+    [remote?.page, displayedCopies]
   );
-  const groups = groupCollection(filtered);
+  const groups = groupCollection(filtered, displayedCopies);
   const shownGroups = remote ? remoteGroups : groups;
   const matchingGroups = remote ? (remote.page?.total ?? 0) : groups.length;
   const ownedCopies = remote ? (remote.counts?.copies ?? 0) : cards.length;
@@ -744,7 +778,7 @@ export function CollectionView({
   const canEvolve =
     !!selected &&
     (selected.rarity === "SSR" || selected.rarity === "LR") &&
-    !selected.shiny &&
+    (selected.rarity === "LR" || !selected.shiny) &&
     !selected.isEvolved;
   const evolvableCards =
     selected && canEvolve
@@ -753,7 +787,7 @@ export function CollectionView({
             c =>
               c.id === selected.id &&
               c.rarity === selected.rarity &&
-              !c.shiny &&
+              (c.rarity === "LR" || !c.shiny) &&
               !c.isEvolved
           ),
           isFrozen
@@ -763,6 +797,9 @@ export function CollectionView({
     evolvableCards.filter(card => evolutionSelection.has(card.instanceId)),
     evolutionImageSourceId
   );
+  const evolutionShiny =
+    selected?.rarity === "LR" && evolutionCards.some(card => card.shiny);
+  const shinyConsumed = evolutionCards.filter(card => card.shiny).length;
   const evolutionImageCards = evolutionCards.filter(
     card => card.customImageUrl
   );
@@ -781,6 +818,7 @@ export function CollectionView({
       : undefined;
   function closeDetail() {
     setSelectedId(null);
+    setPinned(null);
     onDetailClose?.();
   }
   function toggleGroup(groupCards: CollectedCard[]) {
@@ -821,10 +859,9 @@ export function CollectionView({
       const evolved = await onEvolve(
         evolutionCards.map(card => card.instanceId)
       );
-      setPinned(evolved);
       onCardsRemoved?.(evolutionCards.map(card => card.instanceId));
       setEvolveConfirm(false);
-      setSelectedId(evolved.instanceId);
+      viewCopy(evolved);
     } catch (error) {
       setEvolutionError(
         error instanceof Error
@@ -1703,9 +1740,7 @@ export function CollectionView({
                                 <button
                                   type="button"
                                   className="yk-panini-owned"
-                                  onClick={() =>
-                                    setSelectedId(owned.instanceId)
-                                  }
+                                  onClick={() => viewCopy(owned)}
                                   aria-label={tc("viewCard", {
                                     name: owned.name
                                   })}
@@ -2109,7 +2144,7 @@ export function CollectionView({
                           onClick={() =>
                             selecting
                               ? toggleGroup(group.cards)
-                              : setSelectedId(card.instanceId)
+                              : viewCopy(card)
                           }
                         >
                           <CardShell interactive={false}>
@@ -2407,13 +2442,15 @@ export function CollectionView({
                         key={card.instanceId}
                         aria-label={tc("copyProtected", {
                           index: index + 1,
-                          locked: String(!!card.locked)
+                          locked: String(!!card.locked),
+                          shiny: String(card.shiny)
                         })}
                         aria-pressed={card.instanceId === selected.instanceId}
-                        onClick={() => setSelectedId(card.instanceId)}
+                        onClick={() => viewCopy(card)}
                       >
                         <span>
                           {index + 1}
+                          {card.shiny && <span aria-hidden="true"> ✧</span>}
                           {card.customImageUrl ? " ✦" : ""}
                         </span>
                         {card.locked ? (
@@ -2672,7 +2709,7 @@ export function CollectionView({
                       selected.image
                     }
                     fallbackImage={selected.catalogueImage}
-                    shiny={selected.rarity === "SSR"}
+                    shiny={selected.rarity === "SSR" || evolutionShiny}
                     isEvolved
                     animated={false}
                   />
@@ -2684,16 +2721,15 @@ export function CollectionView({
                     {tc("evolutionPrefix", {
                       rarity: selected?.rarity ?? "SSR"
                     })}
-                    {selected.rarity}
-                    {tc("evolutionVariant", {
-                      rarity: selected?.rarity ?? "SSR"
+                    {tc("fusionResult", {
+                      rarity: selected.rarity,
+                      shiny: String(evolutionShiny)
                     })}
                   </span>
                   <p>
-                    {tc("combine")}
-                    {evolutionRequired}
-                    {tc("evolutionCombineSuffix", {
-                      rarity: selected?.rarity ?? "SSR"
+                    {tc("fusionCombine", {
+                      count: evolutionRequired,
+                      rarity: selected.rarity
                     })}
                   </p>
                   <p className="yk-evolution-image-kept">
@@ -2747,7 +2783,11 @@ export function CollectionView({
                 className="yk-evolution-copies"
                 aria-label={tc("copiesToConsume")}
               >
-                {evolvableCards.map((card, index) => {
+                {evolvableCards.map(card => {
+                  const index =
+                    selectedGroup?.cards.findIndex(
+                      copy => copy.instanceId === card.instanceId
+                    ) ?? -1;
                   const checked = evolutionSelection.has(card.instanceId);
                   return (
                     <li key={card.instanceId}>
@@ -2758,7 +2798,8 @@ export function CollectionView({
                         aria-label={tc("copyObtained", {
                           index: index + 1,
                           date: formatDate(card.obtainedAt, true),
-                          custom: String(!!card.customImageUrl)
+                          custom: String(!!card.customImageUrl),
+                          shiny: String(card.shiny)
                         })}
                         disabled={evolving}
                         onClick={() => toggleEvolutionCard(card.instanceId)}
@@ -2775,6 +2816,7 @@ export function CollectionView({
                         <strong>
                           {tc("copy")}
                           {String(index + 1).padStart(2, "0")}
+                          {card.shiny && <span aria-hidden="true"> ✧</span>}
                         </strong>
                         <span className="yk-evolution-copy-state">
                           {checked ? tc("selected") : tc("select")}
@@ -2822,7 +2864,7 @@ export function CollectionView({
                         />
                         {tc("copyLabel")}{" "}
                         {String(
-                          evolvableCards.findIndex(
+                          selectedGroup!.cards.findIndex(
                             copy => copy.instanceId === card.instanceId
                           ) + 1
                         ).padStart(2, "0")}
@@ -2831,15 +2873,20 @@ export function CollectionView({
                   </div>
                 </fieldset>
               )}
-              <p className="yk-evolution-notice">
-                {tc("the")}
-                {evolutionRequired} {tc("selectedCopiesWillBeConsumed")}{" "}
-                {selected.rarity === "LR"
-                  ? tc("theResultIsANewLrInfinityCard")
-                  : tc("ssrResult")}
+              <p className="yk-evolution-notice" role="status">
+                {tc("fusionConsumption", {
+                  count: evolutionRequired,
+                  rarity: selected.rarity,
+                  shiny: String(evolutionShiny)
+                })}
               </p>
             </div>
             <div className="yk-evolution-footer">
+              {selected.rarity === "LR" && shinyConsumed > 0 && (
+                <p className="text-xs text-warning" role="alert">
+                  {tc("shinySacrifice", { count: shinyConsumed })}
+                </p>
+              )}
               {evolutionError && (
                 <p role="alert" className="text-sm text-danger">
                   {tError(gameErrorKey(evolutionError))}
@@ -2869,8 +2916,9 @@ export function CollectionView({
                 >
                   {evolving
                     ? tc("evolving")
-                    : tc("evolutionConfirmLabel", {
-                        rarity: selected?.rarity ?? "SSR"
+                    : tc("fusionConfirm", {
+                        rarity: selected.rarity,
+                        shiny: String(evolutionShiny)
                       })}
                 </Button>
               </div>

@@ -1,3 +1,4 @@
+import { readProfileSource } from "./helpers/profile-source.mjs";
 import { gameMessages, englishMessages } from "./helpers/i18n.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -5,10 +6,7 @@ import test from "node:test";
 import vm from "node:vm";
 import ts from "typescript";
 
-const source = readFileSync(
-  new URL("../components/profile.tsx", import.meta.url),
-  "utf8"
-);
+const source = readProfileSource();
 const editor = source.slice(
   source.indexOf("function Editor("),
   source.indexOf("const wishlistRarities")

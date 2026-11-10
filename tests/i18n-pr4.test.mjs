@@ -270,13 +270,14 @@ test("social ICU counts and interpolated player names resolve in both languages"
 // their complete argument expressions. Presentation text cannot alter either.
 // Walid approved unifying the trade picker with CollectionView: its duplicate
 // mobile card was removed. Pin the shared collection's exact card markup too.
+// The validated Shiny fusion adds variant-aware previews to the shared card markup.
 const golden = {
   "components/community-views.tsx":
     "15f0f4c8b6b53eef826b53565d42f41acbb3386659d53b2ab723212762303880",
   "components/trades.tsx":
     "7d40dec00e9e3094ee74a289d6a384f83309d229059713774318c8f9f2680e3e",
   "components/collection.tsx":
-    "77c436b1f24e02194e2da3817668ad04cad4d1cc9aee39b7637ce1e973bc7b9f",
+    "008152e1baf0575c5c2cf57ff5441aa2a4c7b77b6f9cbc93af77ac3be0a3c82d",
   "components/conversation-trade.tsx":
     "2a52f8358cd939dafe6bc0fce9429c43005751db37fd7bd64baa550ab593a549",
   "lib/data/market.ts":

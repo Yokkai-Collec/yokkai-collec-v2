@@ -33,7 +33,7 @@ test("owned cards can be explicitly wishlisted and are removed from wishes after
   await db.exec(
     readFileSync(
       new URL(
-        "../supabase/migrations/20261110120000_consume_wishlist_on_acquisition.sql",
+        "../supabase/migrations/20261110130000_consume_wishlist_on_acquisition.sql",
         import.meta.url
       ),
       "utf8"

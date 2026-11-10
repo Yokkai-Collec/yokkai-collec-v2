@@ -990,7 +990,7 @@
 }
 .yk-trade-side-index {
   display: grid;
-  width: calc(var(--spacing) * 9);
+  width: calc(var(--spacing) * 8);
   aspect-ratio: 1;
   place-items: center;
   border: 1px solid var(--color-veil-strong);
@@ -1284,10 +1284,10 @@
   grid-template-columns: auto minmax(calc(var(--spacing) * 40), 1fr) auto;
   align-items: center;
   gap: calc(var(--spacing) * 5);
-  margin-top: calc(var(--spacing) * 8);
+  margin-top: calc(var(--spacing) * 6);
   border: 1px solid var(--color-veil);
   border-radius: var(--radius-panel);
-  padding: calc(var(--spacing) * 5);
+  padding: calc(var(--spacing) * 4);
   background: linear-gradient(
     120deg,
     color-mix(in srgb, var(--color-accent-gold) 8%, var(--color-surface)),
@@ -1334,16 +1334,18 @@
 .yk-achievement-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: calc(var(--spacing) * 4);
-  margin-top: calc(var(--spacing) * 6);
+  gap: calc(var(--spacing) * 2);
+  margin-top: calc(var(--spacing) * 3);
 }
 .yk-achievement-card {
   min-width: 0;
   display: grid;
-  gap: calc(var(--spacing) * 5);
+  min-height: 12.5rem;
+  grid-template-rows: 1fr auto auto;
+  gap: calc(var(--spacing) * 2);
   border: 1px solid var(--color-veil);
   border-radius: var(--radius-panel);
-  padding: calc(var(--spacing) * 5);
+  padding: calc(var(--spacing) * 3);
   background: var(--color-surface);
   box-shadow: var(--shadow-card);
   transition:
@@ -1361,7 +1363,7 @@
 .yk-achievement-card > header {
   display: flex;
   align-items: flex-start;
-  gap: calc(var(--spacing) * 4);
+  gap: calc(var(--spacing) * 3);
 }
 .yk-achievement-card > header > div {
   min-width: 0;
@@ -1370,7 +1372,7 @@
 }
 .yk-achievement-icon {
   display: grid;
-  width: calc(var(--spacing) * 11);
+  width: calc(var(--spacing) * 9);
   aspect-ratio: 1;
   flex: 0 0 auto;
   place-items: center;
@@ -1397,11 +1399,11 @@
 }
 .yk-achievement-title h2 {
   font-family: var(--font-display);
-  font-size: var(--text-lg);
+  font-size: var(--text-base);
   font-weight: 600;
 }
 .yk-achievement-card > header p {
-  margin-top: calc(var(--spacing) * 2);
+  margin-top: var(--spacing);
   color: var(--color-ink-2);
   font-size: var(--text-sm);
   line-height: 1.6;
@@ -1425,8 +1427,9 @@
   align-items: center;
   justify-content: space-between;
   gap: calc(var(--spacing) * 3);
+  flex-wrap: wrap;
   border-top: 1px solid var(--color-veil);
-  padding-top: calc(var(--spacing) * 4);
+  padding-top: calc(var(--spacing) * 2);
 }
 .yk-achievement-card > footer > span:first-child {
   display: flex;
