@@ -2397,13 +2397,52 @@ test("la modale de détail hiérarchise verrouillage, progression et actions ava
   assert.match(
     normalizeWhitespace(modal),
     normalizeWhitespace(
-      /className="yk-detail-title-row"><h3[^>]*>\{selected\.name\}<\/h3>[^]*className="yk-detail-lock-toggle"/
+      /headerActions=\{!detailOnly&&!readOnly\?detailUtilityActions:undefined\}/
     )
   );
   assert.match(
     normalizeWhitespace(modal),
-    normalizeWhitespace(/aria-pressed=\{!!selected\.locked\}/)
+    /className="yk-detail-title-row"><h3[^>]*>\{selected\.name\}<\/h3>/
   );
+  const utilityActions = source.slice(
+    source.indexOf("const detailUtilityActions ="),
+    source.indexOf(
+      "\n  return (",
+      source.indexOf("const detailUtilityActions =")
+    )
+  );
+  assert.match(
+    normalizeWhitespace(utilityActions),
+    /className="yk-detail-utility-actions"/
+  );
+  assert.match(
+    normalizeWhitespace(utilityActions),
+    /className="yk-detail-lock-toggleyk-button"/
+  );
+  assert.match(
+    normalizeWhitespace(utilityActions),
+    /aria-pressed=\{!!selected\.locked\}/
+  );
+  assert.ok(
+    utilityActions.indexOf("yk-detail-lock-toggle") <
+      utilityActions.indexOf("<CardShareButton")
+  );
+  assert.ok(
+    utilityActions.indexOf("<CardShareButton") <
+      utilityActions.indexOf("<CardReportButton")
+  );
+  const modalComponent = readFileSync(
+    path.join(root, "components/ui/index.tsx"),
+    "utf8"
+  );
+  const header = modalComponent.slice(
+    modalComponent.indexOf("export function Modal(")
+  );
+  assert.match(
+    normalizeWhitespace(header),
+    /\{headerActions\}<buttontype="button"autoFocusonClick=\{onClose\}/
+  );
+
   assert.match(
     normalizeWhitespace(modal),
     normalizeWhitespace(/role="progressbar"/)
