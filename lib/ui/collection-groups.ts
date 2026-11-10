@@ -11,13 +11,16 @@ export type CollectionGroup = {
 export const collectionGroupKey = (
   card: Pick<CollectedCard, "id" | "rarity" | "shiny"> & { isEvolved?: boolean }
 ) =>
-  `${card.id}:${card.rarity}:${card.isEvolved ? "evolved" : card.shiny ? "shiny" : "normal"}`;
+  `${card.id}:${card.rarity}:${card.isEvolved ? "evolved" : card.shiny && card.rarity !== "LR" ? "shiny" : "normal"}`;
 
 const newestFirst = (a: CollectedCard, b: CollectedCard) =>
   Date.parse(b.obtainedAt) - Date.parse(a.obtainedAt) ||
   a.instanceId.localeCompare(b.instanceId);
 
-export function groupCollection(cards: CollectedCard[]): CollectionGroup[] {
+export function groupCollection(
+  cards: CollectedCard[],
+  preferred: Readonly<Record<string, string>> = {}
+): CollectionGroup[] {
   const groups = new Map<string, CollectedCard[]>();
   for (const card of cards) {
     const key = collectionGroupKey(card);
@@ -28,7 +31,11 @@ export function groupCollection(cards: CollectedCard[]): CollectionGroup[] {
     return {
       key,
       cards: ordered,
-      representative: ordered.find(card => card.customImageUrl) ?? ordered[0],
+      representative:
+        ordered.find(card => card.instanceId === preferred[key]) ??
+        (preferred[key] ? ordered.find(card => card.shiny) : undefined) ??
+        ordered.find(card => card.customImageUrl) ??
+        ordered[0],
       firstObtainedAt: ordered[ordered.length - 1].obtainedAt,
       isFirstOwner: ordered.some(
         card => card.rarity === "LR" && card.isFirstOwner
@@ -41,6 +48,7 @@ export function groupCollection(cards: CollectedCard[]): CollectionGroup[] {
 export function preservationOrder(cards: CollectedCard[]): CollectedCard[] {
   return [...cards].sort(
     (a, b) =>
+      Number(a.shiny) - Number(b.shiny) ||
       Number(!!a.customImageUrl) - Number(!!b.customImageUrl) ||
       Date.parse(a.obtainedAt) - Date.parse(b.obtainedAt) ||
       a.instanceId.localeCompare(b.instanceId)

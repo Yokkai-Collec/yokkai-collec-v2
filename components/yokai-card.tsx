@@ -188,11 +188,12 @@ export function YokaiCard({
   const evolved =
     (isEvolved || (shiny && rarity === "SSR")) &&
     (rarity === "SSR" || rarity === "LR");
+  const evolvedStyle = evolved && !(shiny && rarity === "LR");
   const special = holo || evolved;
   const franchise = anime?.trim();
   const sparkCount = !animated
     ? 0
-    : evolved
+    : evolvedStyle
       ? 6
       : holo
         ? 8
@@ -245,7 +246,7 @@ export function YokaiCard({
   };
   return (
     <div
-      className={`yk-card yk-rarity-${rarity} ${evolved ? "yk-evolved" : holo ? "yk-shiny" : ""} ${animated ? "yk-animated" : ""} ${className}`}
+      className={`yk-card yk-rarity-${rarity} ${evolvedStyle ? "yk-evolved" : holo ? "yk-shiny" : ""} ${animated ? "yk-animated" : ""} ${className}`}
     >
       <div
         className="yk-card-clip"
@@ -315,14 +316,14 @@ export function YokaiCard({
           )}
           <div className="yk-card-foil" />
           {special && <div className="yk-holo" />}
-          {evolved && (
+          {evolvedStyle && (
             <div className="yk-evolved-energy" aria-hidden="true">
               <span className="yk-evolved-scan" />
             </div>
           )}
           {spots.slice(0, sparkCount).map(([left, top], i) => (
             <span
-              className={`yk-sparkle${evolved ? " yk-evolved-spark" : ""}`}
+              className={`yk-sparkle${evolvedStyle ? " yk-evolved-spark" : ""}`}
               key={i}
               style={
                 {
@@ -343,6 +344,15 @@ export function YokaiCard({
               </span>
               <span className="yk-card-badges">
                 <span className="yk-card-badge">{rarity}</span>
+                {evolved && shiny && rarity === "LR" && (
+                  <span
+                    className="yk-shiny-badge"
+                    title="Shiny"
+                    aria-label="Shiny"
+                  >
+                    ✧
+                  </span>
+                )}
                 {special && (
                   <span
                     className={`yk-shiny-badge${evolved ? " yk-evolved-badge" : ""}`}

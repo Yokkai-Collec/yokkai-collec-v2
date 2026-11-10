@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { replayMigrations } from "../scripts/replay-migrations.mjs";
 
-test("LR evolution consumes only three identical owned normal copies and preserves variant identity", async t => {
+test("LR evolution consumes only three identical owned copies and preserves variant identity", async t => {
   const { db } = await replayMigrations();
   t.after(() => db.close());
   const alice = "76000000-0000-4000-8000-000000000001",
@@ -87,7 +87,7 @@ test("LR evolution consumes only three identical owned normal copies and preserv
     [...normal.slice(0, 2), null]
   ])
     await assert.rejects(evolve(bad), /THREE_DISTINCT_LR_COPIES_REQUIRED/);
-  for (const bad of [shiny, evolved, wrongCard, foreign]) {
+  for (const bad of [evolved, wrongCard, foreign]) {
     await assert.rejects(
       evolve([...normal.slice(0, 2), bad[0]]),
       /INVALID_LR_COPIES/
@@ -198,12 +198,49 @@ test("LR evolution consumes only three identical owned normal copies and preserv
     ).rows[0].is_shiny,
     true
   );
+  // Both LR Infinity variants are legal; other evolved rarities remain guarded.
+  await db.query("update public.user_cards set is_shiny=true where id=$1", [
+    evolved[0]
+  ]);
   await assert.rejects(
-    db.query("update public.user_cards set is_shiny=true where id=$1", [
+    db.query("update public.user_cards set rarity='SR' where id=$1", [
       evolved[0]
     ]),
     /user_cards_evolved_variant_check/
   );
+  for (const shinyCount of [1, 2, 3]) {
+    const ids = [
+      ...(await copies(3 - shinyCount)),
+      ...(await copies(shinyCount, { shiny: true }))
+    ];
+    // A Shiny in any position transfers its variant, independent of the art source.
+    for (const ordered of [ids, [...ids].reverse()]) {
+      await db.exec("begin");
+      await login(alice);
+      const mixed = (await evolve(ordered)).rows[0].value;
+      assert.equal(mixed.shiny, true);
+      assert.equal(mixed.isEvolved, true);
+      await db.exec("reset role");
+      const stored = (
+        await db.query(
+          "select is_shiny,is_evolved from public.user_cards where id=$1",
+          [mixed.instanceId]
+        )
+      ).rows[0];
+      assert.equal(stored.is_shiny, true);
+      assert.equal(stored.is_evolved, true);
+      assert.equal(
+        (
+          await db.query(
+            "select count(*)::int n from public.user_cards where id=any($1::uuid[])",
+            [ids]
+          )
+        ).rows[0].n,
+        0
+      );
+      await db.exec("rollback");
+    }
+  }
   // A failure after consumption must roll back the three deletions as well.
   await db.exec(
     "create function public.reject_test_evolution() returns trigger language plpgsql as $$begin if new.is_evolved and new.rarity='LR' then raise exception 'TEST_INSERT_FAILURE'; end if; return new; end$$; create trigger reject_test_evolution before insert on public.user_cards for each row execute function public.reject_test_evolution()"

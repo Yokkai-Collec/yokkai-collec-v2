@@ -1,3 +1,4 @@
+import { readProfileSource } from "./helpers/profile-source.mjs";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
@@ -16,6 +17,7 @@ const messages = Object.fromEntries(
 );
 const files = [
   "profile",
+  "profile-editor",
   "profile-completion",
   "profile-private",
   "friend-message-button",
@@ -186,8 +188,10 @@ test("profile counts use complete ICU phrases and keep player/card data verbatim
 // Golden signatures are generated from origin/master before PR 3. They cover
 // complete card JSX and every data RPC call, rather than only their tag names.
 const golden = {
+  // Profile card markup follows the showcase layout shipped in #88; keep
+  // pinning its complete JSX, without altering image props or rendering code.
   "components/profile.tsx":
-    "c8dae929d6c31def8428224366fb2a676131fc559bff049871b185a8f44ba89a",
+    "26cbadf775ad40940b2bbfa2491645b83c49ae2da8cd8a0975d2a8a46da6cc60",
   "components/profile-sales.tsx":
     "d4802b94528dcf8295ab4c9b894711105fdf5244371df3ca7617e643fbb1a406",
   "components/community-views.tsx":
@@ -203,7 +207,8 @@ const golden = {
 };
 test("card JSX, styles, animations and RPC arguments remain byte-equivalent after parsing", () => {
   for (const [file, expected] of Object.entries(golden)) {
-    const source = read(file);
+    const source =
+      file === "components/profile.tsx" ? readProfileSource() : read(file);
     const ast = ts.createSourceFile(
       file,
       source,

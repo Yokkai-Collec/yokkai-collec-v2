@@ -302,7 +302,7 @@ test("une instance disparue du contexte est retirée avant l'envoi", () => {
   );
 });
 
-test("normal, Shiny and Evolved LR form three distinct groups of the same catalogue card", () => {
+test("normal and Shiny LR share one group, separate from Infinity", () => {
   const normal = copy("normal-lr", { rarity: "LR" });
   const shiny = copy("shiny-lr", { rarity: "LR", shiny: true });
   const evolved = { ...copy("evolved-lr", { rarity: "LR" }), isEvolved: true };
@@ -312,7 +312,44 @@ test("normal, Shiny and Evolved LR form three distinct groups of the same catalo
     evolved,
     { ...evolved, instanceId: "evolved-copy" }
   ]);
-  assert.equal(groups.length, 3);
+  assert.equal(groups.length, 2);
   assert.equal(groups.find(g => g.representative.isEvolved).cards.length, 2);
-  assert.equal(new Set(groups.map(g => g.key)).size, 3);
+  assert.equal(new Set(groups.map(g => g.key)).size, 2);
+});
+
+test("LR normal and Shiny share copies, while Infinity remains a separate group", () => {
+  const normal = copy("normal", { rarity: "LR" });
+  const shiny = copy("shiny", { rarity: "LR", shiny: true });
+  const infinity = { ...normal, instanceId: "infinity", isEvolved: true };
+  const groups = groupCollection([normal, shiny, infinity]);
+  assert.equal(groups.length, 2);
+  assert.equal(groups[0].cards.length, 2);
+  assert.equal(collectionGroupKey(normal), collectionGroupKey(shiny));
+  assert.notEqual(collectionGroupKey(normal), collectionGroupKey(infinity));
+});
+
+test("display remembers exact copies and falls back to a surviving Shiny", () => {
+  const normal = copy("normal", { rarity: "LR" });
+  const shiny = copy("shiny", { rarity: "LR", shiny: true });
+  const key = collectionGroupKey(normal);
+  const preferred = { [key]: "normal" };
+  assert.equal(
+    groupCollection([normal, shiny], preferred)[0].representative.instanceId,
+    "normal"
+  );
+  assert.equal(
+    groupCollection([normal, shiny], { [key]: "shiny" })[0].representative
+      .instanceId,
+    "shiny"
+  );
+  assert.equal(
+    groupCollection([shiny], preferred)[0].representative.instanceId,
+    "shiny"
+  );
+  assert.equal(
+    groupCollection([normal, shiny], { [key]: "consumed" })[0].representative
+      .instanceId,
+    "shiny"
+  );
+  assert.equal(groupCollection([], preferred).length, 0);
 });

@@ -217,6 +217,8 @@ function renderProfile(profile) {
     "@/lib/data/wishlist": {},
     "@/lib/data/cards": {},
     "@/lib/ui/banner-card-sort": load("lib/ui/banner-card-sort.ts", {}),
+    "@/lib/ui/collection-sort": load("lib/ui/collection-sort.ts", {}),
+    "@/components/collection-filters": {},
     "@/lib/ui/card-search": {}
   });
   return renderToStaticMarkup(h(ProfileExperience, {}));

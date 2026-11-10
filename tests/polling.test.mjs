@@ -268,7 +268,7 @@ test("Game and notifications make no requests while hidden, including invalidati
   assert.equal(f.updates.length, 0);
   await f.hidden(false);
   assert.ok(f.calls.some(call => call.name === "user_cards"));
-  assert.ok(f.calls.some(call => call.name === "folders"));
+  assert.ok(f.calls.some(call => call.name === "get_license_folders"));
   assert.ok(f.calls.some(call => call.name === "list_notifications"));
   f.unmount();
   assert.equal(f.timers.size, 0);
@@ -287,7 +287,8 @@ test("visible idle Game refreshes only needed status; the countdown stays local"
     assert.equal(f.calls.length, expected, `${view}: requests per minute`);
     assert.ok(
       !f.calls.some(
-        call => call.name === "folders" || call.name === "user_cards"
+        call =>
+          call.name === "get_license_folders" || call.name === "user_cards"
       )
     );
     assert.equal(
@@ -366,7 +367,7 @@ test("failed initial reads retry at the next polling interval", async () => {
     "get_regular_pack_status",
     "get_decision_pack_status",
     "user_cards",
-    "folders"
+    "get_license_folders"
   ];
   f.failFirstRequests(failed);
   await f.mount();
@@ -405,7 +406,7 @@ test("failed initial reads retry at the next polling interval", async () => {
 
 test("collection starts without pack reads and retries failed card and folder reads", async () => {
   const f = fixture("collection");
-  const failed = ["user_cards", "folders"];
+  const failed = ["user_cards", "get_license_folders"];
   f.failFirstRequests(failed);
   await f.mount();
   const errors = () =>

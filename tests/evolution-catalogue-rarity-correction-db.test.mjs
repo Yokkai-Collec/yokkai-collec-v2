@@ -138,10 +138,14 @@ test("LR evolution follows a corrected catalogue rarity without rewriting acquis
   const evolve = ids =>
     db.query("select public.evolve_lr_card($1::uuid[]) as value", [ids]);
   await assert.rejects(evolve(fakeLrCopies), /INVALID_LR_COPIES/);
-  await assert.rejects(
-    evolve([oldCopies[0], oldCopies[1], shiny[0]]),
-    /INVALID_LR_COPIES/
-  );
+  // Shiny LR now participate after a catalogue correction too; rollback keeps
+  // the acquisition-history and normal-evolution assertions below unchanged.
+  await db.exec("begin");
+  const mixed = (await evolve([oldCopies[0], oldCopies[1], shiny[0]])).rows[0]
+    .value;
+  assert.equal(mixed.shiny, true);
+  assert.equal(mixed.isEvolved, true);
+  await db.exec("rollback");
   await assert.rejects(
     evolve([oldCopies[0], oldCopies[1], infinity[0]]),
     /INVALID_LR_COPIES/

@@ -1,3 +1,4 @@
+import { readProfileSource } from "./helpers/profile-source.mjs";
 import { normalizeWhitespace } from "./helpers/normalize-whitespace.mjs";
 import { homePresentation } from "./helpers/home-presentation.mjs";
 import { assertPngAsset, imageAsset } from "./helpers/visual-assets.mjs";
@@ -45,10 +46,7 @@ test("les échanges réutilisent les cartes standard sans écraser leurs textes 
 });
 
 test("la wishlist d'un ami se filtre par recherche, rareté et catégorie", () => {
-  const source = readFileSync(
-    path.join(root, "components/profile.tsx"),
-    "utf8"
-  );
+  const source = readProfileSource();
   assert.match(
     normalizeWhitespace(source),
     normalizeWhitespace(/function FriendWishlist/)
@@ -855,10 +853,7 @@ test("la collection d'un ami montre ses images personnalisées sans proposer d'�
 });
 
 test("le compteur de cartes ouvre toute collection autorisée en lecture seule", () => {
-  const profile = readFileSync(
-    path.join(root, "components/profile.tsx"),
-    "utf8"
-  );
+  const profile = readProfileSource();
   const communityCss = readFileSync(
     path.join(root, "styles/community.css"),
     "utf8"
@@ -910,10 +905,7 @@ test("le compteur de cartes ouvre toute collection autorisée en lecture seule",
 });
 
 test("le compteur wishlist d'un ami ouvre toute sa wishlist et chaque carte reste cliquable", () => {
-  const profile = readFileSync(
-    path.join(root, "components/profile.tsx"),
-    "utf8"
-  );
+  const profile = readProfileSource();
   if (profile.includes("data-profile-wishlist")) {
     assert.match(
       normalizeWhitespace(profile),
@@ -957,10 +949,7 @@ test("le compteur wishlist d'un ami ouvre toute sa wishlist et chaque carte rest
 });
 
 test("l’aperçu wishlist du profil garde des cartes compactes", () => {
-  const profile = readFileSync(
-    path.join(root, "components/profile.tsx"),
-    "utf8"
-  );
+  const profile = readProfileSource();
   const community = readFileSync(
     path.join(root, "styles/community.css"),
     "utf8"
@@ -1398,10 +1387,7 @@ test("le panneau d’enchère ne grandit pas avec la hauteur du chat", () => {
 });
 
 test("mobile : vitrine du profil en carrousel tactile et page Amis sans débordement", () => {
-  const profile = readFileSync(
-    path.join(root, "components/profile.tsx"),
-    "utf8"
-  );
+  const profile = readProfileSource();
   const community = readFileSync(
     path.join(root, "styles/community.css"),
     "utf8"
@@ -1541,10 +1527,7 @@ test("la liste d’amis affiche la présence et actualise la dernière activité
 });
 
 test("le sélecteur de cartes mises en avant recherche et remonte la sélection", () => {
-  const source = readFileSync(
-    path.join(root, "components/profile.tsx"),
-    "utf8"
-  );
+  const source = readProfileSource();
   assert.match(
     normalizeWhitespace(source),
     normalizeWhitespace(/const FEATURED_CARD_LIMIT=5/)
@@ -1564,9 +1547,21 @@ test("le sélecteur de cartes mises en avant recherche et remonte la sélection"
   assert.match(
     normalizeWhitespace(source),
     normalizeWhitespace(
-      /Number\(selected\.has\(b\.instanceId\)\)-Number\(selected\.has\(a\.instanceId\)\)/
+      /const selectedFeaturedCards = useMemo\(\(\) => showcaseSelection\(collection, selected\)/
     )
   );
+  // Master now puts selected cards in a separate tray above the available list.
+  assert.match(
+    normalizeWhitespace(source),
+    normalizeWhitespace(
+      /unique.filter\(card => !selected.has\(card.instanceId\)\)/
+    )
+  );
+  const selectedTray = source.indexOf("{selectedFeaturedCards.map(");
+  const availableList = source.indexOf("{featuredChoices.map(");
+  assert.notEqual(selectedTray, -1);
+  assert.notEqual(availableList, -1);
+  assert.ok(selectedTray < availableList);
 });
 
 test("le profil invalide l’avatar partagé et la Topbar le recharge", () => {
@@ -1838,7 +1833,7 @@ test("Collection, Catalogue et Marché partagent une seule échelle de colonnes"
   }
 });
 
-test("collection requires five normal SSR copies or three normal LR copies for INFINITY", () => {
+test("collection requires five normal SSR copies or three normal/Shiny LR copies for INFINITY", () => {
   const source = readFileSync(
     path.join(root, "components/collection.tsx"),
     "utf8"
@@ -1869,7 +1864,9 @@ test("collection requires five normal SSR copies or three normal LR copies for I
   );
   assert.match(
     normalizeWhitespace(source),
-    normalizeWhitespace(/!selected.shiny&& !selected.isEvolved/)
+    normalizeWhitespace(
+      /\(selected.rarity === "LR" \|\| !selected.shiny\)&& !selected.isEvolved/
+    )
   );
   assert.match(
     normalizeWhitespace(source),
@@ -2514,7 +2511,9 @@ test("la Collection groupe les tuiles et sélectionne tous les exemplaires dispo
   );
   assert.match(
     normalizeWhitespace(source),
-    normalizeWhitespace(/const groups = groupCollection\(filtered\)/)
+    normalizeWhitespace(
+      /const groups = groupCollection\(filtered, displayedCopies\)/
+    )
   );
   assert.match(
     normalizeWhitespace(source),
@@ -3970,4 +3969,30 @@ test("« All » de la collection ajoute la page courante sans effacer les autres
   assert.match(onAll, /\.\.\.current,/);
   assert.match(onAll, /visibleGroups\.flatMap/);
   assert.doesNotMatch(onAll, /\bgroups\.flatMap/);
+});
+
+test("LR Infinity Shiny displays both variant markers", () => {
+  const { YokaiCard } = load("components/yokai-card.tsx");
+  const html = render(YokaiCard, {
+    ...card,
+    rarity: "LR",
+    shiny: true,
+    isEvolved: true,
+    animated: false
+  });
+  assert.match(html, /yk-evolved-symbol/);
+  assert.match(html, /LR INFINITY Shiny/);
+  assert.match(html, /aria-label="Shiny"/);
+  assert.match(html, /class="yk-card yk-rarity-LR yk-shiny /);
+  assert.doesNotMatch(html, /class="yk-card yk-rarity-LR yk-evolved /);
+  assert.doesNotMatch(html, /class="yk-evolved-energy"/);
+  const animated = render(YokaiCard, {
+    ...card,
+    rarity: "LR",
+    shiny: true,
+    isEvolved: true,
+    animated: true
+  });
+  assert.equal((animated.match(/class="yk-sparkle"/g) || []).length, 8);
+  assert.doesNotMatch(animated, /yk-evolved-spark/);
 });
