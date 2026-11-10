@@ -61,6 +61,7 @@ import {
   groupCollection,
   type CollectionGroup
 } from "@/lib/ui/collection-groups";
+import type { FirstLrCopySource } from "@/lib/data/first-lr-copies";
 
 // Optional display metadata, separate from the existing business types.
 export type CollectionPresentation = {
@@ -130,6 +131,49 @@ function AuctionIcon({ size = 14 }: { size?: number }) {
       <path d="m14 5 5 5M12 7l5 5M3 21l8-8M6 18l-3-3M14 3l7 7-4 4-7-7 4-4Z" />
       <path d="M12 21h9" />
     </svg>
+  );
+}
+
+function FirstLrCopyMeta({ instanceIds }: { instanceIds: readonly string[] }) {
+  const t = useTranslations("collectionShared");
+  const key = instanceIds.join(",");
+  const [sources, setSources] = useState<
+    Record<string, FirstLrCopySource | undefined>
+  >({});
+  const source = sources[key];
+  useEffect(() => {
+    if (!key) return;
+    let cancelled = false;
+    let unsubscribe: (() => void) | undefined;
+    void import("@/lib/data/first-lr-copies")
+      .then(store => {
+        if (cancelled) return;
+        const ids = [...new Set(key.split(","))];
+        const publish = () => {
+          if (!cancelled) {
+            setSources(current => ({
+              ...current,
+              [key]: store.firstLrCopySource(ids)
+            }));
+          }
+        };
+        unsubscribe = store.subscribeFirstLrCopies(ids, publish);
+        publish();
+        store.requestFirstLrCopies(ids);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
+  }, [key]);
+  if (!source) return null;
+  return (
+    <div className="yk-collection-card-meta">
+      <p className="text-[11px] font-semibold text-rarity-lr">
+        {t("firstLrBadge")}
+      </p>
+    </div>
   );
 }
 
@@ -460,16 +504,6 @@ export function CollectionView({
   );
   const groups = groupCollection(filtered);
   const shownGroups = remote ? remoteGroups : groups;
-  const allGroupsByKey = useMemo(
-    () =>
-      new Map(
-        (remote ? remoteGroups : groupCollection(cards)).map(group => [
-          group.key,
-          group
-        ])
-      ),
-    [cards, remote, remoteGroups]
-  );
   const matchingGroups = remote ? (remote.page?.total ?? 0) : groups.length;
   const ownedCopies = remote ? (remote.counts?.copies ?? 0) : cards.length;
   const paniniAlbumPageCount = Math.max(1, Math.ceil(paniniAlbums.total / 72));
@@ -2004,7 +2038,6 @@ export function CollectionView({
                 >
                   {visibleGroups.map(group => {
                     const card = group.representative;
-                    const historyGroup = allGroupsByKey.get(group.key) ?? group;
                     const meta = presentation[card.instanceId];
                     const eligible = group.cards.filter(
                       copy =>
@@ -2045,6 +2078,9 @@ export function CollectionView({
                           <CardShell interactive={false}>
                             <YokaiCard
                               {...card}
+                              copyInstanceIds={group.cards.map(
+                                copy => copy.instanceId
+                              )}
                               image={card.image}
                               {...meta}
                               animated={!readOnly}
@@ -2088,12 +2124,12 @@ export function CollectionView({
                             </span>
                           )}
                         </button>
-                        {historyGroup.isFirstOwner && !renderCardControls && (
-                          <div className="yk-collection-card-meta">
-                            <p className="text-[11px] font-semibold text-rarity-lr">
-                              {tc("firstOwner")}
-                            </p>
-                          </div>
+                        {!renderCardControls && (
+                          <FirstLrCopyMeta
+                            instanceIds={group.cards.map(
+                              copy => copy.instanceId
+                            )}
+                          />
                         )}
                         {renderCardControls?.(group)}
                       </li>

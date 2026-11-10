@@ -3,12 +3,17 @@
 import { useTranslations } from "next-intl";
 
 import { cardRarityLabel } from "@/lib/ui/card-rarity-label";
+import type { FirstLrCopySource } from "@/lib/data/first-lr-copies";
+import { useEffect, useState } from "react";
 import type { CSSProperties, ReactNode, SyntheticEvent } from "react";
 import type { Rarity } from "@/lib/data/cards";
 import "@/styles/cards.css";
 
 export type YokaiCardProps = {
   rarity: Rarity;
+  instanceId?: string;
+  copyInstanceIds?: readonly string[];
+  firstLrCopy?: FirstLrCopySource | null;
   shiny?: boolean;
   isEvolved?: boolean;
   name: string;
@@ -103,8 +108,66 @@ const spots = [
   [58, 70]
 ];
 
+function FirstLrCopyBadge({
+  instanceId,
+  copyInstanceIds,
+  source: override
+}: {
+  instanceId?: string;
+  copyInstanceIds?: readonly string[];
+  source?: FirstLrCopySource | null;
+}) {
+  const t = useTranslations("collectionShared");
+  const key = copyInstanceIds?.join(",") ?? instanceId ?? "";
+  const [resolved, setResolved] = useState<{
+    key: string;
+    source?: FirstLrCopySource;
+  }>({ key: "" });
+  useEffect(() => {
+    if (override !== undefined || !key) return;
+    let cancelled = false;
+    let unsubscribe: (() => void) | undefined;
+    void import("@/lib/data/first-lr-copies")
+      .then(store => {
+        if (cancelled) return;
+        const ids = [...new Set(key.split(","))];
+        const publish = () =>
+          setResolved({ key, source: store.firstLrCopySource(ids) });
+        unsubscribe = store.subscribeFirstLrCopies(ids, publish);
+        publish();
+        store.requestFirstLrCopies(ids);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
+  }, [key, override]);
+  const source =
+    override === undefined
+      ? resolved.key === key
+        ? resolved.source
+        : undefined
+      : override;
+  if (!source) return null;
+  return (
+    <span
+      className="yk-card-copy-status yk-card-first-lr yk-card-badge"
+      title={t("firstLrBadge")}
+      role="note"
+      aria-label={t(source === "legacy" ? "firstLrLegacy" : "firstLrMint")}
+      data-first-lr-copy={source}
+    >
+      #1
+    </span>
+  );
+}
+
 export function YokaiCard({
   rarity,
+  instanceId,
+  copyInstanceIds,
+  firstLrCopy,
   shiny = false,
   isEvolved = false,
   name,
@@ -329,6 +392,14 @@ export function YokaiCard({
           </div>
         </div>
       </div>
+      {rarity === "LR" &&
+        Boolean(firstLrCopy || instanceId || copyInstanceIds?.length) && (
+          <FirstLrCopyBadge
+            instanceId={instanceId}
+            copyInstanceIds={copyInstanceIds}
+            source={firstLrCopy}
+          />
+        )}
     </div>
   );
 }

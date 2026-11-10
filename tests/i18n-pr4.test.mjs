@@ -276,7 +276,7 @@ const golden = {
   "components/trades.tsx":
     "7d40dec00e9e3094ee74a289d6a384f83309d229059713774318c8f9f2680e3e",
   "components/collection.tsx":
-    "d17f9021a495a8ffc514f0dfd3476a8aacf948cdf711fc8624e5c035b70e3595",
+    "77c436b1f24e02194e2da3817668ad04cad4d1cc9aee39b7637ce1e973bc7b9f",
   "components/conversation-trade.tsx":
     "2a52f8358cd939dafe6bc0fce9429c43005751db37fd7bd64baa550ab593a549",
   "lib/data/market.ts":

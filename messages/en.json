@@ -469,6 +469,9 @@
     "removeWishlistCard": "Remove {name} from your wishlist"
   },
   "collectionShared": {
+    "firstLrBadge": "First copy",
+    "firstLrLegacy": "First copy · Oldest known surviving LR when awarded",
+    "firstLrMint": "First LR copy",
     "karasBalanceUnavailable": "Karas balance unavailable",
     "countPluralOneCardOtherCards": "{count, plural, one {card} other {cards}}",
     "countPluralOneCopyOtherCopies": "{count, plural, one {copy} other {copies}}",

@@ -217,7 +217,10 @@ const allowlist = {
   "public.get_achievements()": ["authenticated"], // Reads the current player's achievement progress.
   "public.get_auction(uuid)": ["authenticated"], // Marketplace detail with viewer access checks.
   "public.get_auction_chat(uuid)": ["authenticated"], // Auction chat read checks viewer eligibility.
-  "public.get_card_discovery(uuid, integer, integer)": ["authenticated"], // Discovery exposes permitted collector information.
+  "public.get_card_discovery(uuid, integer, integer, boolean)": [
+    "authenticated"
+  ], // Discovery exposes permitted collector information for exactly one card variant.
+  "public.get_first_lr_copy_badges(uuid[])": ["authenticated"], // Public #1 distinction for requested LR instance IDs only.
   "public.get_decision_pack_status()": ["authenticated"], // Reads the current player's pack state.
   "public.get_friend_collection(uuid)": ["authenticated"], // Collection read enforces friendship and privacy.
   "public.get_friend_panini_album_cards_page(uuid, text, text, text, boolean, integer, integer)":

@@ -469,6 +469,9 @@
     "removeWishlistCard": "Retirer {name} de ta liste de souhaits"
   },
   "collectionShared": {
+    "firstLrBadge": "Premier exemplaire",
+    "firstLrLegacy": "Premier exemplaire · Plus ancienne LR connue lors de l’attribution",
+    "firstLrMint": "Premier exemplaire LR",
     "karasBalanceUnavailable": "Solde Karas indisponible",
     "countPluralOneCardOtherCards": "{count, plural, one {carte} other {cartes}}",
     "countPluralOneCopyOtherCopies": "{count, plural, one {exemplaire} other {exemplaires}}",
