@@ -7,6 +7,10 @@
     "sections": ["discord_reward"],
     "note": "Own Discord identifier and claim date only; receipt survives account deletion to prevent repeat claims while the offer remains available. No OAuth tokens."
   },
+  "public.collection_covers": {
+    "sections": ["collection_covers"],
+    "note": "Own personal binder/folder cover targets, validated uploaded media URLs and update dates."
+  },
   "auth.identities": {
     "sections": ["login_providers"],
     "note": "Own provider names and dates; no provider identifiers or identity JSON."
@@ -450,5 +454,17 @@
   },
   "public.mission_definitions": {
     "excluded": "Global game objectives and reward configuration; no individual account records."
+  },
+  "public.license_folders": {
+    "sections": ["license_folders"],
+    "note": "Own themed license folders, names and profile featuring preference."
+  },
+  "public.license_folder_cards": {
+    "sections": ["license_folder_cards"],
+    "note": "Catalogue card IDs selected in the current player own license folders."
+  },
+  "public.profile_featured_selection": {
+    "sections": ["profile_featured_selection"],
+    "note": "Own explicit profile binder selection, independent from collection favorites."
   }
 }

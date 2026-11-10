@@ -1,0 +1,40 @@
+# Personnalisation de la vitrine
+
+Les réglages PRO sont regroupés dans « Modifier la vitrine », avec les cartes sélectionnées et le bouton d’enregistrement commun.
+
+- Huit ambiances : Velours, Ciel étoilé, Marbre noir, Éclairs, Flammes, Brume, Aurore boréale et Braises. Les détails visibles entourent les cartes ; les animations sont décoratives et désactivées en mode réduit.
+- Trois dispositions : Galerie, Éventail et Pièce maîtresse. La première carte sélectionnée devient la pièce centrale.
+- Couleur personnelle et intensité de 0 à 100 %, sans ombre dorée externe sur les LR.
+- Titre facultatif de 60 caractères et description facultative de 160 caractères.
+- Aperçu avec les vrais exemplaires, dans l’ordre de sélection. Aucun exemplaire n’est modifié ou consommé.
+- Inclinaison au pointeur sur ordinateur ; aucune dépendance au survol sur téléphone. La réduction des animations désactive les mouvements et conserve les dispositions statiques.
+
+Les anciennes valeurs `showcaseEffect` restent lisibles. Les nouvelles préférences sont facultatives dans le JSON existant. Le garde SQL existant conserve ses vérifications PRO, suppression, débit, médias et droits ; aucun nouvel accès SQL n’est ajouté. Les projections serveur masquent toujours les personnalisations quand le PRO expire.
+
+Migration : `20261110055000_showcase_design.sql`, appliquée uniquement à la base Docker locale après sauvegarde. Non appliquée sur le VPS. Aucun déploiement en production.
+
+Migration complémentaire : `20261110056000_showcase_atmospheres.sql`, même périmètre local uniquement. Elle étend la liste des ambiances autorisées dans le garde PRO existant, sans nouveau droit SQL. La modale utilise jusqu’à 1480 px sur ordinateur et conserve une largeur adaptée au téléphone.
+
+Flammes, éclairs, brume et aurore utilisent un canvas décoratif sur toute la surface de vitrine, en dehors du rail défilant des cartes. Le rendu reste derrière les commandes et illustrations, sans intercepter les clics. Textures de bruit pour le feu et la brume, éclairs avec subdivisions et branches, rideau lumineux continu pour l’aurore. Aucun média distant ni téléchargement de vidéo. Résolution et cadence plafonnées ; le rendu s’arrête hors écran, dans un onglet masqué, à intensité zéro et en mode réduit (image statique). Les cartes sont agrandies ; leur rail reste accessible au toucher.
+
+Les flammes utilisent désormais des volutes lumineuses et des étincelles, sans aplat opaque. L’ambiance Glace et givre ajoute des cristaux ramifiés sur les bords et des particules de neige. Migration `20261110057000_showcase_frost.sql` appliquée uniquement en local après sauvegarde ; aucun nouvel accès SQL. Le lecteur de vitrine conserve les classes attendues par le contrat mobile existant.
+
+## Bordure de glace photographique
+
+L’ambiance `frost` utilise désormais exclusivement l’image fournie par le propriétaire du projet, conservée dans `public/images/ice-frame.png` (2172 × 724, RGBA). Le centre est réellement transparent : le pixel central vaut RGBA `(0,0,0,0)` ; aucun pixel noir opaque n’a été détecté. Aucun détourage par couleur n’est effectué.
+
+Deux découpes à largeur native conservent l’alpha : `ice-top.webp` (2172 × 380, lignes 0–379) et `ice-bottom.webp` (2172 × 224, lignes 500–723). WebP qualité 90, alpha qualité 100 : 317110 et 165178 octets. L’original est conservé mais seuls les deux WebP sont chargés par l’interface. Aucun service externe.
+
+Les images sont positionnées par arrière-plans `auto 100%` répétés horizontalement : pas d’étirement des stalactites, hauteur responsive limitée. Un observateur de taille place la bordure supérieure sous le titre et ses commandes, y compris quand le titre revient à la ligne. La bordure inférieure reste au bord de la vitrine. Les overlays ne bloquent pas les clics. La glace passe devant les cartes ; les commandes restent au premier plan. L’ancien dessin canvas de givre, ses triangles et sa neige animée sont supprimés ; aucun rendu canvas permanent n’est exécuté pour cette ambiance. Aucune migration supplémentaire.
+
+Une brume froide accompagne les deux bordures : voiles bleutés sous les stalactites et nappes diffuses au ras du sol. Deux couches CSS se déplacent lentement par transform, sans boucle de rendu JavaScript ; pause hors écran, dans un onglet masqué et à intensité zéro. Le mode réduit conserve un brouillard statique. Le centre et les commandes restent libres.
+
+La vitrine et son aper�u masquent leur barre horizontale. La molette fait d�filer les cartes horizontalement seulement tant que la vitrine peut avancer dans ce sens ; aux extr�mit�s, la page reprend son d�filement normal. Le cliquer-glisser � la souris commence apr�s un seuil de 6 px et ne d�clenche pas la modale d�une carte. Le clic simple, le clavier et le balayage tactile natif restent disponibles. Aucun changement SQL.
+
+### Braises sur toute la vitrine
+
+Le choix Flammes a ete retire. Les anciennes preferences flames affichent les braises sans modifier les donnees en base. Le renderer de feu et ses references ont ete retires ; aucun asset de flamme n'est charge.
+
+Le composant ShowcaseEmbers dessine un nuage non repetitif de particules sur toute la surface, avec tailles/profondeurs, derive laterale, vitesses de montee, scintillement doux et petites trainees differents. Les halos sont precalcules dans trois minuscules textures en memoire. La densite suit la surface, plafonnee a 180 particules. Le calque reste transparent et pointer-events:none ; le titre et les commandes gardent le premier plan, et les cartes restent cliquables et defilables.
+
+Animation plafonnee a 30 images/s, DPR a 1,5, arret hors ecran et onglet masque. Une image fixe est dessinee avec prefers-reduced-motion. Une intensite nulle desactive le renderer. Aucun asset distant, aucune dependance ni migration SQL ajoutee.

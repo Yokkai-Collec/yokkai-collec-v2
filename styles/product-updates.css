@@ -130,9 +130,13 @@
   background: #a8bfff12;
   margin-bottom: 4px;
 }
-.yk-update-feature-icon[data-kind="rankings"] {
+.yk-update-feature-icon[data-kind="achievements"] {
   color: #edc96c;
   background: #edc96c12;
+}
+.yk-update-feature-icon[data-kind="missions"] {
+  color: #6ee7b7;
+  background: #6ee7b712;
 }
 .yk-update-feature-icon svg {
   width: 21px;
@@ -203,7 +207,7 @@
     padding: 4px 0 28px;
   }
   .yk-updates-features {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .yk-update-feature {
     grid-template-rows: auto auto 1fr auto;

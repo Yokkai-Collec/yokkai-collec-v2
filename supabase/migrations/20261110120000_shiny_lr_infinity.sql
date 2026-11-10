@@ -76,7 +76,7 @@ begin
       and (coalesce(cardinality(p_categories),0)=0 or x.categorie=any(p_categories))
       and (coalesce(cardinality(p_rarities),0)=0 or x.rarete_base::text=any(p_rarities))
       and (not coalesce(p_shiny_only,false) or x.is_shiny or x.is_evolved)
-      and (p_folder is null or (p_folder='unfiled' and x.folder_id is null) or x.folder_id::text=p_folder)
+      and (p_folder is null or (p_folder='unfiled' and x.folder_id is null and not exists(select 1 from public.license_folder_cards fc join public.license_folders f on f.id=fc.folder_id where f.user_id=p_player and fc.card_id=x.card_id)) or x.folder_id::text=p_folder or exists(select 1 from public.license_folder_cards fc join public.license_folders f on f.id=fc.folder_id where f.user_id=p_player and fc.folder_id::text=p_folder and fc.card_id=x.card_id))
       and (not coalesce(p_auction_only,false) or x.frozen)
       and (not coalesce(p_locked_only,false) or x.is_locked)
   )
@@ -105,7 +105,7 @@ begin
   if player is null then raise exception 'AUTH_REQUIRED' using errcode='P0001'; end if;
   with copies as (
     select (uc.card_id::text||':'||c.rarete_base::text||':'||case when uc.is_evolved then 'evolved' when uc.is_shiny and c.rarete_base<>'LR' then 'shiny' else 'normal' end) group_key,
-      c.rarete_base::text rarity, c.categorie, uc.is_locked, uc.folder_id,
+      c.rarete_base::text rarity, c.categorie, uc.is_locked, uc.folder_id, uc.card_id,
       exists(select 1 from public.auctions a where a.card_instance_id=uc.id and a.seller_id=player and a.status='active') frozen
     from public.user_cards uc join public.cards c on c.id=uc.card_id where uc.user_id=player
   )
@@ -116,8 +116,10 @@ begin
     'categories',coalesce((select jsonb_object_agg(categorie,n) from (select categorie,count(distinct group_key) n from copies group by categorie) r),'{}'::jsonb),
     'frozen',(select count(distinct group_key) from copies where frozen),
     'locked',(select count(distinct group_key) from copies where is_locked),
-    'unfiled',(select count(distinct group_key) from copies where folder_id is null),
-    'folders',coalesce((select jsonb_object_agg(folder_id,n) from (select folder_id,count(distinct group_key) n from copies where folder_id is not null group by folder_id) r),'{}'::jsonb))
+    'unfiled',(select count(distinct group_key) from copies cp where folder_id is null and not exists(select 1 from public.license_folder_cards fc join public.license_folders f on f.id=fc.folder_id where f.user_id=player and fc.card_id=cp.card_id)),
+    'folders',coalesce((select jsonb_object_agg(folder_id,n) from (select memberships.folder_id,count(distinct cp.group_key) n from copies cp join lateral (
+   select cp.folder_id where cp.folder_id is not null union select fc.folder_id from public.license_folder_cards fc join public.license_folders f on f.id=fc.folder_id where f.user_id=player and fc.card_id=cp.card_id
+ ) memberships on true group by memberships.folder_id) r),'{}'::jsonb))
   into result;
   return result;
 end; $$;

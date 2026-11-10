@@ -219,6 +219,62 @@ test("Pro API authenticates self, rejects CSRF and never trusts forged paid/user
       .user_id,
     "6c000000-0000-4000-8000-000000000001"
   );
+  const compatible = setup({ active: true });
+  assert.equal(
+    (
+      await compatible
+        .load("app/api/pro/profile-style/route.ts")
+        .POST(jsonRequest({ style: { showcaseScene: "cyber" } }))
+    ).status,
+    200
+  );
+  assert.equal(
+    compatible.calls.find(call => call.table === "profile_customizations").value
+      .style.showcaseScene,
+    "cyber"
+  );
+  const sakura = setup({ active: true });
+  assert.equal(
+    (
+      await sakura
+        .load("app/api/pro/profile-style/route.ts")
+        .POST(jsonRequest({ style: { showcaseScene: "sakura" } }))
+    ).status,
+    200
+  );
+  assert.equal(
+    sakura.calls.find(call => call.table === "profile_customizations").value
+      .style.showcaseScene,
+    "sakura"
+  );
+  const feathers = setup({ active: true });
+  assert.equal(
+    (
+      await feathers
+        .load("app/api/pro/profile-style/route.ts")
+        .POST(jsonRequest({ style: { showcaseScene: "feathers" } }))
+    ).status,
+    200
+  );
+  assert.equal(
+    feathers.calls.find(call => call.table === "profile_customizations").value
+      .style.showcaseScene,
+    "feathers"
+  );
+  const vhs = setup({ active: true });
+  assert.equal(
+    (
+      await vhs
+        .load("app/api/pro/profile-style/route.ts")
+        .POST(jsonRequest({ style: { showcaseScene: "vhs" } }))
+    ).status,
+    200
+  );
+  assert.equal(
+    vhs.calls.find(call => call.table === "profile_customizations").value.style
+      .showcaseScene,
+    "vhs"
+  );
   const failed = setup({ rpcError: { message: "private provider secret" } });
   const unavailable = await failed
     .load("app/api/pro/benefits/route.ts")
@@ -256,6 +312,31 @@ test("image upload checks actual GIF bytes despite forged JPEG filename/MIME and
   );
   assert.equal(response.headers.get("Cache-Control"), "private, no-store");
 });
+test("collection cover uploads require Pro and preserve inspected GIF bytes", async () => {
+  const basic = setup();
+  assert.equal(
+    (
+      await basic
+        .load("app/api/profile-media/route.ts")
+        .POST(imageRequest("collection-cover"))
+    ).status,
+    403
+  );
+  const paid = setup({ active: true });
+  const response = await paid
+    .load("app/api/profile-media/route.ts")
+    .POST(imageRequest("collection-cover"));
+  assert.equal(response.status, 200);
+  const upload = paid.calls.find(call => call.path);
+  assert.match(upload.path, /\/collection-cover-[a-f0-9-]+\.gif$/);
+  assert.equal(upload.options.contentType, "image/gif");
+  assert.equal(
+    paid.calls.find(call => call.table === "profile_media_assets").value
+      .purpose,
+    "collection-cover"
+  );
+});
+
 test("an account deletion committed during upload removes only the new immutable asset", async () => {
   const fixture = setup({ active: true, deletedDuringUpload: true });
   const response = await fixture

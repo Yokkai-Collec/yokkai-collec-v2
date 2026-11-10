@@ -1,5 +1,6 @@
 "use client";
 import { useSyncExternalStore } from "react";
+import { showcaseScrollRef } from "@/lib/ui/profile-style";
 import { i18nEnabled } from "@/i18n/locale";
 const subscribeToHydration = () => () => {};
 import { gameErrorKey } from "@/i18n/game-messages";
@@ -15,16 +16,22 @@ import {
   useRef,
   useState,
   type MouseEvent,
-  type CSSProperties
+  type CSSProperties,
+  type DragEvent
 } from "react";
 import { Avatar, Button, Modal, Toast } from "@/components/ui";
 import { YokaiCard } from "@/components/yokai-card";
 import { CardShell } from "@/components/card-shell";
 import dynamic from "next/dynamic";
 import { ProfilePrivate } from "@/components/profile-private";
-const ProfileCompletion = dynamic(() =>
-  import("@/components/profile-completion").then(
-    module => module.ProfileCompletion
+const ProfileRecentCards = dynamic(() =>
+  import("@/components/profile-recent-cards").then(
+    module => module.ProfileRecentCards
+  )
+);
+const ProfileFeaturedCollection = dynamic(() =>
+  import("@/components/profile-featured").then(
+    module => module.ProfileFeaturedCollection
   )
 );
 import { PlayerModeration } from "@/components/player-moderation";
@@ -36,6 +43,13 @@ import { AvatarDecoration } from "@/components/avatar-decoration";
 import { StyledPlayerName } from "@/components/styled-player-name";
 import {
   DEFAULT_PROFILE_STYLE,
+  PROFILE_CARD_IMAGE_SIZES,
+  profileWidgetLabel as widgetLabel,
+  tiltShowcaseCard,
+  resetShowcaseCard,
+  showcaseCardPosition,
+  showcaseDesignAttributes,
+  showcaseSelection,
   normalizeProfileStyle,
   showcaseColorVariables,
   type ProfileStyle
@@ -78,6 +92,13 @@ import {
 import { getWishlist, type WishlistCard } from "@/lib/data/wishlist";
 import { matchesCardSearch } from "@/lib/ui/card-search";
 import { compareBannerCards } from "@/lib/ui/banner-card-sort";
+import { toggleFilterValue } from "@/lib/ui/card-search";
+import {
+  COLLECTION_SORTS,
+  sortCollection,
+  type CollectionSort
+} from "@/lib/ui/collection-sort";
+import { FilterSection, RarityChips } from "@/components/collection-filters";
 
 function warmCollectionView() {
   void import("@/components/collection").catch(() => {});
@@ -103,45 +124,38 @@ const CatalogueCardModal = dynamic(() =>
 );
 
 const FEATURED_CARD_LIMIT = 5;
-const PROFILE_CARD_IMAGE_SIZES =
-  "(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 190px";
-
-function widgetLabel(category: string, t: ReturnType<typeof useTranslations>) {
-  const labels: Record<string, string> = {
-    "ANIME/MANGA": t("profileUi.favoriteanimemanga"),
-    "VIDEO GAMES": t("profileUi.favoritegames"),
-    KPOP: t("profileUi.kpopgroups"),
-    FILM: t("profileUi.favoritemovies"),
-    SERIE: t("profileUi.favoriteseries"),
-    KDRAMA: t("profileUi.favoriteKdramas"),
-    COMICS: t("profileUi.favoritecomics"),
-    ARTIST: t("profileUi.favoriteartists"),
-    VOCALOID: t("profileUi.favoriteVocaloids"),
-    MANWHA: t("profileUi.favoritemanhwa"),
-    SPORT: t("profileUi.favoritesports"),
-    "DISNEY CHANNEL": t("profileUi.disneyChannel"),
-    MEME: t("profileUi.favoritememes"),
-    BRAINROT: t("profileUi.favoritebrainrot")
-  };
-  return labels[category] ?? category;
-}
 
 const PreferencesEditor = dynamic(() =>
   import("@/components/profile-preferences-editor").then(
     module => module.PreferencesEditor
   )
 );
+const ShowcaseStyleFields = dynamic(() =>
+  import("@/components/showcase-style-fields").then(
+    module => module.ShowcaseStyleFields
+  )
+);
+const ShowcaseAtmosphere = dynamic(() =>
+  import("@/components/showcase-atmosphere").then(
+    module => module.ShowcaseAtmosphere
+  )
+);
 
 function Featured({
   cards,
+  adapter,
+  design,
   emptyLabel,
   slots = FEATURED_CARD_LIMIT
 }: {
   cards: CollectedCard[];
+  adapter?: CatalogueCardAdapter;
+  design?: Partial<ProfileStyle>;
   emptyLabel?: string;
   slots?: number;
 }) {
   const t = useTranslations();
+  const [selected, setSelected] = useState<Card | null>(null);
   const pathname = usePathname();
   const publicPseudo = pathname.startsWith("/profile/")
     ? decodeURIComponent(pathname.slice("/profile/".length))
@@ -159,19 +173,49 @@ function Featured({
       </div>
     );
   return (
-    <div className="yk-card-grid yk-featured-stage">
-      {cards.map(card => (
-        <div key={card.instanceId}>
-          <YokaiCard {...card} imageSizes={PROFILE_CARD_IMAGE_SIZES} />
-        </div>
-      ))}
-      {Array.from({ length: Math.max(0, slots - cards.length) }, (_, i) => (
-        <div key={`empty-${i}`} className="yk-featured-empty">
-          <span aria-hidden="true">✦</span>
-          <small>{t("profileUi.emptySlot")}</small>
-        </div>
-      ))}
-    </div>
+    <>
+      <ShowcaseAtmosphere
+        scene={design?.showcaseScene}
+        intensity={design?.showcaseIntensity}
+      />
+      <div
+        className="yk-card-grid yk-featured-stage"
+        ref={showcaseScrollRef}
+        {...showcaseDesignAttributes(design)}
+      >
+        {cards.map((card, index) => (
+          <div
+            key={card.instanceId}
+            style={showcaseCardPosition(index, cards.length) as CSSProperties}
+          >
+            <button
+              type="button"
+              className="yk-profile-showcase-card"
+              onPointerMove={tiltShowcaseCard}
+              onPointerLeave={resetShowcaseCard}
+              aria-label={t("collectionUi.viewCard", { name: card.name })}
+              aria-haspopup="dialog"
+              onClick={() => setSelected(card)}
+            >
+              <YokaiCard {...card} imageSizes={PROFILE_CARD_IMAGE_SIZES} />
+            </button>
+          </div>
+        ))}
+        {Array.from({ length: Math.max(0, slots - cards.length) }, (_, i) => (
+          <div key={`empty-${i}`} className="yk-featured-empty">
+            <span aria-hidden="true">✦</span>
+            <small>{t("profileUi.emptySlot")}</small>
+          </div>
+        ))}
+      </div>
+      {selected && (
+        <CatalogueCardModal
+          selected={selected}
+          adapter={adapter}
+          onClose={() => setSelected(null)}
+        />
+      )}
+    </>
   );
 }
 
@@ -202,6 +246,12 @@ function Editor({
   const [bio, setBio] = useState(profile.bio);
   const pro = useProAccess();
   const FEATURED_CARD_LIMIT = pro ? 10 : 5;
+  const [style, setStyle] = useState(() =>
+    normalizeProfileStyle({
+      ...DEFAULT_PROFILE_STYLE,
+      ...profile.profileStyle?.style
+    })
+  );
   const [avatar, setAvatar] = useState(profile.avatarUrl);
   const ownedBannerCards = useMemo(() => {
     const cards = new Map<string, Card>();
@@ -243,6 +293,20 @@ function Editor({
     () => new Set(profile.featuredCards.map(c => c.instanceId))
   );
   const [featuredQuery, setFeaturedQuery] = useState("");
+  const [featuredRarities, setFeaturedRarities] = useState<Rarity[]>([]);
+  const [featuredCategories, setFeaturedCategories] = useState<string[]>([]);
+  const [featuredSpecialOnly, setFeaturedSpecialOnly] = useState(false);
+  const [featuredSort, setFeaturedSort] = useState<CollectionSort>("rarity");
+  const [showcaseEditorTab, setShowcaseEditorTab] = useState<"cards" | "style">(
+    "cards"
+  );
+  const draggedFeaturedId = useRef<string | null>(null);
+  const [draggingFeaturedId, setDraggingFeaturedId] = useState<string | null>(
+    null
+  );
+  const [featuredDropTarget, setFeaturedDropTarget] = useState<string | null>(
+    null
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [bannerQuery, setBannerQuery] = useState("");
@@ -264,22 +328,40 @@ function Editor({
     }
     return [...byCard.values()];
   }, [collection, selected, mode]);
-  const featuredChoices = useMemo(
+  const featuredChoices = useMemo(() => {
+    const available = unique
+      .filter(card => !selected.has(card.instanceId))
+      .filter(card =>
+        matchesCardSearch(featuredQuery, [card.name, card.category, card.anime])
+      )
+      .filter(
+        card =>
+          (!featuredRarities.length ||
+            featuredRarities.includes(card.rarity)) &&
+          (!featuredCategories.length ||
+            featuredCategories.includes(card.category)) &&
+          (!featuredSpecialOnly || card.shiny || card.isEvolved)
+      );
+    return sortCollection(available, featuredSort);
+  }, [
+    unique,
+    featuredQuery,
+    selected,
+    featuredRarities,
+    featuredCategories,
+    featuredSpecialOnly,
+    featuredSort
+  ]);
+  const featuredCategoryChoices = useMemo(
     () =>
-      unique
-        .filter(card =>
-          matchesCardSearch(featuredQuery, [
-            card.name,
-            card.category,
-            card.anime
-          ])
-        )
-        .toSorted(
-          (a, b) =>
-            Number(selected.has(b.instanceId)) -
-            Number(selected.has(a.instanceId))
-        ),
-    [unique, featuredQuery, selected]
+      [...new Set(unique.map(card => card.category))].toSorted((a, b) =>
+        a.localeCompare(b, "fr")
+      ),
+    [unique]
+  );
+  const selectedFeaturedCards = useMemo(
+    () => showcaseSelection(collection, selected),
+    [collection, selected]
   );
   function toggle(id: string) {
     setSelected(current => {
@@ -288,6 +370,47 @@ function Editor({
       else if (next.size < FEATURED_CARD_LIMIT) next.add(id);
       return next;
     });
+  }
+  function reorderFeaturedCard(id: string, beforeId: string) {
+    if (id === beforeId) return;
+    setSelected(current => {
+      const ordered = [...current];
+      const sourceIndex = ordered.indexOf(id);
+      const targetIndex = ordered.indexOf(beforeId);
+      if (sourceIndex < 0 || targetIndex < 0) return current;
+      ordered.splice(sourceIndex, 1);
+      ordered.splice(ordered.indexOf(beforeId), 0, id);
+      return new Set(ordered);
+    });
+  }
+  function moveFeaturedCard(id: string, direction: -1 | 1) {
+    setSelected(current => {
+      const ordered = [...current];
+      const sourceIndex = ordered.indexOf(id);
+      const targetIndex = sourceIndex + direction;
+      if (sourceIndex < 0 || targetIndex < 0 || targetIndex >= ordered.length)
+        return current;
+      [ordered[sourceIndex], ordered[targetIndex]] = [
+        ordered[targetIndex],
+        ordered[sourceIndex]
+      ];
+      return new Set(ordered);
+    });
+  }
+  function startFeaturedDrag(event: DragEvent<HTMLLIElement>, id: string) {
+    if (busy) {
+      event.preventDefault();
+      return;
+    }
+    draggedFeaturedId.current = id;
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", id);
+    setDraggingFeaturedId(id);
+  }
+  function endFeaturedDrag() {
+    draggedFeaturedId.current = null;
+    setDraggingFeaturedId(null);
+    setFeaturedDropTarget(null);
   }
   async function photo(file?: File) {
     if (!file || busy) return;
@@ -327,6 +450,21 @@ function Editor({
         uploadedBannerUrl,
         bannerFrame ?? undefined
       );
+      if (mode === "showcase" && pro) {
+        if (
+          JSON.stringify(style) !==
+          JSON.stringify(
+            normalizeProfileStyle({
+              ...DEFAULT_PROFILE_STYLE,
+              ...profile.profileStyle?.style
+            })
+          )
+        )
+          await import("@/lib/data/showcase-style").then(module =>
+            module.persistProfileStyle(style)
+          );
+        updated.profileStyle = { active: true, style };
+      }
       onSaved(updated);
       onClose();
     } catch (e) {
@@ -554,56 +692,369 @@ function Editor({
           </>
         )}
         {mode === "showcase" && (
-          <section>
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="font-display text-lg">
-                {t("profileUi.featuredCards")}
-              </h3>
-              <span className="text-xs text-ink-3">
-                {selected.size}/{FEATURED_CARD_LIMIT}
-              </span>
+          <>
+            <div
+              className="yk-showcase-editor-tabs"
+              role="tablist"
+              aria-label={t("profileUi.showcaseEditorTabs")}
+            >
+              <button
+                id="showcase-cards-tab"
+                type="button"
+                role="tab"
+                aria-selected={showcaseEditorTab === "cards"}
+                aria-controls="showcase-cards-panel"
+                tabIndex={showcaseEditorTab === "cards" ? 0 : -1}
+                onClick={() => setShowcaseEditorTab("cards")}
+              >
+                {t("profileUi.showcaseEditorCards")}
+              </button>
+              <button
+                id="showcase-style-tab"
+                type="button"
+                role="tab"
+                aria-selected={showcaseEditorTab === "style"}
+                aria-controls="showcase-style-panel"
+                tabIndex={showcaseEditorTab === "style" ? 0 : -1}
+                onClick={() => setShowcaseEditorTab("style")}
+              >
+                {t("profileUi.showcaseEditorStyle")}
+              </button>
             </div>
-            <p className="mt-2 text-xs text-ink-3">
-              {t("profileUi.chooseFeatured", { limit: FEATURED_CARD_LIMIT })}
-            </p>
-            <label className="sr-only" htmlFor="featured-query">
-              {t("profileUi.searchForACardToFeature")}{" "}
-            </label>
-            <input
-              id="featured-query"
-              className="auth-input mt-4"
-              type="search"
-              value={featuredQuery}
-              onChange={e => setFeaturedQuery(e.target.value)}
-              placeholder={t("collectionUi.searchCards")}
-            />
-            <div className="yk-featured-picker mt-4">
-              {featuredChoices.map(card => {
-                const featured = selected.has(card.instanceId);
-                return (
-                  <button
-                    type="button"
-                    key={card.instanceId}
-                    aria-pressed={featured}
-                    className={featured ? "is-selected" : ""}
-                    onClick={() => toggle(card.instanceId)}
-                  >
-                    <YokaiCard
-                      {...card}
-                      image={featured ? card.image : card.catalogueImage}
-                      animated={false}
-                      imageSizes={PROFILE_CARD_IMAGE_SIZES}
-                    />
+            {showcaseEditorTab === "cards" ? (
+              <section
+                id="showcase-cards-panel"
+                role="tabpanel"
+                aria-labelledby="showcase-cards-tab"
+              >
+                <div className="yk-showcase-card-selector">
+                  <div className="yk-showcase-card-selector-heading">
+                    <div>
+                      <h3 className="font-display text-lg">
+                        {t("profileUi.featuredCards")}
+                      </h3>
+                      <p>
+                        {t("profileUi.chooseFeatured", {
+                          limit: FEATURED_CARD_LIMIT
+                        })}
+                      </p>
+                      {selectedFeaturedCards.length > 1 && (
+                        <small className="yk-showcase-selection-reorder-hint">
+                          {t("profileUi.showcaseReorderHint")}
+                        </small>
+                      )}
+                    </div>
+                    <strong>
+                      {t("profileUi.showcaseSelectedCount", {
+                        count: selected.size,
+                        limit: FEATURED_CARD_LIMIT
+                      })}
+                    </strong>
+                  </div>
+                  {selectedFeaturedCards.length > 0 && (
+                    <ol
+                      className="yk-showcase-selection-strip"
+                      aria-label={t("profileUi.showcaseSelectedCards")}
+                    >
+                      {selectedFeaturedCards.map((card, index) => (
+                        <li
+                          key={card.instanceId}
+                          draggable={!busy}
+                          data-dragging={
+                            draggingFeaturedId === card.instanceId || undefined
+                          }
+                          data-drop-target={
+                            featuredDropTarget === card.instanceId &&
+                            draggingFeaturedId !== card.instanceId
+                              ? true
+                              : undefined
+                          }
+                          onDragStart={event =>
+                            startFeaturedDrag(event, card.instanceId)
+                          }
+                          onDragOver={event => event.preventDefault()}
+                          onDragEnter={() =>
+                            setFeaturedDropTarget(card.instanceId)
+                          }
+                          onDrop={event => {
+                            event.preventDefault();
+                            const draggedId =
+                              event.dataTransfer.getData("text/plain") ||
+                              draggedFeaturedId.current;
+                            if (draggedId)
+                              reorderFeaturedCard(draggedId, card.instanceId);
+                            endFeaturedDrag();
+                          }}
+                          onDragEnd={endFeaturedDrag}
+                        >
+                          <button
+                            type="button"
+                            className="yk-showcase-selection-card"
+                            onClick={() => toggle(card.instanceId)}
+                            aria-label={t("profileUi.showcaseRemoveCard", {
+                              name: card.name
+                            })}
+                            title={t("profileUi.showcaseRemoveCard", {
+                              name: card.name
+                            })}
+                            disabled={busy}
+                          >
+                            <img src={card.image} alt="" />
+                            <span className="yk-showcase-selection-order">
+                              {index + 1}
+                            </span>
+                            <span className="yk-showcase-selection-name">
+                              {card.name}
+                            </span>
+                            <span
+                              className="yk-showcase-selection-remove"
+                              aria-hidden="true"
+                            >
+                              ×
+                            </span>
+                          </button>
+                          <div className="yk-showcase-selection-actions">
+                            <button
+                              type="button"
+                              disabled={busy || index === 0}
+                              onClick={() =>
+                                moveFeaturedCard(card.instanceId, -1)
+                              }
+                              aria-label={t("profileUi.showcaseMoveEarlier", {
+                                name: card.name
+                              })}
+                              title={t("profileUi.showcaseMoveEarlier", {
+                                name: card.name
+                              })}
+                            >
+                              ←
+                            </button>
+                            <button
+                              type="button"
+                              disabled={
+                                busy ||
+                                index === selectedFeaturedCards.length - 1
+                              }
+                              onClick={() =>
+                                moveFeaturedCard(card.instanceId, 1)
+                              }
+                              aria-label={t("profileUi.showcaseMoveLater", {
+                                name: card.name
+                              })}
+                              title={t("profileUi.showcaseMoveLater", {
+                                name: card.name
+                              })}
+                            >
+                              →
+                            </button>
+                          </div>
+                        </li>
+                      ))}
+                    </ol>
+                  )}
+                </div>
+                <div className="yk-showcase-card-browser">
+                  <div className="yk-showcase-card-browser-heading">
+                    <h4>{t("profileUi.showcaseAvailableCards")}</h4>
                     <span>
-                      {featured
-                        ? t("collectionUi.selected")
-                        : t("profileUi.choose")}
+                      {t("profileUi.showcaseSearchResults", {
+                        count: featuredChoices.length
+                      })}
                     </span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
+                  </div>
+                  <div className="yk-showcase-card-picker-layout">
+                    <aside
+                      className="yk-showcase-card-filters"
+                      aria-label={t("collectionUi.collectionFilters")}
+                    >
+                      <button
+                        type="button"
+                        className="yk-filter-reset"
+                        disabled={
+                          !(
+                            featuredQuery ||
+                            featuredRarities.length ||
+                            featuredCategories.length ||
+                            featuredSpecialOnly ||
+                            featuredSort !== "rarity"
+                          )
+                        }
+                        onClick={() => {
+                          setFeaturedQuery("");
+                          setFeaturedRarities([]);
+                          setFeaturedCategories([]);
+                          setFeaturedSpecialOnly(false);
+                          setFeaturedSort("rarity");
+                        }}
+                      >
+                        {t("collectionUi.resetFilters")}
+                      </button>
+                      <div className="yk-showcase-card-filter-sections">
+                        <FilterSection
+                          title={t("collectionUi.rarity")}
+                          count={featuredRarities.length}
+                          sectionId="showcase-rarity"
+                        >
+                          <RarityChips
+                            selected={featuredRarities}
+                            count={rarity =>
+                              unique.filter(card => card.rarity === rarity)
+                                .length
+                            }
+                            onToggle={rarity =>
+                              setFeaturedRarities(current =>
+                                toggleFilterValue(current, rarity)
+                              )
+                            }
+                          />
+                        </FilterSection>
+                        <FilterSection
+                          title={t("collectionUi.category")}
+                          count={featuredCategories.length}
+                          sectionId="showcase-category"
+                        >
+                          {featuredCategoryChoices.map(category => (
+                            <button
+                              type="button"
+                              key={category}
+                              className="yk-filter-option"
+                              aria-pressed={featuredCategories.includes(
+                                category
+                              )}
+                              onClick={() =>
+                                setFeaturedCategories(current =>
+                                  toggleFilterValue(current, category)
+                                )
+                              }
+                            >
+                              <span className="yk-filter-check" />
+                              <span>{category}</span>
+                              <strong>
+                                {
+                                  unique.filter(
+                                    card => card.category === category
+                                  ).length
+                                }
+                              </strong>
+                            </button>
+                          ))}
+                        </FilterSection>
+                        <FilterSection
+                          title={t("collectionUi.status")}
+                          count={Number(featuredSpecialOnly)}
+                          sectionId="showcase-status"
+                        >
+                          <button
+                            type="button"
+                            className="yk-filter-option"
+                            aria-pressed={featuredSpecialOnly}
+                            onClick={() =>
+                              setFeaturedSpecialOnly(current => !current)
+                            }
+                          >
+                            <span className="yk-filter-check" />
+                            <span>{t("profileUi.showcaseSpecialCards")}</span>
+                            <strong>
+                              {
+                                unique.filter(
+                                  card => card.shiny || card.isEvolved
+                                ).length
+                              }
+                            </strong>
+                          </button>
+                        </FilterSection>
+                      </div>
+                    </aside>
+                    <div className="yk-showcase-card-results">
+                      <div className="yk-showcase-card-results-toolbar">
+                        <label className="sr-only" htmlFor="featured-query">
+                          {t("profileUi.searchForACardToFeature")}
+                        </label>
+                        <input
+                          id="featured-query"
+                          className="auth-input"
+                          type="search"
+                          value={featuredQuery}
+                          onChange={e => setFeaturedQuery(e.target.value)}
+                          placeholder={t("collectionUi.search")}
+                        />
+                        <label className="yk-showcase-card-sort">
+                          <span>{t("collectionUi.sortBy")}</span>
+                          <select
+                            value={featuredSort}
+                            onChange={event =>
+                              setFeaturedSort(
+                                event.target.value as CollectionSort
+                              )
+                            }
+                            aria-label={t("collectionUi.sortCollection")}
+                          >
+                            {COLLECTION_SORTS.map(option => (
+                              <option key={option.value} value={option.value}>
+                                {t("collectionUi.sortLabel", {
+                                  sort: option.value
+                                })}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                      </div>
+                      {featuredChoices.length ? (
+                        <div className="yk-featured-picker yk-showcase-card-browser-grid">
+                          {featuredChoices.map(card => (
+                            <button
+                              type="button"
+                              key={card.instanceId}
+                              onClick={() => toggle(card.instanceId)}
+                              aria-label={t("profileUi.showcaseAddCard", {
+                                name: card.name
+                              })}
+                              disabled={
+                                busy || selected.size >= FEATURED_CARD_LIMIT
+                              }
+                            >
+                              <YokaiCard
+                                {...card}
+                                image={card.catalogueImage}
+                                animated={false}
+                                imageSizes={PROFILE_CARD_IMAGE_SIZES}
+                              />
+                              <span>
+                                <b aria-hidden="true">+</b>
+                                {t("profileUi.choose")}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <p
+                          className="yk-showcase-card-search-empty"
+                          role="status"
+                        >
+                          {t("profileUi.showcaseSearchEmpty")}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </section>
+            ) : (
+              <section
+                id="showcase-style-panel"
+                role="tabpanel"
+                aria-labelledby="showcase-style-tab"
+              >
+                {pro && (
+                  <ShowcaseStyleFields
+                    cards={selectedFeaturedCards}
+                    value={style}
+                    onChange={setStyle}
+                    busy={busy}
+                  />
+                )}
+              </section>
+            )}
+          </>
         )}
       </div>
       {error && (
@@ -674,15 +1125,10 @@ function ProfileStyleEditor({
     setBusy(true);
     setError("");
     try {
-      const response = await fetch("/api/pro/profile-style", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ style })
-      });
-      if (!response.ok)
-        throw new Error("Your profile style couldn't be saved. Try again.");
+      await import("@/lib/data/showcase-style").then(module =>
+        module.persistProfileStyle(style)
+      );
       onSaved(style);
-      window.dispatchEvent(new Event("yokkai:profile-style-updated"));
       onClose();
     } catch (reason) {
       setError(
@@ -698,6 +1144,7 @@ function ProfileStyleEditor({
   return (
     <div className="space-y-6" data-profile-editor="style">
       <ProfileStyleFields
+        showShowcase={false}
         name={profile.pseudo}
         avatarUrl={profile.avatarUrl}
         value={style}
@@ -1281,6 +1728,127 @@ export function ProfileExperience({
     profile.bannerCard?.image;
   const bannerFrame =
     savedBannerFrame === undefined ? details?.bannerFrame : savedBannerFrame;
+  const activeStyle = profile.profileStyle?.active
+    ? profile.profileStyle.style
+    : undefined;
+  const metrics = (
+    <div className="yk-profile-metrics">
+      <div className="yk-profile-side-counts">
+        {!isMe && profile.canViewCollection ? (
+          <button
+            type="button"
+            onPointerEnter={warmCollectionView}
+            onFocus={warmCollectionView}
+            onClick={() => void openFriendCollection()}
+            aria-label={t("profileUi.viewCollectionCount", {
+              known: profile.cardCount == null ? "no" : "yes",
+              count: profile.cardCount ?? 0,
+              name: profile.pseudo
+            })}
+          >
+            <p>{t("profileUi.cards")}</p>
+            <strong>{profile.cardCount}</strong>
+            <span>{t("profileUi.viewCollection")}</span>
+          </button>
+        ) : (
+          <Link href="/collection">
+            <p>{t("profileUi.cards")}</p>
+            <strong>
+              {profile.canViewCollection
+                ? profile.cardCount
+                : t("profileUi.private")}
+            </strong>
+            <span>{t("profileUi.viewCollection")}</span>
+          </Link>
+        )}
+        <div>
+          <p>{t("profileUi.unique")}</p>
+          <strong>
+            {profile.canViewCollection
+              ? profile.distinctCardCount
+              : t("profileUi.private")}
+          </strong>
+        </div>
+        <button
+          type="button"
+          onClick={() => setWishlistOpen(true)}
+          disabled={!profile.canViewCollection}
+          data-profile-wishlist
+          aria-haspopup="dialog"
+          aria-label={t("profileUi.viewWishlistCount", {
+            name: profile.pseudo,
+            count: wishlist.length
+          })}
+        >
+          <p>{t("gameUi.wishlistMetadata")}</p>
+          <strong>
+            {profile.canViewCollection
+              ? fmt.number(wishlist.length)
+              : t("profileUi.private")}
+          </strong>
+          {profile.canViewCollection && (
+            <span>{t("profileUi.viewWishlist")}</span>
+          )}
+        </button>
+        <div>
+          <p>{t("profileUi.likes")}</p>
+          <strong data-profile-likes>
+            {engagement ? fmt.number(engagement.likes) : "—"}
+          </strong>
+        </div>
+      </div>
+      <div className="yk-profile-side-stats">
+        <div>
+          <p>{t("profileUi.packsOpened")}</p>
+          <strong>
+            {profile.canViewCollection
+              ? details?.boostersOpened != null
+                ? fmt.number(details.boostersOpened)
+                : "—"
+              : t("profileUi.private")}
+          </strong>
+        </div>
+        <div className="is-lr">
+          <p>✦ LR</p>
+          <strong>
+            {profile.canViewCollection
+              ? details?.lrCount != null
+                ? fmt.number(details.lrCount)
+                : "—"
+              : t("profileUi.private")}
+          </strong>
+        </div>
+        <div className="is-ssr">
+          <p>✦ SSR</p>
+          <strong>
+            {profile.canViewCollection
+              ? details?.ssrCount != null
+                ? fmt.number(details.ssrCount)
+                : "—"
+              : t("profileUi.private")}
+          </strong>
+        </div>
+      </div>
+      <div className="yk-profile-member">
+        <p>{t("profileUi.memberSince")}</p>
+        <strong>
+          {details?.joinedAt || (isMe && joined)
+            ? i18nEnabled() && !hydrated
+              ? "…"
+              : i18nEnabled()
+                ? fmt.dateTime(new Date(details?.joinedAt || joined!), {
+                    ...{ dateStyle: "long" },
+                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                  })
+                : new Date(details?.joinedAt || joined!).toLocaleDateString(
+                    "en-US",
+                    { dateStyle: "long" }
+                  )
+            : "—"}
+        </strong>
+      </div>
+    </div>
+  );
   return (
     <>
       <div
@@ -1288,24 +1856,186 @@ export function ProfileExperience({
         data-profile-compact={compact ? "true" : undefined}
         data-profile-tab={tab}
         data-profile-theme="default"
-        style={
-          showcaseColorVariables(
-            profile.profileStyle?.active
-              ? profile.profileStyle.style
-              : undefined
-          ) as CSSProperties
-        }
-        data-avatar-frame={
-          profile.profileStyle?.active
-            ? profile.profileStyle.style.avatarFrame
-            : "none"
-        }
-        data-showcase-effect={
-          profile.profileStyle?.active
-            ? profile.profileStyle.style.showcaseEffect
-            : "none"
-        }
+        style={showcaseColorVariables(activeStyle) as CSSProperties}
+        data-avatar-frame={activeStyle?.avatarFrame ?? "none"}
+        data-showcase-effect={activeStyle?.showcaseEffect ?? "none"}
       >
+        {!compact && (
+          <section className="yk-profile-recent yk-profile-overview">
+            {metrics}
+            <ProfileRecentCards
+              activity={details?.activity}
+              allowed={profile.canViewCollection}
+              failed={Boolean(detailsError)}
+              adapter={adapter.discovery}
+            />
+          </section>
+        )}
+        <header className="yk-profile-identity">
+          <div
+            className={`yk-profile-banner ${bannerImage ? "has-image" : ""} ${bannerFrame ? "has-frame" : ""}`}
+          >
+            {bannerImage && (
+              <>
+                {bannerFrame ? (
+                  <BannerImage
+                    src={bannerImage}
+                    frame={bannerFrame}
+                    fillContainer={!compact}
+                  />
+                ) : (
+                  <img
+                    src={bannerImage}
+                    alt=""
+                    aria-hidden="true"
+                    decoding="async"
+                  />
+                )}
+                <span className="yk-profile-banner-shade" />
+              </>
+            )}
+          </div>
+          <div className="yk-profile-identity-content">
+            <div className="yk-profile-intro">
+              <div className="yk-profile-avatar">
+                <Avatar
+                  name={profile.pseudo}
+                  image={profile.avatarUrl ?? undefined}
+                  size={compact ? 64 : 96}
+                />
+                <AvatarDecoration frame={activeStyle?.avatarFrame ?? "none"} />
+              </div>
+              <span className="yk-profile-identity-label">
+                {t("profileUi.collectorLabel")}
+              </span>
+              <div className="yk-profile-name-row">
+                <h2>
+                  <StyledPlayerName
+                    name={profile.pseudo}
+                    cosmetics={profile.profileStyle}
+                  />
+                </h2>
+                {!isMe && (
+                  <PlayerModeration
+                    userId={profile.id}
+                    pseudo={profile.pseudo}
+                    blockedByMe={blockedByMe}
+                    adapter={adapter.moderation}
+                    onBlocked={afterBlock}
+                  />
+                )}
+              </div>
+              <p className="yk-profile-bio">
+                {profile.bio || t("profileUi.noBioYet")}
+              </p>
+              <div
+                className={`yk-profile-actions ${profile.friendshipStatus === "accepted" && !blockedByMe ? "is-friend" : ""}`}
+              >
+                {isMe ? (
+                  <>
+                    <Button
+                      variant="secondary"
+                      onClick={() => {
+                        setEditingMode("profile");
+                        setEditing(true);
+                      }}
+                    >
+                      {t("profileUi.editProfile")}{" "}
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={() => {
+                        setEditingMode("style");
+                        setEditing(true);
+                      }}
+                    >
+                      {t("profileUi.profileStyle")}{" "}
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <FriendAction
+                      key={`${profile.id}:${profile.friendshipStatus}:${blockedByMe}`}
+                      userId={profile.id}
+                      status={profile.friendshipStatus}
+                      blockedByMe={blockedByMe}
+                      adapter={adapter.friendAction}
+                      onChanged={status =>
+                        setProfile(current =>
+                          current
+                            ? { ...current, friendshipStatus: status }
+                            : current
+                        )
+                      }
+                      onUnblocked={afterUnblock}
+                    />
+                    {profile.friendshipStatus === "accepted" &&
+                      !blockedByMe && (
+                        <FriendMessageButton
+                          key={profile.id}
+                          showTrade
+                          friend={{
+                            id: profile.id,
+                            pseudo: profile.pseudo,
+                            avatarUrl: profile.avatarUrl,
+                            profileStyle: profile.profileStyle
+                          }}
+                          adapter={adapter.messages}
+                          tradeAdapter={adapter.trades}
+                          moderationAdapter={adapter.moderation}
+                        />
+                      )}
+                  </>
+                )}
+              </div>
+              {!isMe && (
+                <Button
+                  variant="secondary"
+                  className="yk-profile-like"
+                  disabled={
+                    !engagement || likeBusy || profileBlocked || !adapter.like
+                  }
+                  aria-pressed={engagement?.likedByMe ?? false}
+                  aria-busy={likeBusy}
+                  onClick={() => void likeProfile()}
+                >
+                  <svg
+                    className="yk-profile-like-heart"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill={engagement?.likedByMe ? "currentColor" : "none"}
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" />
+                  </svg>
+                  <span className="yk-profile-like-label">
+                    {likeBusy
+                      ? t("collectionUi.saving")
+                      : engagement?.likedByMe
+                        ? t("profileUi.profileLikedAction")
+                        : t("profileUi.likeProfileAction")}
+                  </span>
+                </Button>
+              )}
+              {engagementError && (
+                <p className="yk-profile-muted" role="status">
+                  {t(
+                    gameErrorKey(
+                      engagementError,
+                      "profileUi.profileUnavailable"
+                    )
+                  )}
+                </p>
+              )}
+            </div>
+            {compact && metrics}
+          </div>
+        </header>
         {compact && (
           <section className="yk-profile-main yk-profile-compact-board">
             {!profile.canViewCollection ? (
@@ -1315,27 +2045,25 @@ export function ProfileExperience({
                 <section className="yk-profile-surface yk-profile-showcase">
                   <div className="yk-profile-section-heading">
                     <h3 className="yk-section-title">
-                      {t("profileUi.featuredCards")}
+                      {activeStyle?.showcaseTitle ||
+                        t("profileUi.featuredCards")}
                     </h3>
                   </div>
                   <Featured
+                    adapter={adapter.discovery}
+                    design={activeStyle}
                     cards={profile.featuredCards}
-                    slots={profile.profileStyle?.active ? 10 : 5}
+                    slots={activeStyle ? 10 : 5}
                     emptyLabel={t("profileUi.noFeaturedCards", {
                       name: profile.pseudo
                     })}
                   />
                 </section>
                 <section className="yk-profile-completion">
-                  <div className="yk-profile-section-heading">
-                    <h3 className="yk-section-title">
-                      {t("profileUi.favoriteBinders")}
-                    </h3>
-                  </div>
-                  <ProfileCompletion
+                  <ProfileFeaturedCollection
+                    key={profile.id}
+                    loadCards={adapter.friendAlbumCards}
                     profile={profile}
-                    details={details}
-                    detailsError={detailsError}
                     isMe={isMe}
                   />
                 </section>
@@ -1386,7 +2114,7 @@ export function ProfileExperience({
               <section className="yk-profile-surface yk-profile-showcase">
                 <div className="yk-profile-section-heading">
                   <h3 className="yk-section-title">
-                    {t("profileUi.featuredCards")}
+                    {activeStyle?.showcaseTitle || t("profileUi.featuredCards")}
                   </h3>
                   {isMe ? (
                     <Button
@@ -1405,8 +2133,10 @@ export function ProfileExperience({
                   )}
                 </div>
                 <Featured
+                  adapter={adapter.discovery}
+                  design={activeStyle}
                   cards={profile.featuredCards}
-                  slots={profile.profileStyle?.active ? 10 : 5}
+                  slots={activeStyle ? 10 : 5}
                 />
               </section>
               {adapter.previewWidgets ? (
@@ -1478,22 +2208,7 @@ export function ProfileExperience({
                     </p>
                   )}
                 </section>
-              ) : (
-                <section className="yk-profile-completion">
-                  <div className="yk-profile-section-heading">
-                    <h2>{t("profileUi.completion")}</h2>
-                    <span className="yk-profile-muted">
-                      {t("profileUi.favoriteBinders")}
-                    </span>
-                  </div>
-                  <ProfileCompletion
-                    profile={profile}
-                    details={details}
-                    detailsError={detailsError}
-                    isMe={isMe}
-                  />
-                </section>
-              )}
+              ) : null}
             </div>
             <div hidden={tab !== "activity"} className="yk-profile-panel">
               {tab === "activity" && profile.canViewCollection && (
@@ -1668,281 +2383,17 @@ export function ProfileExperience({
             </div>
           </section>
         )}
-        <aside className="yk-profile-identity">
-          <div
-            className={`yk-profile-banner ${bannerImage ? "has-image" : ""} ${bannerFrame ? "has-frame" : ""}`}
-          >
-            {bannerImage && (
-              <>
-                {bannerFrame ? (
-                  <BannerImage src={bannerImage} frame={bannerFrame} />
-                ) : (
-                  <img
-                    src={bannerImage}
-                    alt=""
-                    aria-hidden="true"
-                    decoding="async"
-                  />
-                )}
-                <span className="yk-profile-banner-shade" />
-              </>
-            )}
-          </div>
-          <div className="yk-profile-identity-content">
-            <div className="yk-profile-avatar">
-              <Avatar
-                name={profile.pseudo}
-                image={profile.avatarUrl ?? undefined}
-                size={compact ? 64 : 96}
-              />
-              <AvatarDecoration
-                frame={
-                  profile.profileStyle?.active
-                    ? profile.profileStyle.style.avatarFrame
-                    : "none"
-                }
-              />
-            </div>
-            <span className="yk-profile-identity-label">
-              {t("profileUi.collectorLabel")}
-            </span>
-            <div className="yk-profile-name-row">
-              <h2>
-                <StyledPlayerName
-                  name={profile.pseudo}
-                  cosmetics={profile.profileStyle}
-                />
-              </h2>
-              {!isMe && (
-                <PlayerModeration
-                  userId={profile.id}
-                  pseudo={profile.pseudo}
-                  blockedByMe={blockedByMe}
-                  adapter={adapter.moderation}
-                  onBlocked={afterBlock}
-                />
-              )}
-            </div>
-            <p className="yk-profile-bio">
-              {profile.bio || t("profileUi.noBioYet")}
-            </p>
-            <div
-              className={`yk-profile-actions ${profile.friendshipStatus === "accepted" && !blockedByMe ? "is-friend" : ""}`}
-            >
-              {isMe ? (
-                <>
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      setEditingMode("profile");
-                      setEditing(true);
-                    }}
-                  >
-                    {t("profileUi.editProfile")}{" "}
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      setEditingMode("style");
-                      setEditing(true);
-                    }}
-                  >
-                    {t("profileUi.profileStyle")}{" "}
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <FriendAction
-                    key={`${profile.id}:${profile.friendshipStatus}:${blockedByMe}`}
-                    userId={profile.id}
-                    status={profile.friendshipStatus}
-                    blockedByMe={blockedByMe}
-                    adapter={adapter.friendAction}
-                    onChanged={status =>
-                      setProfile(current =>
-                        current
-                          ? { ...current, friendshipStatus: status }
-                          : current
-                      )
-                    }
-                    onUnblocked={afterUnblock}
-                  />
-                  {profile.friendshipStatus === "accepted" && !blockedByMe && (
-                    <>
-                      <FriendMessageButton
-                        key={profile.id}
-                        showTrade
-                        friend={{
-                          id: profile.id,
-                          pseudo: profile.pseudo,
-                          avatarUrl: profile.avatarUrl,
-                          profileStyle: profile.profileStyle
-                        }}
-                        adapter={adapter.messages}
-                        tradeAdapter={adapter.trades}
-                        moderationAdapter={adapter.moderation}
-                      />
-                    </>
-                  )}
-                </>
-              )}
-            </div>
-            {!isMe && (
-              <Button
-                variant="secondary"
-                className="yk-profile-like"
-                disabled={
-                  !engagement || likeBusy || profileBlocked || !adapter.like
-                }
-                aria-pressed={engagement?.likedByMe ?? false}
-                aria-busy={likeBusy}
-                onClick={() => void likeProfile()}
-              >
-                <svg
-                  className="yk-profile-like-heart"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill={engagement?.likedByMe ? "currentColor" : "none"}
-                  stroke="currentColor"
-                  strokeWidth="1.7"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" />
-                </svg>
-                <span className="yk-profile-like-label">
-                  {likeBusy
-                    ? t("collectionUi.saving")
-                    : engagement?.likedByMe
-                      ? t("profileUi.profileLikedAction")
-                      : t("profileUi.likeProfileAction")}
-                </span>
-              </Button>
-            )}
-            {engagementError && (
-              <p className="yk-profile-muted" role="status">
-                {t(
-                  gameErrorKey(engagementError, "profileUi.profileUnavailable")
-                )}
-              </p>
-            )}
-            <div className="yk-profile-side-counts">
-              {!isMe && profile.canViewCollection ? (
-                <button
-                  type="button"
-                  onPointerEnter={warmCollectionView}
-                  onFocus={warmCollectionView}
-                  onClick={() => void openFriendCollection()}
-                  aria-label={t("profileUi.viewCollectionCount", {
-                    known: profile.cardCount == null ? "no" : "yes",
-                    count: profile.cardCount ?? 0,
-                    name: profile.pseudo
-                  })}
-                >
-                  <p>{t("profileUi.cards")}</p>
-                  <strong>{profile.cardCount}</strong>
-                  <span>{t("profileUi.viewCollection")}</span>
-                </button>
-              ) : (
-                <Link href="/collection">
-                  <p>{t("profileUi.cards")}</p>
-                  <strong>
-                    {profile.canViewCollection
-                      ? profile.cardCount
-                      : t("profileUi.private")}
-                  </strong>
-                </Link>
-              )}
-              <div>
-                <p>{t("profileUi.unique")}</p>
-                <strong>
-                  {profile.canViewCollection
-                    ? profile.distinctCardCount
-                    : t("profileUi.private")}
-                </strong>
-              </div>
-              <button
-                type="button"
-                onClick={() => setWishlistOpen(true)}
-                disabled={!profile.canViewCollection}
-                data-profile-wishlist
-                aria-haspopup="dialog"
-                aria-label={t("profileUi.viewWishlistCount", {
-                  name: profile.pseudo,
-                  count: wishlist.length
-                })}
-              >
-                <p>{t("gameUi.wishlistMetadata")}</p>
-                <strong>
-                  {profile.canViewCollection
-                    ? fmt.number(wishlist.length)
-                    : t("profileUi.private")}
-                </strong>
-                {profile.canViewCollection && (
-                  <span>{t("profileUi.viewWishlist")}</span>
-                )}
-              </button>
-              <div>
-                <p>{t("profileUi.likes")}</p>
-                <strong data-profile-likes>
-                  {engagement ? fmt.number(engagement.likes) : "—"}
-                </strong>
-              </div>
-            </div>
-            <div className="yk-profile-side-stats">
-              <div>
-                <p>{t("profileUi.packsOpened")}</p>
-                <strong>
-                  {profile.canViewCollection
-                    ? details?.boostersOpened != null
-                      ? fmt.number(details.boostersOpened)
-                      : "—"
-                    : t("profileUi.private")}
-                </strong>
-              </div>
-              <div className="is-lr">
-                <p>✦ LR</p>
-                <strong>
-                  {profile.canViewCollection
-                    ? details?.lrCount != null
-                      ? fmt.number(details.lrCount)
-                      : "—"
-                    : t("profileUi.private")}
-                </strong>
-              </div>
-              <div className="is-ssr">
-                <p>✦ SSR</p>
-                <strong>
-                  {profile.canViewCollection
-                    ? details?.ssrCount != null
-                      ? fmt.number(details.ssrCount)
-                      : "—"
-                    : t("profileUi.private")}
-                </strong>
-              </div>
-            </div>
-            <div className="yk-profile-member">
-              <p>{t("profileUi.memberSince")}</p>
-              <strong>
-                {details?.joinedAt || (isMe && joined)
-                  ? i18nEnabled() && !hydrated
-                    ? "…"
-                    : i18nEnabled()
-                      ? fmt.dateTime(new Date(details?.joinedAt || joined!), {
-                          ...{ dateStyle: "long" },
-                          timeZone:
-                            Intl.DateTimeFormat().resolvedOptions().timeZone
-                        })
-                      : new Date(
-                          details?.joinedAt || joined!
-                        ).toLocaleDateString("en-US", { dateStyle: "long" })
-                  : "—"}
-              </strong>
-            </div>
-          </div>
-        </aside>
+
+        {!compact && tab === "tableau" && !adapter.previewWidgets && (
+          <section className="yk-profile-completion yk-profile-featured-wide">
+            <ProfileFeaturedCollection
+              key={profile.id}
+              loadCards={adapter.friendAlbumCards}
+              profile={profile}
+              isMe={isMe}
+            />
+          </section>
+        )}
       </div>
       <Modal
         open={preferencesOpen}
@@ -2046,7 +2497,7 @@ export function ProfileExperience({
             ? "yk-profile-edit-modal"
             : editingMode === "style"
               ? "yk-profile-style-modal"
-              : "max-w-4xl"
+              : "yk-showcase-edit-modal"
         }
       >
         {isMe && editingMode === "style" ? (

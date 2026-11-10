@@ -490,6 +490,22 @@ export function Game({
       setInfo(game);
     }
   }
+  useEffect(() => {
+    let active = true;
+    const refreshFolders = () => {
+      void reloadCollection().catch(() => {});
+      void getFolders()
+        .then(next => {
+          if (active) setFolders(next);
+        })
+        .catch(() => {});
+    };
+    window.addEventListener("yokkai:folders-updated", refreshFolders);
+    return () => {
+      active = false;
+      window.removeEventListener("yokkai:folders-updated", refreshFolders);
+    };
+  }, [reloadCollection]);
   async function addFolder(name: string) {
     const folder = await createFolder(name);
     setFolders(current =>
@@ -506,10 +522,12 @@ export function Game({
       throw new Error("This action is unavailable in the simulation.");
     await moveCardToFolder(instanceId, folderId);
     await reloadCollection();
+    setFolders(await getFolders());
   }
   async function moveCards(instanceIds: string[], folderId: string | null) {
     await moveCardsToFolder(instanceIds, folderId);
     await reloadCollection();
+    setFolders(await getFolders());
   }
   async function lockCard(instanceId: string, locked: boolean) {
     if (previewData)

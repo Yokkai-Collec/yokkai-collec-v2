@@ -162,6 +162,9 @@ function renderProfile(profile) {
       default: loader => {
         if (loader.toString().includes("profile-completion"))
           return load("components/profile-completion.tsx", {
+            "@/components/profile-favorite-binders": {
+              ProfileFavoriteBinders: () => null
+            },
             "next/link": link,
             "@/components/profile-private": load(
               "components/profile-private.tsx",

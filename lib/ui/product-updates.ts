@@ -1,5 +1,5 @@
 // Change the identifier only for a new published announcement.
-export const PRODUCT_UPDATE_ID = "2026-10-binders-rankings";
+export const PRODUCT_UPDATE_ID = "2026-11-profiles-showcases-missions";
 export const PRODUCT_UPDATE_METADATA_KEY = "yokkai_last_seen_update";
 export const productUpdateKey = (userId: string) =>
   `yokkai:update:${PRODUCT_UPDATE_ID}:${userId}`;

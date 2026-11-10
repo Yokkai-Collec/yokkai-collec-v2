@@ -1564,9 +1564,21 @@ test("le sélecteur de cartes mises en avant recherche et remonte la sélection"
   assert.match(
     normalizeWhitespace(source),
     normalizeWhitespace(
-      /Number\(selected\.has\(b\.instanceId\)\)-Number\(selected\.has\(a\.instanceId\)\)/
+      /const selectedFeaturedCards = useMemo\(\(\) => showcaseSelection\(collection, selected\)/
     )
   );
+  // Master now puts selected cards in a separate tray above the available list.
+  assert.match(
+    normalizeWhitespace(source),
+    normalizeWhitespace(
+      /unique.filter\(card => !selected.has\(card.instanceId\)\)/
+    )
+  );
+  const selectedTray = source.indexOf("{selectedFeaturedCards.map(");
+  const availableList = source.indexOf("{featuredChoices.map(");
+  assert.notEqual(selectedTray, -1);
+  assert.notEqual(availableList, -1);
+  assert.ok(selectedTray < availableList);
 });
 
 test("le profil invalide l’avatar partagé et la Topbar le recharge", () => {

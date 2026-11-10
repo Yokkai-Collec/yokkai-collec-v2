@@ -7,6 +7,7 @@ import { collectionGroupKey } from "@/lib/ui/collection-groups";
 
 export type CollectionFilters = {
   query: string;
+  folders?: { id: string; cardIds?: string[] }[];
   category: string[];
   rarity: Rarity[];
   shinyOnly: boolean;
@@ -56,7 +57,13 @@ export function filterCollection(
         (!rarity.length || rarity.includes(c.rarity)) &&
         (!shinyOnly || c.shiny || c.isEvolved) &&
         (!folder ||
-          (folder === "unfiled" ? !c.folderId : c.folderId === folder)) &&
+          (folder === "unfiled"
+            ? !c.folderId &&
+              !filters.folders?.some(f => f.cardIds?.includes(c.id))
+            : c.folderId === folder ||
+              !!filters.folders
+                ?.find(f => f.id === folder)
+                ?.cardIds?.includes(c.id))) &&
         (!auctionOnly || isFrozen(c.instanceId)) &&
         (!lockedOnly || !!c.locked) &&
         (!filters.duplicatesOnly ||

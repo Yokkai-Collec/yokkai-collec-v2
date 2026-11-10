@@ -148,9 +148,13 @@ export async function saveProStyle(
     throw new ProError("PROFILE_STYLE_INVALID", 400);
   if (Object.keys(style).length && !(await hasPaidPro(userId, client)))
     throw new ProError("PRO_REQUIRED", 403);
+  // The database validation owns the list of allowed scenes. Persist the
+  // actual scene chosen by the player so every new atmosphere keeps its own
+  // identity (and does not silently render as a legacy replacement).
+  const storedStyle = style;
   const { error } = await client
     .from("profile_customizations")
-    .upsert({ user_id: userId, style });
+    .upsert({ user_id: userId, style: storedStyle });
   if (error?.message === "PRO_REQUIRED")
     throw new ProError("PRO_REQUIRED", 403);
   if (error?.message === "ACCOUNT_DELETED")
@@ -160,5 +164,5 @@ export async function saveProStyle(
   if (error?.message === "PROFILE_STYLE_RATE_LIMITED")
     throw new ProError("PROFILE_STYLE_RATE_LIMITED", 429);
   if (error) throw new ProError("PRO_UNAVAILABLE");
-  return { style };
+  return { style: storedStyle };
 }

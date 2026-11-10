@@ -1,0 +1,42 @@
+.yk-collection-cover-editor {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+.yk-collection-cover-editor p {
+  color: var(--color-ink-3);
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.yk-collection-cover-preview {
+  width: min(100%, 520px);
+  aspect-ratio: 16 / 10;
+  object-fit: contain;
+  background: #080d17;
+  border-radius: 12px;
+  justify-self: center;
+  border: 1px solid var(--color-veil);
+}
+.yk-collection-cover-file {
+  display: grid;
+  gap: 12px;
+  font-size: 13px;
+}
+.yk-collection-cover-file input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px;
+  border: 1px solid var(--color-veil);
+  border-radius: 8px;
+}
+.yk-collection-cover-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.yk-collection-cover-actions .yk-button {
+  flex: 1 1 140px;
+}
