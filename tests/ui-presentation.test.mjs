@@ -2548,7 +2548,7 @@ test("la Collection groupe les tuiles et sélectionne tous les exemplaires dispo
   );
   assert.match(
     normalizeWhitespace(source),
-    normalizeWhitespace(/>\{tc\("firstOwner"\)\}</)
+    normalizeWhitespace(/<FirstLrCopyMeta[^]*instanceIds=\{group\.cards\.map/)
   );
   assert.match(
     normalizeWhitespace(source),

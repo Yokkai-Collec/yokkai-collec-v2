@@ -197,29 +197,35 @@ export function CatalogueCardModal({
   const getCardDiscovery = adapter?.get ?? liveGetCardDiscovery;
   const toggleWishlist = adapter?.toggle ?? liveToggleWishlist;
   const [discovery, setDiscovery] = useState<{
-    cardId: string;
+    key: string;
     detail?: CardDiscovery;
     error?: string;
   }>();
   const [busy, setBusy] = useState(false);
+  const selectionKey = selected
+    ? `${selected.id}:${selected.shiny ? "shiny" : "normal"}`
+    : undefined;
   const detail =
-    selected && discovery?.cardId === selected.id
+    selectionKey && discovery?.key === selectionKey
       ? discovery.detail
       : undefined;
   const error =
-    selected && discovery?.cardId === selected.id ? discovery.error : undefined;
+    selectionKey && discovery?.key === selectionKey
+      ? discovery.error
+      : undefined;
   useEffect(() => {
     if (!selected) return;
     let active = true;
     const cardId = selected.id;
-    void getCardDiscovery(cardId).then(
+    const key = selectionKey!;
+    void getCardDiscovery(cardId, 0, 12, !!selected.shiny).then(
       value => {
-        if (active) setDiscovery({ cardId, detail: value });
+        if (active) setDiscovery({ key, detail: value });
       },
       e => {
         if (active)
           setDiscovery({
-            cardId,
+            key,
             error:
               e instanceof Error
                 ? gameErrorKey(e)
@@ -230,26 +236,25 @@ export function CatalogueCardModal({
     return () => {
       active = false;
     };
-  }, [selected, getCardDiscovery]);
+  }, [selected, selectionKey, getCardDiscovery]);
   async function toggle() {
     if (!selected || busy) return;
+    const key = selectionKey!;
     setBusy(true);
     setDiscovery(current =>
-      current?.cardId === selected.id
-        ? { ...current, error: undefined }
-        : current
+      current?.key === key ? { ...current, error: undefined } : current
     );
     try {
       const wishlisted = await toggleWishlist(selected.id);
       setDiscovery(current =>
-        current?.cardId === selected.id && current.detail
+        current?.key === key && current.detail
           ? { ...current, detail: { ...current.detail, wishlisted } }
           : current
       );
       onWishlistChange?.(selected.id, wishlisted);
     } catch (e) {
       setDiscovery({
-        cardId: selected.id,
+        key,
         detail,
         error:
           e instanceof Error
@@ -262,19 +267,21 @@ export function CatalogueCardModal({
   }
   async function moreOwners() {
     if (!selected || !detail) return;
+    const key = selectionKey!;
     try {
       const next = await getCardDiscovery(
         selected.id,
         detail.owners.length,
-        12
+        12,
+        !!selected.shiny
       );
       setDiscovery({
-        cardId: selected.id,
+        key,
         detail: { ...next, owners: [...detail.owners, ...next.owners] }
       });
     } catch (e) {
       setDiscovery({
-        cardId: selected.id,
+        key,
         detail,
         error:
           e instanceof Error ? gameErrorKey(e) : "catalogueUi.ownersUnavailable"

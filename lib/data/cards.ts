@@ -13,7 +13,7 @@ export function cardFilterParam(value: CardFilter = ""): string {
   return value.length > 1 ? JSON.stringify(value) : (value[0] ?? "");
 }
 export type Category = string;
-export type Card = { id: string; name: string; category: Category; anime?: string; liveFranchise?: boolean; rarity: Rarity; image: string; wishlisted?: boolean; binders?: import("@/lib/ui/binder-identity").CardBinder[] };
+export type Card = { id: string; name: string; category: Category; anime?: string; liveFranchise?: boolean; rarity: Rarity; image: string; shiny?: boolean; wishlisted?: boolean; binders?: import("@/lib/ui/binder-identity").CardBinder[] };
 export type CataloguePage = { cards: Card[]; total: number };
 type CatalogueSearchPage = { items: Card[]; total: number };
 export type LicenseCatalogueTotal = { license: string; total: number; binderKey?: string; origin?: "series" | "source" };

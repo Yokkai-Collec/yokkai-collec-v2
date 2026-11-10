@@ -38,12 +38,14 @@ async function call<T>(
 export const getCardDiscovery = async (
   cardId: string,
   offset = 0,
-  limit = 12
+  limit = 12,
+  shiny = false
 ) => {
   const discovery = await call<CardDiscovery>("get_card_discovery", {
     p_card_id: cardId,
     p_owner_offset: offset,
-    p_owner_limit: limit
+    p_owner_limit: limit,
+    p_is_shiny: shiny
   });
   return {
     ...discovery,

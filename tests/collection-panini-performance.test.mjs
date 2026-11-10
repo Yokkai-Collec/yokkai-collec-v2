@@ -111,7 +111,10 @@ test("les cartes manquantes du Classeur restent visibles en niveaux de gris", ()
   );
   assert.match(catalogueModal, /tv\("currentOwners"\)/);
   assert.match(catalogueModal, /tv\("addToMyWishlist"\)/);
-  assert.match(catalogueModal, /getCardDiscovery\(cardId\)/);
+  assert.match(
+    catalogueModal,
+    /getCardDiscovery\(cardId, 0, 12, !!selected\.shiny\)/
+  );
   assert.doesNotMatch(collection, /<span>\?<\/span>/);
   assert.doesNotMatch(collection, />Non possédée</);
 });
