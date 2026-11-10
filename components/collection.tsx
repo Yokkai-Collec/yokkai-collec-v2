@@ -1507,6 +1507,51 @@ export function CollectionView({
       {!renderCardControls && collectionTabs}
     </div>
   );
+  const detailUtilityActions = selected && (
+    <div className="yk-detail-utility-actions">
+      {!readOnly && onSetLocked && (
+        <button
+          type="button"
+          className="yk-detail-lock-toggle yk-button"
+          aria-label={selected.locked ? tc("unlockCard") : tc("lockCard")}
+          aria-pressed={!!selected.locked}
+          title={
+            selected.locked
+              ? tc("lockedCantBeDestroyedOrTraded")
+              : tc("lockThisCard")
+          }
+          disabled={lockBusy || !!selectedMeta?.frozen}
+          onClick={() => void toggleSelectedLock()}
+        >
+          <ProtectedIcon size={17} />
+        </button>
+      )}
+      {localPreview ? (
+        <p
+          className="text-xs text-ink-3"
+          title={tc("sharingAndReportingAreUnavailableInThisLocal")}
+        >
+          {tc("localDemo")}
+        </p>
+      ) : (
+        <>
+          {!readOnly && (
+            <CardShareButton
+              key={selected.instanceId}
+              instanceId={selected.instanceId}
+              name={selected.name}
+              iconOnly
+            />
+          )}
+          <CardReportButton
+            cardId={selected.id}
+            cardName={selected.name}
+            iconOnly
+          />
+        </>
+      )}
+    </div>
+  );
   return (
     <section
       aria-label={detailOnly ? tc("cardDetails") : tc("cardCollection")}
@@ -2319,7 +2364,11 @@ export function CollectionView({
         open={!!selected && !discardConfirm && !auctionOpen && !evolveConfirm}
         onClose={closeDetail}
         title={tc("cardDetails")}
-        className="yk-card-detail-modal"
+        hideTitle={!detailOnly && !readOnly}
+        headerActions={
+          !detailOnly && !readOnly ? detailUtilityActions : undefined
+        }
+        className={`yk-card-detail-modal ${!detailOnly && !readOnly ? "yk-card-detail-compact" : ""}`}
       >
         {selected && (
           <div className="yk-detail-grid">
@@ -2361,76 +2410,39 @@ export function CollectionView({
               )}
             </div>
             <div className="yk-detail-info">
-              <header className="yk-detail-header">
-                <div className="yk-detail-heading">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span
-                      className={`text-sm font-bold tracking-widest ${rarityText[selected.rarity]}`}
-                    >
-                      {cardRarityLabel(
-                        selected.rarity,
-                        selected.shiny,
-                        selected.isEvolved
-                      )}
-                    </span>
-                  </div>
-                  <div className="yk-detail-title-row">
-                    <h3 className="font-display text-[28px] leading-tight">
-                      {selected.name}
-                    </h3>
-                    {!readOnly && onSetLocked && (
-                      <button
-                        type="button"
-                        className="yk-detail-lock-toggle"
-                        aria-label={
-                          selected.locked ? tc("unlockCard") : tc("lockCard")
-                        }
-                        aria-pressed={!!selected.locked}
-                        title={
-                          selected.locked
-                            ? tc("lockedCantBeDestroyedOrTraded")
-                            : tc("lockThisCard")
-                        }
-                        disabled={lockBusy || !!selectedMeta?.frozen}
-                        onClick={() => void toggleSelectedLock()}
+              {(detailOnly || readOnly) && (
+                <header className="yk-detail-header">
+                  <div className="yk-detail-heading">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span
+                        className={`text-sm font-bold tracking-widest ${rarityText[selected.rarity]}`}
                       >
-                        <ProtectedIcon size={17} />
-                      </button>
-                    )}
+                        {cardRarityLabel(
+                          selected.rarity,
+                          selected.shiny,
+                          selected.isEvolved
+                        )}
+                      </span>
+                    </div>
+                    <div className="yk-detail-title-row">
+                      <h3 className="font-display text-[28px] leading-tight">
+                        {selected.name}
+                      </h3>
+                    </div>
                   </div>
                   {lockError && (
                     <p role="alert" className="mt-2 text-xs text-danger">
                       {tError(gameErrorKey(lockError))}
                     </p>
                   )}
-                </div>
-                <div className="yk-detail-utility-actions">
-                  {localPreview ? (
-                    <p
-                      className="text-xs text-ink-3"
-                      title={tc("sharingAndReportingAreUnavailableInThisLocal")}
-                    >
-                      {tc("localDemo")}
-                    </p>
-                  ) : (
-                    <>
-                      {!readOnly && (
-                        <CardShareButton
-                          key={selected.instanceId}
-                          instanceId={selected.instanceId}
-                          name={selected.name}
-                          iconOnly
-                        />
-                      )}
-                      <CardReportButton
-                        cardId={selected.id}
-                        cardName={selected.name}
-                        iconOnly
-                      />
-                    </>
-                  )}
-                </div>
-              </header>
+                  {detailUtilityActions}
+                </header>
+              )}
+              {!detailOnly && !readOnly && lockError && (
+                <p role="alert" className="text-xs text-danger">
+                  {tError(gameErrorKey(lockError))}
+                </p>
+              )}
               {(selectedGroup?.cards.length ?? 0) > 1 && (
                 <div className="yk-copy-picker">
                   <span className="yk-section-title">
@@ -2469,7 +2481,14 @@ export function CollectionView({
               <dl className="yk-detail-facts">
                 <div>
                   <dt>{tc("category")}</dt>
-                  <dd>{selected.category}</dd>
+                  <dd>
+                    <Link
+                      className="underline underline-offset-4 hover:text-ink"
+                      href={`/catalog?category=${encodeURIComponent(selected.category)}`}
+                    >
+                      {selected.category}
+                    </Link>
+                  </dd>
                 </div>
                 <div>
                   <dt>{tc("obtainedOn")}</dt>
@@ -2575,9 +2594,24 @@ export function CollectionView({
                           setEvolutionError("");
                           setEvolveConfirm(true);
                         }}
+                        aria-label={tc("evolveTarget")}
                       >
-                        {tc("evolveTarget", {
-                          rarity: selected?.rarity ?? "SSR"
+                        {tc.rich("evolveTargetIcon", {
+                          infinity: () => (
+                            <svg
+                              width="24"
+                              height="16"
+                              viewBox="0 4 24 16"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2.8"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              aria-hidden="true"
+                            >
+                              <path d="M6 16c5 0 7-8 12-8a4 4 0 0 1 0 8c-5 0-7-8-12-8a4 4 0 1 0 0 8Z" />
+                            </svg>
+                          )
                         })}
                       </Button>
                     </div>

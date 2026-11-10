@@ -10,6 +10,7 @@ import { useTranslations, useFormatter, useLocale } from "next-intl";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
+  Suspense,
   useCallback,
   useEffect,
   useMemo,
@@ -2051,11 +2052,35 @@ export function ProfileView({
   );
 }
 
-export function SearchView({
+export function SearchView(
+  props: {
+    loadPage?: typeof getCataloguePage;
+    previewCategories?: string[];
+    pageHeading?: ReactNode;
+  } = {}
+) {
+  return (
+    <Suspense fallback={null}>
+      <SearchViewFromUrl {...props} />
+    </Suspense>
+  );
+}
+
+function SearchViewFromUrl(props: Parameters<typeof SearchView>[0]) {
+  const params = useSearchParams();
+  const category = params.get("category") ?? "";
+  return (
+    <SearchViewContent key={category} {...props} initialCategory={category} />
+  );
+}
+
+function SearchViewContent({
   loadPage = getCataloguePage,
+  initialCategory = "",
   previewCategories,
   pageHeading
 }: {
+  initialCategory?: string;
   loadPage?: typeof getCataloguePage;
   previewCategories?: string[];
   pageHeading?: ReactNode;
@@ -2067,7 +2092,9 @@ export function SearchView({
     previewCategories ?? []
   );
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<string[]>([]);
+  const [category, setCategory] = useState<string[]>(
+    initialCategory ? [initialCategory] : []
+  );
   const [rarity, setRarity] = useState<Rarity[]>([]);
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Card | null>(null);

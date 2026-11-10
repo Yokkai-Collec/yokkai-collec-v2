@@ -130,6 +130,7 @@ test("a banned token gets ACCOUNT_BANNED; an active player is unaffected", async
     ["select public.claim_achievement('first_pack')"],
     ["select public.toggle_wishlist($1)", [card]],
     ["select public.create_folder('Banned folder')"],
+    ["select public.set_collection_cover_framed('invalid',null,null)"],
     ["select public.update_profile('bio',null,array[]::uuid[],null)"],
     ["select public.report_user($1,'spam')", [other]],
     [

@@ -394,6 +394,7 @@
     "destroyCount": "Destroy {count}",
     "sortLabel": "{sort, select, rarity {Rarity} recent {Newest first} oldest {Oldest first} name {Name (A → Z)} other {Rarity}}",
     "evolveTarget": "Evolve to INFINITY",
+    "evolveTargetIcon": "Evolve to <infinity></infinity>",
     "evolutionCombineSuffix": " normal copies into one evolved card.",
     "evolutionCustomCarry": " copies. Their custom image carries over to INFINITY.",
     "evolutionResultLabel": "1 ∞",
