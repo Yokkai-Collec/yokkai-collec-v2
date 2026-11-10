@@ -980,7 +980,9 @@ export function ProfileExperience({
             />
           </section>
         )}
-        <header className="yk-profile-identity">
+        <header
+          className={`yk-profile-identity ${bannerImage ? "" : "no-banner"}`}
+        >
           <div
             className={`yk-profile-banner ${bannerImage ? "has-image" : ""} ${bannerFrame ? "has-frame" : ""}`}
           >
@@ -1096,41 +1098,41 @@ export function ProfileExperience({
                       )}
                   </>
                 )}
-              </div>
-              {!isMe && (
-                <Button
-                  variant="secondary"
-                  className="yk-profile-like"
-                  disabled={
-                    !engagement || likeBusy || profileBlocked || !adapter.like
-                  }
-                  aria-pressed={engagement?.likedByMe ?? false}
-                  aria-busy={likeBusy}
-                  onClick={() => void likeProfile()}
-                >
-                  <svg
-                    className="yk-profile-like-heart"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill={engagement?.likedByMe ? "currentColor" : "none"}
-                    stroke="currentColor"
-                    strokeWidth="1.7"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
+                {!isMe && (
+                  <Button
+                    variant="secondary"
+                    className="yk-profile-like"
+                    disabled={
+                      !engagement || likeBusy || profileBlocked || !adapter.like
+                    }
+                    aria-pressed={engagement?.likedByMe ?? false}
+                    aria-busy={likeBusy}
+                    onClick={() => void likeProfile()}
                   >
-                    <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" />
-                  </svg>
-                  <span className="yk-profile-like-label">
-                    {likeBusy
-                      ? t("collectionUi.saving")
-                      : engagement?.likedByMe
-                        ? t("profileUi.profileLikedAction")
-                        : t("profileUi.likeProfileAction")}
-                  </span>
-                </Button>
-              )}
+                    <svg
+                      className="yk-profile-like-heart"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill={engagement?.likedByMe ? "currentColor" : "none"}
+                      stroke="currentColor"
+                      strokeWidth="1.7"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" />
+                    </svg>
+                    <span className="yk-profile-like-label">
+                      {likeBusy
+                        ? t("collectionUi.saving")
+                        : engagement?.likedByMe
+                          ? t("profileUi.profileLikedAction")
+                          : t("profileUi.likeProfileAction")}
+                    </span>
+                  </Button>
+                )}
+              </div>
               {engagementError && (
                 <p className="yk-profile-muted" role="status">
                   {t(
