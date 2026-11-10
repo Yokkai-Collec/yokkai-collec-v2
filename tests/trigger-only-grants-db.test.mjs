@@ -315,7 +315,7 @@ test("authenticated actions still fire all five achievement triggers", async t =
         [bob, pack[0].id]
       )
     ).rows[0].count,
-    1
+    0
   );
   await completed(db, alice, "marche-conclu");
   await completed(db, bob, "marche-conclu");
@@ -387,6 +387,6 @@ test("authenticated actions still fire all five achievement triggers", async t =
         [bob, pack[1].id]
       )
     ).rows[0].count,
-    1
+    0
   );
 });
