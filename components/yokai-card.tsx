@@ -343,6 +343,15 @@ export function YokaiCard({
               </span>
               <span className="yk-card-badges">
                 <span className="yk-card-badge">{rarity}</span>
+                {evolved && shiny && rarity === "LR" && (
+                  <span
+                    className="yk-shiny-badge"
+                    title="Shiny"
+                    aria-label="Shiny"
+                  >
+                    ✧
+                  </span>
+                )}
                 {special && (
                   <span
                     className={`yk-shiny-badge${evolved ? " yk-evolved-badge" : ""}`}

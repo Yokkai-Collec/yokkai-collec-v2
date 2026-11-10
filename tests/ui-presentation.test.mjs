@@ -1838,7 +1838,7 @@ test("Collection, Catalogue et Marché partagent une seule échelle de colonnes"
   }
 });
 
-test("collection requires five normal SSR copies or three normal LR copies for INFINITY", () => {
+test("collection requires five normal SSR copies or three normal/Shiny LR copies for INFINITY", () => {
   const source = readFileSync(
     path.join(root, "components/collection.tsx"),
     "utf8"
@@ -1869,7 +1869,9 @@ test("collection requires five normal SSR copies or three normal LR copies for I
   );
   assert.match(
     normalizeWhitespace(source),
-    normalizeWhitespace(/!selected.shiny&& !selected.isEvolved/)
+    normalizeWhitespace(
+      /\(selected.rarity === "LR" \|\| !selected.shiny\)&& !selected.isEvolved/
+    )
   );
   assert.match(
     normalizeWhitespace(source),
@@ -2514,7 +2516,9 @@ test("la Collection groupe les tuiles et sélectionne tous les exemplaires dispo
   );
   assert.match(
     normalizeWhitespace(source),
-    normalizeWhitespace(/const groups = groupCollection\(filtered\)/)
+    normalizeWhitespace(
+      /const groups = groupCollection\(filtered, displayedCopies\)/
+    )
   );
   assert.match(
     normalizeWhitespace(source),
@@ -3970,4 +3974,18 @@ test("« All » de la collection ajoute la page courante sans effacer les autres
   assert.match(onAll, /\.\.\.current,/);
   assert.match(onAll, /visibleGroups\.flatMap/);
   assert.doesNotMatch(onAll, /\bgroups\.flatMap/);
+});
+
+test("LR Infinity Shiny displays both variant markers", () => {
+  const { YokaiCard } = load("components/yokai-card.tsx");
+  const html = render(YokaiCard, {
+    ...card,
+    rarity: "LR",
+    shiny: true,
+    isEvolved: true,
+    animated: false
+  });
+  assert.match(html, /yk-evolved-symbol/);
+  assert.match(html, /LR INFINITY Shiny/);
+  assert.match(html, /aria-label="Shiny"/);
 });
