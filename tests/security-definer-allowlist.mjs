@@ -75,7 +75,9 @@ const allowlist = {
   "public.get_discord_reward_status()": ["authenticated"], // Own gift/prompt booleans only, no caller-supplied identity or Discord id.
   "public.dismiss_discord_reward_prompt()": ["authenticated"], // Permanently dismisses only auth.uid()'s home invitation after ban/deletion guards; grants no reward.
   "public.set_collection_cover(text, text)": ["authenticated"], // Walid approved: own target and paid Pro; HTTPS Imgur/Pinterest links or validated own media; reset allowed after expiry.
+  "public.set_collection_cover_framed(text, text, jsonb)": ["authenticated"], // Walid approved: same owner- and Pro-gated cover writer; framing metadata is validated server-side with the media update.
   "public.get_collection_covers(uuid, text[])": ["authenticated"], // Walid approved: bounded cosmetic read, collection privacy and featured-folder visibility.
+  "public.get_collection_cover_frames(uuid, text[])": ["authenticated"], // Walid approved: bounded frame read for the same visible collections; Pro-gated owner media only.
   "public.get_profile_featured_items(uuid)": ["authenticated"], // Walid approved: unified read with collection privacy and no private folder data.
   "public.set_profile_featured_selection(text[], uuid[])": ["authenticated"], // Walid approved: active owner only, bounded selection, own folders, atomic update, collection favorites unchanged.
   "public.save_license_folder(uuid, text, text, uuid[], boolean)": [
