@@ -1,13 +1,11 @@
+import { readProfileSource } from "./helpers/profile-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import ts from "typescript";
 import { englishMessages } from "./helpers/i18n.mjs";
 
-const source = readFileSync(
-  new URL("../components/profile.tsx", import.meta.url),
-  "utf8"
-);
+const source = readProfileSource();
 const tree = ts.createSourceFile(
   "profile.tsx",
   source,
@@ -74,7 +72,14 @@ test("Basic players can change the style draft but cannot save or publish it", (
   assert.equal(englishMessages.profileUi.proRequired, "Pro required");
   assert.match(style, /t\("profileUi.stylePreviewNotice"\)/);
   assert.match(englishMessages.profileUi.stylePreviewNotice, /Preview is free/);
-  assert.match(style, /fetch\("\/api\/pro\/profile-style"/);
+  assert.match(style, /module\.persistProfileStyle\(style\)/);
+  const save = readFileSync(
+    new URL("../lib/data/showcase-style.ts", import.meta.url),
+    "utf8"
+  );
+  assert.match(save, /fetch\("\/api\/pro\/profile-style"/);
+  assert.match(save, /method: "POST"/);
+  assert.match(save, /JSON\.stringify\(\{ style \}\)/);
 });
 
 test("the showcase editor contains only the existing bounded card picker", () => {

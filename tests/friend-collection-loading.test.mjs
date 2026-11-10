@@ -157,9 +157,7 @@ function harness(adapter) {
     "next/dynamic": {
       __esModule: true,
       default: loader =>
-        /profile-completion|profile-featured/.test(loader.toString())
-          ? stub
-          : CollectionView
+        /module\.CollectionView/.test(loader.toString()) ? CollectionView : stub
     },
     "next/navigation": {
       usePathname: () => "/profile/Alice",
@@ -199,6 +197,8 @@ function harness(adapter) {
     "@/components/friends": { FriendAction: stub, FriendMessageButton: stub },
     "@/lib/data/profile": {},
     "@/lib/data/wishlist": {},
+    "@/lib/ui/collection-sort": load("lib/ui/collection-sort.ts", {}),
+    "@/components/collection-filters": {},
     "@/lib/ui/card-search": {},
     "@/lib/ui/banner-card-sort": {},
     "@/components/collection": { CollectionView }

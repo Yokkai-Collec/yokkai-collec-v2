@@ -1,3 +1,4 @@
+import { readProfileSource } from "./helpers/profile-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -152,7 +153,12 @@ for (const [method, kind] of [
 
 test("profile editor and previews advertise the new 4 MB limit", () => {
   const read = name =>
-    readFileSync(new URL(`../components/${name}.tsx`, import.meta.url), "utf8");
+    name === "profile"
+      ? readProfileSource()
+      : readFileSync(
+          new URL(`../components/${name}.tsx`, import.meta.url),
+          "utf8"
+        );
   assert.match(read("profile"), /t\("profileUi.jpgpngwebPOrGIFUpTo4"\)/);
   assert.match(englishMessages.profileUi.jpgpngwebPOrGIFUpTo4, /Up to 4 MB/);
   if (read("profile").includes("data-owned-banner-picker")) {

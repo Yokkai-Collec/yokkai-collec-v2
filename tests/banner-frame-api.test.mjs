@@ -1,3 +1,4 @@
+import { readProfileSource } from "./helpers/profile-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -101,10 +102,7 @@ test("missing migration or invalid framing never silently discards the requested
 });
 
 test("the editor checks migration availability before uploading a cropped image", () => {
-  const source = readFileSync(
-    new URL("../components/profile.tsx", import.meta.url),
-    "utf8"
-  );
+  const source = readProfileSource();
   const submit = source.slice(
     source.indexOf("async function submit()"),
     source.indexOf("return (", source.indexOf("async function submit()"))

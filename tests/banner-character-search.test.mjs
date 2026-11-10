@@ -1,3 +1,4 @@
+import { readProfileSource } from "./helpers/profile-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -17,10 +18,7 @@ function loadHelper(path) {
 
 const { matchesCardSearch } = loadHelper("../lib/ui/card-search.ts");
 const { compareBannerCards } = loadHelper("../lib/ui/banner-card-sort.ts");
-const source = readFileSync(
-  new URL("../components/profile.tsx", import.meta.url),
-  "utf8"
-);
+const source = readProfileSource();
 const ast = ts.createSourceFile(
   "profile.tsx",
   source,

@@ -8,7 +8,10 @@ export function cardRarityLabel(
     (isEvolved || (shiny && rarity === "SSR")) &&
     (rarity === "SSR" || rarity === "LR")
   )
-    return rarity + (rarity === "SSR" ? " INFINITY" : " EVOLVED");
+    return (
+      rarity +
+      (rarity === "SSR" ? " INFINITY" : shiny ? " INFINITY Shiny" : " EVOLVED")
+    );
   if (shiny && rarity === "LR") return "LR Shiny";
   return rarity;
 }

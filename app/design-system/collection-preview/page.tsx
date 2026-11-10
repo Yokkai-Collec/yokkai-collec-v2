@@ -52,6 +52,19 @@ cards.push(
   }))
 );
 
+cards.push(
+  ...Array.from({ length: 6 }, (_, index): CollectedCard => ({
+    ...cards[0],
+    id: "preview-mixed-lr",
+    instanceId: `preview-mixed-lr-${index}`,
+    name: "Mixed LR",
+    shiny: index === 5,
+    isEvolved: false,
+    isFirstOwner: false,
+    obtainedAt: new Date(Date.UTC(2026, 8, 25 - index)).toISOString()
+  }))
+);
+
 export default function CollectionPreview() {
   return (
     <>
