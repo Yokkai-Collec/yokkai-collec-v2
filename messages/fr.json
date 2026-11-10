@@ -56,6 +56,27 @@
     "reset": "Remettre la couverture d’origine"
   },
   "packs": {
+    "decisionCard": {
+      "aboutStats": "À propos de ces chiffres",
+      "title": "Avant de choisir",
+      "wishlisted": "Dans ta liste de souhaits",
+      "owned": "Ta collection",
+      "owners": "Propriétaires visibles",
+      "market": "Prix moyen des ventes",
+      "sellValue": "Vente immédiate",
+      "copies": "{count, plural, =0 {Nouvelle carte} one {# exemplaire} other {# exemplaires}}",
+      "players": "{count, plural, one {# joueur} other {# joueurs}}",
+      "noSales": "Aucune vente conclue",
+      "loading": "Chargement des informations…",
+      "unavailable": "Indisponible",
+      "statsNote": "Propriétaires et prix du marché incluent les exemplaires évolués de même statut Shiny. Seules les collections visibles sont comptées. La valeur du marché est la moyenne des enchères vendues.",
+      "ifKept": "Garde cette carte ; les autres cartes sont vendues.",
+      "keepReward": "Tu reçois aussi <amount></amount> pour les autres cartes.",
+      "back": "Retour aux choix",
+      "choose": "Choisir cette carte",
+      "error": "Les données du marché et des propriétaires sont indisponibles. Tu peux toujours choisir cette carte.",
+      "retry": "Réessayer"
+    },
     "clickTheFanToRevealCards": "Clique sur l’éventail ou appuie sur Entrée pour découvrir tes cartes",
     "loadingCollection": "Chargement de la collection…",
     "loadingCinematic": "Chargement de la cinématique…",

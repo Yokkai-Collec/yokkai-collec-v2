@@ -41,9 +41,9 @@ const CollectionView = dynamic(
   { loading: function LoadingCollection() { const tp = useTranslations("packs"); return <p role="status">{tp("loadingCollection")}</p>; } }
 );
 
-const CatalogueCardModal = dynamic(() =>
-  import("@/components/catalogue-card-modal").then(
-    module => module.CatalogueCardModal
+const DecisionCardModal = dynamic(() =>
+  import("@/components/decision-card-modal").then(
+    module => module.DecisionCardModal
   )
 );
 
@@ -137,6 +137,7 @@ export function BoosterReveal({
   packCount = 1,
   cards,
   collection = [],
+  collectionReady = true,
   folders = [],
   revealed,
   onReveal,
@@ -165,6 +166,7 @@ export function BoosterReveal({
   revealed: number;
   onReveal: (index: number) => void;
   collection?: CollectedCard[];
+  collectionReady?: boolean;
   folders?: Folder[];
   onReturn: () => void;
   onNext?: () => void;
@@ -223,7 +225,7 @@ export function BoosterReveal({
       new Set(cards.filter(card => card.locked).map(card => card.instanceId))
   );
   const [detailCard, setDetailCard] = useState<RevealCard | null>(null);
-  const [catalogueCard, setCatalogueCard] = useState<RevealCard | null>(null);
+  const [decisionCard, setDecisionCard] = useState<RevealCard | null>(null);
   const [auctioned, setAuctioned] = useState(() => new Set<string>());
   const [batchReview, setBatchReview] = useState<{ at: number; page: number } | null>(null);
   const [showAll, setShowAll] = useState(false);
@@ -718,7 +720,7 @@ export function BoosterReveal({
                     }${tp("badgeSuffix", { wishlist: String(!!card.wishlisted), duplicate: String(isDuplicate(card)) })}`}
                     onClick={() =>
                       choosing
-                        ? setCatalogueCard(card)
+                        ? setDecisionCard(card)
                         : selecting
                           ? toggleSelection(card.instanceId)
                           : overview && localPreview && !onAuction && !onSetLocked ? setInspected(card) : setDetailCard(card)
@@ -1077,17 +1079,19 @@ export function BoosterReveal({
           </>
         )}
       </Modal>
-      {catalogueCard && (
-        <CatalogueCardModal
-          selected={catalogueCard}
-          ownedCopies={
-            collection.filter(
-              owned =>
-                owned.id === catalogueCard.id &&
-                !cards.some(card => card.instanceId === owned.instanceId)
-            ).length
-          }
-          onClose={() => setCatalogueCard(null)}
+      {decisionCard && choosing && (
+        <DecisionCardModal
+          key={decisionCard.instanceId}
+          card={decisionCard}
+          ownedCopies={collectionReady ? collection.filter(owned => owned.id === decisionCard.id && !!owned.shiny === !!decisionCard.shiny && !owned.isEvolved && !cards.some(card => card.instanceId === owned.instanceId)).length : undefined}
+          keepReward={decisionReward(decisionCard.instanceId)}
+          disabled={decision?.busy || confirming}
+          onClose={() => setDecisionCard(null)}
+          onChoose={() => {
+            setPick(decisionCard.instanceId);
+            setDecisionCard(null);
+            setConfirm(true);
+          }}
         />
       )}
       {detailCard && (
@@ -1523,6 +1527,7 @@ export function Boosters({
           key={draw[0].instanceId}
           cards={revealCards}
           collection={collection}
+          collectionReady={collectionReady}
           folders={folders}
           revealed={revealed}
           onReveal={onReveal}
