@@ -1668,3 +1668,22 @@
     padding-inline: calc(var(--spacing) * 2);
   }
 }
+
+@media (min-width: 761px) {
+  .yk-card-detail-compact > div:first-child {
+    position: absolute;
+    top: 28px;
+    right: 28px;
+    margin-bottom: 0;
+  }
+  .yk-card-detail-compact .yk-detail-info {
+    padding-top: 64px;
+  }
+  .yk-card-detail-compact .yk-detail-info:has(> .yk-copy-picker:first-child) {
+    padding-top: 0;
+  }
+  .yk-card-detail-compact .yk-copy-picker {
+    min-height: 64px;
+    padding-right: 208px;
+  }
+}

@@ -281,6 +281,7 @@ export function Modal({
   onClose,
   title,
   hideTitle = false,
+  headerActions,
   children,
   className = ""
 }: {
@@ -288,6 +289,7 @@ export function Modal({
   onClose: () => void;
   title: string;
   hideTitle?: boolean;
+  headerActions?: ReactNode;
   children: ReactNode;
   className?: string;
 }) {
@@ -373,6 +375,7 @@ export function Modal({
         >
           {title}
         </h2>
+        {headerActions}
         <button
           type="button"
           autoFocus

@@ -1507,6 +1507,51 @@ export function CollectionView({
       {!renderCardControls && collectionTabs}
     </div>
   );
+  const detailUtilityActions = selected && (
+    <div className="yk-detail-utility-actions">
+      {!readOnly && onSetLocked && (
+        <button
+          type="button"
+          className="yk-detail-lock-toggle yk-button"
+          aria-label={selected.locked ? tc("unlockCard") : tc("lockCard")}
+          aria-pressed={!!selected.locked}
+          title={
+            selected.locked
+              ? tc("lockedCantBeDestroyedOrTraded")
+              : tc("lockThisCard")
+          }
+          disabled={lockBusy || !!selectedMeta?.frozen}
+          onClick={() => void toggleSelectedLock()}
+        >
+          <ProtectedIcon size={17} />
+        </button>
+      )}
+      {localPreview ? (
+        <p
+          className="text-xs text-ink-3"
+          title={tc("sharingAndReportingAreUnavailableInThisLocal")}
+        >
+          {tc("localDemo")}
+        </p>
+      ) : (
+        <>
+          {!readOnly && (
+            <CardShareButton
+              key={selected.instanceId}
+              instanceId={selected.instanceId}
+              name={selected.name}
+              iconOnly
+            />
+          )}
+          <CardReportButton
+            cardId={selected.id}
+            cardName={selected.name}
+            iconOnly
+          />
+        </>
+      )}
+    </div>
+  );
   return (
     <section
       aria-label={detailOnly ? tc("cardDetails") : tc("cardCollection")}
@@ -2319,7 +2364,10 @@ export function CollectionView({
         onClose={closeDetail}
         title={tc("cardDetails")}
         hideTitle={!detailOnly && !readOnly}
-        className="yk-card-detail-modal"
+        headerActions={
+          !detailOnly && !readOnly ? detailUtilityActions : undefined
+        }
+        className={`yk-card-detail-modal ${!detailOnly && !readOnly ? "yk-card-detail-compact" : ""}`}
       >
         {selected && (
           <div className="yk-detail-grid">
@@ -2361,8 +2409,8 @@ export function CollectionView({
               )}
             </div>
             <div className="yk-detail-info">
-              <header className="yk-detail-header">
-                {(detailOnly || readOnly) && (
+              {(detailOnly || readOnly) && (
+                <header className="yk-detail-header">
                   <div className="yk-detail-heading">
                     <div className="flex flex-wrap items-center gap-2">
                       <span
@@ -2381,58 +2429,19 @@ export function CollectionView({
                       </h3>
                     </div>
                   </div>
-                )}
-                {lockError && (
-                  <p role="alert" className="mt-2 text-xs text-danger">
-                    {tError(gameErrorKey(lockError))}
-                  </p>
-                )}
-                <div className="yk-detail-utility-actions">
-                  {!readOnly && onSetLocked && (
-                    <button
-                      type="button"
-                      className="yk-detail-lock-toggle yk-button"
-                      aria-label={
-                        selected.locked ? tc("unlockCard") : tc("lockCard")
-                      }
-                      aria-pressed={!!selected.locked}
-                      title={
-                        selected.locked
-                          ? tc("lockedCantBeDestroyedOrTraded")
-                          : tc("lockThisCard")
-                      }
-                      disabled={lockBusy || !!selectedMeta?.frozen}
-                      onClick={() => void toggleSelectedLock()}
-                    >
-                      <ProtectedIcon size={17} />
-                    </button>
-                  )}
-                  {localPreview ? (
-                    <p
-                      className="text-xs text-ink-3"
-                      title={tc("sharingAndReportingAreUnavailableInThisLocal")}
-                    >
-                      {tc("localDemo")}
+                  {lockError && (
+                    <p role="alert" className="mt-2 text-xs text-danger">
+                      {tError(gameErrorKey(lockError))}
                     </p>
-                  ) : (
-                    <>
-                      {!readOnly && (
-                        <CardShareButton
-                          key={selected.instanceId}
-                          instanceId={selected.instanceId}
-                          name={selected.name}
-                          iconOnly
-                        />
-                      )}
-                      <CardReportButton
-                        cardId={selected.id}
-                        cardName={selected.name}
-                        iconOnly
-                      />
-                    </>
                   )}
-                </div>
-              </header>
+                  {detailUtilityActions}
+                </header>
+              )}
+              {!detailOnly && !readOnly && lockError && (
+                <p role="alert" className="text-xs text-danger">
+                  {tError(gameErrorKey(lockError))}
+                </p>
+              )}
               {(selectedGroup?.cards.length ?? 0) > 1 && (
                 <div className="yk-copy-picker">
                   <span className="yk-section-title">
