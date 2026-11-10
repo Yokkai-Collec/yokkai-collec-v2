@@ -21,7 +21,11 @@ export function ShowcasePreview({
 }) {
   const t = useTranslations("profileUi");
   return (
-    <section className="yk-showcase-live-preview" aria-label={t("livepreview")}>
+    <section
+      className="yk-showcase-live-preview"
+      aria-label={t("livepreview")}
+      style={showcaseColorVariables(value) as CSSProperties}
+    >
       <ShowcaseAtmosphere
         scene={value.showcaseScene}
         intensity={value.showcaseIntensity}
@@ -29,7 +33,6 @@ export function ShowcasePreview({
       <header>
         <span>{t("livepreview")}</span>
         <h3>{value.showcaseTitle || t("featuredCards")}</h3>
-        {value.showcaseDescription && <p>{value.showcaseDescription}</p>}
       </header>
       {cards.length ? (
         <div

@@ -1569,15 +1569,6 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
     justify-content: safe center;
   }
 }
-@container (min-width: 1200px) {
-  .yk-profile-featured-collection
-    .yk-profile-favorite-grid:has(> li:nth-child(5)):not(
-      :has(> li:nth-child(6))
-    ) {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-}
-
 /* A showcase presents the selected cards; unused editor slots stay out of view. */
 .yk-profile-showcase-card {
   display: block;
@@ -1664,4 +1655,678 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   .yk-profile-showcase
   .yk-featured-stage:has(> div:not(.yk-featured-empty)) {
   padding-block: 8px 10px;
+}
+/* Two complementary panels: recent pulls and a conventional profile banner. */
+.yk-profile-recent {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--color-veil);
+  border-radius: 20px;
+  background:
+    radial-gradient(ellipse at 50% 80%, #23345440, transparent 70%),
+    var(--color-night);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.yk-profile-recent-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.yk-profile-recent-heading h2 {
+  margin: 0;
+  font-size: 20px;
+}
+.yk-profile-recent-heading p {
+  margin: 6px 0 0;
+  color: var(--color-ink-3);
+  font-size: 12px;
+}
+.yk-profile-recent-controls {
+  display: flex;
+  gap: 6px;
+}
+.yk-profile-recent-controls button {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-veil);
+  border-radius: 50%;
+  background: #0d1524;
+  color: inherit;
+  cursor: pointer;
+}
+.yk-profile-recent-controls button:hover {
+  border-color: #becde4;
+  background: #1c293d;
+}
+.yk-profile-recent-rail {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  min-width: 0;
+  padding: 32px 6px 18px;
+  margin-block: auto;
+}
+.yk-profile-recent-rail::-webkit-scrollbar {
+  display: none;
+}
+.yk-profile-recent-item {
+  flex: 0 0 164px;
+  min-width: 0;
+}
+.yk-profile-recent-card {
+  display: block;
+  width: 100%;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.yk-profile-recent-card:hover {
+  transform: translateY(-6px);
+}
+.yk-profile-recent-card:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 5px;
+  border-radius: 12px;
+}
+.yk-profile-recent-item time {
+  display: block;
+  text-align: center;
+  font-size: 11px;
+  color: var(--color-ink-3);
+  margin-top: 14px;
+}
+.yk-profile-recent-empty {
+  margin: auto;
+  padding: 48px 12px;
+  text-align: center;
+  color: var(--color-ink-3);
+}
+.yk-profile-hub:not([data-profile-compact]) > .yk-profile-recent {
+  grid-column: 1;
+  grid-row: 2;
+}
+.yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent)
+  > .yk-profile-main {
+  grid-row: 3;
+}
+@media (min-width: 1024px) {
+  .yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+  }
+  .yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent)
+    > .yk-profile-recent {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent)
+    > .yk-profile-identity {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent)
+    > .yk-profile-main {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent)
+    .yk-profile-identity-content {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 18px 22px;
+    gap: 16px;
+  }
+  .yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent)
+    .yk-profile-intro {
+    grid-template-columns: 72px minmax(0, 1fr);
+    padding: 0;
+    max-width: none;
+    margin: 0;
+  }
+  .yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent)
+    .yk-profile-intro
+    > .yk-profile-avatar {
+    width: 72px;
+    height: 72px;
+    grid-row: 1 / 4;
+  }
+  .yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent)
+    .yk-profile-avatar
+    > :first-child {
+    width: 64px;
+    height: 64px;
+  }
+  .yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent)
+    .yk-profile-metrics {
+    border-left: 0;
+    border-top: 1px solid var(--color-veil);
+    padding: 14px 0 0;
+    gap: 12px;
+  }
+  .yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent)
+    .yk-profile-side-counts {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent)
+    .yk-profile-actions {
+    margin-top: 10px;
+  }
+}
+@media (max-width: 639px) {
+  .yk-profile-recent {
+    padding: 16px;
+  }
+  .yk-profile-recent-heading {
+    flex-wrap: wrap;
+  }
+  .yk-profile-recent-item {
+    flex-basis: 140px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .yk-profile-recent-card {
+    transition: none;
+  }
+}
+
+.yk-profile-recent-card .yk-card {
+  box-shadow: none;
+}
+
+@media (min-width: 1024px) {
+  .yk-profile-recent-rail {
+    display: grid;
+    grid-template-rows: repeat(2, auto);
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(130px, calc((100% - 32px) / 3));
+    gap: 22px 16px;
+    padding: 22px 5px 12px;
+    margin-block: auto;
+  }
+  .yk-profile-recent-item {
+    width: 100%;
+  }
+  .yk-profile-recent-item time {
+    margin-top: 8px;
+  }
+  .yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent)
+    .yk-profile-side-counts
+    p {
+    margin-bottom: 4px;
+  }
+  .yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent)
+    .yk-profile-side-stats
+    > div {
+    padding: 9px 12px;
+  }
+  .yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent)
+    .yk-profile-side-stats
+    strong {
+    font-size: 20px;
+  }
+}
+
+/* One continuous profile panel, with a compact recent-pulls strip. */
+.yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent) {
+  gap: 0;
+}
+.yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent)
+  > .yk-profile-main {
+  margin-top: 20px;
+}
+.yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent)
+  > .yk-profile-identity {
+  border-radius: 20px 20px 0 0;
+  border-bottom: 0;
+  background: var(--color-night);
+}
+.yk-profile-hub:not([data-profile-compact]) > .yk-profile-recent {
+  border-radius: 0 0 20px 20px;
+  border-top: 0;
+  background: var(--color-night);
+}
+.yk-profile-recent-rail {
+  display: flex;
+  gap: 12px;
+  padding: 22px 4px 16px;
+  margin-block: 0;
+}
+.yk-profile-recent-item {
+  width: auto;
+  flex: 0 0 96px;
+}
+.yk-profile-recent-item time {
+  margin-top: 8px;
+  font-size: 10px;
+}
+.yk-profile-recent > .yk-profile-metrics {
+  margin-top: 14px;
+}
+.yk-profile-recent-heading h2 {
+  font-size: 18px;
+}
+.yk-profile-recent-heading p {
+  line-height: 1.5;
+}
+@media (min-width: 1024px) {
+  .yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent)
+    > .yk-profile-identity {
+    border-radius: 20px 0 0 20px;
+    border: 1px solid var(--color-veil);
+    border-right: 0;
+  }
+  .yk-profile-hub:not([data-profile-compact]) > .yk-profile-recent {
+    border-radius: 0 20px 20px 0;
+    border: 1px solid var(--color-veil);
+    border-left: 0;
+    padding: 26px 24px;
+    justify-content: center;
+  }
+  .yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent)
+    .yk-profile-identity-content {
+    padding: 24px 30px;
+  }
+  .yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent)
+    .yk-profile-intro {
+    grid-template-columns: 112px minmax(0, 1fr);
+    column-gap: 22px;
+  }
+  .yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent)
+    .yk-profile-intro
+    > .yk-profile-avatar {
+    width: 112px;
+    height: 112px;
+    align-self: center;
+  }
+  .yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent)
+    .yk-profile-avatar
+    > :first-child {
+    width: 104px;
+    height: 104px;
+  }
+  .yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent)
+    .yk-profile-name-row
+    h2 {
+    font-size: clamp(32px, 3vw, 42px);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+  }
+  .yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent)
+    .yk-profile-bio {
+    font-size: 15px;
+    line-height: 1.65;
+    margin-top: 8px;
+  }
+  .yk-profile-recent-item {
+    flex-basis: 100px;
+  }
+  .yk-profile-recent > .yk-profile-metrics {
+    margin-top: 16px;
+  }
+}
+@media (max-width: 374px) {
+  .yk-profile-recent-item {
+    flex-basis: 88px;
+  }
+}
+
+/* Recent pulls keep their rarity frames without an outer animated glow. */
+.yk-profile-recent-card .yk-card {
+  --card-pulse: none;
+  --card-glow: none;
+  box-shadow: none;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-recent
+  > .yk-profile-metrics {
+  border: 0;
+  padding: 0;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+/* Match the production profile summary and its understated gold links. */
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-recent
+  .yk-profile-side-counts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 12px;
+  margin: 0;
+  padding: 8px 0 0;
+  border: 0;
+  border-top: 1px solid var(--color-veil);
+  background: transparent;
+  overflow: visible;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-recent
+  .yk-profile-side-counts
+  > * {
+  min-width: 0;
+  min-height: 82px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 7px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: transparent;
+  outline: none;
+  text-align: left;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-recent
+  .yk-profile-side-counts
+  p {
+  order: 0;
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--color-ink-3);
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-recent
+  .yk-profile-side-counts
+  strong {
+  order: 0;
+  font-size: 20px;
+  line-height: 1.15;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink-1);
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-recent
+  .yk-profile-side-counts
+  span {
+  display: block;
+  margin: 1px 0 0;
+  font-size: 9px;
+  line-height: 1.5;
+  color: var(--color-accent-gold);
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-recent
+  .yk-profile-side-counts
+  > :is(a, button:not(:disabled)) {
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-recent
+  .yk-profile-side-counts
+  > :is(a, button:not(:disabled)):hover {
+  border-color: var(--color-accent-gold);
+  background: rgba(255, 211, 118, 0.025);
+  outline: none;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-recent
+  .yk-profile-side-counts
+  > :is(a, button):focus-visible {
+  border-color: var(--color-accent-gold);
+  outline: 2px solid var(--color-accent-gold);
+  outline-offset: 2px;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-recent
+  .yk-profile-side-stats {
+  gap: 10px;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-recent
+  .yk-profile-side-stats
+  > div {
+  padding: 13px 14px;
+  background: #0b111e;
+  border-radius: 12px;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-recent
+  .yk-profile-side-stats
+  strong {
+  font-size: 25px;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-recent
+  .yk-profile-member {
+  padding: 2px 4px;
+  gap: 6px 10px;
+  justify-content: flex-end;
+  text-align: right;
+}
+@media (min-width: 640px) {
+  .yk-profile-hub:not([data-profile-compact])
+    .yk-profile-recent
+    .yk-profile-side-counts {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+  }
+}
+
+.yk-profile-recent-caption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+.yk-profile-recent-caption time {
+  margin: 0;
+}
+.yk-profile-recent-source {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--color-veil);
+  border-radius: 7px;
+  color: #9eaac0;
+  background: #0c1320;
+}
+.yk-profile-recent-source svg {
+  width: 14px;
+  height: 14px;
+}
+.yk-profile-recent-source[data-source="trade"] {
+  color: #a7cbff;
+}
+.yk-profile-recent-source[data-source="pack"] {
+  color: var(--color-accent-gold);
+}
+.yk-profile-recent-source[data-source="auction"] {
+  color: var(--color-accent-gold);
+}
+
+/* Read the player summary first, then explore their latest cards. */
+.yk-profile-hub:not([data-profile-compact]) > .yk-profile-overview {
+  gap: 22px;
+  justify-content: center;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-overview
+  > .yk-profile-metrics {
+  margin: 0;
+  gap: 14px;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-overview
+  .yk-profile-side-counts {
+  border: 0;
+  padding: 0;
+  gap: 8px;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-overview
+  .yk-profile-side-counts
+  > * {
+  min-height: 84px;
+  padding: 12px 10px;
+  border-radius: 10px;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-overview
+  .yk-profile-side-counts
+  > :is(a, button:not(:disabled)):hover {
+  border-color: #ffffff30;
+  background: #ffffff05;
+}
+.yk-profile-overview .yk-profile-recent-content {
+  min-width: 0;
+  border-top: 1px solid var(--color-veil);
+  padding-top: 20px;
+}
+.yk-profile-overview .yk-profile-recent-heading h2 {
+  font-size: 16px;
+  font-weight: 650;
+}
+.yk-profile-overview .yk-profile-recent-heading p {
+  font-size: 11px;
+  margin-top: 4px;
+}
+.yk-profile-overview .yk-profile-recent-controls button {
+  background: transparent;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease;
+}
+.yk-profile-overview .yk-profile-recent-controls button:focus-visible {
+  outline: 2px solid var(--color-ink-1);
+  outline-offset: 3px;
+}
+.yk-profile-overview .yk-profile-recent-rail {
+  padding: 16px 4px 4px;
+  gap: 12px;
+  margin: 0;
+}
+.yk-profile-overview .yk-profile-recent-item {
+  flex-basis: 94px;
+}
+.yk-profile-overview .yk-profile-recent-card:hover {
+  transform: translateY(-4px);
+}
+@media (min-width: 1024px) {
+  .yk-profile-hub:not([data-profile-compact]) > .yk-profile-overview {
+    padding: 26px 28px;
+  }
+  .yk-profile-overview .yk-profile-recent-item {
+    flex-basis: 104px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .yk-profile-overview .yk-profile-recent-card {
+    transition: none;
+  }
+}
+
+@media (max-width: 1023px) {
+  .yk-profile-hub:not([data-profile-compact]):has(> .yk-profile-recent)
+    > .yk-profile-featured-wide {
+    grid-row: 4;
+  }
+}
+
+/* Panoramic covers with a separate, readable caption. */
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-featured-collection
+  .yk-profile-favorite-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 16px;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-featured-collection
+  .yk-profile-favorite-binder {
+  display: grid;
+  grid-template-rows: 170px auto;
+  min-height: 0;
+  height: 100%;
+  border-radius: 20px;
+  background: #0b111b;
+  border-color: #c4d6f21c;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-featured-collection
+  .yk-profile-favorite-binder::after {
+  display: none;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-featured-collection
+  .yk-profile-favorite-binder
+  .yk-binder-cover {
+  position: relative;
+  inset: auto;
+  z-index: 0;
+  width: 100%;
+  height: 170px;
+  overflow: hidden;
+  border-radius: 0;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-featured-collection
+  .yk-binder-cover
+  img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-featured-collection
+  .yk-profile-favorite-copy {
+  grid-template-rows: auto auto 3px auto;
+  gap: 8px;
+  padding: 16px 18px;
+  max-width: none;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-featured-collection
+  .yk-profile-favorite-copy
+  strong {
+  align-self: start;
+  font-size: 17px;
+  text-shadow: none;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-featured-collection
+  .yk-profile-featured-kind {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1;
+}
+.yk-profile-hub:not([data-profile-compact])
+  .yk-profile-featured-collection
+  .yk-profile-favorite-open {
+  z-index: 1;
+}
+@media (max-width: 639px) {
+  .yk-profile-hub:not([data-profile-compact])
+    .yk-profile-featured-collection
+    .yk-profile-favorite-binder {
+    grid-template-rows: 150px auto;
+  }
+  .yk-profile-hub:not([data-profile-compact])
+    .yk-profile-featured-collection
+    .yk-profile-favorite-binder
+    .yk-binder-cover {
+    height: 150px;
+  }
 }

@@ -5,7 +5,15 @@ import vm from "node:vm";
 import ts from "typescript";
 import { replayMigrations } from "../scripts/replay-migrations.mjs";
 
-const scenes = ["lightning", "flames", "mist", "aurora", "embers"];
+const scenes = [
+  "lightning",
+  "mist",
+  "cyber",
+  "sakura",
+  "embers",
+  "feathers",
+  "vhs"
+];
 function load(file) {
   const exports = {};
   vm.runInNewContext(
@@ -58,6 +66,27 @@ test("atmospheres survive normalization and retain bounded Pro-only storage", as
       [user]
     );
   }
+  assert.equal(
+    style.normalizeProfileStyle({
+      ...style.DEFAULT_PROFILE_STYLE,
+      showcaseScene: "flames"
+    }).showcaseScene,
+    "sakura"
+  );
+  assert.equal(
+    style.normalizeProfileStyle({
+      ...style.DEFAULT_PROFILE_STYLE,
+      showcaseScene: "cosmos"
+    }).showcaseScene,
+    "vhs"
+  );
+  assert.equal(
+    style.normalizeProfileStyle({
+      ...style.DEFAULT_PROFILE_STYLE,
+      showcaseScene: "stars"
+    }).showcaseScene,
+    "velvet"
+  );
   await assert.rejects(save("custom-css"), /PROFILE_STYLE_INVALID/);
   assert.equal(
     style.normalizeProfileStyle({

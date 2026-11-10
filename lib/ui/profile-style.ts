@@ -164,18 +164,25 @@ export type ProfileStyle = {
   showcaseColor?: string;
   showcaseScene?:
     | "velvet"
+    // Legacy starry sky value; normalized to velvet and no longer selectable.
     | "stars"
+    | "cyber"
+    // Legacy storage value reused by the VHS / CRT replacement scene.
+    | "cosmos"
+    | "sakura"
+    // Legacy saved values are normalized to the two scenes above.
     | "marble"
     | "lightning"
     | "flames"
     | "mist"
     | "aurora"
     | "embers"
-    | "frost";
+    | "frost"
+    | "feathers"
+    | "vhs";
   showcaseLayout?: "row" | "fan" | "spotlight";
   showcaseIntensity?: number;
   showcaseTitle?: string;
-  showcaseDescription?: string;
   backgroundUrl?: string;
   cardBackUrl?: string;
 };
@@ -193,6 +200,18 @@ export function normalizeProfileStyle(input: ProfileStyle): ProfileStyle {
   const fontId = ["rounded", "display"].includes(input.font)
     ? "modern"
     : input.font;
+  const showcaseScene =
+    input.showcaseScene === "marble"
+      ? "cyber"
+      : input.showcaseScene === "aurora"
+        ? "feathers"
+        : input.showcaseScene === "cosmos"
+          ? "vhs"
+          : input.showcaseScene === "stars"
+            ? "velvet"
+            : input.showcaseScene === "flames"
+              ? "sakura"
+              : input.showcaseScene;
   return {
     theme: ["default", "amethyst", "midnight", "rose", "ocean"].includes(
       input.theme ?? ""
@@ -213,16 +232,16 @@ export function normalizeProfileStyle(input: ProfileStyle): ProfileStyle {
       : {}),
     ...([
       "velvet",
-      "stars",
-      "marble",
+      "cyber",
+      "sakura",
       "lightning",
-      "flames",
       "mist",
-      "aurora",
       "embers",
-      "frost"
-    ].includes(input.showcaseScene ?? "")
-      ? { showcaseScene: input.showcaseScene }
+      "frost",
+      "feathers",
+      "vhs"
+    ].includes(showcaseScene ?? "")
+      ? { showcaseScene }
       : {}),
     ...(["row", "fan", "spotlight"].includes(input.showcaseLayout ?? "")
       ? { showcaseLayout: input.showcaseLayout }
@@ -238,14 +257,6 @@ export function normalizeProfileStyle(input: ProfileStyle): ProfileStyle {
             .replace(/[\u0000-\u001f\u007f]/g, "")
             .trim()
             .slice(0, 60)
-        }
-      : {}),
-    ...(typeof input.showcaseDescription === "string"
-      ? {
-          showcaseDescription: input.showcaseDescription
-            .replace(/[\u0000-\u001f\u007f]/g, "")
-            .trim()
-            .slice(0, 160)
         }
       : {}),
     ...(safeStyleMedia(input.backgroundUrl)

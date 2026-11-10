@@ -31,30 +31,20 @@ export function ShowcaseDesignFields({
             }
           />
         </label>
-        <label>
-          {t("showcaseDescription")}
-          <input
-            className="auth-input"
-            maxLength={160}
-            value={value.showcaseDescription ?? ""}
-            onChange={e =>
-              onChange({ ...value, showcaseDescription: e.target.value })
-            }
-          />
-        </label>
         <fieldset>
           <legend>{t("showcaseScene")}</legend>
           <div className="yk-showcase-choices">
             {(
               [
                 "velvet",
-                "stars",
-                "marble",
+                "cyber",
                 "lightning",
                 "mist",
-                "aurora",
+                "sakura",
                 "embers",
-                "frost"
+                "frost",
+                "feathers",
+                "vhs"
               ] as const
             ).map(scene => (
               <button
@@ -64,8 +54,15 @@ export function ShowcaseDesignFields({
                 data-scene={scene}
                 aria-pressed={
                   (value.showcaseScene === "flames"
-                    ? "embers"
-                    : (value.showcaseScene ?? "velvet")) === scene
+                    ? "sakura"
+                    : value.showcaseScene === "marble"
+                      ? "cyber"
+                      : value.showcaseScene === "aurora" ||
+                          value.showcaseScene === "cosmos"
+                        ? value.showcaseScene === "aurora"
+                          ? "feathers"
+                          : "vhs"
+                        : (value.showcaseScene ?? "velvet")) === scene
                 }
                 onClick={() =>
                   onChange({

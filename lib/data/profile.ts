@@ -94,6 +94,7 @@ export type ProfileDetails = {
   activity: {
     id: string;
     kind: "obtained" | "bought" | "sold";
+    acquisitionSource?: "trade" | "pack" | "auction" | "unknown";
     at: string;
     price?: number;
     card: Card;

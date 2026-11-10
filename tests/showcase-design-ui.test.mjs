@@ -35,7 +35,7 @@ test("unsafe showcase values cannot become scene selectors or unbounded captions
   assert.equal(safe.showcaseLayout, undefined);
   assert.equal(safe.showcaseIntensity, undefined);
   assert.equal(safe.showcaseTitle, "x".repeat(60));
-  assert.equal(safe.showcaseDescription, "y".repeat(160));
+  assert.equal("showcaseDescription" in safe, false);
 });
 test("resetting name cosmetics preserves the complete independent showcase design", () => {
   const design = {
@@ -43,8 +43,7 @@ test("resetting name cosmetics preserves the complete independent showcase desig
     showcaseLayout: "spotlight",
     showcaseIntensity: 35,
     showcaseColor: "#123456",
-    showcaseTitle: "Treasures",
-    showcaseDescription: "My selection"
+    showcaseTitle: "Treasures"
   };
   const reset = style.resetProfileAppearance({
     ...style.DEFAULT_PROFILE_STYLE,

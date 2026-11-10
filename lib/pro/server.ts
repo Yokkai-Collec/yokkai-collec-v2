@@ -148,9 +148,22 @@ export async function saveProStyle(
     throw new ProError("PROFILE_STYLE_INVALID", 400);
   if (Object.keys(style).length && !(await hasPaidPro(userId, client)))
     throw new ProError("PRO_REQUIRED", 403);
+  const profileStyle = style as { showcaseScene?: unknown };
+  // Older deployments only recognize these stored scene identifiers. Keep
+  // their storage contract while the client renders the replacement scenes.
+  const storedStyle =
+    profileStyle.showcaseScene === "cyber"
+      ? { ...style, showcaseScene: "marble" }
+      : profileStyle.showcaseScene === "sakura"
+        ? { ...style, showcaseScene: "flames" }
+        : profileStyle.showcaseScene === "feathers"
+          ? { ...style, showcaseScene: "aurora" }
+          : profileStyle.showcaseScene === "vhs"
+            ? { ...style, showcaseScene: "cosmos" }
+            : style;
   const { error } = await client
     .from("profile_customizations")
-    .upsert({ user_id: userId, style });
+    .upsert({ user_id: userId, style: storedStyle });
   if (error?.message === "PRO_REQUIRED")
     throw new ProError("PRO_REQUIRED", 403);
   if (error?.message === "ACCOUNT_DELETED")
@@ -160,5 +173,5 @@ export async function saveProStyle(
   if (error?.message === "PROFILE_STYLE_RATE_LIMITED")
     throw new ProError("PROFILE_STYLE_RATE_LIMITED", 429);
   if (error) throw new ProError("PRO_UNAVAILABLE");
-  return { style };
+  return { style: storedStyle };
 }

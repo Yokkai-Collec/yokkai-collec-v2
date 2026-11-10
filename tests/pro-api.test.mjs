@@ -219,6 +219,62 @@ test("Pro API authenticates self, rejects CSRF and never trusts forged paid/user
       .user_id,
     "6c000000-0000-4000-8000-000000000001"
   );
+  const compatible = setup({ active: true });
+  assert.equal(
+    (
+      await compatible
+        .load("app/api/pro/profile-style/route.ts")
+        .POST(jsonRequest({ style: { showcaseScene: "cyber" } }))
+    ).status,
+    200
+  );
+  assert.equal(
+    compatible.calls.find(call => call.table === "profile_customizations").value
+      .style.showcaseScene,
+    "marble"
+  );
+  const sakura = setup({ active: true });
+  assert.equal(
+    (
+      await sakura
+        .load("app/api/pro/profile-style/route.ts")
+        .POST(jsonRequest({ style: { showcaseScene: "sakura" } }))
+    ).status,
+    200
+  );
+  assert.equal(
+    sakura.calls.find(call => call.table === "profile_customizations").value
+      .style.showcaseScene,
+    "flames"
+  );
+  const feathers = setup({ active: true });
+  assert.equal(
+    (
+      await feathers
+        .load("app/api/pro/profile-style/route.ts")
+        .POST(jsonRequest({ style: { showcaseScene: "feathers" } }))
+    ).status,
+    200
+  );
+  assert.equal(
+    feathers.calls.find(call => call.table === "profile_customizations").value
+      .style.showcaseScene,
+    "aurora"
+  );
+  const vhs = setup({ active: true });
+  assert.equal(
+    (
+      await vhs
+        .load("app/api/pro/profile-style/route.ts")
+        .POST(jsonRequest({ style: { showcaseScene: "vhs" } }))
+    ).status,
+    200
+  );
+  assert.equal(
+    vhs.calls.find(call => call.table === "profile_customizations").value.style
+      .showcaseScene,
+    "cosmos"
+  );
   const failed = setup({ rpcError: { message: "private provider secret" } });
   const unavailable = await failed
     .load("app/api/pro/benefits/route.ts")

@@ -154,133 +154,137 @@ function FeaturedPicker({
     );
   return (
     <div className="yk-profile-highlight-picker">
-      <p className="yk-featured-hint">
-        {t(creating ? "chooseLicenseHint" : "hint")}
-      </p>
-      {creating ? (
-        <h3>{t("chooseLicenseTitle")}</h3>
-      ) : (
-        <div
-          className="yk-profile-highlight-picker-tabs"
-          role="group"
-          aria-label={t("type")}
-        >
-          {(["binder", "folder"] as const).map(kind => (
+      <div className="yk-profile-highlight-picker-scroll">
+        <p className="yk-featured-hint">
+          {t(creating ? "chooseLicenseHint" : "hint")}
+        </p>
+        {creating ? (
+          <h3>{t("chooseLicenseTitle")}</h3>
+        ) : (
+          <div
+            className="yk-profile-highlight-picker-tabs"
+            role="group"
+            aria-label={t("type")}
+          >
+            {(["binder", "folder"] as const).map(kind => (
+              <Button
+                key={kind}
+                variant="secondary"
+                aria-pressed={tab === kind}
+                disabled={busy}
+                onClick={() => {
+                  setTab(kind);
+                  setPage(1);
+                  setQuery("");
+                }}
+              >
+                {t(kind === "binder" ? "bindersTab" : "foldersTab", {
+                  count: kind === "binder" ? binders.size : folders.size
+                })}
+              </Button>
+            ))}
+          </div>
+        )}
+        {!creating && (
+          <div className="yk-profile-highlight-create-actions">
             <Button
-              key={kind}
               variant="secondary"
-              aria-pressed={tab === kind}
-              disabled={busy}
+              className="yk-profile-create-folder"
+              disabled={busy || folders.size >= 100}
               onClick={() => {
-                setTab(kind);
-                setPage(1);
+                setCreating(true);
                 setQuery("");
+                setPage(1);
               }}
             >
-              {t(kind === "binder" ? "bindersTab" : "foldersTab", {
-                count: kind === "binder" ? binders.size : folders.size
-              })}
+              {t("createFolder")}
             </Button>
-          ))}
-        </div>
-      )}
-      {!creating && (
-        <div className="yk-profile-highlight-create-actions">
-          <Button
-            variant="secondary"
-            className="yk-profile-create-folder"
-            disabled={busy || folders.size >= 100}
-            onClick={() => {
-              setCreating(true);
-              setQuery("");
-              setPage(1);
-            }}
-          >
-            {t("createFolder")}
-          </Button>
-        </div>
-      )}
-      <input
-        type="search"
-        aria-label={t(creating ? "searchLicense" : "search")}
-        placeholder={t(creating ? "searchLicense" : "search")}
-        value={query}
-        disabled={busy}
-        onChange={e => {
-          setQuery(e.target.value);
-          setPage(1);
-        }}
-      />
-      {!creating && (
-        <div className="yk-profile-highlight-picker-tools">
-          <span>{t("limit")}</span>
-          <button
-            disabled={busy || !selected.size}
-            onClick={() => {
-              if (tab === "binder") setBinders(new Set());
-              else setFolders(new Set());
-            }}
-          >
-            {t("clearTab")}
-          </button>
-        </div>
-      )}
-      {error && <p role="alert">{t("saveError")}</p>}
-      {!current ? (
-        <p role="status">{t("loading")}</p>
-      ) : current.error ? (
-        <div role="alert">
-          <p>{t("loadError")}</p>
-          <Button variant="secondary" onClick={() => setRetry(n => n + 1)}>
-            {t("retry")}
-          </Button>
-        </div>
-      ) : (
-        <>
-          {!options.length && (
-            <p>{t(activeType === "folder" ? "noFolders" : "noBinders")}</p>
-          )}
-          <ul className="yk-profile-highlight-picker-grid">
-            {options.map(option => (
-              <li key={option.key}>
-                <button
-                  type="button"
-                  aria-pressed={creating ? undefined : selected.has(option.key)}
-                  className="yk-profile-highlight-picker-option"
-                  disabled={
-                    busy ||
-                    (!creating &&
-                      !selected.has(option.key) &&
-                      selected.size >= 100)
-                  }
-                  onClick={() => {
-                    toggle(option.key);
-                  }}
-                >
-                  <BinderCover image={option.image} license={option.name} />
-                  <span>
-                    <strong>{option.name}</strong>
-                    <small>
-                      {t("progress", {
-                        owned: option.owned,
-                        total: option.total
-                      })}
-                    </small>
-                  </span>
-                  <span aria-hidden="true">
-                    {creating ? "→" : selected.has(option.key) ? "✓" : "+"}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-          <Pagination
-            page={page}
-            pageCount={Math.max(1, Math.ceil(total / 24))}
-            onPageChange={setPage}
-          />
-        </>
-      )}
+          </div>
+        )}
+        <input
+          type="search"
+          aria-label={t(creating ? "searchLicense" : "search")}
+          placeholder={t(creating ? "searchLicense" : "search")}
+          value={query}
+          disabled={busy}
+          onChange={e => {
+            setQuery(e.target.value);
+            setPage(1);
+          }}
+        />
+        {!creating && (
+          <div className="yk-profile-highlight-picker-tools">
+            <span>{t("limit")}</span>
+            <button
+              disabled={busy || !selected.size}
+              onClick={() => {
+                if (tab === "binder") setBinders(new Set());
+                else setFolders(new Set());
+              }}
+            >
+              {t("clearTab")}
+            </button>
+          </div>
+        )}
+        {error && <p role="alert">{t("saveError")}</p>}
+        {!current ? (
+          <p role="status">{t("loading")}</p>
+        ) : current.error ? (
+          <div role="alert">
+            <p>{t("loadError")}</p>
+            <Button variant="secondary" onClick={() => setRetry(n => n + 1)}>
+              {t("retry")}
+            </Button>
+          </div>
+        ) : (
+          <>
+            {!options.length && (
+              <p>{t(activeType === "folder" ? "noFolders" : "noBinders")}</p>
+            )}
+            <ul className="yk-profile-highlight-picker-grid">
+              {options.map(option => (
+                <li key={option.key}>
+                  <button
+                    type="button"
+                    aria-pressed={
+                      creating ? undefined : selected.has(option.key)
+                    }
+                    className="yk-profile-highlight-picker-option"
+                    disabled={
+                      busy ||
+                      (!creating &&
+                        !selected.has(option.key) &&
+                        selected.size >= 100)
+                    }
+                    onClick={() => {
+                      toggle(option.key);
+                    }}
+                  >
+                    <BinderCover image={option.image} license={option.name} />
+                    <span>
+                      <strong>{option.name}</strong>
+                      <small>
+                        {t("progress", {
+                          owned: option.owned,
+                          total: option.total
+                        })}
+                      </small>
+                    </span>
+                    <span aria-hidden="true">
+                      {creating ? "→" : selected.has(option.key) ? "✓" : "+"}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <Pagination
+              page={page}
+              pageCount={Math.max(1, Math.ceil(total / 24))}
+              onPageChange={setPage}
+            />
+          </>
+        )}
+      </div>
       <footer className="yk-profile-highlight-picker-footer">
         <span role="status">
           {t("selected", { count: binders.size + folders.size })}
@@ -325,11 +329,14 @@ export function ProfileFeaturedCollection({
   useEffect(() => {
     const refreshCovers = () => setRefresh(n => n + 1);
     window.addEventListener("yokkai:collection-cover-updated", refreshCovers);
-    return () =>
+    window.addEventListener("yokkai:folders-updated", refreshCovers);
+    return () => {
       window.removeEventListener(
         "yokkai:collection-cover-updated",
         refreshCovers
       );
+      window.removeEventListener("yokkai:folders-updated", refreshCovers);
+    };
   }, []);
   useEffect(() => {
     if (!saved) return;

@@ -113,7 +113,9 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  padding-bottom: 18px;
+  padding: 16px;
+  border-radius: 14px;
+  background: #0c131e;
   border-bottom: 1px solid var(--color-veil);
 }
 .yk-profile-binder-contents > header > div {
@@ -128,6 +130,66 @@
 }
 .yk-profile-binder-contents > header strong {
   overflow-wrap: anywhere;
+  font-size: 19px;
+  line-height: 1.35;
+}
+.yk-profile-binder-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+.yk-profile-binder-detail-actions > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 9px 13px;
+}
+.yk-profile-folder-rename-modal {
+  width: min(480px, calc(100vw - 24px));
+}
+.yk-profile-folder-rename,
+.yk-profile-folder-rename label {
+  display: grid;
+  gap: 12px;
+}
+.yk-profile-folder-rename input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-veil-strong);
+  border-radius: 8px;
+  background: #070c15;
+}
+.yk-profile-folder-rename > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+@media (max-width: 639px) {
+  .yk-profile-binder-contents > header {
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+  }
+  .yk-profile-binder-contents > header > .yk-binder-cover {
+    width: 88px;
+  }
+  .yk-profile-binder-contents > header > .yk-profile-binder-detail-copy {
+    flex-basis: calc(100% - 100px);
+  }
+  .yk-profile-binder-detail-actions {
+    margin-left: -100px;
+    padding-top: 8px;
+  }
+  .yk-profile-binder-detail-actions > button {
+    flex: 1 1 auto;
+  }
 }
 .yk-profile-binder-contents > header p {
   margin: 7px 0 12px;

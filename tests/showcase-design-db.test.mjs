@@ -22,6 +22,7 @@ test("showcase scenes, arrangements and text remain bounded, Pro-only and owner-
   );
   for (const invalid of [
     { showcaseScene: "unknown" },
+    { showcaseScene: "stars" },
     { showcaseScene: null },
     { showcaseLayout: "unknown" },
     { showcaseLayout: [] },
@@ -38,7 +39,14 @@ test("showcase scenes, arrangements and text remain bounded, Pro-only and owner-
     { showcaseDescription: "bad\ttext" }
   ])
     await assert.rejects(save(invalid), /PROFILE_STYLE_INVALID/);
-  for (const showcaseScene of ["velvet", "stars", "marble"]) {
+  for (const showcaseScene of [
+    "velvet",
+    "cyber",
+    "sakura",
+    "mist",
+    "feathers",
+    "vhs"
+  ]) {
     for (const showcaseLayout of ["row", "fan", "spotlight"]) {
       await save({
         showcaseScene,
@@ -54,7 +62,7 @@ test("showcase scenes, arrangements and text remain bounded, Pro-only and owner-
     }
   }
   const style = {
-    showcaseScene: "stars",
+    showcaseScene: "mist",
     showcaseLayout: "fan",
     showcaseIntensity: 100,
     showcaseTitle: "My treasures",

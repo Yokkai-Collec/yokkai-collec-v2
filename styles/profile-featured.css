@@ -238,9 +238,27 @@
 .yk-profile-featured-picker-modal {
   width: min(1000px, calc(100vw - 24px));
   max-width: 1000px;
+  overflow: hidden;
+}
+.yk-profile-featured-picker-modal[open] {
+  display: flex;
+  flex-direction: column;
+}
+.yk-profile-featured-picker-modal > div:first-child {
+  flex-shrink: 0;
 }
 .yk-profile-highlight-picker {
   min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.yk-profile-highlight-picker-scroll {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px;
   display: grid;
   gap: 16px;
 }
@@ -256,6 +274,7 @@
   display: grid;
   gap: 16px;
   min-width: 0;
+  overflow-y: auto;
 }
 .yk-profile-highlight-create > .yk-button {
   justify-self: start;
@@ -277,7 +296,7 @@
   border-color: var(--color-ink);
   background: #ffffff0d;
 }
-.yk-profile-highlight-picker > input {
+.yk-profile-highlight-picker-scroll > input {
   width: 100%;
   min-width: 0;
   min-height: 44px;
@@ -345,14 +364,12 @@
   flex-shrink: 0;
 }
 .yk-profile-highlight-picker-footer {
-  position: sticky;
-  bottom: -1px;
-  z-index: 2;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
-  padding: 14px 0;
+  padding: 14px 4px 0;
   background: #080d17;
   border-top: 1px solid var(--color-veil);
 }

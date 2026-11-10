@@ -2,10 +2,11 @@
 
 import dynamic from "next/dynamic";
 import type { Card } from "@/lib/data/cards";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { BinderCover } from "@/components/binder-cover";
 import { CollectionCoverEditor } from "@/components/collection-cover-editor";
+import { ProfileFolderActions } from "@/components/profile-folder-actions";
 import { Button, Modal, Pagination } from "@/components/ui";
 import { YokaiCard } from "@/components/yokai-card";
 import {
@@ -27,13 +28,6 @@ export type ProfileFavoriteAlbum = ProfileDetails["favoriteAlbums"][number] & {
   kind?: "binder" | "folder";
 };
 type CardLoader = typeof getFriendPaniniAlbumCardsPage;
-const wideSnapshot = () => window.matchMedia("(min-width: 640px)").matches;
-const serverSnapshot = () => false;
-const subscribeWidth = (listener: () => void) => {
-  const media = window.matchMedia("(min-width: 640px)");
-  media.addEventListener("change", listener);
-  return () => media.removeEventListener("change", listener);
-};
 
 export function BinderContents({
   ownerId,
@@ -92,7 +86,7 @@ export function BinderContents({
     <div className="yk-profile-binder-contents">
       <header>
         <BinderCover image={album.image ?? undefined} license={album.license} />
-        <div>
+        <div className="yk-profile-binder-detail-copy">
           <strong>{album.license}</strong>
           <p>
             {t("favoriteBinderCardCount", {
@@ -101,14 +95,28 @@ export function BinderContents({
             })}
           </p>
           <progress
-            max={Math.max(1, album.total)}
-            value={album.owned}
+            max={Math.max(1, data?.binderTotal ?? album.total)}
+            value={data?.binderOwned ?? album.owned}
             aria-label={t("completionFor", { license: album.license })}
           />
+          {canEditCover && (
+            <div className="yk-profile-binder-detail-actions">
+              {identity.startsWith("folder:") && (
+                <ProfileFolderActions
+                  folderId={identity.slice(7)}
+                  onUpdated={() => {
+                    setPage(1);
+                    setRetry(value => value + 1);
+                  }}
+                />
+              )}
+              <CollectionCoverEditor
+                targetKey={identity}
+                name={album.license}
+              />
+            </div>
+          )}
         </div>
-        {canEditCover && (
-          <CollectionCoverEditor targetKey={identity} name={album.license} />
-        )}
       </header>
       <label className="yk-profile-binder-owned-filter">
         <input
@@ -194,14 +202,13 @@ export function ProfileFavoriteBinders({
 }) {
   const t = useTranslations("profileUi");
   const [selectedCard, setSelectedCard] = useState<Card | null>(null);
-  const wide = useSyncExternalStore(
-    subscribeWidth,
-    wideSnapshot,
-    serverSnapshot
-  );
-  const size = wide ? 12 : 6;
+  const size = 6;
   const [page, setPage] = useState(1),
     [selected, setSelected] = useState<ProfileFavoriteAlbum>();
+  const activeAlbum =
+    selected &&
+    (albums.find(item => binderIdentity(item) === binderIdentity(selected)) ??
+      selected);
   const pageCount = Math.max(1, Math.ceil(albums.length / size));
   const activePage = Math.min(page, pageCount);
   const start = (activePage - 1) * size;
@@ -369,13 +376,13 @@ export function ProfileFavoriteBinders({
         open={!!selected && !selectedCard}
         onClose={() => setSelected(undefined)}
         title={
-          selected
+          activeAlbum
             ? t(
-                folderMode || selected.kind === "folder"
+                folderMode || activeAlbum.kind === "folder"
                   ? "featuredFolderTitle"
                   : "favoriteBinderTitle",
                 {
-                  license: selected.license,
+                  license: activeAlbum.license,
                   name: ownerName
                 }
               )
