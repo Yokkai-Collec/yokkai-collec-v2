@@ -6,6 +6,6 @@ La liste des dossiers de la collection et les dossiers affichables sur le profil
 
 Le sélecteur parcourt le catalogue entier, avec recherche et filtre des cartes possédées. Le gestionnaire est accessible dans la section Dossier de la collection. Les compteurs et les filtres utilisent les mêmes appartenances que les dossiers du profil. Les droits de propriété et la confidentialité restent appliqués.
 
-Migration : `20261106110000_unified_collection_folders.sql`, appliquée à la base Docker locale uniquement, non appliquée sur le VPS. Aucune nouvelle signature RPC ni modification de droits SQL.
+Migration : `20261110059000_unified_collection_folders.sql`, appliquée à la base Docker locale uniquement, non appliquée sur le VPS. Aucune nouvelle signature RPC ni modification de droits SQL.
 
 Validation produit : Walid a validé l’adaptation de `tests/license-folders-db.test.mjs` à la règle des dossiers multi-licences. Les assertions de propriété, confidentialité, export et conservation des exemplaires sont conservées. Le nouveau test `tests/unified-folders-db.test.mjs` couvre la reprise des dossiers historiques, les filtres et les déplacements compatibles.

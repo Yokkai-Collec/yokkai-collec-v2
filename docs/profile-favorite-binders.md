@@ -18,7 +18,7 @@ La couverture choisie reste une image native, privilégie les raretés élevées
 ignore les URL vides et ne dépend pas de la possession d’une carte par le joueur.
 En l’absence d’image, le composant de couverture existant affiche l’initiale.
 
-Migration : `20261104060000_profile_favorite_binder_covers.sql`, **non appliquée
+Migration : `20261110050000_profile_favorite_binder_covers.sql`, **non appliquée
 sur le VPS**. Aucun nouvel accès SQL, privilège ou stockage personnel.
 
 Walid a validé l’adaptation des tests stricts de profil : la couverture attendue

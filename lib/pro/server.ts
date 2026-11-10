@@ -148,19 +148,10 @@ export async function saveProStyle(
     throw new ProError("PROFILE_STYLE_INVALID", 400);
   if (Object.keys(style).length && !(await hasPaidPro(userId, client)))
     throw new ProError("PRO_REQUIRED", 403);
-  const profileStyle = style as { showcaseScene?: unknown };
-  // Older deployments only recognize these stored scene identifiers. Keep
-  // their storage contract while the client renders the replacement scenes.
-  const storedStyle =
-    profileStyle.showcaseScene === "cyber"
-      ? { ...style, showcaseScene: "marble" }
-      : profileStyle.showcaseScene === "sakura"
-        ? { ...style, showcaseScene: "flames" }
-        : profileStyle.showcaseScene === "feathers"
-          ? { ...style, showcaseScene: "aurora" }
-          : profileStyle.showcaseScene === "vhs"
-            ? { ...style, showcaseScene: "cosmos" }
-            : style;
+  // The database validation owns the list of allowed scenes. Persist the
+  // actual scene chosen by the player so every new atmosphere keeps its own
+  // identity (and does not silently render as a legacy replacement).
+  const storedStyle = style;
   const { error } = await client
     .from("profile_customizations")
     .upsert({ user_id: userId, style: storedStyle });

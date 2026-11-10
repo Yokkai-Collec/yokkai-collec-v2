@@ -28,11 +28,11 @@ joueur, 500 cartes par dossier, nom de 1 à 60 caractères. Les noms sont unique
 par joueur et par licence, sans distinction de casse. Les écritures vérifient le
 propriétaire, le bannissement, la licence et chaque carte, dans une transaction.
 
-Migration `20261104080000_license_folders.sql` : tables, quatre fonctions RPC et
+Migration `20261110051000_license_folders.sql` : tables, quatre fonctions RPC et
 ajout des données propres au joueur à son export existant. **Non appliquée sur le
-VPS**. La migration des couvertures `20261104060000` est aussi incluse, non
+VPS**. La migration des couvertures `20261110050000` est aussi incluse, non
 appliquée sur le VPS. Walid a validé les nouveaux accès de l’allowlist SQL stricte.
-Migration `20261104183000_profile_featured_selection.sql` : choix des classeurs
+Migration `20261110052000_profile_featured_selection.sql` : choix des classeurs
 sur le profil, lecteur commun et enregistrement atomique, export des préférences.
 Appliquée uniquement en local, **non appliquée sur le VPS**. Walid a validé les
 deux nouveaux accès SQL stricts correspondants.

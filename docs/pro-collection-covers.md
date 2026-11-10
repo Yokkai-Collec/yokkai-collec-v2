@@ -6,6 +6,6 @@ Les liens reprennent les domaines des images de cartes : `imgur.com`, `i.imgur.c
 
 À l’expiration du PRO, les lecteurs affichent les images d’origine. La préférence reste enregistrée pour le réabonnement ; sa suppression reste autorisée. Supprimer un dossier retire sa préférence de couverture. Les médias encore utilisés sont exclus du nettoyage des fichiers inutilisés. L’export de données comprend les préférences propres au demandeur dans `collection_covers` et les métadonnées de médias dans la section existante `profile_media`.
 
-Migrations : `20261104200000_pro_collection_covers.sql` et `20261104210000_collection_cover_links.sql`, appliquées sur Supabase local uniquement, non appliquées sur le VPS.
+Migrations : `20261110053000_pro_collection_covers.sql` et `20261110054000_collection_cover_links.sql`, appliquées sur Supabase local uniquement, non appliquées sur le VPS.
 
 Walid a validé les deux signatures ajoutées à l’allowlist stricte et les tests associés au nouveau type de média. Aucun contrôle existant n’est supprimé ou assoupli.

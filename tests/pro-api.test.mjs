@@ -231,7 +231,7 @@ test("Pro API authenticates self, rejects CSRF and never trusts forged paid/user
   assert.equal(
     compatible.calls.find(call => call.table === "profile_customizations").value
       .style.showcaseScene,
-    "marble"
+    "cyber"
   );
   const sakura = setup({ active: true });
   assert.equal(
@@ -245,7 +245,7 @@ test("Pro API authenticates self, rejects CSRF and never trusts forged paid/user
   assert.equal(
     sakura.calls.find(call => call.table === "profile_customizations").value
       .style.showcaseScene,
-    "flames"
+    "sakura"
   );
   const feathers = setup({ active: true });
   assert.equal(
@@ -259,7 +259,7 @@ test("Pro API authenticates self, rejects CSRF and never trusts forged paid/user
   assert.equal(
     feathers.calls.find(call => call.table === "profile_customizations").value
       .style.showcaseScene,
-    "aurora"
+    "feathers"
   );
   const vhs = setup({ active: true });
   assert.equal(
@@ -273,7 +273,7 @@ test("Pro API authenticates self, rejects CSRF and never trusts forged paid/user
   assert.equal(
     vhs.calls.find(call => call.table === "profile_customizations").value.style
       .showcaseScene,
-    "cosmos"
+    "vhs"
   );
   const failed = setup({ rpcError: { message: "private provider secret" } });
   const unavailable = await failed

@@ -4,7 +4,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { replayMigrations } from "../scripts/replay-migrations.mjs";
 
 test("unified folders preserve legacy IDs and copies, support mixed categories, shared filters and private access", async t => {
-  const migration = "20261106110000_unified_collection_folders.sql";
+  const migration = "20261110059000_unified_collection_folders.sql";
   const names = readdirSync(new URL("../supabase/migrations/", import.meta.url))
     .filter(n => n.endsWith(".sql") && n < migration)
     .sort();
