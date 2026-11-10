@@ -4000,4 +4000,16 @@ test("LR Infinity Shiny displays both variant markers", () => {
   assert.match(html, /yk-evolved-symbol/);
   assert.match(html, /LR INFINITY Shiny/);
   assert.match(html, /aria-label="Shiny"/);
+  assert.match(html, /class="yk-card yk-rarity-LR yk-shiny /);
+  assert.doesNotMatch(html, /class="yk-card yk-rarity-LR yk-evolved /);
+  assert.doesNotMatch(html, /class="yk-evolved-energy"/);
+  const animated = render(YokaiCard, {
+    ...card,
+    rarity: "LR",
+    shiny: true,
+    isEvolved: true,
+    animated: true
+  });
+  assert.equal((animated.match(/class="yk-sparkle"/g) || []).length, 8);
+  assert.doesNotMatch(animated, /yk-evolved-spark/);
 });
