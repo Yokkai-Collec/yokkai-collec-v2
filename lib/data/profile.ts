@@ -2,6 +2,7 @@ import { readRequest } from "@/lib/data/read-request";
 import type { CollectionSort } from "@/lib/ui/collection-sort";
 import { createClient } from "@/utils/supabase/client";
 import {
+  withAlbumCovers,
   withLiveCardFranchises,
   type CardFilter,
   type Card,
@@ -12,16 +13,13 @@ import {
 } from "@/lib/data/cards";
 import type { FriendUser, FriendshipStatus } from "@/lib/data/friends";
 import { publishPlayerSnapshotInvalidation } from "@/lib/data/player-state";
-// Same encoding as cardFilterParam in cards.ts (kept local: this module only
-// imports types from cards.ts).
-const friendFilterParam = (value: CardFilter = "") =>
-  typeof value === "string"
-    ? value
-    : value.length > 1
-      ? JSON.stringify(value)
-      : (value[0] ?? "");
 import type { BannerFrame } from "@/lib/ui/banner-frame";
 import type { PlayerCosmetics } from "@/components/styled-player-name";
+
+function friendFilterParam(value: CardFilter = ""): string {
+  if (typeof value === "string") return value;
+  return value.length > 1 ? JSON.stringify(value) : (value[0] ?? "");
+}
 
 export type Profile = {
   profileStyle?: PlayerCosmetics;
@@ -86,6 +84,7 @@ export type ProfileDetails = {
   mutualFriends: FriendUser[];
   favoriteAlbums: {
     license: string;
+    image?: string | null;
     binderKey?: string;
     origin?: "series" | "source";
     total: number;
@@ -95,6 +94,7 @@ export type ProfileDetails = {
   activity: {
     id: string;
     kind: "obtained" | "bought" | "sold";
+    acquisitionSource?: "trade" | "pack" | "auction" | "unknown";
     at: string;
     price?: number;
     card: Card;
@@ -305,8 +305,7 @@ export async function getFriendPaniniAlbumsPage(
       .abortSignal(signal)
   );
   if (error) throw fail(error);
-  const result = data as PaniniAlbumPage | null;
-  return { items: result?.items ?? [], total: result?.total ?? 0 };
+  return withAlbumCovers(data as PaniniAlbumPage | null, friendId);
 }
 export async function getFriendPaniniAlbumCardsPage(
   friendId: string,

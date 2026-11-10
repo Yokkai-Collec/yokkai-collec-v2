@@ -1,4 +1,111 @@
 @import "./profile-fonts.css";
+@import "./showcase-design.css";
+
+/* Shared lighting for the profile, live preview and effect choices. */
+:is(.yk-profile-hub, .yk-style-profile-preview, .yk-style-showcase-sample) {
+  --showcase-light: var(--showcase-color, #9abcff);
+  --showcase-haze: color-mix(in srgb, var(--showcase-light), transparent 88%);
+  --showcase-core: color-mix(in srgb, var(--showcase-light), transparent 70%);
+  --showcase-line: color-mix(in srgb, var(--showcase-light), transparent 72%);
+}
+:is(.yk-profile-hub, .yk-style-profile-preview, .yk-style-showcase-sample)
+  :is(.yk-featured-stage, .yk-style-profile-preview-showcase) {
+  border-radius: 16px;
+  background: none;
+  filter: none;
+}
+:is(
+    .yk-profile-hub,
+    .yk-style-profile-preview,
+    .yk-style-showcase-sample
+  )[data-showcase-effect="glow"]
+  :is(.yk-featured-stage, .yk-style-profile-preview-showcase) {
+  background:
+    radial-gradient(
+      ellipse 42% 65% at 50% 95%,
+      var(--showcase-core),
+      transparent 90%
+    ),
+    radial-gradient(
+      ellipse 65% 90% at 50% 100%,
+      var(--showcase-haze),
+      transparent 85%
+    ),
+    linear-gradient(
+        90deg,
+        transparent 10%,
+        var(--showcase-line) 50%,
+        transparent 90%
+      )
+      center bottom / 100% 1px no-repeat;
+}
+:is(
+    .yk-profile-hub,
+    .yk-style-profile-preview,
+    .yk-style-showcase-sample
+  )[data-showcase-effect="sparkle"]
+  :is(.yk-featured-stage, .yk-style-profile-preview-showcase) {
+  background:
+    radial-gradient(circle at 18% 28%, #ffffffb0 0 1px, transparent 2px),
+    radial-gradient(
+      circle at 76% 18%,
+      var(--showcase-light) 0 1px,
+      transparent 2px
+    ),
+    radial-gradient(
+      circle at 36% 72%,
+      var(--showcase-light) 0 1px,
+      transparent 2px
+    ),
+    radial-gradient(circle at 87% 66%, #ffffff80 0 1px, transparent 2px),
+    radial-gradient(
+      circle at 9% 76%,
+      var(--showcase-line) 0 1px,
+      transparent 2px
+    ),
+    radial-gradient(circle at 63% 42%, #ffffff90 0 1px, transparent 2px),
+    radial-gradient(
+      ellipse 60% 85% at 50% 100%,
+      var(--showcase-core),
+      transparent 85%
+    );
+}
+:is(
+    .yk-profile-hub,
+    .yk-style-profile-preview,
+    .yk-style-showcase-sample
+  )[data-showcase-effect="prism"]
+  :is(.yk-featured-stage, .yk-style-profile-preview-showcase) {
+  background:
+    linear-gradient(
+      116deg,
+      transparent 20%,
+      var(--showcase-haze) 36%,
+      transparent 36.3% 61%,
+      var(--showcase-haze) 61.3%,
+      transparent 78%
+    ),
+    radial-gradient(
+      ellipse 30% 80% at 32% 95%,
+      var(--showcase-core),
+      transparent 90%
+    ),
+    radial-gradient(
+        ellipse 35% 80% at 68% 95%,
+        color-mix(in srgb, var(--showcase-light) 18%, transparent),
+        transparent 100%
+      )
+      center bottom / 100% 80% no-repeat,
+    linear-gradient(
+        90deg,
+        transparent,
+        var(--showcase-line),
+        #c9e6ff80,
+        var(--showcase-line),
+        transparent
+      )
+      center bottom / 100% 1px no-repeat;
+}
 
 .yk-profile-name-row[data-name-effect] h2,
 .yk-style-name {
@@ -1086,38 +1193,6 @@
 .yk-style-sample-card img {
   object-fit: cover;
 }
-:is(
-    .yk-style-profile-preview,
-    .yk-style-showcase-sample
-  )[data-showcase-effect="glow"]
-  .yk-style-profile-preview-showcase {
-  filter: drop-shadow(
-    0 0 12px color-mix(in srgb, var(--showcase-color, #9abcff), transparent 60%)
-  );
-}
-:is(
-    .yk-style-profile-preview,
-    .yk-style-showcase-sample
-  )[data-showcase-effect="sparkle"]
-  .yk-style-profile-preview-showcase {
-  filter: drop-shadow(
-    0 0 8px color-mix(in srgb, var(--showcase-color, #f3cb78), transparent 47%)
-  );
-}
-:is(
-    .yk-style-profile-preview,
-    .yk-style-showcase-sample
-  )[data-showcase-effect="prism"]
-  .yk-style-profile-preview-showcase {
-  filter: drop-shadow(
-      3px 0 8px
-        color-mix(in srgb, var(--showcase-color, #7ac9ff), transparent 60%)
-    )
-    drop-shadow(
-      -3px 0 8px
-        color-mix(in srgb, var(--showcase-color, #ff83bc), transparent 60%)
-    );
-}
 .yk-style-frame-grid,
 .yk-style-showcase-grid {
   display: grid;
@@ -1153,6 +1228,19 @@
 }
 .yk-style-showcase-option {
   min-height: 110px;
+}
+.yk-showcase-editor-effects {
+  min-width: 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-veil);
+}
+.yk-showcase-editor-effects legend {
+  margin-bottom: 14px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.yk-showcase-editor-effects .yk-style-showcase-sample {
+  margin-inline: auto;
 }
 .yk-style-showcase-sample {
   display: block;
@@ -1351,26 +1439,6 @@
 }
 .yk-profile-hub:has(.yk-avatar-decoration) .yk-profile-identity-label {
   margin-top: 24px;
-}
-.yk-profile-hub[data-showcase-effect="glow"] .yk-featured-stage {
-  filter: drop-shadow(
-    0 0 12px color-mix(in srgb, var(--showcase-color, #9abcff), transparent 60%)
-  );
-}
-.yk-profile-hub[data-showcase-effect="sparkle"] .yk-featured-stage {
-  filter: drop-shadow(
-    0 0 8px color-mix(in srgb, var(--showcase-color, #f3cb78), transparent 47%)
-  );
-}
-.yk-profile-hub[data-showcase-effect="prism"] .yk-featured-stage {
-  filter: drop-shadow(
-      3px 0 8px
-        color-mix(in srgb, var(--showcase-color, #7ac9ff), transparent 60%)
-    )
-    drop-shadow(
-      -3px 0 8px
-        color-mix(in srgb, var(--showcase-color, #ff83bc), transparent 60%)
-    );
 }
 body:has(.yk-pro-site-background) {
   isolation: isolate;
@@ -1990,3 +2058,5 @@ body:has(.yk-pro-site-background) {
 .yk-messenger-conversation {
   gap: 14px;
 }
+
+/* Full-surface embers replace the retired flame atmosphere. */

@@ -126,31 +126,45 @@ export function ProductUpdates({
         </div>
         <div className="yk-updates-features">
           <Link
-            href="/collection?view=binders"
+            href="/profile"
             className="yk-update-feature"
             onClick={() => setOpen(false)}
           >
-            <span className="yk-update-feature-icon" data-kind="binders">
+            <span className="yk-update-feature-icon" data-kind="profiles">
               <RankingIcon kind="licenses" />
             </span>
-            <h4>{t("bindersTitle")}</h4>
-            <p>{t("bindersBody")}</p>
+            <h4>{t("profilesTitle")}</h4>
+            <p>{t("profilesBody")}</p>
             <span className="yk-update-feature-link">
-              {t("bindersAction")} <span aria-hidden="true">↗</span>
+              {t("profilesAction")} <span aria-hidden="true">↗</span>
             </span>
           </Link>
           <Link
-            href="/leaderboard"
+            href="/achievements#achievements"
             className="yk-update-feature"
             onClick={() => setOpen(false)}
           >
-            <span className="yk-update-feature-icon" data-kind="rankings">
+            <span className="yk-update-feature-icon" data-kind="achievements">
               <RankingIcon kind="collection" />
             </span>
-            <h4>{t("rankingsTitle")}</h4>
-            <p>{t("rankingsBody")}</p>
+            <h4>{t("achievementsTitle")}</h4>
+            <p>{t("achievementsBody")}</p>
             <span className="yk-update-feature-link">
-              {t("rankingsAction")} <span aria-hidden="true">↗</span>
+              {t("achievementsAction")} <span aria-hidden="true">↗</span>
+            </span>
+          </Link>
+          <Link
+            href="/achievements#missions"
+            className="yk-update-feature"
+            onClick={() => setOpen(false)}
+          >
+            <span className="yk-update-feature-icon" data-kind="missions">
+              <RankingIcon kind="likes" />
+            </span>
+            <h4>{t("missionsTitle")}</h4>
+            <p>{t("missionsBody")}</p>
+            <span className="yk-update-feature-link">
+              {t("missionsAction")} <span aria-hidden="true">↗</span>
             </span>
           </Link>
         </div>

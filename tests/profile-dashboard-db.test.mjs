@@ -98,7 +98,13 @@ test("profile dashboard uses real stats, distinct completion, mutual friends and
     [common]
   );
   assert.deepEqual(details.favoriteAlbums, [
-    { license: "Test Dashboard", total: 2, owned: 2, percent: 100 }
+    {
+      license: "Test Dashboard",
+      image: "https://example.test/lr.png",
+      total: 2,
+      owned: 2,
+      percent: 100
+    }
   ]);
   assert.equal(details.activity.length, 4);
   assert.ok(

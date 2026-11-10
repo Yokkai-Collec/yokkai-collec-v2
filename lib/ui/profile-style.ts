@@ -1,4 +1,5 @@
 import { readableNameColor } from "@/lib/ui/name-contrast";
+import type { CSSProperties } from "react";
 
 // Cosmetic presentation only; membership is always checked on the server.
 export const NAME_FONTS = [
@@ -161,6 +162,27 @@ export type ProfileStyle = {
   avatarFrame?: AvatarFrame;
   showcaseEffect?: "none" | "glow" | "sparkle" | "prism";
   showcaseColor?: string;
+  showcaseScene?:
+    | "velvet"
+    // Legacy starry sky value; normalized to velvet and no longer selectable.
+    | "stars"
+    | "cyber"
+    // Legacy storage value reused by the VHS / CRT replacement scene.
+    | "cosmos"
+    | "sakura"
+    // Legacy saved values are normalized to the two scenes above.
+    | "marble"
+    | "lightning"
+    | "flames"
+    | "mist"
+    | "aurora"
+    | "embers"
+    | "frost"
+    | "feathers"
+    | "vhs";
+  showcaseLayout?: "row" | "fan" | "spotlight";
+  showcaseIntensity?: number;
+  showcaseTitle?: string;
   backgroundUrl?: string;
   cardBackUrl?: string;
 };
@@ -178,6 +200,18 @@ export function normalizeProfileStyle(input: ProfileStyle): ProfileStyle {
   const fontId = ["rounded", "display"].includes(input.font)
     ? "modern"
     : input.font;
+  const showcaseScene =
+    input.showcaseScene === "marble"
+      ? "cyber"
+      : input.showcaseScene === "aurora"
+        ? "feathers"
+        : input.showcaseScene === "cosmos"
+          ? "vhs"
+          : input.showcaseScene === "stars"
+            ? "velvet"
+            : input.showcaseScene === "flames"
+              ? "sakura"
+              : input.showcaseScene;
   return {
     theme: ["default", "amethyst", "midnight", "rose", "ocean"].includes(
       input.theme ?? ""
@@ -195,6 +229,35 @@ export function normalizeProfileStyle(input: ProfileStyle): ProfileStyle {
     ...(typeof input.showcaseColor === "string" &&
     /^#[a-f\d]{6}$/i.test(input.showcaseColor)
       ? { showcaseColor: input.showcaseColor }
+      : {}),
+    ...([
+      "velvet",
+      "cyber",
+      "sakura",
+      "lightning",
+      "mist",
+      "embers",
+      "frost",
+      "feathers",
+      "vhs"
+    ].includes(showcaseScene ?? "")
+      ? { showcaseScene }
+      : {}),
+    ...(["row", "fan", "spotlight"].includes(input.showcaseLayout ?? "")
+      ? { showcaseLayout: input.showcaseLayout }
+      : {}),
+    ...(Number.isInteger(input.showcaseIntensity) &&
+    input.showcaseIntensity! >= 0 &&
+    input.showcaseIntensity! <= 100
+      ? { showcaseIntensity: input.showcaseIntensity }
+      : {}),
+    ...(typeof input.showcaseTitle === "string"
+      ? {
+          showcaseTitle: input.showcaseTitle
+            .replace(/[\u0000-\u001f\u007f]/g, "")
+            .trim()
+            .slice(0, 60)
+        }
       : {}),
     ...(safeStyleMedia(input.backgroundUrl)
       ? { backgroundUrl: input.backgroundUrl }
@@ -257,18 +320,201 @@ export function safeStyleMedia(value: unknown): value is string {
   }
 }
 export function randomProfileStyle(random = Math.random): ProfileStyle {
-  const pick = <T>(values: readonly T[]) =>
-    values[
+  function pick<T>(values: readonly T[]) {
+    return values[
       Math.min(
         values.length - 1,
         Math.max(0, Math.floor(random() * values.length))
       )
     ];
+  }
   return {
     font: pick(NAME_FONTS).id,
     effect: pick(NAME_EFFECTS).id,
     color: pick(NAME_COLORS).value,
     secondary: pick(NAME_COLORS).value,
     badges: [pick(STYLE_BADGES).id]
+  };
+}
+
+export const PROFILE_WIDGET_LABELS: Record<string, string> = {
+  "ANIME/MANGA": "favoriteanimemanga",
+  "VIDEO GAMES": "favoritegames",
+  KPOP: "kpopgroups",
+  FILM: "favoritemovies",
+  SERIE: "favoriteseries",
+  KDRAMA: "favoriteKdramas",
+  COMICS: "favoritecomics",
+  ARTIST: "favoriteartists",
+  VOCALOID: "favoriteVocaloids",
+  MANWHA: "favoritemanhwa",
+  SPORT: "favoritesports",
+  "DISNEY CHANNEL": "disneyChannel",
+  MEME: "favoritememes",
+  BRAINROT: "favoritebrainrot"
+};
+
+export function profileWidgetLabel(
+  category: string,
+  translate: (key: string) => string
+) {
+  return PROFILE_WIDGET_LABELS[category]
+    ? translate(`profileUi.${PROFILE_WIDGET_LABELS[category]}`)
+    : category;
+}
+
+export function tiltShowcaseCard(event: {
+  currentTarget: HTMLElement;
+  clientX: number;
+  clientY: number;
+  pointerType: string;
+}) {
+  if (
+    event.pointerType !== "mouse" ||
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  )
+    return;
+  const card = event.currentTarget,
+    box = card.getBoundingClientRect();
+  card.style.setProperty(
+    "--showcase-tilt-x",
+    `${((event.clientX - box.left) / box.width - 0.5) * 8}deg`
+  );
+  card.style.setProperty(
+    "--showcase-tilt-y",
+    `${(0.5 - (event.clientY - box.top) / box.height) * 8}deg`
+  );
+}
+export function resetShowcaseCard(event: { currentTarget: HTMLElement }) {
+  event.currentTarget.style.removeProperty("--showcase-tilt-x");
+  event.currentTarget.style.removeProperty("--showcase-tilt-y");
+}
+
+export function showcaseCardPosition(index: number, count: number) {
+  return {
+    "--showcase-fan-angle": `${(index - (count - 1) / 2) * Math.min(4, 20 / Math.max(1, count))}deg`
+  };
+}
+
+export function showcaseDesignAttributes(style?: Partial<ProfileStyle>) {
+  return {
+    "data-showcase-scene": style?.showcaseScene,
+    "data-showcase-layout": style?.showcaseLayout,
+    style: {
+      "--showcase-intensity": (style?.showcaseIntensity ?? 60) / 100
+    } as CSSProperties
+  };
+}
+
+export function showcaseSelection<T extends { instanceId: string }>(
+  cards: T[],
+  ids: Iterable<string>
+) {
+  const copies = new Map(cards.map(card => [card.instanceId, card]));
+  return Array.from(ids).flatMap(id =>
+    copies.has(id) ? [copies.get(id)!] : []
+  );
+}
+
+export function resetProfileAppearance(style: ProfileStyle): ProfileStyle {
+  return {
+    ...DEFAULT_PROFILE_STYLE,
+    badges: [],
+    ...Object.fromEntries(
+      Object.entries(style).filter(([key]) => key.startsWith("showcase"))
+    )
+  };
+}
+export const PROFILE_CARD_IMAGE_SIZES =
+  "(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 190px";
+
+/** Keep native touch/keyboard scrolling and distinguish a drag from a card click. */
+export function showcaseScrollRef(element: HTMLDivElement | null) {
+  if (!element) return;
+  let drag: { id: number; x: number; left: number; moved: boolean } | null =
+    null;
+  let suppressClick = false;
+  const wheel = (event: WheelEvent) => {
+    if (event.ctrlKey || event.shiftKey) return;
+    const delta =
+      Math.abs(event.deltaX) > Math.abs(event.deltaY)
+        ? event.deltaX
+        : event.deltaY;
+    const distance =
+      delta *
+      (event.deltaMode === 1
+        ? 16
+        : event.deltaMode === 2
+          ? element.clientWidth
+          : 1);
+    const next = Math.max(
+      0,
+      Math.min(
+        element.scrollWidth - element.clientWidth,
+        element.scrollLeft + distance
+      )
+    );
+    if (Math.abs(next - element.scrollLeft) < 0.5) return;
+    event.preventDefault();
+    element.scrollLeft = next;
+  };
+  const down = (event: PointerEvent) => {
+    suppressClick = false;
+    if (
+      event.pointerType !== "mouse" ||
+      event.button !== 0 ||
+      element.scrollWidth <= element.clientWidth
+    )
+      return;
+    drag = {
+      id: event.pointerId,
+      x: event.clientX,
+      left: element.scrollLeft,
+      moved: false
+    };
+  };
+  const move = (event: PointerEvent) => {
+    if (!drag || drag.id !== event.pointerId) return;
+    if (!drag.moved && Math.abs(event.clientX - drag.x) < 6) return;
+    drag.moved = true;
+    suppressClick = true;
+    element.dataset.dragging = "true";
+    if (!element.hasPointerCapture(event.pointerId))
+      element.setPointerCapture(event.pointerId);
+    element.scrollLeft = drag.left - (event.clientX - drag.x);
+    event.preventDefault();
+  };
+  const end = (event: PointerEvent) => {
+    if (!drag || drag.id !== event.pointerId) return;
+    drag = null;
+    delete element.dataset.dragging;
+    if (element.hasPointerCapture(event.pointerId))
+      element.releasePointerCapture(event.pointerId);
+  };
+  const click = (event: MouseEvent) => {
+    if (!suppressClick || event.detail === 0) return;
+    suppressClick = false;
+    event.preventDefault();
+    event.stopPropagation();
+  };
+  const preventImageDrag = (event: DragEvent) => event.preventDefault();
+  element.addEventListener("wheel", wheel, { passive: false });
+  element.addEventListener("pointerdown", down);
+  element.addEventListener("pointermove", move);
+  window.addEventListener("pointerup", end);
+  window.addEventListener("pointercancel", end);
+  element.addEventListener("lostpointercapture", end);
+  element.addEventListener("click", click, true);
+  element.addEventListener("dragstart", preventImageDrag);
+  return () => {
+    element.removeEventListener("wheel", wheel);
+    element.removeEventListener("pointerdown", down);
+    element.removeEventListener("pointermove", move);
+    window.removeEventListener("pointerup", end);
+    window.removeEventListener("pointercancel", end);
+    element.removeEventListener("lostpointercapture", end);
+    element.removeEventListener("click", click, true);
+    element.removeEventListener("dragstart", preventImageDrag);
+    delete element.dataset.dragging;
   };
 }

@@ -124,6 +124,9 @@ export default async function RootLayout({
   const clientMessages = Object.fromEntries(
     [
       "locale",
+      "licenseFolders",
+      "collectionCovers",
+      "profileFeatured",
       "common",
       "authErrors",
       "authForm",

@@ -36,7 +36,13 @@ export async function POST(request: Request) {
     if (
       !(file instanceof File) ||
       typeof purpose !== "string" ||
-      !["avatar", "banner", "background", "card-back"].includes(purpose)
+      ![
+        "avatar",
+        "banner",
+        "background",
+        "card-back",
+        "collection-cover"
+      ].includes(purpose)
     )
       throw new ProError("REQUEST_INVALID", 400);
     let image;
