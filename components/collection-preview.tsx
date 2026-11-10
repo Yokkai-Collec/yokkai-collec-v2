@@ -94,6 +94,10 @@ export function CollectionPreviewClient({
           { id: `folder-${current.length}`, name }
         ]);
       }}
+      onSetLocked={async (instanceId, locked) => {
+        record(`lock:${instanceId}:${locked}`);
+        update(instanceId, { locked });
+      }}
       onMoveCard={async (instanceId, folderId) => {
         record(`move:${instanceId}:${folderId}`);
         update(instanceId, { folderId });

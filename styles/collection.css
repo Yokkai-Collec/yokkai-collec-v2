@@ -839,6 +839,8 @@
   margin-top: calc(var(--spacing) * 1);
 }
 .yk-detail-lock-toggle {
+  min-width: 44px;
+  min-height: 44px;
   display: grid;
   flex: 0 0 auto;
   place-items: center;

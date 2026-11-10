@@ -280,12 +280,14 @@ export function Modal({
   open,
   onClose,
   title,
+  hideTitle = false,
   children,
   className = ""
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
+  hideTitle?: boolean;
   children: ReactNode;
   className?: string;
 }) {
@@ -360,8 +362,15 @@ export function Modal({
           onClose();
       }}
     >
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <h2 id={titleId} className="font-display text-xl font-semibold">
+      <div
+        className={`mb-6 flex items-center gap-4 ${hideTitle ? "justify-end" : "justify-between"}`}
+      >
+        <h2
+          id={titleId}
+          className={
+            hideTitle ? "sr-only" : "font-display text-xl font-semibold"
+          }
+        >
           {title}
         </h2>
         <button

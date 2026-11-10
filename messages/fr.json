@@ -390,6 +390,7 @@
     "destroyCount": "Détruire {count}",
     "sortLabel": "{sort, select, rarity {Rareté} recent {Plus récentes} oldest {Plus anciennes} name {Nom (A → Z)} other {Rareté}}",
     "evolveTarget": "Faire évoluer vers INFINITY",
+    "evolveTargetIcon": "Faire évoluer vers <infinity></infinity>",
     "evolutionCombineSuffix": " exemplaires normaux en une carte évoluée.",
     "evolutionCustomCarry": " exemplaires. Leur image personnalisée est conservée sur INFINITY.",
     "evolutionResultLabel": "1 ∞",
