@@ -1997,7 +1997,7 @@
     "featuredCardCount": "<value>{owned, number}</value> / {total, plural, one {# carte} other {# cartes}}",
     "recentSourceAuction": "Obtenue aux enchères",
     "recentSourceTrade": "Reçue par échange",
-    "recentSourcePack": "Obtenue dans un booster",
+    "recentSourcePack": "Obtenue dans un pack",
     "recentSourceUnknown": "Origine non enregistrée"
   },
   "settingsUi": {

@@ -1,3 +1,4 @@
+import { readProfileSource } from "./helpers/profile-source.mjs";
 import { normalizeWhitespace } from "./helpers/normalize-whitespace.mjs";
 import { homePresentation } from "./helpers/home-presentation.mjs";
 import { assertPngAsset, imageAsset } from "./helpers/visual-assets.mjs";
@@ -45,10 +46,7 @@ test("les échanges réutilisent les cartes standard sans écraser leurs textes 
 });
 
 test("la wishlist d'un ami se filtre par recherche, rareté et catégorie", () => {
-  const source = readFileSync(
-    path.join(root, "components/profile.tsx"),
-    "utf8"
-  );
+  const source = readProfileSource();
   assert.match(
     normalizeWhitespace(source),
     normalizeWhitespace(/function FriendWishlist/)
@@ -855,10 +853,7 @@ test("la collection d'un ami montre ses images personnalisées sans proposer d'�
 });
 
 test("le compteur de cartes ouvre toute collection autorisée en lecture seule", () => {
-  const profile = readFileSync(
-    path.join(root, "components/profile.tsx"),
-    "utf8"
-  );
+  const profile = readProfileSource();
   const communityCss = readFileSync(
     path.join(root, "styles/community.css"),
     "utf8"
@@ -910,10 +905,7 @@ test("le compteur de cartes ouvre toute collection autorisée en lecture seule",
 });
 
 test("le compteur wishlist d'un ami ouvre toute sa wishlist et chaque carte reste cliquable", () => {
-  const profile = readFileSync(
-    path.join(root, "components/profile.tsx"),
-    "utf8"
-  );
+  const profile = readProfileSource();
   if (profile.includes("data-profile-wishlist")) {
     assert.match(
       normalizeWhitespace(profile),
@@ -957,10 +949,7 @@ test("le compteur wishlist d'un ami ouvre toute sa wishlist et chaque carte rest
 });
 
 test("l’aperçu wishlist du profil garde des cartes compactes", () => {
-  const profile = readFileSync(
-    path.join(root, "components/profile.tsx"),
-    "utf8"
-  );
+  const profile = readProfileSource();
   const community = readFileSync(
     path.join(root, "styles/community.css"),
     "utf8"
@@ -1398,10 +1387,7 @@ test("le panneau d’enchère ne grandit pas avec la hauteur du chat", () => {
 });
 
 test("mobile : vitrine du profil en carrousel tactile et page Amis sans débordement", () => {
-  const profile = readFileSync(
-    path.join(root, "components/profile.tsx"),
-    "utf8"
-  );
+  const profile = readProfileSource();
   const community = readFileSync(
     path.join(root, "styles/community.css"),
     "utf8"
@@ -1541,10 +1527,7 @@ test("la liste d’amis affiche la présence et actualise la dernière activité
 });
 
 test("le sélecteur de cartes mises en avant recherche et remonte la sélection", () => {
-  const source = readFileSync(
-    path.join(root, "components/profile.tsx"),
-    "utf8"
-  );
+  const source = readProfileSource();
   assert.match(
     normalizeWhitespace(source),
     normalizeWhitespace(/const FEATURED_CARD_LIMIT=5/)
