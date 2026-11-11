@@ -1425,8 +1425,12 @@ export function TradesPanel({
                 {tPr4("socialUi.aucunAmiCorrespondantParmiLesAmisCharg")}
               </p>
             )}
-            {!!friendQuery.trim() && !fixedFriendId && (
-              <div className="yk-friend-choices">
+            {!fixedFriendId && !!visibleFriends.length && (
+              <div
+                className="yk-friend-choices"
+                role="group"
+                aria-label={tPr4("socialUi.chooseAFriend")}
+              >
                 {visibleFriends.map(friend => (
                   <Chip
                     key={friend.id}
@@ -1437,15 +1441,17 @@ export function TradesPanel({
                     <Avatar
                       name={friend.pseudo}
                       image={friend.avatarUrl ?? undefined}
-                      online
+                      online={friend.isOnline}
                       size={30}
                     />
-                    {friend.pseudo}
+                    <span className="yk-trade-friend-name">
+                      {friend.pseudo}
+                    </span>
                   </Chip>
                 ))}
               </div>
             )}
-            {!!friendQuery.trim() && !fixedFriendId && hasMoreFriends && (
+            {!fixedFriendId && hasMoreFriends && (
               <Button
                 variant="secondary"
                 disabled={loadingMore}

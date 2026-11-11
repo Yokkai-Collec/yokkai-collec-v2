@@ -199,8 +199,8 @@ test("Social opens Feed and hides Everyone until its availability probe succeeds
   assert.match(html, /<aside class="yk-social-sidebar">/);
   assert.match(html, /<button>Post<\/button>/);
   assert.ok(
-    html.indexOf('href="/social/leaderboard"') <
-      html.indexOf('href="/social/friends"')
+    html.indexOf('href="/social/friends"') <
+      html.indexOf('href="/social/leaderboard"')
   );
   assert.match(html, /href="\/social\/friends"/);
   assert.match(html, /href="\/social\/leaderboard"/);

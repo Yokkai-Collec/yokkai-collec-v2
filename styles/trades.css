@@ -135,10 +135,23 @@
   letter-spacing: -0.02em;
 }
 .yk-trades-workspace .yk-friend-choices {
-  gap: 9px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr));
+  gap: 8px;
+  max-height: 232px;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
   margin-top: 16px;
+  padding: 4px;
 }
 .yk-trades-workspace .yk-friend-choices .yk-chip {
+  width: 100%;
+  min-width: 0;
+  justify-content: flex-start;
+  text-align: left;
+  white-space: normal;
+  padding: 10px;
   border-radius: 12px;
   min-height: 48px;
   background: var(--color-elevated);
@@ -1055,4 +1068,9 @@
     border-radius: 0;
     padding: 16px;
   }
+}
+
+.yk-trade-friend-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
