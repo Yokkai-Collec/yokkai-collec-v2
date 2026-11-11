@@ -94,7 +94,7 @@ test("legacy Social Friends redirects preserve messages, repeated parameters and
     "@/components/community-page": {}
   });
   await assert.rejects(page({ searchParams: Promise.resolve({}) }), {
-    message: "/friends"
+    message: "/social"
   });
   const destination = await page({
     searchParams: Promise.resolve({
@@ -105,7 +105,7 @@ test("legacy Social Friends redirects preserve messages, repeated parameters and
     })
   }).catch(error => error.message);
   const url = new URL(destination, "https://example.invalid");
-  assert.equal(url.pathname, "/friends");
+  assert.equal(url.pathname, "/social");
   assert.equal(url.searchParams.get("message"), "player+123");
   assert.deepEqual(url.searchParams.getAll("tag"), ["one", "two"]);
   assert.equal(url.searchParams.get("q"), "a & b");
@@ -172,6 +172,9 @@ test("Social opens Feed and hides Everyone until its availability probe succeeds
   });
   const unavailable = { available: undefined };
   const { default: Layout } = load("app/social/layout.tsx", {
+    "@/components/community-views": {
+      FriendsView: () => React.createElement("div", null, "Friends sidebar")
+    },
     "@/components/social-feed-provider": {
       SocialFeedProvider: ({ children }) => children
     },
@@ -185,6 +188,11 @@ test("Social opens Feed and hides Everyone until its availability probe succeeds
   assert.doesNotMatch(html, /href="\/friends"/);
   assert.match(html, /aria-current="page"/);
   assert.match(html, /Friends content/);
+  assert.match(
+    html,
+    /<aside class="yk-social-friends"><div>Friends sidebar<\/div><\/aside>/
+  );
+  assert.match(html, /href="\/social\/leaderboard"/);
   assert.match(
     html,
     /href="\/social"[^>]*aria-current="page"[^>]*>Friends’ posts/

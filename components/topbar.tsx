@@ -128,7 +128,6 @@ export function Topbar({
   onReadAll?: () => void;
   onOpenNotification?: (id: string, href: string) => Promise<void>;
 }) {
-  const leaderboardActive = view === "leaderboard";
   const t = useTranslations("topbar");
   const sound = useSfx();
   const secondaryReady = useBoostersLoadPriority() >= 2;
@@ -255,18 +254,15 @@ export function Topbar({
           </Link>
           <Link
             href="/social"
-            aria-current={view === "feed" ? "page" : undefined}
-            onClick={() => setMobileMenu(false)}
-          >
-            {t("social")}
-          </Link>
-          <Link
-            href="/friends"
-            aria-current={view === "friends" ? "page" : undefined}
+            aria-current={
+              view === "feed" || view === "friends" || view === "leaderboard"
+                ? "page"
+                : undefined
+            }
             onClick={() => setMobileMenu(false)}
           >
             <span className="yk-friends-nav-label">
-              {t("friends")}
+              {t("social")}
               <UnreadBadge
                 variant="nav"
                 count={
@@ -288,13 +284,6 @@ export function Topbar({
             aria-current={view === "search" ? "page" : undefined}
           >
             {t("catalog")}
-          </Link>
-          <Link
-            href="/leaderboard"
-            aria-current={leaderboardActive ? "page" : undefined}
-            onClick={() => setMobileMenu(false)}
-          >
-            {t("leaderboard")}
           </Link>
           {isAdmin && (
             <Link

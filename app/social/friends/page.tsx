@@ -11,5 +11,5 @@ export default async function Page({
     else if (value !== undefined) query.append(key, value);
   }
   const suffix = query.toString();
-  redirect(`/friends${suffix ? `?${suffix}` : ""}`);
+  redirect(`/social${suffix ? `?${suffix}` : ""}`);
 }

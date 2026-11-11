@@ -2377,7 +2377,7 @@ export function FriendsView() {
     if (!friendId) return;
     const query = new URLSearchParams({ tab: "trades" });
     query.set("ami", friendId);
-    router.push(`/friends?${query.toString()}`, { scroll: false });
+    router.push(`/social?${query.toString()}`, { scroll: false });
   }
   return (
     <FriendsPanel
@@ -2391,10 +2391,10 @@ export function FriendsView() {
           <TradesPanel key={friendId} fixedFriendId={friendId} />
         ),
         open: navigateTrades,
-        close: () => router.push("/friends", { scroll: false })
+        close: () => router.push("/social", { scroll: false })
       }}
       onConversationClose={() => {
-        if (conversation) router.replace("/friends", { scroll: false });
+        if (conversation) router.replace("/social", { scroll: false });
       }}
     />
   );

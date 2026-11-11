@@ -1618,3 +1618,68 @@
     grid-column: 1 / -1;
   }
 }
+
+/* Friends stay alongside every Social view; narrow screens stack the panels. */
+.yk-social-page:has(.yk-social-hub) {
+  display: block;
+}
+.yk-social-hub {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--layout-gutter);
+}
+.yk-social-hub > * {
+  min-width: 0;
+}
+.yk-social-friends {
+  max-height: 28rem;
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+.yk-social-friends .yk-social-stack {
+  gap: calc(var(--spacing) * 4);
+}
+.yk-social-friends .yk-social-search {
+  grid-template-columns: minmax(0, 1fr);
+}
+.yk-social-friends .yk-search-hint {
+  grid-column: 1;
+}
+.yk-social-friends .yk-social-panel,
+.yk-social-friends .yk-social-search {
+  padding: calc(var(--spacing) * 3);
+}
+.yk-social-friends .yk-tabs {
+  display: grid;
+  grid-auto-flow: row;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  overflow: visible;
+}
+.yk-social-friends .yk-tab {
+  min-width: 0;
+  min-height: 44px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.yk-social-friends .yk-social-person {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+}
+.yk-social-friends .yk-friend-action-buttons {
+  grid-column: 1 / -1;
+  flex-wrap: wrap;
+}
+.yk-social-friends .yk-button {
+  min-height: 44px;
+}
+@media (min-width: 1024px) {
+  .yk-social-hub {
+    grid-template-columns: minmax(18rem, 22rem) minmax(0, 1fr);
+    align-items: start;
+  }
+  .yk-social-friends {
+    max-height: calc(100dvh - 8rem);
+    position: sticky;
+    top: 6rem;
+  }
+}

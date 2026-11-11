@@ -78,7 +78,7 @@ test("Friends opens a selected friend's exchange in Social and returns to the fr
   assert.equal(friends.props.tradeSection.content.type, TradesView);
   friends.props.tradeSection.open("friend+é");
   const target = new URL(navigations.at(-1)[0], "https://example.invalid");
-  assert.equal(target.pathname, "/friends");
+  assert.equal(target.pathname, "/social");
   assert.equal(target.searchParams.get("tab"), "trades");
   assert.equal(target.searchParams.get("ami"), "friend+é");
   assert.equal(navigations.at(-1)[1].scroll, false);
@@ -86,11 +86,11 @@ test("Friends opens a selected friend's exchange in Social and returns to the fr
   const exchange = FriendsView();
   assert.equal(exchange.props.tradeSection.active, true);
   exchange.props.tradeSection.close();
-  assert.equal(navigations.at(-1)[0], "/friends");
+  assert.equal(navigations.at(-1)[0], "/social");
   const before = navigations.length;
   friends.props.tradeSection.open();
   assert.equal(navigations.length, before, "a trade must target a friend");
-  const history = new URL("/friends?tab=trades", "https://example.invalid");
+  const history = new URL("/social?tab=trades", "https://example.invalid");
   assert.equal(history.searchParams.get("tab"), "trades");
   assert.equal(history.searchParams.has("ami"), false);
   params = history.searchParams;
