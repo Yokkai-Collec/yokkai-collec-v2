@@ -743,6 +743,8 @@ export function ProfileExperience({
       </div>
     );
   const isMe = profile.friendshipStatus === "self";
+  const showInlineProfileLike =
+    !isMe && profile.friendshipStatus !== "accepted";
   async function likeProfile() {
     if (
       !profile ||
@@ -767,6 +769,38 @@ export function ProfileExperience({
       setLikeBusy(false);
     }
   }
+  const profileLikeButton = !isMe ? (
+    <Button
+      variant="secondary"
+      className="yk-profile-like"
+      disabled={!engagement || likeBusy || profileBlocked || !adapter.like}
+      aria-pressed={engagement?.likedByMe ?? false}
+      aria-busy={likeBusy}
+      onClick={() => void likeProfile()}
+    >
+      <svg
+        className="yk-profile-like-heart"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill={engagement?.likedByMe ? "currentColor" : "none"}
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" />
+      </svg>
+      <span className="yk-profile-like-label">
+        {likeBusy
+          ? t("collectionUi.saving")
+          : engagement?.likedByMe
+            ? t("profileUi.profileLikedAction")
+            : t("profileUi.likeProfileAction")}
+      </span>
+    </Button>
+  ) : null;
   const friends = profile.friends ?? [];
   const blockedByMe = blocked.some(player => player.id === profile.id);
   function afterBlock() {
@@ -1040,7 +1074,7 @@ export function ProfileExperience({
                 {profile.bio || t("profileUi.noBioYet")}
               </p>
               <div
-                className={`yk-profile-actions ${profile.friendshipStatus === "accepted" && !blockedByMe ? "is-friend" : ""}`}
+                className={`yk-profile-actions ${profile.friendshipStatus === "accepted" && !blockedByMe ? "is-friend" : ""} ${showInlineProfileLike ? "has-profile-like" : ""}`}
               >
                 {isMe ? (
                   <>
@@ -1096,43 +1130,11 @@ export function ProfileExperience({
                           moderationAdapter={adapter.moderation}
                         />
                       )}
+                    {showInlineProfileLike && profileLikeButton}
                   </>
                 )}
               </div>
-              {!isMe && (
-                <Button
-                  variant="secondary"
-                  className="yk-profile-like"
-                  disabled={
-                    !engagement || likeBusy || profileBlocked || !adapter.like
-                  }
-                  aria-pressed={engagement?.likedByMe ?? false}
-                  aria-busy={likeBusy}
-                  onClick={() => void likeProfile()}
-                >
-                  <svg
-                    className="yk-profile-like-heart"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill={engagement?.likedByMe ? "currentColor" : "none"}
-                    stroke="currentColor"
-                    strokeWidth="1.7"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" />
-                  </svg>
-                  <span className="yk-profile-like-label">
-                    {likeBusy
-                      ? t("collectionUi.saving")
-                      : engagement?.likedByMe
-                        ? t("profileUi.profileLikedAction")
-                        : t("profileUi.likeProfileAction")}
-                  </span>
-                </Button>
-              )}
+              {!isMe && !showInlineProfileLike && profileLikeButton}
               {engagementError && (
                 <p className="yk-profile-muted" role="status">
                   {t(

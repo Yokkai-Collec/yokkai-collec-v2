@@ -685,6 +685,22 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   border-radius: 8px;
   font-size: 12px;
 }
+.yk-profile-actions.has-profile-like {
+  align-items: stretch;
+  margin-block: 14px 0;
+}
+.yk-profile-actions.has-profile-like > .yk-friend-action {
+  display: flex;
+  align-items: stretch;
+  flex: 0 0 auto;
+}
+.yk-profile-actions.has-profile-like > .yk-profile-like {
+  flex: 1 1 164px;
+  width: auto;
+  min-width: 164px;
+  max-width: 220px;
+  margin: 0;
+}
 .yk-profile-like.yk-button {
   position: relative;
   display: flex;
@@ -1508,6 +1524,11 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
   }
   .yk-profile-hub:not([data-profile-compact]) .yk-profile-bio {
     margin-top: 12px;
+  }
+  .yk-profile-actions.has-profile-like > .yk-profile-like {
+    flex-basis: 148px;
+    min-width: 0;
+    max-width: none;
   }
 }
 @media (min-width: 1024px) {
