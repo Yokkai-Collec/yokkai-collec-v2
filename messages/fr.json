@@ -3530,6 +3530,8 @@
       "referralRewarded": "Parrainage récompensé",
       "networkIdentityShared": "Connexion Internet commune détectée",
       "tradeSharedNetworkIdentity": "Échange entre comptes utilisant une connexion commune",
+      "tradeSharedIdentity": "Échange entre comptes partageant une IP ou un appareil",
+      "automaticTradeSanction": "Sanction automatique après un échange entre comptes liés",
       "referralNetworkReview": "Groupe de parrainage sur une même connexion · examen nécessaire",
       "referralNetworkEnforcement": "Abus de parrainage confirmé · comptes suspendus"
     },
@@ -3552,6 +3554,8 @@
       "newAccountEconomicActivity": "Activité économique d’un nouveau compte",
       "sharedNetworkIdentity": "Connexion Internet commune · contexte uniquement",
       "tradeSharedNetworkIdentity": "Échange entre comptes utilisant une connexion commune",
+      "tradeSharedDeviceIdentity": "Échange entre comptes partageant le même appareil",
+      "automaticTradeSanction": "Sanction automatique liée à un échange entre comptes",
       "referralNetworkReview": "Au moins quatre filleuls récompensés partagent une connexion, sans confirmation du même appareil",
       "referralNetworkEnforcement": "Au moins quatre filleuls vérifiés, récompenses versées ou en attente, partagent les signaux réseau et appareil"
     },

@@ -3530,6 +3530,8 @@
       "referralRewarded": "Referral rewarded",
       "networkIdentityShared": "Shared Internet connection detected",
       "tradeSharedNetworkIdentity": "Trade between accounts using a shared connection",
+      "tradeSharedIdentity": "Trade between accounts sharing an IP address or device",
+      "automaticTradeSanction": "Automatic sanction after a linked-account trade",
       "referralNetworkReview": "Referral group sharing a network · review needed",
       "referralNetworkEnforcement": "Referral abuse confirmed · accounts suspended"
     },
@@ -3552,6 +3554,8 @@
       "newAccountEconomicActivity": "New account economic activity",
       "sharedNetworkIdentity": "Shared Internet connection · context only",
       "tradeSharedNetworkIdentity": "Trade between accounts using a shared connection",
+      "tradeSharedDeviceIdentity": "Trade between accounts sharing the same device",
+      "automaticTradeSanction": "Automatic linked-account trade sanction",
       "referralNetworkReview": "Four or more rewarded referrals share a network; no shared-device confirmation",
       "referralNetworkEnforcement": "Four or more verified referrals with paid or pending rewards share network and device signals"
     },

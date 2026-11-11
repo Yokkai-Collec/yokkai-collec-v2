@@ -46,6 +46,8 @@ const eventTypes = new Set([
   "referral_rewarded",
   "network_identity_shared",
   "trade_shared_network_identity",
+  "trade_shared_identity",
+  "automatic_trade_sanction",
   "referral_network_review",
   "referral_network_enforcement"
 ]);
@@ -245,6 +247,8 @@ const reasonKeys: Record<string, string> = {
   NEW_ACCOUNT_ECONOMIC_ACTIVITY: "newAccountEconomicActivity",
   SHARED_NETWORK_IDENTITY: "sharedNetworkIdentity",
   TRADE_SHARED_NETWORK_IDENTITY: "tradeSharedNetworkIdentity",
+  TRADE_SHARED_DEVICE_IDENTITY: "tradeSharedDeviceIdentity",
+  AUTOMATIC_TRADE_SANCTION: "automaticTradeSanction",
   REFERRAL_NETWORK_REVIEW: "referralNetworkReview",
   REFERRAL_NETWORK_ENFORCEMENT: "referralNetworkEnforcement"
 };
@@ -262,6 +266,8 @@ const eventKeys: Record<string, string> = {
   referral_rewarded: "referralRewarded",
   network_identity_shared: "networkIdentityShared",
   trade_shared_network_identity: "tradeSharedNetworkIdentity",
+  trade_shared_identity: "tradeSharedIdentity",
+  automatic_trade_sanction: "automaticTradeSanction",
   referral_network_review: "referralNetworkReview",
   referral_network_enforcement: "referralNetworkEnforcement"
 };
@@ -305,10 +311,7 @@ export default async function AdminSecurityPage({
   const severity = severities.has(params.severity ?? "")
     ? params.severity!
     : "";
-  const eventType =
-    params.event === "trade_accepted" && eventTypes.has(params.event)
-      ? params.event
-      : "";
+  const eventType = eventTypes.has(params.event ?? "") ? params.event! : "";
   const userId = /^[0-9a-f-]{36}$/i.test(params.user ?? "")
     ? params.user!
     : null;

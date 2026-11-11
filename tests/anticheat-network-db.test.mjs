@@ -5,6 +5,11 @@ import { replayMigrations } from "../scripts/replay-migrations.mjs";
 test("network identities are private, expiring context and shared-network trades are flagged", async t => {
   const { db } = await replayMigrations();
   t.after(() => db.close());
+  await db.exec(`
+    alter table auth.users add column if not exists banned_until timestamptz;
+    alter table auth.users add column if not exists updated_at timestamptz;
+    alter table auth.users add column if not exists created_at timestamptz;
+  `);
   const first = "ac300000-0000-4000-8000-000000000001";
   const second = "ac300000-0000-4000-8000-000000000002";
   const admin = "ac300000-0000-4000-8000-000000000003";
@@ -81,7 +86,7 @@ test("network identities are private, expiring context and shared-network trades
   assert.equal(
     (
       await db.query(
-        "select count(*)::integer total from public.anticheat_events where event_type='trade_shared_network_identity' and subject_id=$1",
+        "select count(*)::integer total from public.anticheat_events where event_type='trade_shared_identity' and subject_id=$1",
         [trade]
       )
     ).rows[0].total,
