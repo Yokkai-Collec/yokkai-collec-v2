@@ -119,15 +119,9 @@ test("the shared player shells render the site footer", () => {
   }
 
   for (const route of ["market", "profile", "trades", "wishlist", "catalog"]) {
-    if (route === "trades") {
-      assert.match(
-        read("app/trades/page.tsx"),
-        /redirect\(`\/friends\?\$\{query\.toString\(\)\}\x60\)/
-      );
-      assert.match(read("app/social/layout.tsx"), /<CommunityPage/);
-      assert.match(community, /<SiteFooter/);
-    } else assert.match(read(`app/${route}/page.tsx`), /<CommunityPage/);
+    assert.match(read(`app/${route}/page.tsx`), /<CommunityPage/);
   }
   assert.match(read("app/social/layout.tsx"), /<CommunityPage/);
-  assert.match(read("app/friends/page.tsx"), /<FriendsView/);
+  assert.match(read("app/friends/page.tsx"), /redirect\(`\/social\/friends/);
+  assert.match(read("app/social/friends/page.tsx"), /<FriendsView/);
 });
