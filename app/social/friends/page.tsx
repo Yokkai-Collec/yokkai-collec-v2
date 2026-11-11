@@ -1,15 +1,10 @@
-import { redirect } from "next/navigation";
-
-export default async function Page({
-  searchParams
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const query = new URLSearchParams();
-  for (const [key, value] of Object.entries(await searchParams)) {
-    if (Array.isArray(value)) value.forEach(item => query.append(key, item));
-    else if (value !== undefined) query.append(key, value);
-  }
-  const suffix = query.toString();
-  redirect(`/friends${suffix ? `?${suffix}` : ""}`);
+import { getTranslations } from "next-intl/server";
+import type { Metadata } from "next";
+import { FriendsView } from "@/components/community-views";
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("socialFriends");
+  return { title: t("friends") };
+}
+export default function Page() {
+  return <FriendsView />;
 }

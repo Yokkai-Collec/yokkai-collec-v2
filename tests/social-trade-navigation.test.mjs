@@ -19,84 +19,59 @@ function load(file, mocks) {
   );
   return exports;
 }
-test("legacy Trades links preserve targeted offers or cards in Social Friends", async () => {
+test("Trades opens its own page and preserves targeted offers and cards", () => {
+  const CommunityPage = () => null;
   const { default: page } = load("app/trades/page.tsx", name => {
-    assert.equal(name, "next/navigation");
-    return {
-      redirect: href => {
-        throw Error(href);
-      }
-    };
+    if (name === "@/components/community-page") return { CommunityPage };
+    if (name === "react/jsx-runtime") return require(name);
+    return {};
   });
-  for (const params of [
+  assert.equal(page().type, CommunityPage);
+  assert.equal(page().props.screen, "trades");
+  for (const values of [
     {},
-    {
-      ami: "friend+é",
-      carte: "card & variant",
-      offre: "offer/id",
-      tag: ["one", "two"],
-      tab: "other"
-    }
+    { ami: "friend+é", carte: "card & variant", offre: "offer/id" }
   ]) {
-    const destination = await page({
-      searchParams: Promise.resolve(params)
-    }).catch(e => e.message);
-    const url = new URL(destination, "https://example.invalid");
-    assert.equal(url.pathname, "/friends");
-    assert.equal(url.searchParams.get("tab"), "trades");
-    if (params.ami) {
-      assert.equal(url.searchParams.get("ami"), params.ami);
-      assert.equal(url.searchParams.get("carte"), params.carte);
-      assert.equal(url.searchParams.get("offre"), params.offre);
-      assert.deepEqual(url.searchParams.getAll("tag"), params.tag);
-    }
-  }
-});
-test("Friends opens a selected friend's exchange in Social and returns to the friends list", () => {
-  let params = new URLSearchParams();
-  const navigations = [];
-  const { FriendsView, TradesView } = load(
-    "components/community-views.tsx",
-    name => {
-      if (name === "next/navigation")
-        return {
-          useSearchParams: () => params,
-          useRouter: () => ({
-            push: (...args) => navigations.push(args),
-            replace: (...args) => navigations.push(args)
-          })
-        };
+    const params = new URLSearchParams(values);
+    const TradesPanel = () => null;
+    const { TradesView } = load("components/community-views.tsx", name => {
+      if (name === "next/navigation") return { useSearchParams: () => params };
+      if (name === "next/dynamic") return { default: () => () => null };
+      if (name === "@/components/trades") return { TradesPanel };
       if (name === "react" || name === "react/jsx-runtime")
         return require(name);
-      if (name === "next/dynamic") return { default: () => () => null };
-      if (name === "@/components/friends") return { FriendsPanel: () => null };
       return {};
-    }
-  );
+    });
+    const panel = TradesView().props.children;
+    assert.equal(panel.type, TradesPanel);
+    assert.equal(panel.props.initialFriendId, values.ami);
+    assert.equal(panel.props.fixedFriendId, undefined);
+    assert.equal(panel.props.initialRequestedCardId, values.carte);
+    assert.equal(panel.props.initialOfferId, values.offre);
+  }
+});
+
+test("Friends Trade action navigates to Trades with the selected friend and no popup", () => {
+  const navigations = [];
+  const { FriendsView } = load("components/community-views.tsx", name => {
+    if (name === "next/navigation")
+      return {
+        useSearchParams: () => new URLSearchParams(),
+        useRouter: () => ({ push: (...args) => navigations.push(args) })
+      };
+    if (name === "react" || name === "react/jsx-runtime") return require(name);
+    if (name === "next/dynamic") return { default: () => () => null };
+    if (name === "@/components/friends") return { FriendsPanel: () => null };
+    return {};
+  });
   const friends = FriendsView();
-  assert.equal(friends.props.tradeSection.active, false);
-  assert.equal(friends.props.tradeSection.content.type, TradesView);
-  friends.props.tradeSection.open("friend+é");
+  assert.equal(friends.props.tradeSection, undefined);
+  friends.props.onTrade("friend+é");
   const target = new URL(navigations.at(-1)[0], "https://example.invalid");
-  assert.equal(target.pathname, "/friends");
-  assert.equal(target.searchParams.get("tab"), "trades");
+  assert.equal(target.pathname, "/trades");
   assert.equal(target.searchParams.get("ami"), "friend+é");
-  assert.equal(navigations.at(-1)[1].scroll, false);
-  params = target.searchParams;
-  const exchange = FriendsView();
-  assert.equal(exchange.props.tradeSection.active, true);
-  exchange.props.tradeSection.close();
-  assert.equal(navigations.at(-1)[0], "/friends");
+  assert.equal(target.searchParams.has("tab"), false);
   const before = navigations.length;
-  friends.props.tradeSection.open();
+  friends.props.onTrade();
   assert.equal(navigations.length, before, "a trade must target a friend");
-  const history = new URL("/friends?tab=trades", "https://example.invalid");
-  assert.equal(history.searchParams.get("tab"), "trades");
-  assert.equal(history.searchParams.has("ami"), false);
-  params = history.searchParams;
-  assert.equal(
-    FriendsView().props.tradeSection.active,
-    false,
-    "the removed standalone tab does not open an empty trade page"
-  );
 });

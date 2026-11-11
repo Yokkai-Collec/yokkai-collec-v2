@@ -732,8 +732,9 @@
 }
 .yk-friends-list-search {
   width: min(100%, 420px);
-  margin-top: 16px;
   margin-left: auto;
+  min-width: 0;
+  flex: 1 1 16rem;
 }
 .yk-friends-list-search .yk-social-search-field {
   width: 100%;
@@ -783,7 +784,6 @@
 }
 .yk-social-list.is-search {
   grid-column: 1/-1;
-  margin-top: 0;
 }
 .yk-social-person {
   display: flex;
@@ -1616,5 +1616,173 @@
   }
   .yk-friend-action-buttons.has-trade > .yk-button:last-child {
     grid-column: 1 / -1;
+  }
+}
+
+.yk-friends-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  gap: calc(var(--spacing) * 4);
+}
+.yk-friends-toolbar > .yk-tabs {
+  min-width: 0;
+  max-width: 100%;
+}
+.yk-social-panel > .yk-search-hint {
+  margin-top: calc(var(--spacing) * 3);
+}
+
+.yk-social-page:has(.yk-social-shell) {
+  display: block;
+  max-width: 1120px;
+}
+.yk-social-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+}
+.yk-social-sidebar,
+.yk-social-main {
+  min-width: 0;
+}
+.yk-social-sidebar {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+.yk-social-sidebar nav.yk-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-flow: row;
+  overflow: visible;
+}
+.yk-social-sidebar .yk-tab {
+  min-height: 44px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+.yk-social-sidebar .yk-social-compose-button {
+  min-height: 44px;
+  width: 100%;
+  border-radius: 999px;
+}
+.yk-social-compose-modal .yk-wall-composer {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+@media (min-width: 1024px) {
+  .yk-social-shell {
+    grid-template-columns: 216px minmax(0, 1fr);
+    gap: 32px;
+    align-items: start;
+  }
+  .yk-social-sidebar {
+    position: sticky;
+    top: calc(var(--topbar-height) + 24px);
+    max-height: calc(100dvh - var(--topbar-height) - 48px);
+    overflow-y: auto;
+    padding: 16px;
+    border: 1px solid var(--color-veil);
+    border-radius: var(--radius-panel);
+    background: var(--color-surface);
+  }
+  .yk-social-sidebar nav.yk-tabs {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  .yk-social-sidebar .yk-tab {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 12px;
+    text-align: left;
+  }
+}
+
+.yk-social-compose-icon {
+  display: none;
+}
+@media (max-width: 1023px) {
+  .yk-social-sidebar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .yk-social-sidebar nav.yk-tabs {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    border: 0;
+    border-bottom: 1px solid var(--color-veil);
+    border-radius: 0;
+    padding: 0;
+    gap: 8px;
+    background: transparent;
+  }
+  .yk-social-sidebar nav.yk-tabs > .yk-tab {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    padding: 12px 8px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+  }
+  .yk-social-sidebar nav.yk-tabs > .yk-tab[aria-current="page"] {
+    border-bottom-color: var(--color-ink);
+    background: transparent;
+  }
+  .yk-social-sidebar .yk-social-compose-button {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    flex: 0 0 44px;
+  }
+  .yk-social-compose-label {
+    display: none;
+  }
+  .yk-social-compose-icon {
+    display: block;
+    font-size: 24px;
+    line-height: 1;
+  }
+}
+
+@media (max-width: 1023px) {
+  .yk-social-sidebar nav.yk-tabs::-webkit-scrollbar {
+    display: none;
+  }
+}
+@media (max-width: 1023px) {
+  .yk-social-sidebar {
+    position: sticky;
+    top: var(--topbar-height);
+    z-index: 20;
+    background: var(--color-night);
+    transition:
+      transform 160ms ease,
+      opacity 160ms ease;
+  }
+  .yk-social-sidebar[data-scroll-hidden="true"]:not(:has(:focus-visible)) {
+    transform: translateY(calc(-100% - var(--topbar-height)));
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .yk-social-sidebar {
+    transition: none;
   }
 }

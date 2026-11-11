@@ -16,6 +16,7 @@ import {
   Karas,
   Modal,
   StatusPill,
+  Skeleton,
   Tabs
 } from "@/components/ui";
 import { YokaiCard } from "@/components/yokai-card";
@@ -796,6 +797,29 @@ export function TradesPanel({
   const offersRef = useRef<TradeOffer[]>([]);
   const friendIdRef = useRef("");
   const contextRequest = useRef(0);
+  const preparedContext = useRef<
+    { friendId: string; value: Promise<TradeContext> } | undefined
+  >(undefined);
+  useEffect(() => {
+    if (fixedTargetId || tab !== "compose" || friendQuery.trim().length < 2)
+      return;
+    const matches = friends.filter(friend =>
+      friend.pseudo
+        .toLocaleLowerCase("en-US")
+        .includes(friendQuery.trim().toLocaleLowerCase("en-US"))
+    );
+    if (matches.length !== 1 || matches[0].id === friendIdRef.current) return;
+    const timer = window.setTimeout(() => {
+      const value = adapter.context(matches[0].id);
+      preparedContext.current = { friendId: matches[0].id, value };
+      void value.catch(() => {});
+    }, 250);
+    return () => {
+      window.clearTimeout(timer);
+      preparedContext.current = undefined;
+    };
+  }, [adapter, fixedTargetId, friendQuery, friends, tab]);
+
   const offeredRef = useRef(offered);
   const requestedRef = useRef(requested);
   const submissionLock = useRef(false);
@@ -1008,8 +1032,10 @@ export function TradesPanel({
         () => ({
           friendId: friendIdRef.current,
           requestId: contextRequest.current
-        })
+        }),
+        preparedContext.current
       );
+      preparedContext.current = undefined;
       if (nextContext) {
         setContext(nextContext);
         if (requestedCardId) {
@@ -1100,7 +1126,7 @@ export function TradesPanel({
     let active = true;
     void (async () => {
       let friend: FriendUser | undefined;
-      if (fixedFriendId && /^[0-9a-f-]{36}$/i.test(initialFriendId)) {
+      if (/^[0-9a-f-]{36}$/i.test(initialFriendId)) {
         // get_trade_context authorizes the friendship on the server. No need
         // to download every friendship before a known friend's composer.
         friend = { id: initialFriendId.toLowerCase(), pseudo: "" };
@@ -1399,7 +1425,7 @@ export function TradesPanel({
                 {tPr4("socialUi.aucunAmiCorrespondantParmiLesAmisCharg")}
               </p>
             )}
-            {!fixedFriendId && (
+            {!!friendQuery.trim() && !fixedFriendId && (
               <div className="yk-friend-choices">
                 {visibleFriends.map(friend => (
                   <Chip
@@ -1419,7 +1445,7 @@ export function TradesPanel({
                 ))}
               </div>
             )}
-            {!fixedFriendId && hasMoreFriends && (
+            {!!friendQuery.trim() && !fixedFriendId && hasMoreFriends && (
               <Button
                 variant="secondary"
                 disabled={loadingMore}
@@ -1439,6 +1465,18 @@ export function TradesPanel({
               <div className="yk-social-empty is-compact">
                 <strong>{tPr4("socialUi.noFriendsAvailable")}</strong>
                 <span>{tPr4("socialUi.addAFriendFromTheFriendsPage")}</span>
+              </div>
+            )}
+            {friendId && !context && !error && (
+              <div className="yk-trade-columns mt-6" aria-busy="true">
+                <Skeleton
+                  label={tPr4("collectionUi.loadingYourCards")}
+                  className="h-80 w-full rounded-panel"
+                />
+                <Skeleton
+                  label={tPr4("collectionUi.loadingYourCards")}
+                  className="h-80 w-full rounded-panel"
+                />
               </div>
             )}
             {context && (

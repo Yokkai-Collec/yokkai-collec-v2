@@ -281,6 +281,7 @@ export function Modal({
   onClose,
   title,
   hideTitle = false,
+  keepMounted = false,
   headerActions,
   children,
   className = ""
@@ -289,6 +290,7 @@ export function Modal({
   onClose: () => void;
   title: string;
   hideTitle?: boolean;
+  keepMounted?: boolean;
   headerActions?: ReactNode;
   children: ReactNode;
   className?: string;
@@ -386,7 +388,7 @@ export function Modal({
           ✕
         </button>
       </div>
-      {open && children}
+      {(open || keepMounted) && children}
     </dialog>
   );
 }

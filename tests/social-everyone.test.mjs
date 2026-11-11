@@ -373,7 +373,48 @@ test("private composer explains privacy and never inserts a private publication 
       assert.match(html, /won&#x27;t appear in Everyone/);
       assert.match(html, /href="\/settings"/);
     }
-    const composer = view.walls.find(p => p.composerOnly);
+    let stateSlot = 0;
+    const composerWalls = [];
+    const { SocialComposer } = load("components/social-composer.tsx", {
+      react: {
+        ...React,
+        useEffect: () => {},
+        useState: initial => [
+          stateSlot++ === 0
+            ? true
+            : stateSlot === 2
+              ? { id: "me", pseudo: "Me", isPublic }
+              : initial,
+          () => {}
+        ]
+      },
+      "@/components/social-feed-provider": {
+        useSocialFeeds: () => ({
+          friends: { published: () => {} },
+          public: { published: p => view.published.push(p) }
+        })
+      },
+      "@/lib/data/profile": {},
+      "@/components/ui": {
+        Button: ({ children }) => React.createElement("button", null, children),
+        Modal: ({ children, keepMounted }) => {
+          assert.equal(keepMounted, true);
+          return children;
+        },
+        Skeleton: () => null
+      },
+      "@/components/profile-wall": {
+        ProfileWall: props => {
+          composerWalls.push(props);
+          return null;
+        }
+      }
+    });
+    const composerHtml = renderToStaticMarkup(
+      React.createElement(SocialComposer)
+    );
+    assert.match(composerHtml, /Post/);
+    const composer = composerWalls.find(p => p.composerOnly);
     assert.ok(composer);
     composer.onPublished(post(4));
     assert.equal(view.published.length, isPublic ? 1 : 0);

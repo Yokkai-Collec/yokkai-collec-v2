@@ -564,3 +564,41 @@ test("collection card links preselect exactly the friend's instance and polling 
     true
   );
 });
+
+test("prepared trade contexts are reused only for the selected friend and stale requests stay fenced", async () => {
+  const { api } = apiHarness();
+  const prepared = {
+    friendId: friend,
+    value: Promise.resolve({ balance: 42 })
+  };
+  let calls = 0;
+  const load = async () => {
+    calls++;
+    return { balance: 7 };
+  };
+  const current = () => ({ friendId: friend, requestId: 1 });
+  assert.equal(
+    (await api.loadTradeContextIfCurrent(load, friend, 1, current, prepared))
+      .balance,
+    42
+  );
+  assert.equal(calls, 0);
+  assert.equal(
+    await api.loadTradeContextIfCurrent(load, friend, 2, current, prepared),
+    undefined
+  );
+  const other = "other";
+  assert.equal(
+    (
+      await api.loadTradeContextIfCurrent(
+        load,
+        other,
+        1,
+        () => ({ friendId: other, requestId: 1 }),
+        prepared
+      )
+    ).balance,
+    7
+  );
+  assert.equal(calls, 1);
+});
