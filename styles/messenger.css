@@ -187,7 +187,8 @@
 }
 .yk-messenger-friends {
   display: block;
-  margin: auto 12px 12px;
+  flex-shrink: 0;
+  margin: 0 12px 12px;
   padding: 14px 8px;
   min-height: 44px;
   text-align: center;
