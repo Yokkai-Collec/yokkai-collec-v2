@@ -4,6 +4,7 @@
 .claude
 .codex
 node_modules
+node_modules.shared-worktree
 .next
 graphify-out
 artifacts

@@ -838,7 +838,7 @@
   background: var(--color-night);
   box-shadow: var(--shadow-card);
 }
-@media (min-width: 40.0625rem) and (max-width: 85rem) {
+@media (min-width: 40.0625rem) {
   .yk-pack-panel:has(.yk-pack-info-popover) {
     transform: none;
   }
