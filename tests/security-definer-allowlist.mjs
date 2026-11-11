@@ -12,6 +12,11 @@ export const ownerOnly = [
   "public.capture_registration_anticheat_event()", // Trigger-only registration event; records no address or IP.
   "public.record_anticheat_context_signal(text, uuid, uuid, uuid, integer, text, jsonb)", // Internal network-context recorder; HMAC stays in the short-lived private association table. Walid approved the anti-cheat extension.
   "public.capture_trade_network_anticheat_event()", // Trigger-only shared-network trade signal; observation only, never an automatic sanction.
+  "public.anticheat_runtime_flag_enabled(text)", // Private feature-flag reader used only by the quarantine trigger; never exposed through the API.
+  "public.capture_trade_quarantine_shadow()", // Trigger-only shadow evaluator; cannot reserve assets, change trade status, or sanction a player.
+  "public.expire_anticheat_shadow_quarantines()", // Scheduled private cleanup of observation-only records; never mutates a player asset.
+  "public.anticheat_discord_event_allowed(bigint)", // Private routing policy for the Discord outbox; it exposes no event data and is called only by the trigger.
+  "public.archive_failed_anticheat_discord_alerts()", // Scheduled private dead-letter archival after the existing bounded dispatch retries.
   "public.reopen_anticheat_case_on_new_signal()", // Trigger-only workflow fence: a fresh signal reopens a reviewed case without applying a sanction.
   "public.is_disposable_email(text)", // Indexed public-source signup policy; only the Auth INSERT trigger, never API roles. Walid approved.
   "public.guard_disposable_signup()", // Auth INSERT-only trigger: rejects new disposable addresses without touching existing accounts. Walid approved.
@@ -90,6 +95,9 @@ const allowlist = {
   ], // Walid approved: bounded catalogue reader, owner or featured folder, collection privacy.
   "public.admin_list_anticheat_related_accounts(uuid, text, text, integer, integer)":
     ["authenticated"], // Bounded, read-only admin overview of existing/deleted economic and recent connection links; identities expire after 90 days. Walid approved.
+  "public.admin_list_anticheat_quarantines(text, integer, integer)": [
+    "authenticated"
+  ], // Admin-only bounded quarantine queue; it returns conclusions, never network or browser pseudonyms.
   "public.admin_get_referral_pack_provenance(uuid[])": ["authenticated"], // Admin-only bounded source and transfer trail for referral-funded pack cards. Walid approved.
   "public.get_pack_favorite_card_ids(uuid[], boolean)": ["authenticated"], // Own favorite membership only, active session, at most 500 catalogue IDs, no mutation. Walid approved.
   "public.admin_list_deleted_accounts(text, uuid, boolean, integer, integer)": [

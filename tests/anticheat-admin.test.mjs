@@ -87,10 +87,14 @@ test("the responsive admin dashboard reads only the bounded DTOs", async () => {
   assert.match(navigation, /\/admin\/security/);
   assert.match(page, /admin_list_anticheat_cases/);
   assert.match(page, /admin_list_anticheat_events/);
+  assert.match(page, /admin_list_anticheat_quarantines/);
+  assert.match(page, /anticheat-quarantines/);
   assert.match(page, /requireAdminPage\(\)/);
   assert.match(page, /grid-cols-2[\s\S]+lg:grid-cols-4/);
   assert.match(page, /sm:flex-row/);
   assert.doesNotMatch(page, /from\(["']anticheat_/);
   assert.match(en, /"adminSecurity"/);
   assert.match(fr, /"adminSecurity"/);
+  assert.match(en, /"quarantines"/);
+  assert.match(fr, /"quarantines"/);
 });

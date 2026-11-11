@@ -3445,6 +3445,51 @@
     "karas": "{count} Karas",
     "observationNotice": "Le mode observation est actif : aucun score ne provoque automatiquement un bannissement ou une sanction. Un administrateur doit examiner les éléments. La sanction smurf reste une action séparée, explicite et traçable.",
     "prepareSanction": "Sanctionner",
+    "quarantines": {
+      "eyebrow": "Contrôles préventifs",
+      "title": "Quarantaines anti-triche",
+      "help": "Seuls les dossiers prêts à être décidés apparaissent ici. Cette première version enregistre des signaux corroborés en mode observation et ne peut ni réserver un actif, ni bloquer un échange, ni sanctionner un joueur.",
+      "awaitingReview": "{count, plural, =0 {Aucune quarantaine à traiter} one {# quarantaine à traiter} other {# quarantaines à traiter}}",
+      "filterLabel": "Statut de la quarantaine",
+      "all": "Toutes les quarantaines",
+      "empty": "Aucune quarantaine ne correspond à ce filtre.",
+      "shadowNotice": "Le mode observation est actif. L’application des quarantaines reste désactivée tant que les faux positifs, latences et garde-fous de récupération n’ont pas été validés.",
+      "risk": "{count} points de risque",
+      "columns": {
+        "detected": "Détection",
+        "transaction": "Transaction",
+        "accounts": "Comptes",
+        "evidence": "Éléments",
+        "status": "Statut",
+        "expires": "Expiration"
+      },
+      "types": {
+        "trade": "Échange",
+        "auction": "Enchère",
+        "kara_transfer": "Transfert de Kara",
+        "referral": "Récompense de parrainage"
+      },
+      "statuses": {
+        "SHADOW": "Observation silencieuse",
+        "PENDING_ANALYSIS": "Analyse en attente",
+        "AWAITING_REVIEW": "Décision requise",
+        "RELEASED": "Autorisée",
+        "CANCELLED": "Annulée",
+        "EXPIRED": "Expirée"
+      },
+      "confidence": {
+        "LOW": "Confiance faible",
+        "CORROBORATED": "Éléments recoupés",
+        "HIGH": "Confiance élevée",
+        "DETERMINISTIC": "Preuve déterministe"
+      },
+      "severity": {
+        "LOW": "Impact économique faible",
+        "MEDIUM": "Impact économique moyen",
+        "HIGH": "Impact économique élevé",
+        "CRITICAL": "Impact économique critique"
+      }
+    },
     "deletedRecovery": {
       "open": "Gains de smurfs supprimés",
       "title": "Récupération historique · {player}",
