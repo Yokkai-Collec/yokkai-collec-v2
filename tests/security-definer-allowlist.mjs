@@ -13,6 +13,7 @@ export const ownerOnly = [
   "public.record_anticheat_context_signal(text, uuid, uuid, uuid, integer, text, jsonb)", // Internal network-context recorder; HMAC stays in the short-lived private association table. Walid approved the anti-cheat extension.
   "public.capture_trade_network_anticheat_event()", // Trigger-only shared IP/device trade signal; records the private event then invokes the automatic sanction helper.
   "public.apply_automatic_trade_sanction(uuid, uuid, uuid, boolean, boolean)", // Trigger-only immutable linked-account response; bans only the newest account, cancels pending exchanges and suspends the older account after three warnings.
+  "public.enforce_referral_device_cohort()", // Trigger-only same-device referral-farm fence; bans confirmed fake referrals and removes only unused bonus packs.
   "public.reopen_anticheat_case_on_new_signal()", // Trigger-only workflow fence: a fresh signal reopens a reviewed case without applying a sanction.
   "public.is_disposable_email(text)", // Indexed public-source signup policy; only the Auth INSERT trigger, never API roles. Walid approved.
   "public.guard_disposable_signup()", // Auth INSERT-only trigger: rejects new disposable addresses without touching existing accounts. Walid approved.
