@@ -399,11 +399,13 @@ export function FriendsPanel({
   adapter = liveFriendsPanel,
   initialConversationId,
   onConversationClose,
+  onTrade,
   tradeSection
 }: {
   adapter?: FriendsPanelAdapter;
   initialConversationId?: string;
   onConversationClose?: () => void;
+  onTrade?: (friendId: string) => void;
   tradeSection?: {
     active: boolean;
     routeKey?: string;
@@ -487,7 +489,6 @@ export function FriendsPanel({
   const [removal, setRemoval] = useState<FriendUser>();
   const [removing, setRemoving] = useState(false);
   const [conversation, setConversation] = useState<FriendUser>();
-  const [friendQuery, setFriendQuery] = useState("");
   const openedFromNotification = useRef<string | undefined>(undefined);
   useEffect(() => {
     if (!initialConversationId) {
@@ -602,19 +603,13 @@ export function FriendsPanel({
     };
   }, [query, adapter]);
   useEffect(() => {
-    if (
-      tab !== "friends" ||
-      !friendQuery.trim() ||
-      !hasMore ||
-      loadingMore ||
-      error
-    )
+    if (tab !== "friends" || !query.trim() || !hasMore || loadingMore || error)
       return;
     // Read remaining relationship pages only while searching. Reuse the pager
     // so loaded friends stay available and concurrent reads are deduplicated.
     const timer = window.setTimeout(() => void loadMore(), 250);
     return () => window.clearTimeout(timer);
-  }, [friendQuery, tab, hasMore, loadingMore, error, pager]);
+  }, [query, tab, hasMore, loadingMore, error, pager]);
   async function respond(id: string, accept: boolean) {
     setError("");
     try {
@@ -648,154 +643,101 @@ export function FriendsPanel({
     outgoing: data?.outgoing ?? []
   };
   const current: FriendUser[] =
-    tab === "friends" ? filterFriends(lists.friends, friendQuery) : lists[tab];
+    tab === "friends" ? filterFriends(lists.friends, query) : lists[tab];
+  const suggestions = results.filter(
+    person =>
+      person.status !== "accepted" &&
+      person.status !== "self" &&
+      !lists.friends.some(friend => friend.id === person.id)
+  );
   const tradeFriend = data?.friends.find(
     person => person.id === (localTradeFriend ?? tradeSection?.friendId)
   );
   return (
     <div className="yk-social-stack">
-      <section className="yk-social-search">
-        <div>
-          <p className="eyebrow">{f("find")}</p>
-          <h2 className="yk-section-title mt-2">{f("grow")}</h2>
-        </div>
-        <label className="yk-social-search-field">
-          <span aria-hidden="true">⌕</span>
-          <input
-            aria-label={f("searchLabel")}
-            value={query}
-            onChange={e => {
-              setQuery(e.target.value);
-              setResults([]);
-              setSearching(e.target.value.trim().length >= 2);
-            }}
-            placeholder={f("searchPlaceholder")}
-          />
-        </label>
-        {query.trim().length > 0 && query.trim().length < 2 && (
-          <p className="yk-search-hint">{f("searchHint")}</p>
-        )}
-        {searching && (
-          <p className="yk-search-hint" role="status">
-            {f("searching")}
-          </p>
-        )}
-        {query.trim().length >= 2 && !searching && !results.length && (
-          <div className="yk-social-empty is-compact">
-            <strong>{f("noResults")}</strong>
-            <span>{f("tryUsername")}</span>
-          </div>
-        )}
-        {!!results.length && (
-          <ul className="yk-social-list is-search">
-            {results.map(person => (
-              <Person
-                key={person.id}
-                person={person}
-                actions={
-                  <FriendAction
-                    key={`${person.id}:${person.status}:${blocked.some(item => item.id === person.id)}`}
-                    userId={person.id}
-                    status={person.status ?? "none"}
-                    blockedByMe={blocked.some(item => item.id === person.id)}
-                    onUnblocked={() =>
-                      setBlocked(current =>
-                        current.filter(item => item.id !== person.id)
-                      )
-                    }
-                    onChanged={() => void load()}
-                    adapter={
-                      adapter.action
-                        ? { ...adapter.action, unblock: moderation.unblock }
-                        : {
-                            ...liveFriendActions,
-                            unblock: moderation.unblock
-                          }
-                    }
-                  />
-                }
-              />
-            ))}
-          </ul>
-        )}
-      </section>
       <section className="yk-social-panel">
-        <Tabs
-          label={f("relationships")}
-          value={tab}
-          onChange={value => setTab(value as FriendsTab)}
-          items={[
-            {
-              id: "friends",
-              label: f("myFriends", {
-                count: lists.friends.length,
-                more: hasMore ? "+" : ""
-              })
-            },
-            {
-              id: "incoming",
-              badge: lists.incoming.length ? (
-                <span className="ml-2 inline-flex">
-                  <UnreadBadge
-                    count={lists.incoming.length}
-                    accessibleLabel={f("pendingRequests", {
-                      count: lists.incoming.length
-                    })}
-                    label="pending friend requests"
+        <div className="yk-friends-toolbar">
+          <Tabs
+            label={f("relationships")}
+            value={tab}
+            onChange={value => setTab(value as FriendsTab)}
+            items={[
+              {
+                id: "friends",
+                label: f("myFriends", {
+                  count: lists.friends.length,
+                  more: hasMore ? "+" : ""
+                })
+              },
+              {
+                id: "incoming",
+                badge: lists.incoming.length ? (
+                  <span className="ml-2 inline-flex">
+                    <UnreadBadge
+                      count={lists.incoming.length}
+                      accessibleLabel={f("pendingRequests", {
+                        count: lists.incoming.length
+                      })}
+                      label="pending friend requests"
+                    />
+                  </span>
+                ) : undefined,
+                label: f("incoming", { count: lists.incoming.length })
+              },
+              {
+                id: "outgoing",
+                label: f("outgoing", { count: lists.outgoing.length })
+              },
+              {
+                id: "blocked",
+                label: f("blocked", { count: blocked.length })
+              }
+            ]}
+          />
+          {tab === "friends" && (
+            <div className="yk-friends-list-search">
+              <label className="yk-social-search-field">
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  width="16"
+                  height="16"
+                >
+                  <circle
+                    cx="8.5"
+                    cy="8.5"
+                    r="5.5"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
                   />
-                </span>
-              ) : undefined,
-              label: f("incoming", { count: lists.incoming.length })
-            },
-            {
-              id: "outgoing",
-              label: f("outgoing", { count: lists.outgoing.length })
-            },
-            {
-              id: "blocked",
-              label: f("blocked", { count: blocked.length })
-            }
-          ]}
-        />
-        {tab === "friends" && (
-          <div className="yk-friends-list-search">
-            <label className="yk-social-search-field">
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 20 20"
-                fill="none"
-                width="16"
-                height="16"
-              >
-                <circle
-                  cx="8.5"
-                  cy="8.5"
-                  r="5.5"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
+                  <path
+                    d="m13 13 4 4"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <input
+                  type="search"
+                  aria-label={f("searchMyFriends")}
+                  placeholder={f("searchMyFriends")}
+                  value={query}
+                  onChange={event => {
+                    setQuery(event.target.value);
+                    setResults([]);
+                    setSearching(event.target.value.trim().length >= 2);
+                  }}
                 />
-                <path
-                  d="m13 13 4 4"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <input
-                type="search"
-                aria-label={f("searchMyFriends")}
-                placeholder={f("searchMyFriends")}
-                value={friendQuery}
-                onChange={event => setFriendQuery(event.target.value)}
-              />
-            </label>
-            {!!friendQuery.trim() && hasMore && (
-              <p className="yk-search-hint" role="status">
-                {f("searchRemainingFriends")}
-              </p>
-            )}
-          </div>
-        )}
+              </label>
+              {!!query.trim() && hasMore && (
+                <p className="yk-search-hint" role="status">
+                  {f("searchRemainingFriends")}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
         {!data && tab !== "blocked" ? (
           !error && (
             <Skeleton
@@ -818,11 +760,15 @@ export function FriendsPanel({
                   tab === "friends" ? () => setConversation(person) : undefined
                 }
                 onTrade={
-                  tab === "friends" && tradeSection
+                  tab === "friends" && (onTrade || tradeSection)
                     ? () => {
+                        if (onTrade) {
+                          onTrade(person.id);
+                          return;
+                        }
                         setDismissedTradeKey(undefined);
                         setLocalTradeFriend(person.id);
-                        tradeSection.open(person.id);
+                        tradeSection?.open(person.id);
                       }
                     : undefined
                 }
@@ -859,26 +805,81 @@ export function FriendsPanel({
               />
             ))}
           </ul>
-        ) : (
+        ) : tab === "friends" && query.trim().length >= 2 ? null : (
           <div className="yk-social-empty">
             <span className="yk-social-empty-icon" aria-hidden="true">
               ◇
             </span>
             <strong>
-              {tab === "friends" && friendQuery.trim()
+              {tab === "friends" && query.trim()
                 ? f(hasMore ? "searchRemainingFriends" : "noMatchingFriends")
                 : hasMore && tab !== "blocked"
                   ? f("notLoaded")
                   : f(`empty.${tab}.title`)}
             </strong>
             <p>
-              {tab === "friends" && friendQuery.trim()
+              {tab === "friends" && query.trim()
                 ? f("tryFriendName")
                 : hasMore && tab !== "blocked"
                   ? f("loadHint")
                   : f(`empty.${tab}.text`)}
             </p>
           </div>
+        )}
+        {tab === "friends" && (
+          <>
+            {query.trim().length > 0 && query.trim().length < 2 && (
+              <p className="yk-search-hint">{f("searchHint")}</p>
+            )}
+            {searching && (
+              <p className="yk-search-hint" role="status">
+                {f("searching")}
+              </p>
+            )}
+            {query.trim().length >= 2 &&
+              !searching &&
+              !suggestions.length &&
+              !current.length && (
+                <div className="yk-social-empty is-compact">
+                  <strong>{f("noResults")}</strong>
+                  <span>{f("tryUsername")}</span>
+                </div>
+              )}
+            {!!suggestions.length && (
+              <ul className="yk-social-list is-search">
+                {suggestions.map(person => (
+                  <Person
+                    key={person.id}
+                    person={person}
+                    actions={
+                      <FriendAction
+                        key={`${person.id}:${person.status}:${blocked.some(item => item.id === person.id)}`}
+                        userId={person.id}
+                        status={person.status ?? "none"}
+                        blockedByMe={blocked.some(
+                          item => item.id === person.id
+                        )}
+                        onUnblocked={() =>
+                          setBlocked(current =>
+                            current.filter(item => item.id !== person.id)
+                          )
+                        }
+                        onChanged={() => void load()}
+                        adapter={
+                          adapter.action
+                            ? { ...adapter.action, unblock: moderation.unblock }
+                            : {
+                                ...liveFriendActions,
+                                unblock: moderation.unblock
+                              }
+                        }
+                      />
+                    }
+                  />
+                ))}
+              </ul>
+            )}
+          </>
         )}
         {tab !== "blocked" && hasMore && (
           <Button

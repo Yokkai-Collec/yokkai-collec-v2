@@ -62,7 +62,7 @@ export function SocialFeed({
   if (everyone && state.available === false) redirect("/social");
   return (
     <section
-      className="yk-social-stack"
+      className="yk-social-stack yk-social-feed"
       aria-label={
         everyone
           ? tPr4("socialUi.everyoneFeed")
@@ -81,31 +81,6 @@ export function SocialFeed({
             {tPr4("socialUi.privacySettings")}
           </Link>
         </div>
-      )}
-      {viewer && (
-        <ProfileWall
-          ownerId={viewer.id}
-          pseudo={viewer.pseudo}
-          avatarUrl={viewer.avatarUrl}
-          isMe
-          isPublic={viewer.isPublic}
-          canRead
-          active
-          composerOnly
-          onPublished={post => {
-            if (everyone && !viewer.isPublic) return;
-            store.published({
-              ...post,
-              hasMedia: !!post.mediaPath,
-              author: {
-                id: viewer.id,
-                name: viewer.pseudo,
-                avatarUrl: viewer.avatarUrl,
-                profileStyle: viewer.profileStyle
-              }
-            });
-          }}
-        />
       )}
       {profileError && <p role="alert">{tPr4(profileError)}</p>}
       {!!state.pending.length && (

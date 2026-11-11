@@ -253,6 +253,13 @@ export function Topbar({
             {t("market")}
           </Link>
           <Link
+            href="/trades"
+            aria-current={view === "trades" ? "page" : undefined}
+            onClick={() => setMobileMenu(false)}
+          >
+            {t("trades")}
+          </Link>
+          <Link
             href="/social"
             aria-current={
               view === "feed" || view === "friends" || view === "leaderboard"

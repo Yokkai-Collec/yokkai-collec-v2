@@ -40,6 +40,13 @@ export function SocialTabs() {
       >
         {t("leaderboard")}
       </Link>
+      <Link
+        href="/social/friends"
+        className="yk-tab"
+        aria-current={pathname === "/social/friends" ? "page" : undefined}
+      >
+        {t("friends")}
+      </Link>
     </nav>
   );
 }

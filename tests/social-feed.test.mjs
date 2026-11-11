@@ -217,8 +217,13 @@ test("Feed uses the actual profile post UI, private media route and interaction 
   };
   const html = renderToStaticMarkup(React.createElement(ProfileWall, props));
   assert.match(html, /data-interactions="1"/);
+  assert.match(html, /<button[^>]*aria-label="Enlarge image"[^>]*><img/);
   assert.match(html, /src="\/api\/profile-wall\/media\/1"/);
   assert.match(html, /aria-label="Delete this post"/);
+  assert.match(
+    html,
+    /<details class="yk-wall-post-menu"><summary aria-label="Actions for Alice">⋯<\/summary>/
+  );
   assert.match(html, /href="\/profile\/alice\?tab=wall"/);
   assert.doesNotMatch(html, /<textarea|Wall of|first story/);
   assert.doesNotMatch(

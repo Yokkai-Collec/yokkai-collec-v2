@@ -85,7 +85,7 @@ test("Social tab navigation preserves the shared tree while boosters and standal
 });
 
 test("legacy Social Friends redirects preserve messages, repeated parameters and encoded values", async () => {
-  const { default: page } = load("app/social/friends/page.tsx", {
+  const { default: page } = load("app/friends/page.tsx", {
     "next/navigation": {
       redirect: href => {
         throw new Error(href);
@@ -94,7 +94,7 @@ test("legacy Social Friends redirects preserve messages, repeated parameters and
     "@/components/community-page": {}
   });
   await assert.rejects(page({ searchParams: Promise.resolve({}) }), {
-    message: "/social"
+    message: "/social/friends"
   });
   const destination = await page({
     searchParams: Promise.resolve({
@@ -105,7 +105,7 @@ test("legacy Social Friends redirects preserve messages, repeated parameters and
     })
   }).catch(error => error.message);
   const url = new URL(destination, "https://example.invalid");
-  assert.equal(url.pathname, "/social");
+  assert.equal(url.pathname, "/social/friends");
   assert.equal(url.searchParams.get("message"), "player+123");
   assert.deepEqual(url.searchParams.getAll("tag"), ["one", "two"]);
   assert.equal(url.searchParams.get("q"), "a & b");
@@ -172,8 +172,16 @@ test("Social opens Feed and hides Everyone until its availability probe succeeds
   });
   const unavailable = { available: undefined };
   const { default: Layout } = load("app/social/layout.tsx", {
-    "@/components/community-views": {
-      FriendsView: () => React.createElement("div", null, "Friends sidebar")
+    "@/components/social-sidebar": {
+      SocialSidebar: ({ children }) =>
+        React.createElement(
+          "aside",
+          { className: "yk-social-sidebar" },
+          children
+        )
+    },
+    "@/components/social-composer": {
+      SocialComposer: () => React.createElement("button", null, "Post")
     },
     "@/components/social-feed-provider": {
       SocialFeedProvider: ({ children }) => children
@@ -188,10 +196,13 @@ test("Social opens Feed and hides Everyone until its availability probe succeeds
   assert.doesNotMatch(html, /href="\/friends"/);
   assert.match(html, /aria-current="page"/);
   assert.match(html, /Friends content/);
-  assert.match(
-    html,
-    /<aside class="yk-social-friends"><div>Friends sidebar<\/div><\/aside>/
+  assert.match(html, /<aside class="yk-social-sidebar">/);
+  assert.match(html, /<button>Post<\/button>/);
+  assert.ok(
+    html.indexOf('href="/social/leaderboard"') <
+      html.indexOf('href="/social/friends"')
   );
+  assert.match(html, /href="\/social\/friends"/);
   assert.match(html, /href="\/social\/leaderboard"/);
   assert.match(
     html,
@@ -262,7 +273,16 @@ test("Friends shows a skeleton initially and waits through search debounce befor
   assert.ok(
     initial.indexOf("My friends") < initial.indexOf("Received requests")
   );
-  const input = tree.props.children[0].props.children[1].props.children[1];
+  function findInput(node) {
+    if (!node || typeof node !== "object") return undefined;
+    if (node.type === "input") return node;
+    return React.Children.toArray(node.props?.children)
+      .map(findInput)
+      .find(Boolean);
+  }
+  assert.doesNotMatch(initial, /Find a player|Grow your circle/);
+  assert.equal((initial.match(/<input/g) ?? []).length, 1);
+  const input = findInput(tree);
   input.props.onChange({ target: { value: "Alice" } });
   tree = render();
   const pending = renderToStaticMarkup(tree);

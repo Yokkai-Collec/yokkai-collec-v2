@@ -1343,6 +1343,9 @@
     "missing": "This card is no longer in the catalogue. It may have been deleted."
   },
   "profileUi": {
+    "zoomInImage": "Zoom in on image",
+    "zoomOutImage": "Zoom out of image",
+    "enlargeImage": "Enlarge image",
     "recentCardsTitle": "Latest pulls",
     "recentCardsSubtitle": "Fresh additions to this collection",
     "recentCardsEmpty": "No recent pulls to show yet.",
@@ -2196,6 +2199,7 @@
     "moreFriendsHint": "Search filters the friends loaded here. Load more to see the rest."
   },
   "socialFriends": {
+    "post": "Post",
     "sections": "Feed sections",
     "searchMyFriends": "Search my friends…",
     "searchRemainingFriends": "Searching the rest of your friends…",

@@ -1343,6 +1343,9 @@
     "missing": "Cette carte n?est plus dans le catalogue. Elle a peut-?tre ?t? supprim?e."
   },
   "profileUi": {
+    "zoomInImage": "Zoomer sur l’image",
+    "zoomOutImage": "Dézoomer l’image",
+    "enlargeImage": "Agrandir l’image",
     "recentCardsTitle": "Derniers tirages",
     "recentCardsSubtitle": "Les dernières arrivées dans cette collection",
     "recentCardsEmpty": "Aucun tirage récent à afficher pour le moment.",
@@ -2196,6 +2199,7 @@
     "moreFriendsHint": "La recherche filtre les amis chargés ici. Affiche plus d’amis pour voir la suite."
   },
   "socialFriends": {
+    "post": "Publier",
     "sections": "Sections du feed",
     "searchMyFriends": "Rechercher parmi mes amis…",
     "searchRemainingFriends": "Recherche dans le reste de tes amis…",

@@ -49,9 +49,10 @@ export async function loadTradeContextIfCurrent<T>(
   load: (friendId: string) => Promise<T>,
   friendId: string,
   requestId: number,
-  current: () => { friendId: string; requestId: number }
+  current: () => { friendId: string; requestId: number },
+  prepared?: { friendId: string; value: Promise<T> }
 ) {
-  const context = await load(friendId);
+  const context = await (prepared?.friendId === friendId ? prepared.value : load(friendId));
   const latest = current();
   return latest.friendId === friendId && latest.requestId === requestId
     ? context
