@@ -17,6 +17,15 @@ export const ownerOnly = [
   "public.expire_anticheat_shadow_quarantines()", // Scheduled private cleanup of observation-only records; never mutates a player asset.
   "public.anticheat_discord_event_allowed(bigint)", // Private routing policy for the Discord outbox; it exposes no event data and is called only by the trigger.
   "public.archive_failed_anticheat_discord_alerts()", // Scheduled private dead-letter archival after the existing bounded dispatch retries.
+  "public.guard_quarantined_trade_card()", // Trigger-only fence on reserved inventory.
+  "public.guard_quarantined_trade_listing()", // Trigger-only auction admission fence.
+  "public.guard_quarantined_trade_kara()", // Trigger-only protection of reserved balances.
+  "public.anticheat_trade_needs_review(trade_offers)", // Private trade admission signal.
+  "public.anticheat_settle_trade(trade_offers, uuid)", // Shared settlement reached only through locked and authorized callers.
+  "public.close_cancelled_trade_quarantine()", // Trigger-only release of holds after offer withdrawal.
+  "public.resolve_trade_quarantine(uuid, integer, text, text, uuid)", // Private common resolution with offer and case locks.
+  "public.expire_active_trade_quarantines()", // Flag-gated deadline worker.
+  "public.evaluate_anticheat_network_clusters()", // Private worker over pseudonymized observations.
   "public.reopen_anticheat_case_on_new_signal()", // Trigger-only workflow fence: a fresh signal reopens a reviewed case without applying a sanction.
   "public.is_disposable_email(text)", // Indexed public-source signup policy; only the Auth INSERT trigger, never API roles. Walid approved.
   "public.guard_disposable_signup()", // Auth INSERT-only trigger: rejects new disposable addresses without touching existing accounts. Walid approved.
@@ -98,6 +107,11 @@ const allowlist = {
   "public.admin_list_anticheat_quarantines(text, integer, integer)": [
     "authenticated"
   ], // Admin-only bounded quarantine queue; it returns conclusions, never network or browser pseudonyms.
+  "public.admin_resolve_trade_quarantine(uuid, integer, text, text)": [
+    "authenticated"
+  ], // Admin guard, versioned decision and mandatory reason.
+  "public.respond_trade_offer_with_status(uuid, text)": ["authenticated"], // Same recipient and ban guards as the existing response RPC.
+  "public.admin_list_anticheat_clusters(uuid)": ["authenticated"], // Admin-only bounded cluster and member summaries without technical identifiers.
   "public.admin_get_referral_pack_provenance(uuid[])": ["authenticated"], // Admin-only bounded source and transfer trail for referral-funded pack cards. Walid approved.
   "public.get_pack_favorite_card_ids(uuid[], boolean)": ["authenticated"], // Own favorite membership only, active session, at most 500 catalogue IDs, no mutation. Walid approved.
   "public.admin_list_deleted_accounts(text, uuid, boolean, integer, integer)": [

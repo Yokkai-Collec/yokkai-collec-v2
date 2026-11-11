@@ -93,7 +93,7 @@ export function ConversationTrade({
         <strong>{t(offer.parentOfferId ? "counter" : "offer")}</strong>
         <StatusPill tone={presentation.tone}>
           {t(
-            `status.${["pending", "accepted", "declined", "cancelled", "expired", "countered"].includes(offer.status) ? offer.status : "unavailable"}`
+            `status.${["pending", "accepted", "declined", "cancelled", "expired", "countered", "quarantined"].includes(offer.status) ? offer.status : "unavailable"}`
           )}
         </StatusPill>
       </header>
@@ -102,6 +102,7 @@ export function ConversationTrade({
           ? t("sentTo", { name: offer.toPseudo })
           : t("receivedFrom", { name: offer.fromPseudo })}
       </p>
+      {offer.status === "quarantined" && <p>{t("quarantineNotice")}</p>}
       <div className="yk-conversation-trade-lots">
         <Lot
           title={t("give")}

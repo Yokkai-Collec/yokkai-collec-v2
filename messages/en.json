@@ -2294,8 +2294,10 @@
     "accept": "Accept",
     "decline": "Decline",
     "waiting": "Waiting for {name} to respond.",
+    "quarantineNotice": "This trade is undergoing a security review. The cards and Karas involved are temporarily reserved.",
     "status": {
       "pending": "Pending",
+      "quarantined": "Trade under review",
       "accepted": "Accepted",
       "declined": "Declined",
       "cancelled": "Cancelled",
@@ -2733,6 +2735,8 @@
     "seenDays": "Last seen {count, plural, one {# day} other {# days}} ago",
     "seenDate": "Last seen {date}",
     "tradeStatuspending": "Pending",
+    "tradeStatusquarantined": "Trade under review",
+    "tradeQuarantineNotice": "This trade is undergoing a security review. The cards and Karas involved are temporarily reserved.",
     "tradeStatusaccepted": "Accepted",
     "tradeStatusdeclined": "Declined",
     "tradeStatuscountered": "Countered",
@@ -3445,15 +3449,44 @@
     "karas": "{count} Karas",
     "observationNotice": "Observation mode is active: no score triggers an automatic ban or sanction. An administrator must inspect the evidence. The smurf sanction remains a separate, explicit and traceable action.",
     "prepareSanction": "Sanction",
+    "clusters": {
+      "title": "Account farm investigations",
+      "all": "All groups",
+      "empty": "No group to investigate.",
+      "review": "Examine group",
+      "accounts": "{count, plural, one {# account} other {# accounts}}",
+      "activity": "{recent} created and {active} observed in the past 24 hours",
+      "economy": "{trades} internal trades · {referrals} referrals · {cards} cards · {karas} Karas",
+      "beneficiary": "Most one-way transfers received by {name}",
+      "priority": {
+        "INVESTIGATE": "Investigation",
+        "CRITICAL": "Critical suspicion",
+        "ENHANCED": "Enhanced review",
+        "PRIORITY": "Priority review"
+      },
+      "state": {
+        "PENDING": "Pending",
+        "REVIEWED_SIGNALS": "Economic signals collected"
+      }
+    },
     "quarantines": {
       "eyebrow": "Preventive controls",
       "title": "Anti-cheat quarantines",
-      "help": "Only decision-ready cases belong here. This initial release records corroborated signals in shadow mode and cannot reserve assets, block a trade, or sanction a player.",
+      "help": "Review held trades and observations recorded in shadow mode.",
       "awaitingReview": "{count, plural, =0 {No quarantine to review} one {# quarantine to review} other {# quarantines to review}}",
       "filterLabel": "Quarantine status",
       "all": "All quarantines",
       "empty": "No quarantine matches this filter.",
       "shadowNotice": "Shadow mode is active. Quarantine enforcement remains disabled until false-positive, latency and recovery safeguards have been validated.",
+      "review": "Review trade",
+      "reason": "Decision reason",
+      "release": "Authorize trade",
+      "cancel": "Cancel trade",
+      "result": {
+        "invalid": "Enter a valid decision and a reason.",
+        "failed": "The trade could not be updated. Review its current status.",
+        "saved": "Decision recorded."
+      },
       "risk": "{count} risk points",
       "columns": {
         "detected": "Detected",

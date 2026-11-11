@@ -9,7 +9,11 @@ import { requireAdminPage } from "@/lib/auth/admin";
 import { getCurrentKarasBalance, getCurrentPseudo } from "@/lib/auth/session";
 import { createClient } from "@/utils/supabase/server";
 import { AdminNavigation } from "../admin-navigation";
-import { applySmurfSanctionAction, reviewAnticheatCaseAction } from "./actions";
+import {
+  applySmurfSanctionAction,
+  resolveTradeQuarantineAction,
+  reviewAnticheatCaseAction
+} from "./actions";
 import {
   AccountStatus,
   EventDetail,
@@ -120,6 +124,8 @@ type QuarantineRow = {
   createdAt: string;
   expiresAt: string;
   version: number;
+  cardCount: number;
+  karas: number;
 };
 
 type SanctionPreview = {
@@ -277,7 +283,9 @@ function quarantineFromRpc(value: Record<string, unknown>): QuarantineRow {
     reasonCodes: strings(value.reasonCodes),
     createdAt: String(value.createdAt ?? ""),
     expiresAt: String(value.expiresAt ?? ""),
-    version: Number(value.version ?? 1)
+    version: Number(value.version ?? 1),
+    cardCount: Number(value.cardCount ?? 0),
+    karas: Number(value.karas ?? 0)
   };
 }
 
@@ -345,6 +353,8 @@ export default async function AdminSecurityPage({
     linked_status?: string;
     linked_page?: string;
     quarantine_status?: string;
+    quarantine_result?: string;
+    cluster?: string;
   }>;
 }) {
   const admin = await requireAdminPage();
@@ -352,6 +362,11 @@ export default async function AdminSecurityPage({
   const t = await getTranslations("adminSecurity");
   const locale = await getLocale();
   const params = await searchParams;
+  const clusterId = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(
+    params.cluster ?? ""
+  )
+    ? params.cluster!
+    : null;
   const query = params.q?.trim().slice(0, 100) ?? "";
   const severity = severities.has(params.severity ?? "")
     ? params.severity!
@@ -463,31 +478,53 @@ export default async function AdminSecurityPage({
     }
   }
   const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
-  const [name, karas, casesResult, eventsResult, quarantinesResult] =
-    await Promise.all([
-      getCurrentPseudo(admin.id),
-      getCurrentKarasBalance(client),
-      client.rpc("admin_list_anticheat_cases", {
-        p_query: query,
-        p_severity: severity,
-        p_limit: PAGE_SIZE,
-        p_offset: (page - 1) * PAGE_SIZE
-      }),
-      client.rpc("admin_list_anticheat_events", {
-        p_user_id: userId,
-        p_event_type: "trade_accepted",
-        p_limit: 40,
-        p_offset: 0
-      }),
-      client.rpc("admin_list_anticheat_quarantines", {
-        p_status: quarantineStatus,
-        p_limit: 30,
-        p_offset: 0
-      })
-    ]);
+  const [
+    name,
+    karas,
+    casesResult,
+    eventsResult,
+    quarantinesResult,
+    clustersResult
+  ] = await Promise.all([
+    getCurrentPseudo(admin.id),
+    getCurrentKarasBalance(client),
+    client.rpc("admin_list_anticheat_cases", {
+      p_query: query,
+      p_severity: severity,
+      p_limit: PAGE_SIZE,
+      p_offset: (page - 1) * PAGE_SIZE
+    }),
+    client.rpc("admin_list_anticheat_events", {
+      p_user_id: userId,
+      p_event_type: "trade_accepted",
+      p_limit: 40,
+      p_offset: 0
+    }),
+    client.rpc("admin_list_anticheat_quarantines", {
+      p_status: quarantineStatus,
+      p_limit: 30,
+      p_offset: 0
+    }),
+    client.rpc("admin_list_anticheat_clusters", { p_id: clusterId })
+  ]);
   if (casesResult.error) throw new Error(casesResult.error.message);
   if (eventsResult.error) throw new Error(eventsResult.error.message);
   if (quarantinesResult.error) throw new Error(quarantinesResult.error.message);
+  if (clustersResult.error) throw new Error(clustersResult.error.message);
+  const clusters = (clustersResult.data ?? []) as {
+    id: string;
+    accountCount: number;
+    recentAccountCount: number;
+    activeAccountCount: number;
+    referralCount: number;
+    internalTrades: number;
+    cards: number;
+    karas: number;
+    beneficiary: string | null;
+    priority: string;
+    state: string;
+    members: { id: string; pseudo: string | null; createdAt: string }[];
+  }[];
   const casePayload = (casesResult.data ?? {}) as Record<string, unknown>;
   const eventPayload = (eventsResult.data ?? {}) as Record<string, unknown>;
   const quarantinePayload = (quarantinesResult.data ?? {}) as Record<
@@ -787,6 +824,10 @@ export default async function AdminSecurityPage({
                           <p className="max-w-32 truncate font-mono text-xs text-slate-500">
                             {item.subjectId}
                           </p>
+                          <p className="text-xs text-slate-300">
+                            {t("cards", { count: item.cardCount })} ·{" "}
+                            {t("karas", { count: item.karas })}
+                          </p>
                         </td>
                         <td className="px-3 py-3 text-slate-300">
                           <p>{item.sender.pseudo}</p>
@@ -810,6 +851,53 @@ export default async function AdminSecurityPage({
                         </td>
                         <td className="px-3 py-3 text-slate-300">
                           {dateFormatter.format(new Date(item.expiresAt))}
+                          {item.subjectType === "trade" &&
+                            ["PENDING_ANALYSIS", "AWAITING_REVIEW"].includes(
+                              item.status
+                            ) && (
+                              <details className="mt-2 min-w-44">
+                                <summary className="cursor-pointer text-cyan-200">
+                                  {t("quarantines.review")}
+                                </summary>
+                                <form
+                                  action={resolveTradeQuarantineAction}
+                                  className="mt-2 grid gap-2"
+                                >
+                                  <input
+                                    type="hidden"
+                                    name="quarantine_id"
+                                    value={item.id}
+                                  />
+                                  <input
+                                    type="hidden"
+                                    name="version"
+                                    value={item.version}
+                                  />
+                                  <textarea
+                                    name="reason"
+                                    aria-label={t("quarantines.reason")}
+                                    placeholder={t("quarantines.reason")}
+                                    required
+                                    maxLength={500}
+                                    className="w-full rounded border border-slate-600 bg-slate-950 p-2"
+                                  />
+                                  <button
+                                    name="decision"
+                                    value="release"
+                                    className="rounded border border-cyan-400/40 p-2"
+                                  >
+                                    {t("quarantines.release")}
+                                  </button>
+                                  <button
+                                    name="decision"
+                                    value="cancel"
+                                    className="rounded border border-rose-400/40 p-2"
+                                  >
+                                    {t("quarantines.cancel")}
+                                  </button>
+                                </form>
+                              </details>
+                            )}
                         </td>
                       </tr>
                     ))}
@@ -817,9 +905,96 @@ export default async function AdminSecurityPage({
                 </table>
               </div>
             )}
-            <p className="mt-3 text-xs text-slate-500">
-              {t("quarantines.shadowNotice")}
-            </p>
+            {["invalid", "failed", "saved"].includes(
+              params.quarantine_result ?? ""
+            ) && (
+              <p role="status" className="mt-3 text-sm text-slate-300">
+                {t(`quarantines.result.${params.quarantine_result}`)}
+              </p>
+            )}
+          </section>
+
+          <section
+            id="anticheat-clusters"
+            className="rounded-2xl border border-cyan-300/20 bg-slate-900/70 p-4 sm:p-5"
+          >
+            <h2 className="text-xl font-bold text-slate-100">
+              {t("clusters.title")}
+            </h2>
+            {clusterId && (
+              <Link
+                href="/admin/security#anticheat-clusters"
+                className="text-sm text-cyan-200"
+              >
+                {t("clusters.all")}
+              </Link>
+            )}
+            {clusters.length === 0 ? (
+              <p className="mt-3 text-sm text-slate-400">
+                {t("clusters.empty")}
+              </p>
+            ) : (
+              <div className="mt-3 grid gap-3 lg:grid-cols-2">
+                {clusters.map(cluster => (
+                  <article
+                    key={cluster.id}
+                    className="min-w-0 rounded-xl border border-slate-800 p-3"
+                  >
+                    <p className="font-semibold text-slate-100">
+                      {t("clusters.accounts", { count: cluster.accountCount })}
+                    </p>
+                    <p className="text-sm text-slate-300">
+                      {t(`clusters.priority.${cluster.priority}`)} ·{" "}
+                      {t(`clusters.state.${cluster.state}`)}
+                    </p>
+                    <p className="mt-2 text-sm text-slate-400">
+                      {t("clusters.activity", {
+                        recent: cluster.recentAccountCount,
+                        active: cluster.activeAccountCount
+                      })}
+                    </p>
+                    <p className="text-sm text-slate-400">
+                      {t("clusters.economy", {
+                        trades: cluster.internalTrades,
+                        referrals: cluster.referralCount,
+                        cards: cluster.cards,
+                        karas: cluster.karas
+                      })}
+                    </p>
+                    {cluster.beneficiary && (
+                      <p className="break-words text-sm text-slate-300">
+                        {t("clusters.beneficiary", {
+                          name: cluster.beneficiary
+                        })}
+                      </p>
+                    )}
+                    {clusterId ? (
+                      <ul className="mt-2 space-y-1 text-sm text-slate-300">
+                        {cluster.members.map(member => (
+                          <li key={member.id} className="break-words">
+                            <Link
+                              href={`/admin/security?user=${member.id}`}
+                              className="text-cyan-200"
+                            >
+                              {member.pseudo ?? member.id}
+                            </Link>
+                            {" · "}
+                            {dateFormatter.format(new Date(member.createdAt))}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <Link
+                        href={`/admin/security?cluster=${cluster.id}#anticheat-clusters`}
+                        className="mt-2 inline-block text-sm text-cyan-200"
+                      >
+                        {t("clusters.review")}
+                      </Link>
+                    )}
+                  </article>
+                ))}
+              </div>
+            )}
           </section>
 
           <section className="rounded-2xl border border-cyan-300/20 bg-slate-900/70 p-4 sm:p-5">

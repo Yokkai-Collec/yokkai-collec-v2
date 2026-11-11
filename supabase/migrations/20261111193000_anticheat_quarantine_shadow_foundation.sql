@@ -199,8 +199,13 @@ begin
       'status',q.status,'sender',jsonb_build_object('id',q.sender_user_id,'pseudo',coalesce(q.sender_pseudo,'Deleted player')),
       'recipient',jsonb_build_object('id',q.recipient_user_id,'pseudo',coalesce(q.recipient_pseudo,'Deleted player')),
       'riskScore',q.risk_score,'confidence',q.evidence_confidence,'economicSeverity',q.economic_severity,
-      'reasonCodes',q.reason_codes,'createdAt',q.created_at,'expiresAt',q.expires_at,'version',q.version
-    ) order by q.expires_at,q.created_at,q.id) from page q),'[]'::jsonb),
+      'reasonCodes',q.reason_codes,'createdAt',q.created_at,'expiresAt',q.expires_at,'version',q.version,
+      'cardCount',coalesce(jsonb_array_length(q.asset_snapshot->'offeredCardIds'),0)
+        +coalesce(jsonb_array_length(q.asset_snapshot->'requestedCardIds'),0),
+      'karas',coalesce((q.asset_snapshot->>'offeredKaras')::bigint,0)
+        +coalesce((q.asset_snapshot->>'requestedKaras')::bigint,0)
+    ) order by case when q.status='AWAITING_REVIEW' then 0 when q.status='PENDING_ANALYSIS' then 1 else 2 end,
+      q.expires_at,q.created_at,q.id) from page q),'[]'::jsonb),
     'total',(select count(*) from filtered),
     'awaitingReview',(select count(*) from public.anticheat_quarantines where status='AWAITING_REVIEW')
   ) into result;

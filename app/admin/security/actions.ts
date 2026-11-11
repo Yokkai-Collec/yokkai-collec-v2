@@ -8,6 +8,34 @@ import { createClient } from "@/utils/supabase/server";
 
 const statuses = new Set(["open", "reviewed", "dismissed"]);
 
+export async function resolveTradeQuarantineAction(form: FormData) {
+  await requireAdminAction();
+  const id = String(form.get("quarantine_id") ?? "");
+  const version = Number(form.get("version"));
+  const action = String(form.get("decision") ?? "");
+  const reason = String(form.get("reason") ?? "").trim();
+  if (
+    !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(id) ||
+    !Number.isSafeInteger(version) ||
+    version < 1 ||
+    !["release", "cancel"].includes(action) ||
+    reason.length < 1 ||
+    reason.length > 500
+  )
+    redirect("/admin/security?quarantine_result=invalid#anticheat-quarantines");
+  const client = createClient(await cookies());
+  const result = await client.rpc("admin_resolve_trade_quarantine", {
+    p_id: id,
+    p_version: version,
+    p_action: action,
+    p_reason: reason
+  });
+  revalidatePath("/admin/security");
+  redirect(
+    `/admin/security?quarantine_result=${result.error ? "failed" : "saved"}#anticheat-quarantines`
+  );
+}
+
 export async function applyDeletedAccountSanctionAction(form: FormData) {
   await requireAdminAction();
   const primaryUserId = String(form.get("primary_user_id") ?? "");

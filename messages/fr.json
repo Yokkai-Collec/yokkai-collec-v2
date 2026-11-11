@@ -2294,8 +2294,10 @@
     "accept": "Accepter",
     "decline": "Refuser",
     "waiting": "En attente de la réponse de {name}.",
+    "quarantineNotice": "Cet échange fait l’objet d’une vérification de sécurité. Les cartes et Karas concernés sont temporairement réservés.",
     "status": {
       "pending": "En attente",
+      "quarantined": "Transaction en cours de vérification",
       "accepted": "Acceptée",
       "declined": "Refusée",
       "cancelled": "Annulée",
@@ -2733,6 +2735,8 @@
     "seenDays": "Vu il y a {count, plural, one {# jour} other {# jours}}",
     "seenDate": "Vu le {date}",
     "tradeStatuspending": "En attente",
+    "tradeStatusquarantined": "Transaction en cours de vérification",
+    "tradeQuarantineNotice": "Cet échange fait l’objet d’une vérification de sécurité. Les cartes et Karas concernés sont temporairement réservés.",
     "tradeStatusaccepted": "Acceptée",
     "tradeStatusdeclined": "Refusée",
     "tradeStatuscountered": "Contre-offre reçue",
@@ -3445,15 +3449,44 @@
     "karas": "{count} Karas",
     "observationNotice": "Le mode observation est actif : aucun score ne provoque automatiquement un bannissement ou une sanction. Un administrateur doit examiner les éléments. La sanction smurf reste une action séparée, explicite et traçable.",
     "prepareSanction": "Sanctionner",
+    "clusters": {
+      "title": "Fermes de comptes",
+      "all": "Tous les groupes",
+      "empty": "Aucun groupe à examiner.",
+      "review": "Examiner le groupe",
+      "accounts": "{count, plural, one {# compte} other {# comptes}}",
+      "activity": "{recent} créés et {active} observés dans les dernières 24 h",
+      "economy": "{trades} échanges internes · {referrals} parrainages · {cards} cartes · {karas} Karas",
+      "beneficiary": "Le plus de transferts à sens unique reçus par {name}",
+      "priority": {
+        "INVESTIGATE": "Investigation",
+        "CRITICAL": "Suspicion critique",
+        "ENHANCED": "Analyse renforcée",
+        "PRIORITY": "Revue prioritaire"
+      },
+      "state": {
+        "PENDING": "En attente",
+        "REVIEWED_SIGNALS": "Signaux économiques collectés"
+      }
+    },
     "quarantines": {
       "eyebrow": "Contrôles préventifs",
       "title": "Quarantaines anti-triche",
-      "help": "Seuls les dossiers prêts à être décidés apparaissent ici. Cette première version enregistre des signaux corroborés en mode observation et ne peut ni réserver un actif, ni bloquer un échange, ni sanctionner un joueur.",
+      "help": "Consulte les échanges retenus et les signalements du mode observation.",
       "awaitingReview": "{count, plural, =0 {Aucune quarantaine à traiter} one {# quarantaine à traiter} other {# quarantaines à traiter}}",
       "filterLabel": "Statut de la quarantaine",
       "all": "Toutes les quarantaines",
       "empty": "Aucune quarantaine ne correspond à ce filtre.",
       "shadowNotice": "Le mode observation est actif. L’application des quarantaines reste désactivée tant que les faux positifs, latences et garde-fous de récupération n’ont pas été validés.",
+      "review": "Examiner l’échange",
+      "reason": "Motif de la décision",
+      "release": "Autoriser l’échange",
+      "cancel": "Annuler l’échange",
+      "result": {
+        "invalid": "Indique une décision valide et son motif.",
+        "failed": "Impossible de mettre à jour l’échange. Vérifie son état actuel.",
+        "saved": "Décision enregistrée."
+      },
       "risk": "{count} points de risque",
       "columns": {
         "detected": "Détection",
