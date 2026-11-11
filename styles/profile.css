@@ -630,9 +630,24 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
 }
 .yk-profile-name-row h2 {
   min-width: 0;
-  flex: 1;
+  flex: 0 1 auto;
+}
+.yk-profile-friend-status {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  min-height: 24px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-success) 14%, transparent);
+  color: var(--color-success);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
 }
 .yk-profile-name-row > div {
+  margin-left: auto;
   flex-shrink: 0;
 }
 .yk-profile-name-row summary {
@@ -1529,6 +1544,9 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
     flex-basis: 148px;
     min-width: 0;
     max-width: none;
+  }
+  .yk-profile-friend-status {
+    font-size: 10px;
   }
 }
 @media (min-width: 1024px) {

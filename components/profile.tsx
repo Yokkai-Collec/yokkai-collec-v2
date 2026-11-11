@@ -803,6 +803,8 @@ export function ProfileExperience({
   ) : null;
   const friends = profile.friends ?? [];
   const blockedByMe = blocked.some(player => player.id === profile.id);
+  const isAcceptedFriend =
+    !isMe && profile.friendshipStatus === "accepted" && !blockedByMe;
   function afterBlock() {
     if (!profile) return;
     setBlocked(current =>
@@ -1060,6 +1062,11 @@ export function ProfileExperience({
                     cosmetics={profile.profileStyle}
                   />
                 </h2>
+                {isAcceptedFriend && (
+                  <span className="yk-profile-friend-status">
+                    {t("profileUi.friendStatusaccepted")}
+                  </span>
+                )}
                 {!isMe && (
                   <PlayerModeration
                     userId={profile.id}
@@ -1074,7 +1081,7 @@ export function ProfileExperience({
                 {profile.bio || t("profileUi.noBioYet")}
               </p>
               <div
-                className={`yk-profile-actions ${profile.friendshipStatus === "accepted" && !blockedByMe ? "is-friend" : ""} ${showInlineProfileLike ? "has-profile-like" : ""}`}
+                className={`yk-profile-actions ${isAcceptedFriend ? "is-friend" : ""} ${showInlineProfileLike ? "has-profile-like" : ""}`}
               >
                 {isMe ? (
                   <>
@@ -1099,37 +1106,38 @@ export function ProfileExperience({
                   </>
                 ) : (
                   <>
-                    <FriendAction
-                      key={`${profile.id}:${profile.friendshipStatus}:${blockedByMe}`}
-                      userId={profile.id}
-                      status={profile.friendshipStatus}
-                      blockedByMe={blockedByMe}
-                      adapter={adapter.friendAction}
-                      onChanged={status =>
-                        setProfile(current =>
-                          current
-                            ? { ...current, friendshipStatus: status }
-                            : current
-                        )
-                      }
-                      onUnblocked={afterUnblock}
-                    />
-                    {profile.friendshipStatus === "accepted" &&
-                      !blockedByMe && (
-                        <FriendMessageButton
-                          key={profile.id}
-                          showTrade
-                          friend={{
-                            id: profile.id,
-                            pseudo: profile.pseudo,
-                            avatarUrl: profile.avatarUrl,
-                            profileStyle: profile.profileStyle
-                          }}
-                          adapter={adapter.messages}
-                          tradeAdapter={adapter.trades}
-                          moderationAdapter={adapter.moderation}
-                        />
-                      )}
+                    {!isAcceptedFriend && (
+                      <FriendAction
+                        key={`${profile.id}:${profile.friendshipStatus}:${blockedByMe}`}
+                        userId={profile.id}
+                        status={profile.friendshipStatus}
+                        blockedByMe={blockedByMe}
+                        adapter={adapter.friendAction}
+                        onChanged={status =>
+                          setProfile(current =>
+                            current
+                              ? { ...current, friendshipStatus: status }
+                              : current
+                          )
+                        }
+                        onUnblocked={afterUnblock}
+                      />
+                    )}
+                    {isAcceptedFriend && (
+                      <FriendMessageButton
+                        key={profile.id}
+                        showTrade
+                        friend={{
+                          id: profile.id,
+                          pseudo: profile.pseudo,
+                          avatarUrl: profile.avatarUrl,
+                          profileStyle: profile.profileStyle
+                        }}
+                        adapter={adapter.messages}
+                        tradeAdapter={adapter.trades}
+                        moderationAdapter={adapter.moderation}
+                      />
+                    )}
                     {showInlineProfileLike && profileLikeButton}
                   </>
                 )}

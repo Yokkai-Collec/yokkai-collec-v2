@@ -2233,7 +2233,7 @@ test("Phase 5 : habillage des boosters sans toucher au reveal", () => {
   assert.match(
     normalizeWhitespace(boosterStyles),
     normalizeWhitespace(
-      /@media \(min-width: 40\.0625rem\) and \(max-width: 85rem\) \{[\s\S]*\.yk-pack-info-popover \{ position: fixed;[\s\S]*transform: translate\(-50%, -50%\);/
+      /@media \(min-width: 40\.0625rem\) \{[\s\S]*\.yk-pack-info-popover \{ position: fixed;[\s\S]*transform: translate\(-50%, -50%\);/
     )
   );
   assert.doesNotMatch(boosterStyles, /\.yk-reveal-(?:ssr|lr)/);

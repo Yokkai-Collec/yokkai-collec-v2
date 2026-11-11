@@ -51,6 +51,12 @@ test("current profile has one private-aware wishlist entry point and no view rec
   );
   assert.match(source, /has-profile-like/);
   assert.match(
+    source,
+    /const isAcceptedFriend =\s*!isMe && profile\.friendshipStatus === "accepted" && !blockedByMe/
+  );
+  assert.match(source, /className="yk-profile-friend-status"/);
+  assert.match(source, /\{isAcceptedFriend && \([\s\S]*?<FriendMessageButton/);
+  assert.match(
     api,
     /export type ProfileEngagement = \{likes:number;likedByMe:boolean\}/
   );
