@@ -131,7 +131,7 @@ test("the shared composer notifies Home only after confirmed publication, keepin
         ...React,
         useState: initial => {
           const i = states.length;
-          const value = i === 4 ? "Posting from Home" : initial;
+          const value = i === 6 ? "Posting from Home" : initial;
           states.push(value);
           return [
             value,
@@ -180,8 +180,8 @@ test("the shared composer notifies Home only after confirmed publication, keepin
     submit({ preventDefault() {} });
     await new Promise(resolve => setImmediate(resolve));
     assert.equal(notified, fail ? 0 : 1);
-    assert.equal(states[4], fail ? "Posting from Home" : "");
-    assert.equal(states[8], false);
+    assert.equal(states[6], fail ? "Posting from Home" : "");
+    assert.equal(states[10], false);
   }
 });
 
