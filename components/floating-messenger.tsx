@@ -263,94 +263,96 @@ export function MessengerSession({
           ) : choosing ? (
             <MessengerFriends onSelect={setFriend} />
           ) : (
-            <div className="yk-messenger-inbox">
-              <p className="yk-messenger-subtitle">{t("intro")}</p>
-              {loading && !data && (
-                <p role="status" className="yk-messenger-state">
-                  {t("loading")}
-                </p>
-              )}
-              {error && (
-                <div className="yk-messenger-state" role="alert">
-                  <p>{t("error")}</p>
-                  <button
-                    type="button"
-                    className="yk-button"
-                    onClick={() => {
-                      setLoading(true);
-                      setRetry(value => value + 1);
-                    }}
-                  >
-                    {t("retry")}
-                  </button>
-                </div>
-              )}
-              {data && !data.items.length && !loading && !error && (
-                <div className="yk-messenger-state">
-                  <ChatIcon />
-                  <strong>{t("empty")}</strong>
-                  <p>{t("emptyHint")}</p>
-                </div>
-              )}
-              <ul className="yk-messenger-list">
-                {data?.items.map(item => (
-                  <li key={item.friend.id}>
+            <>
+              <div className="yk-messenger-inbox">
+                <p className="yk-messenger-subtitle">{t("intro")}</p>
+                {loading && !data && (
+                  <p role="status" className="yk-messenger-state">
+                    {t("loading")}
+                  </p>
+                )}
+                {error && (
+                  <div className="yk-messenger-state" role="alert">
+                    <p>{t("error")}</p>
                     <button
                       type="button"
-                      className="yk-messenger-conversation"
-                      onClick={() => setFriend(item.friend)}
-                      aria-label={t("openConversation", {
-                        name: item.friend.pseudo
-                      })}
+                      className="yk-button"
+                      onClick={() => {
+                        setLoading(true);
+                        setRetry(value => value + 1);
+                      }}
                     >
-                      <StyledPlayerAvatar
-                        cosmetics={item.friend.profileStyle}
-                        name={item.friend.pseudo}
-                        image={item.friend.avatarUrl ?? undefined}
-                        size={38}
-                      />
-                      <span className="yk-messenger-contact">
-                        <strong>
-                          <StyledPlayerName
-                            name={item.friend.pseudo}
-                            cosmetics={item.friend.profileStyle}
-                          />
-                        </strong>
-                        <span>{preview(item)}</span>
-                      </span>
-                      <span className="yk-messenger-meta">
-                        <time dateTime={item.lastAt}>
-                          {format.dateTime(new Date(item.lastAt), {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            timeZone
-                          })}
-                        </time>
-                        {!!counts.get(item.friend.id) && (
-                          <span
-                            className="yk-messenger-unread"
-                            aria-label={t("unread", {
-                              count: counts.get(item.friend.id)!
-                            })}
-                          >
-                            +{format.number(counts.get(item.friend.id)!)}
-                          </span>
-                        )}
-                      </span>
+                      {t("retry")}
                     </button>
-                  </li>
-                ))}
-              </ul>
-              {data?.next && (
-                <button
-                  type="button"
-                  disabled={more}
-                  className="yk-button yk-messenger-more"
-                  onClick={() => void loadMore(data.next!)}
-                >
-                  {more ? t("loading") : t("more")}
-                </button>
-              )}
+                  </div>
+                )}
+                {data && !data.items.length && !loading && !error && (
+                  <div className="yk-messenger-state">
+                    <ChatIcon />
+                    <strong>{t("empty")}</strong>
+                    <p>{t("emptyHint")}</p>
+                  </div>
+                )}
+                <ul className="yk-messenger-list">
+                  {data?.items.map(item => (
+                    <li key={item.friend.id}>
+                      <button
+                        type="button"
+                        className="yk-messenger-conversation"
+                        onClick={() => setFriend(item.friend)}
+                        aria-label={t("openConversation", {
+                          name: item.friend.pseudo
+                        })}
+                      >
+                        <StyledPlayerAvatar
+                          cosmetics={item.friend.profileStyle}
+                          name={item.friend.pseudo}
+                          image={item.friend.avatarUrl ?? undefined}
+                          size={38}
+                        />
+                        <span className="yk-messenger-contact">
+                          <strong>
+                            <StyledPlayerName
+                              name={item.friend.pseudo}
+                              cosmetics={item.friend.profileStyle}
+                            />
+                          </strong>
+                          <span>{preview(item)}</span>
+                        </span>
+                        <span className="yk-messenger-meta">
+                          <time dateTime={item.lastAt}>
+                            {format.dateTime(new Date(item.lastAt), {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              timeZone
+                            })}
+                          </time>
+                          {!!counts.get(item.friend.id) && (
+                            <span
+                              className="yk-messenger-unread"
+                              aria-label={t("unread", {
+                                count: counts.get(item.friend.id)!
+                              })}
+                            >
+                              +{format.number(counts.get(item.friend.id)!)}
+                            </span>
+                          )}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                {data?.next && (
+                  <button
+                    type="button"
+                    disabled={more}
+                    className="yk-button yk-messenger-more"
+                    onClick={() => void loadMore(data.next!)}
+                  >
+                    {more ? t("loading") : t("more")}
+                  </button>
+                )}
+              </div>
               <button
                 type="button"
                 className="yk-messenger-friends"
@@ -358,7 +360,7 @@ export function MessengerSession({
               >
                 {t("friends")}
               </button>
-            </div>
+            </>
           )}
         </div>
       )}

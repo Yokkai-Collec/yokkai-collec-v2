@@ -1786,3 +1786,7 @@
     transition: none;
   }
 }
+
+.yk-social-page:has(.yk-social-shell) > .yk-social-page-content {
+  margin-top: 16px;
+}
