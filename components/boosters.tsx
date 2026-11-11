@@ -1289,6 +1289,7 @@ export function Boosters({
   const [ratesKind, setRatesKind] = useState<"regular" | "decision" | null>(
     null
   );
+  const [ratesPinned, setRatesPinned] = useState(false);
   const [regularCount, setRegularCount] = useState<1 | 5 | 10>(1);
   const [activePackCount, setActivePackCount] = useState(1);
   const batchEnabled = !!onOpenMany;
@@ -1306,6 +1307,35 @@ export function Boosters({
   const openingClicked = useRef(false);
   const pendingOpeningSkips = useRef(0);
   const playSound = onSound ?? noopSound;
+  function closeRates() {
+    setRatesKind(null);
+    setRatesPinned(false);
+  }
+  function showRates(kind: "regular" | "decision") {
+    if (!ratesPinned) setRatesKind(kind);
+  }
+  function hideRates() {
+    if (!ratesPinned) setRatesKind(null);
+  }
+  function toggleRates(kind: "regular" | "decision") {
+    const shouldClose = ratesPinned && ratesKind === kind;
+    setRatesKind(shouldClose ? null : kind);
+    setRatesPinned(!shouldClose);
+  }
+  useEffect(() => {
+    if (!ratesPinned) return;
+    function handlePointerDown(event: PointerEvent) {
+      if (
+        event.target instanceof Element &&
+        event.target.closest(".yk-pack-info-trigger")
+      )
+        return;
+      setRatesKind(null);
+      setRatesPinned(false);
+    }
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [ratesPinned]);
   const speedUpSeal = () => {
     if (clickToOpen && !openingClicked.current) {
       openingClicked.current = true;
@@ -1588,14 +1618,25 @@ export function Boosters({
             <div className="yk-pack-art-stage">
               <span className="yk-pack-aura" aria-hidden="true" />
               <span className="yk-pack-floor" aria-hidden="true" />
-              <div className="yk-pack-info-trigger" onMouseEnter={() => setRatesKind("regular")} onMouseLeave={() => setRatesKind(null)} onKeyDown={event => { if(event.key === "Escape") { event.stopPropagation(); setRatesKind(null); } }}>
+              <div
+                className="yk-pack-info-trigger"
+                onMouseEnter={() => showRates("regular")}
+                onMouseLeave={hideRates}
+                onKeyDown={event => {
+                  if (event.key === "Escape") {
+                    event.stopPropagation();
+                    closeRates();
+                  }
+                }}
+              >
 <button
                 type="button"
                 className="yk-pack-info"
                 aria-label={tp("viewRegularPackDropRates")}
-                onClick={() => setRatesKind("regular")}
-                onFocus={() => setRatesKind("regular")}
-                onBlur={() => setRatesKind(null)}
+                aria-expanded={ratesKind === "regular"}
+                onClick={() => toggleRates("regular")}
+                onFocus={() => showRates("regular")}
+                onBlur={hideRates}
                 aria-describedby={ratesKind === "regular" ? "regular-drop-rates" : undefined}
               >
                 <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -1699,14 +1740,25 @@ export function Boosters({
             <div className="yk-pack-art-stage">
               <span className="yk-pack-aura" aria-hidden="true" />
               <span className="yk-pack-floor" aria-hidden="true" />
-              <div className="yk-pack-info-trigger" onMouseEnter={() => setRatesKind("decision")} onMouseLeave={() => setRatesKind(null)} onKeyDown={event => { if(event.key === "Escape") { event.stopPropagation(); setRatesKind(null); } }}>
+              <div
+                className="yk-pack-info-trigger"
+                onMouseEnter={() => showRates("decision")}
+                onMouseLeave={hideRates}
+                onKeyDown={event => {
+                  if (event.key === "Escape") {
+                    event.stopPropagation();
+                    closeRates();
+                  }
+                }}
+              >
 <button
                 type="button"
                 className="yk-pack-info"
                 aria-label={tp("viewDecisionPackDropRates")}
-                onClick={() => setRatesKind("decision")}
-                onFocus={() => setRatesKind("decision")}
-                onBlur={() => setRatesKind(null)}
+                aria-expanded={ratesKind === "decision"}
+                onClick={() => toggleRates("decision")}
+                onFocus={() => showRates("decision")}
+                onBlur={hideRates}
                 aria-describedby={ratesKind === "decision" ? "decision-drop-rates" : undefined}
               >
                 <svg aria-hidden="true" viewBox="0 0 24 24">

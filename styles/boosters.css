@@ -838,6 +838,24 @@
   background: var(--color-night);
   box-shadow: var(--shadow-card);
 }
+@media (min-width: 40.0625rem) and (max-width: 85rem) {
+  .yk-pack-panel:has(.yk-pack-info-popover) {
+    transform: none;
+  }
+  .yk-pack-info-popover {
+    position: fixed;
+    z-index: 20;
+    top: 50%;
+    right: auto;
+    left: 50%;
+    width: min(360px, calc(100vw - 2rem));
+    max-height: calc(100dvh - 2rem);
+    overflow-y: auto;
+    padding: clamp(16px, 2vw, 24px);
+    transform: translate(-50%, -50%);
+    box-shadow: var(--shadow-hover);
+  }
+}
 .yk-pack-info {
   display: grid;
   width: 44px;

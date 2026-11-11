@@ -46,6 +46,11 @@ test("current profile has one private-aware wishlist entry point and no view rec
   assert.equal(englishMessages.profileUi.private, "Private");
   assert.match(source, /data-profile-likes/);
   assert.match(
+    source,
+    /const showInlineProfileLike =\s*!isMe && profile\.friendshipStatus !== "accepted"/
+  );
+  assert.match(source, /has-profile-like/);
+  assert.match(
     api,
     /export type ProfileEngagement = \{likes:number;likedByMe:boolean\}/
   );
