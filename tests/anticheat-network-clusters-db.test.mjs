@@ -111,11 +111,14 @@ test("direct network thresholds create one investigation alert per tier without 
   await db.query("delete from public.referrals where id=$1", [referral]);
   assert.doesNotMatch(JSON.stringify(await alerts()), new RegExp(network));
   const cluster = await read();
-  await db.query("insert into public.admin_users(user_id) values($1)", [
-    ids[0]
-  ]);
+  const admin = "ad520000-0000-4000-8000-000000000099";
+  await db.query(
+    "insert into auth.users(id,raw_user_meta_data) values($1,$2)",
+    [admin, JSON.stringify({ pseudo: "ClusterReviewer" })]
+  );
+  await db.query("insert into public.admin_users(user_id) values($1)", [admin]);
   await db.query("select set_config('request.jwt.claim.sub',$1,false)", [
-    ids[0]
+    admin
   ]);
   const details = (
     await db.query(
@@ -266,9 +269,9 @@ test("direct network thresholds create one investigation alert per tier without 
     }
   };
   await assert.rejects(review(ids[1], "CONFIRMED"), /ADMIN_REQUIRED/);
-  assert.equal(await review(ids[0], "CONFIRMED"), "CONFIRMED");
-  assert.equal(await review(ids[0], "CONFIRMED"), "CONFIRMED");
-  await assert.rejects(review(ids[0], "DISMISSED"), /FARM_ALREADY_REVIEWED/);
+  assert.equal(await review(admin, "CONFIRMED"), "CONFIRMED");
+  assert.equal(await review(admin, "CONFIRMED"), "CONFIRMED");
+  await assert.rejects(review(admin, "DISMISSED"), /FARM_ALREADY_REVIEWED/);
   const verifyReferral = async child => {
     const referral = (
       await db.query(
@@ -332,11 +335,11 @@ test("direct network thresholds create one investigation alert per tier without 
   const returned = await finding();
   assert.equal(returned.evidence.cycleCards, 1);
   assert.equal(returned.decision, "INVESTIGATE");
-  await assert.rejects(review(ids[0], "CONFIRMED"), /FARM_EVIDENCE_CHANGED/);
+  await assert.rejects(review(admin, "CONFIRMED"), /FARM_EVIDENCE_CHANGED/);
   const returnedVersion = await readVersion();
   await assert.rejects(
-    review(ids[0], "CONFIRMED", returnedVersion),
+    review(admin, "CONFIRMED", returnedVersion),
     /FARM_EVIDENCE_INSUFFICIENT/
   );
-  assert.equal(await review(ids[0], "DISMISSED", returnedVersion), "DISMISSED");
+  assert.equal(await review(admin, "DISMISSED", returnedVersion), "DISMISSED");
 });

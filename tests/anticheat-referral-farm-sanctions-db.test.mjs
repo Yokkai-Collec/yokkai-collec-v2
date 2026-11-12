@@ -170,6 +170,10 @@ test("two recent referrals on one IP trigger sanctions regardless of browser or 
     [sold, sponsor.user, buyer, active, lateSale]
   );
   await db.exec("select public.settle_expired_auctions()");
+  await db.query(
+    "update public.user_cards set is_locked=true where id=any($1)",
+    [[kept, legitimate]]
+  );
 
   await observe(sponsor.user, "a");
   const second = await invite(sponsor, "SharedSecond", "a");
@@ -238,6 +242,23 @@ test("two recent referrals on one IP trigger sanctions regardless of browser or 
       .rows[0]?.user_id;
   assert.equal(await owner(kept), undefined);
   assert.equal(await owner(legitimate), sponsor.user);
+  assert.equal(
+    (
+      await db.query("select is_locked from public.user_cards where id=$1", [
+        legitimate
+      ])
+    ).rows[0].is_locked,
+    true
+  );
+  assert.equal(
+    (
+      await db.query(
+        "select card_snapshot->>'is_locked' as prior_lock from public.anticheat_asset_recoveries where card_instance_id=$1",
+        [kept]
+      )
+    ).rows[0].prior_lock,
+    "true"
+  );
   assert.equal(await owner(active), sponsor.user);
   assert.equal(await owner(lateSale), sponsor.user);
   for (const id of [sold, ...mixed, ...onlyFraud, free])
