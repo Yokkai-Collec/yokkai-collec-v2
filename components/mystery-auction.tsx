@@ -10,6 +10,7 @@ import {
 import { YokaiCard } from "@/components/yokai-card";
 import { Karas } from "@/components/ui";
 import { CardShell } from "@/components/card-shell";
+import { packCountdown } from "@/lib/ui/pack-countdown";
 import "@/styles/mystery-auction.css";
 
 export function MysteryCardBack() {
@@ -51,8 +52,7 @@ export function MysteryAuctionTile({
   );
 }
 
-export function MysteryAuctionBanner({ home = false }: { home?: boolean }) {
-  const t = useTranslations("mysteryAuction");
+export function useMysteryAuctionEvent() {
   const [event, setEvent] = useState<MysteryAuctionEvent>();
   const [now, setNow] = useState<number>();
   const [failed, setFailed] = useState(false);
@@ -86,6 +86,12 @@ export function MysteryAuctionBanner({ home = false }: { home?: boolean }) {
       document.removeEventListener("visibilitychange", visible);
     };
   }, []);
+  return { event, now, failed };
+}
+
+export function MysteryAuctionBanner({ home = false }: { home?: boolean }) {
+  const t = useTranslations("mysteryAuction");
+  const { event, now, failed } = useMysteryAuctionEvent();
   if (home && (!event || !event.isWednesday)) return null;
   if (!event)
     return (
@@ -96,18 +102,8 @@ export function MysteryAuctionBanner({ home = false }: { home?: boolean }) {
   const auction = event.auction;
   const live = auction?.status === "active";
   const deadline = live ? auction.endsAt : event.nextStartsAt;
-  const seconds =
-    now == null
-      ? undefined
-      : Math.max(0, Math.ceil((Date.parse(deadline) - now) / 1000));
   const countdown =
-    seconds == null
-      ? "—"
-      : `${Math.floor(seconds / 3600)
-          .toString()
-          .padStart(2, "0")}:${Math.floor((seconds % 3600) / 60)
-          .toString()
-          .padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
+    now == null ? "—" : packCountdown(Date.parse(deadline), now, true);
   return (
     <section className="yk-mystery-banner" aria-label={t("title")}>
       <div className="yk-mystery-banner-art">

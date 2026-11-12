@@ -1,4 +1,5 @@
 "use client";
+import { EventsHub } from "@/components/events-hub";
 import {
   MysteryAuctionBanner,
   MysteryCardBack,
@@ -3271,7 +3272,7 @@ export function CommunityView({
           )}
           {screen === "friends" && (children ?? <FriendsView />)}
           {screen === "feed" && children}
-          {screen === "events" && <MysteryAuctionBanner />}
+          {screen === "events" && <EventsHub />}
           {screen === "market" && (
             <MarketView
               pageHeading={pageHeading}

@@ -4495,7 +4495,28 @@
   },
   "events": {
     "title": "Events",
-    "overline": "The weekly rendezvous",
-    "description": "Join the weekly Mystery Auction and discover the card when bidding closes."
+    "overline": "What’s happening on Yokkai",
+    "description": "Explore what’s happening, get ready for what’s next, and discover the results. Every Yokkai event comes together here.",
+    "filters": "Filter events",
+    "all": "All events",
+    "live": "Live",
+    "upcoming": "Upcoming",
+    "explore": "Explore events",
+    "count": "{count, plural, one {# event} other {# events}}",
+    "weekly": "Weekly",
+    "auction": "Auction",
+    "mysteryDescription": "A hidden card, competitive bids, and a reveal at closing. Take your chance to win a normal card from the catalogue.",
+    "lastReveal": "Last revealed card: {name}",
+    "endsIn": "Ends in",
+    "nextEdition": "Next edition in",
+    "currentPrice": "Current price",
+    "startingPrice": "Starting price",
+    "join": "Join the event",
+    "result": "View latest result",
+    "noLive": "No events are live right now. Check Upcoming for the next editions.",
+    "noUpcoming": "No upcoming events right now.",
+    "loading": "Loading the event schedule…",
+    "unavailable": "The schedule is temporarily unavailable. Retrying…",
+    "hubNote": "New events will be added to this hub as they arrive."
   }
 }

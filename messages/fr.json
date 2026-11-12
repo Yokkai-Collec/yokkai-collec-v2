@@ -4495,7 +4495,28 @@
   },
   "events": {
     "title": "Événements",
-    "overline": "Chaque semaine, un mystère",
-    "description": "Participe à la Mystery Auction hebdomadaire et découvre la carte à la clôture."
+    "overline": "Toute l’activité Yokkai",
+    "description": "Retrouve les événements en cours, prépare les prochains et découvre leurs résultats. Tous les événements Yokkai sont réunis ici.",
+    "filters": "Filtrer les événements",
+    "all": "Tous les événements",
+    "live": "En cours",
+    "upcoming": "À venir",
+    "explore": "Explorer les événements",
+    "count": "{count, plural, one {# événement} other {# événements}}",
+    "weekly": "Hebdomadaire",
+    "auction": "Enchère",
+    "mysteryDescription": "Une carte cachée, des enchères et une révélation à la clôture. Tente ta chance pour remporter une carte normale du catalogue.",
+    "lastReveal": "Dernière carte révélée : {name}",
+    "endsIn": "Se termine dans",
+    "nextEdition": "Prochaine édition dans",
+    "currentPrice": "Prix actuel",
+    "startingPrice": "Prix de départ",
+    "join": "Participer à l’événement",
+    "result": "Voir le dernier résultat",
+    "noLive": "Aucun événement en cours. Découvre les prochaines éditions dans « À venir ».",
+    "noUpcoming": "Aucun événement à venir pour le moment.",
+    "loading": "Chargement du programme des événements…",
+    "unavailable": "Le programme est momentanément indisponible. Nouvelle tentative en cours…",
+    "hubNote": "Les prochains événements seront ajoutés à ce hub dès leur arrivée."
   }
 }
