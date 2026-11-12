@@ -34,6 +34,7 @@ export const ownerOnly = [
   "public.run_anticheat_farm_policy()", // Private bounded enforcement job.
   "public.enqueue_anticheat_operational_alert(text, uuid, uuid)", // Private allowlisted events for the Discord outbox.
   "public.capture_anticheat_operational_alert()", // Trigger-only operational alert projection.
+  "public.format_anticheat_discord_alert()", // Trigger-only Discord rendering from private evidence.
   "public.anticheat_pending_farm_rewards(uuid, text)", // Private proof projection for pending referral rewards.
   "public.anticheat_additional_farm_scenarios(uuid[])", // Private independent classifiers.
   "public.attach_anticheat_farm_scenarios(uuid, uuid[], integer)", // Private merge of scenario evidence into the current cohort review.

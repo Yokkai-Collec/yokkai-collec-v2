@@ -433,11 +433,29 @@ test("farm scenarios corroborate independent evidence and keep third-party cards
   );
   for (const alert of alerts) {
     assert.deepEqual(alert.payload.allowed_mentions, { parse: [] });
+    assert.doesNotMatch(
+      JSON.stringify(alert.payload),
+      new RegExp(alert.category)
+    );
     assert.match(
-      alert.payload.embeds[0].description,
-      new RegExp(`^${alert.category} · reference [0-9a-f-]{36}$`)
+      alert.payload.embeds[0].fields[0].value,
+      /\(https:\/\/yokkai-collec\.com\/profile\/[0-9a-f-]{36}\)/
     );
   }
+  const confirmedAlert = alerts.find(
+    alert => alert.category === "FARM_CONFIRMED"
+  ).payload.embeds[0];
+  assert.equal(confirmedAlert.title, "Yokkai · Ferme de comptes confirmée");
+  assert.match(confirmedAlert.url, new RegExp(cluster));
+  assert.match(
+    confirmedAlert.fields[1].name,
+    /Comptes secondaires impliqués \(3\)/
+  );
+  const banAlert = alerts.find(alert => alert.category === "FARM_BAN").payload
+    .embeds[0];
+  assert.equal(banAlert.title, "Yokkai · Bannissement définitif appliqué");
+  assert.equal(banAlert.fields[0].name, "Compte secondaire banni");
+  assert.equal(banAlert.fields[1].name, "Bénéficiaire du dossier");
   assert.equal(
     (await db.query("select count(*)::integer count from auth.sessions"))
       .rows[0].count,

@@ -47,9 +47,39 @@ test("direct network thresholds create one investigation alert per tier without 
   assert.equal(await read(), undefined);
   assert.equal((await alerts()).length, 0);
   await observe(ids[2]);
+  await db.query(
+    "insert into public.friendships(user_id,friend_id,status) values($1,$2,'accepted')",
+    [ids[0], ids[1]]
+  );
+  await db.query(
+    "insert into public.trade_offers(from_user,to_user,requested_karas,status) values($1,$2,7,'accepted')",
+    [ids[0], ids[1]]
+  );
   await evaluate();
   assert.equal((await read()).account_count, 3);
   assert.equal((await alerts()).length, 1);
+  const alert = (await alerts())[0].payload;
+  const [embed] = alert.embeds;
+  assert.deepEqual(alert.allowed_mentions, { parse: [] });
+  assert.equal(embed.title, "Yokkai · Réseau partagé · groupe à examiner");
+  assert.equal(
+    embed.url,
+    `https://yokkai-collec.com/admin/security?cluster=${(await read()).id}#anticheat-clusters`
+  );
+  assert.match(embed.fields[0].value, /Cluster0.*Cluster1.*Cluster2/);
+  assert.match(embed.fields[1].value, /Cluster1[^→]+→ \[Cluster0\].*7 Karas/);
+  assert.match(embed.fields[2].value, /Aucun parrainage interne/);
+  const referral = (
+    await db.query(
+      `with code as (
+        insert into public.referral_codes(user_id,code) values($1,'222222222222')
+        on conflict(user_id) do update set user_id=excluded.user_id returning id
+      )
+      insert into public.referrals(code_id,referrer_id,referred_id)
+      select id,$1,$2 from code returning id`,
+      [ids[1], ids[2]]
+    )
+  ).rows[0].id;
   for (const [count, priority] of [
     [4, "CRITICAL"],
     [6, "ENHANCED"],
@@ -72,6 +102,13 @@ test("direct network thresholds create one investigation alert per tier without 
     assert.equal(cluster.investigation_state, "REVIEWED_SIGNALS");
     assert.equal((await alerts()).length, 2);
   }
+  const criticalAlert = (await alerts())[1].payload.embeds[0];
+  assert.equal(criticalAlert.title, "Yokkai · Réseau partagé · seuil critique");
+  assert.match(
+    criticalAlert.fields[2].value,
+    /Cluster1[^→]+→ \[Cluster2\].*récompense non versée/
+  );
+  await db.query("delete from public.referrals where id=$1", [referral]);
   assert.doesNotMatch(JSON.stringify(await alerts()), new RegExp(network));
   const cluster = await read();
   await db.query("insert into public.admin_users(user_id) values($1)", [
