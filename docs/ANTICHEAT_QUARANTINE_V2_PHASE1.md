@@ -1,5 +1,8 @@
 # Anti-triche V2 — quarantaine des échanges et groupes réseau
 
+La [phase 2](ANTICHEAT_QUARANTINE_V2_PHASE2.md) remplace la règle de
+libération à échéance décrite dans ce rapport.
+
 Branche `ad/anticheat-quarantine-v2`, PR #105. Base d’audit `f38ce2d2`.
 Migrations `20261112100000_trade_quarantine_reservations.sql` et
 `20261112110000_anticheat_network_clusters.sql`. La migration d’observation

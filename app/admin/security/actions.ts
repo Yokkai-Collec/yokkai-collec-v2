@@ -8,6 +8,37 @@ import { createClient } from "@/utils/supabase/server";
 
 const statuses = new Set(["open", "reviewed", "dismissed"]);
 
+export async function reviewAnticheatFarmAction(form: FormData) {
+  await requireAdminAction();
+  const id = String(form.get("cluster_id") ?? "");
+  const version = String(form.get("version") ?? "");
+  const decision = String(form.get("decision") ?? "");
+  const reason = String(form.get("reason") ?? "").trim();
+  if (!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(id)) {
+    redirect("/admin/security#anticheat-clusters");
+  }
+  const destination = `/admin/security?cluster=${id}`;
+  if (
+    !/^[0-9a-f]{32}$/.test(version) ||
+    !["CONFIRMED", "DISMISSED"].includes(decision) ||
+    reason.length < 10 ||
+    reason.length > 500
+  ) {
+    redirect(`${destination}&farm_result=invalid#anticheat-clusters`);
+  }
+  const client = createClient(await cookies());
+  const { error } = await client.rpc("admin_review_anticheat_farm", {
+    p_id: id,
+    p_version: version,
+    p_decision: decision,
+    p_reason: reason
+  });
+  revalidatePath("/admin/security");
+  redirect(
+    `${destination}&farm_result=${error ? "failed" : "saved"}#anticheat-clusters`
+  );
+}
+
 export async function resolveTradeQuarantineAction(form: FormData) {
   await requireAdminAction();
   const id = String(form.get("quarantine_id") ?? "");

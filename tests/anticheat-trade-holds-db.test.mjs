@@ -48,6 +48,16 @@ test("trade review reserves cards and Karas and settles exactly once", async t =
       [sender, catalog]
     )
   ).rows[0].id;
+  const opening = (
+    await db.query(
+      "insert into public.regular_pack_openings(opened_by,source) values($1,'timed') returning id",
+      [sender]
+    )
+  ).rows[0].id;
+  await db.query(
+    "insert into public.regular_pack_opening_cards(card_instance_id,pack_opening_id,card_id,original_owner_id) values($1,$2,$3,$4)",
+    [card, opening, catalog, sender]
+  );
   async function asUser(id, sql, args) {
     await db.query("select set_config('request.jwt.claim.sub',$1,false)", [id]);
     await db.exec("set role authenticated");
@@ -120,6 +130,15 @@ test("trade review reserves cards and Karas and settles exactly once", async t =
   assert.equal(await resolve(admin, q, "release"), "RELEASED");
   await assert.rejects(resolve(admin, q, "cancel"), /QUARANTINE_CHANGED/);
   assert.equal(await status(held), "accepted");
+  assert.deepEqual(
+    (
+      await db.query(
+        "select transfer_type,trade_offer_id from public.regular_pack_card_transfers where card_instance_id=$1",
+        [card]
+      )
+    ).rows,
+    [{ transfer_type: "trade", trade_offer_id: held }]
+  );
   assert.equal(
     (
       await db.query("select user_id from public.user_cards where id=$1", [
@@ -153,9 +172,21 @@ test("trade review reserves cards and Karas and settles exactly once", async t =
   await db.exec(
     "update public.anticheat_runtime_flags set enabled=true where flag='quarantine_auto_release'"
   );
+  await db.exec("update public.anticheat_cases set status='reviewed'");
   await db.exec("select public.expire_active_trade_quarantines()");
-  assert.equal(await status(expiring), "accepted");
-  assert.equal((await quarantine(expiring)).status, "RELEASED");
+  assert.equal(await status(expiring), "quarantined");
+  const escalated = await quarantine(expiring);
+  assert.equal(escalated.status, "AWAITING_REVIEW");
+  assert.equal(
+    (
+      await db.query(
+        "select analysis_outcome from public.anticheat_quarantines where id=$1",
+        [escalated.id]
+      )
+    ).rows[0].analysis_outcome,
+    "SIGNALS_UNRESOLVED"
+  );
+  assert.equal(await resolve(admin, escalated, "release"), "RELEASED");
   assert.equal(
     (
       await db.query(
@@ -163,5 +194,61 @@ test("trade review reserves cards and Karas and settles exactly once", async t =
       )
     ).rows[0].count,
     0
+  );
+
+  const critical = await makeOffer([], 1);
+  const missingEvidence = await makeOffer([], 1);
+  const failure = await makeOffer([], 1);
+  for (const id of [critical, missingEvidence, failure]) {
+    assert.equal(await accept(id), false);
+    await db.query(
+      "update public.anticheat_quarantines set expires_at=now()-interval '1 minute' where subject_id=$1",
+      [id]
+    );
+  }
+  await db.query(
+    "update public.anticheat_quarantines set economic_severity='CRITICAL' where subject_id=$1",
+    [critical]
+  );
+  await db.exec("update public.anticheat_cases set status='reviewed'");
+  await db.exec("delete from public.anticheat_network_observations");
+  // Fault-inject only for the third case. Real worker runs against isolated test data.
+  const analysis = (
+    await db.query(
+      "select pg_get_functiondef('public.reassess_quarantined_trade(public.trade_offers,public.anticheat_quarantines)'::regprocedure) as definition"
+    )
+  ).rows[0].definition;
+  await db.exec(
+    analysis.replace(
+      "begin",
+      `begin
+    if p_offer.id='${failure}'::uuid then raise exception 'test-only analysis error'; end if;`
+    )
+  );
+  await db.exec("select public.expire_active_trade_quarantines()");
+  await db.exec("select public.expire_active_trade_quarantines()");
+  for (const [id, expected] of [
+    [critical, "CRITICAL_UNRESOLVED"],
+    [missingEvidence, "INSUFFICIENT_EVIDENCE"],
+    [failure, "ANALYSIS_ERROR"]
+  ]) {
+    assert.equal(await status(id), "quarantined");
+    const details = (
+      await db.query(
+        "select analysis_outcome, review_due_at, analysis_retry_at from public.anticheat_quarantines where subject_id=$1",
+        [id]
+      )
+    ).rows[0];
+    assert.equal(details.analysis_outcome, expected);
+    assert.ok(details.review_due_at);
+    if (expected === "ANALYSIS_ERROR") assert.ok(details.analysis_retry_at);
+  }
+  assert.equal(
+    (
+      await db.query(
+        "select count(*)::integer as total from public.anticheat_quarantine_audit where action='ACTION_REJECTED'"
+      )
+    ).rows[0].total,
+    1
   );
 });

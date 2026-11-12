@@ -25,7 +25,13 @@ export const ownerOnly = [
   "public.close_cancelled_trade_quarantine()", // Trigger-only release of holds after offer withdrawal.
   "public.resolve_trade_quarantine(uuid, integer, text, text, uuid)", // Private common resolution with offer and case locks.
   "public.expire_active_trade_quarantines()", // Flag-gated deadline worker.
+  "public.reassess_quarantined_trade(trade_offers, anticheat_quarantines)", // Private deadline classification, no asset mutation.
   "public.evaluate_anticheat_network_clusters()", // Private worker over pseudonymized observations.
+  "public.trace_anticheat_pack_edges(uuid[], timestamp with time zone)", // Bounded private traversal over exact card instances.
+  "public.evaluate_anticheat_farm_evidence()", // Flag-gated, non-punitive evidence worker.
+  "public.with_anticheat_sanction_hold_conflicts(jsonb)", // Private decorator for existing admin-only previews.
+  "public.anticheat_evidenced_referral_hold(referrals)", // Private corroborated hold policy used by referral verification.
+  "public.anticheat_farm_evidence_version(anticheat_farm_evidence)", // Private deterministic version of the case evidence.
   "public.reopen_anticheat_case_on_new_signal()", // Trigger-only workflow fence: a fresh signal reopens a reviewed case without applying a sanction.
   "public.is_disposable_email(text)", // Indexed public-source signup policy; only the Auth INSERT trigger, never API roles. Walid approved.
   "public.guard_disposable_signup()", // Auth INSERT-only trigger: rejects new disposable addresses without touching existing accounts. Walid approved.
@@ -112,6 +118,9 @@ const allowlist = {
   ], // Admin guard, versioned decision and mandatory reason.
   "public.respond_trade_offer_with_status(uuid, text)": ["authenticated"], // Same recipient and ban guards as the existing response RPC.
   "public.admin_list_anticheat_clusters(uuid)": ["authenticated"], // Admin-only bounded cluster and member summaries without technical identifiers.
+  "public.admin_review_anticheat_farm(uuid, text, text, text)": [
+    "authenticated"
+  ], // Admin-only append-only review; applies no sanctions.
   "public.admin_get_referral_pack_provenance(uuid[])": ["authenticated"], // Admin-only bounded source and transfer trail for referral-funded pack cards. Walid approved.
   "public.get_pack_favorite_card_ids(uuid[], boolean)": ["authenticated"], // Own favorite membership only, active session, at most 500 catalogue IDs, no mutation. Walid approved.
   "public.admin_list_deleted_accounts(text, uuid, boolean, integer, integer)": [

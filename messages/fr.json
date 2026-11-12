@@ -3454,6 +3454,27 @@
       "all": "Tous les groupes",
       "empty": "Aucun groupe à examiner.",
       "review": "Examiner le groupe",
+      "traceSummary": "{indirect} cartes transférées via un intermédiaire · {cycles} cycles de cartes · {sales} ventes aux enchères",
+      "tracedCard": "Exemplaire {id}",
+      "confirm": "Confirmer la ferme",
+      "dismiss": "Rejeter le soupçon",
+      "reviewDecision": {
+        "CONFIRMED": "Ferme confirmée par un administrateur",
+        "DISMISSED": "Soupçon rejeté"
+      },
+      "reviewResult": {
+        "invalid": "Indique une décision valide et un motif d’au moins 10 caractères.",
+        "failed": "Impossible d’enregistrer la revue. Vérifie les éléments actuels.",
+        "saved": "Revue enregistrée."
+      },
+      "farmDecision": {
+        "INVESTIGATE": "Investigation nécessaire",
+        "ECONOMICALLY_CONFIRMED": "Critères économiques remplis"
+      },
+      "farmConfidence": {
+        "INSUFFICIENT": "Preuves insuffisantes",
+        "CORROBORATED": "Preuves corroborées"
+      },
       "accounts": "{count, plural, one {# compte} other {# comptes}}",
       "activity": "{recent} créés et {active} observés dans les dernières 24 h",
       "economy": "{trades} échanges internes · {referrals} parrainages · {cards} cartes · {karas} Karas",
@@ -3479,6 +3500,15 @@
       "empty": "Aucune quarantaine ne correspond à ce filtre.",
       "shadowNotice": "Le mode observation est actif. L’application des quarantaines reste désactivée tant que les faux positifs, latences et garde-fous de récupération n’ont pas été validés.",
       "review": "Examiner l’échange",
+      "reviewDue": "Échéance de revue le {date}",
+      "sanctionConflict": "Résous ces quarantaines, puis génère une nouvelle prévisualisation de la sanction.",
+      "sanctionConflictCase": "{id} · {cards} cartes · {karas} Karas réservés",
+      "analysis": {
+        "CRITICAL_UNRESOLVED": "Risque critique non résolu",
+        "SIGNALS_UNRESOLVED": "Les signaux suspects nécessitent toujours une revue",
+        "INSUFFICIENT_EVIDENCE": "Éléments insuffisants pour autoriser automatiquement l’échange",
+        "ANALYSIS_ERROR": "L’analyse a échoué. Revue manuelle nécessaire"
+      },
       "reason": "Motif de la décision",
       "release": "Autoriser l’échange",
       "cancel": "Annuler l’échange",

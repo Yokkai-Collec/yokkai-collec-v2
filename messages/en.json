@@ -3454,6 +3454,27 @@
       "all": "All groups",
       "empty": "No group to investigate.",
       "review": "Examine group",
+      "traceSummary": "{indirect} cards transferred through intermediaries · {cycles} card cycles · {sales} auction sales",
+      "tracedCard": "Card instance {id}",
+      "confirm": "Confirm farm",
+      "dismiss": "Dismiss suspicion",
+      "reviewDecision": {
+        "CONFIRMED": "Farm confirmed by an administrator",
+        "DISMISSED": "Suspicion dismissed"
+      },
+      "reviewResult": {
+        "invalid": "Enter a valid decision and a reason of at least 10 characters.",
+        "failed": "The review could not be saved. Check the current evidence.",
+        "saved": "Review recorded."
+      },
+      "farmDecision": {
+        "INVESTIGATE": "Investigation required",
+        "ECONOMICALLY_CONFIRMED": "Economic rule matched"
+      },
+      "farmConfidence": {
+        "INSUFFICIENT": "Insufficient evidence",
+        "CORROBORATED": "Corroborated evidence"
+      },
       "accounts": "{count, plural, one {# account} other {# accounts}}",
       "activity": "{recent} created and {active} observed in the past 24 hours",
       "economy": "{trades} internal trades · {referrals} referrals · {cards} cards · {karas} Karas",
@@ -3479,6 +3500,15 @@
       "empty": "No quarantine matches this filter.",
       "shadowNotice": "Shadow mode is active. Quarantine enforcement remains disabled until false-positive, latency and recovery safeguards have been validated.",
       "review": "Review trade",
+      "reviewDue": "Review deadline {date}",
+      "sanctionConflict": "Resolve these quarantines, then generate a new sanction preview.",
+      "sanctionConflictCase": "{id} · {cards} cards · {karas} reserved Karas",
+      "analysis": {
+        "CRITICAL_UNRESOLVED": "Critical risk unresolved",
+        "SIGNALS_UNRESOLVED": "Suspicious activity still requires review",
+        "INSUFFICIENT_EVIDENCE": "Evidence is insufficient for automatic clearance",
+        "ANALYSIS_ERROR": "Analysis failed. Manual review required"
+      },
       "reason": "Decision reason",
       "release": "Authorize trade",
       "cancel": "Cancel trade",

@@ -12,6 +12,7 @@ import { AdminNavigation } from "../admin-navigation";
 import {
   applySmurfSanctionAction,
   resolveTradeQuarantineAction,
+  reviewAnticheatFarmAction,
   reviewAnticheatCaseAction
 } from "./actions";
 import {
@@ -33,6 +34,10 @@ import {
   DeletedSmurfRecovery,
   type DeletedSmurfRecoveryPreview
 } from "./deleted-smurf-recovery";
+import {
+  SanctionQuarantineConflicts,
+  type SanctionQuarantineConflict
+} from "./sanction-quarantine-conflicts";
 
 export const dynamic = "force-dynamic";
 const PAGE_SIZE = 30;
@@ -126,6 +131,8 @@ type QuarantineRow = {
   version: number;
   cardCount: number;
   karas: number;
+  analysisOutcome: string | null;
+  reviewDueAt: string | null;
 };
 
 type SanctionPreview = {
@@ -144,6 +151,7 @@ type SanctionPreview = {
     saleKaras: number;
     saleCount: number;
     karas: number;
+    quarantineConflicts?: SanctionQuarantineConflict[];
   };
   alreadyApplied: boolean;
   eligible: boolean;
@@ -285,7 +293,11 @@ function quarantineFromRpc(value: Record<string, unknown>): QuarantineRow {
     expiresAt: String(value.expiresAt ?? ""),
     version: Number(value.version ?? 1),
     cardCount: Number(value.cardCount ?? 0),
-    karas: Number(value.karas ?? 0)
+    karas: Number(value.karas ?? 0),
+    analysisOutcome:
+      typeof value.analysisOutcome === "string" ? value.analysisOutcome : null,
+    reviewDueAt:
+      typeof value.reviewDueAt === "string" ? value.reviewDueAt : null
   };
 }
 
@@ -355,6 +367,7 @@ export default async function AdminSecurityPage({
     quarantine_status?: string;
     quarantine_result?: string;
     cluster?: string;
+    farm_result?: string;
   }>;
 }) {
   const admin = await requireAdminPage();
@@ -523,6 +536,22 @@ export default async function AdminSecurityPage({
     beneficiary: string | null;
     priority: string;
     state: string;
+    farmDecision: "INVESTIGATE" | "ECONOMICALLY_CONFIRMED" | null;
+    farmConfidence: "INSUFFICIENT" | "CORROBORATED" | null;
+    farmRisk: number | null;
+    farmVersion: string | null;
+    farmReview: "CONFIRMED" | "DISMISSED" | null;
+    farmEvidence: {
+      indirectCards?: number;
+      cycleCards?: number;
+      auctionSales?: number;
+      proofs?: {
+        secondary: string;
+        card: string;
+        edge: number;
+        path: string[];
+      }[];
+    } | null;
     members: { id: string; pseudo: string | null; createdAt: string }[];
   }[];
   const casePayload = (casesResult.data ?? {}) as Record<string, unknown>;
@@ -813,7 +842,11 @@ export default async function AdminSecurityPage({
                   </thead>
                   <tbody className="divide-y divide-slate-800">
                     {quarantines.map(item => (
-                      <tr className="bg-slate-900/40" key={item.id}>
+                      <tr
+                        className="bg-slate-900/40"
+                        id={`quarantine-${item.id}`}
+                        key={item.id}
+                      >
                         <td className="px-3 py-3 text-slate-300">
                           {dateFormatter.format(new Date(item.createdAt))}
                         </td>
@@ -851,6 +884,22 @@ export default async function AdminSecurityPage({
                         </td>
                         <td className="px-3 py-3 text-slate-300">
                           {dateFormatter.format(new Date(item.expiresAt))}
+                          {item.analysisOutcome && (
+                            <p className="max-w-52 text-xs text-amber-100">
+                              {t(
+                                `quarantines.analysis.${item.analysisOutcome}`
+                              )}
+                            </p>
+                          )}
+                          {item.reviewDueAt && (
+                            <p className="max-w-52 text-xs text-slate-400">
+                              {t("quarantines.reviewDue", {
+                                date: dateFormatter.format(
+                                  new Date(item.reviewDueAt)
+                                )
+                              })}
+                            </p>
+                          )}
                           {item.subjectType === "trade" &&
                             ["PENDING_ANALYSIS", "AWAITING_REVIEW"].includes(
                               item.status
@@ -968,6 +1017,50 @@ export default async function AdminSecurityPage({
                         })}
                       </p>
                     )}
+                    {cluster.farmDecision && cluster.farmConfidence && (
+                      <p className="mt-2 text-sm text-amber-100">
+                        {t(`clusters.farmDecision.${cluster.farmDecision}`)} ·{" "}
+                        {t(`clusters.farmConfidence.${cluster.farmConfidence}`)}{" "}
+                        ·{" "}
+                        {t("quarantines.risk", {
+                          count: cluster.farmRisk ?? 0
+                        })}
+                      </p>
+                    )}
+                    {cluster.farmReview && (
+                      <p className="mt-2 text-sm text-cyan-100">
+                        {t(`clusters.reviewDecision.${cluster.farmReview}`)}
+                      </p>
+                    )}
+                    {cluster.farmEvidence && (
+                      <div className="mt-2 rounded border border-slate-800 p-2 text-sm text-slate-300">
+                        {t("clusters.traceSummary", {
+                          indirect: cluster.farmEvidence.indirectCards ?? 0,
+                          cycles: cluster.farmEvidence.cycleCards ?? 0,
+                          sales: cluster.farmEvidence.auctionSales ?? 0
+                        })}
+                        {(cluster.farmEvidence.proofs ?? []).map(proof => (
+                          <div
+                            key={proof.edge}
+                            className="mt-2 break-all text-xs"
+                          >
+                            <p>
+                              {t("clusters.tracedCard", { id: proof.card })}
+                            </p>
+                            <p>
+                              {proof.path
+                                .map(
+                                  id =>
+                                    cluster.members.find(
+                                      member => member.id === id
+                                    )?.pseudo ?? id
+                                )
+                                .join(" → ")}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     {clusterId ? (
                       <ul className="mt-2 space-y-1 text-sm text-slate-300">
                         {cluster.members.map(member => (
@@ -979,7 +1072,8 @@ export default async function AdminSecurityPage({
                               {member.pseudo ?? member.id}
                             </Link>
                             {" · "}
-                            {dateFormatter.format(new Date(member.createdAt))}
+                            {member.createdAt &&
+                              dateFormatter.format(new Date(member.createdAt))}
                           </li>
                         ))}
                       </ul>
@@ -991,9 +1085,61 @@ export default async function AdminSecurityPage({
                         {t("clusters.review")}
                       </Link>
                     )}
+                    {clusterId &&
+                      cluster.farmVersion &&
+                      !cluster.farmReview && (
+                        <form
+                          action={reviewAnticheatFarmAction}
+                          className="mt-3 grid gap-2"
+                        >
+                          <input
+                            type="hidden"
+                            name="cluster_id"
+                            value={cluster.id}
+                          />
+                          <input
+                            type="hidden"
+                            name="version"
+                            value={cluster.farmVersion}
+                          />
+                          <textarea
+                            name="reason"
+                            aria-label={t("quarantines.reason")}
+                            placeholder={t("quarantines.reason")}
+                            required
+                            minLength={10}
+                            maxLength={500}
+                            className="w-full rounded border border-slate-600 bg-slate-950 p-2"
+                          />
+                          {cluster.farmDecision ===
+                            "ECONOMICALLY_CONFIRMED" && (
+                            <button
+                              name="decision"
+                              value="CONFIRMED"
+                              className="rounded border border-cyan-400/40 p-2"
+                            >
+                              {t("clusters.confirm")}
+                            </button>
+                          )}
+                          <button
+                            name="decision"
+                            value="DISMISSED"
+                            className="rounded border border-slate-600 p-2"
+                          >
+                            {t("clusters.dismiss")}
+                          </button>
+                        </form>
+                      )}
                   </article>
                 ))}
               </div>
+            )}
+            {["invalid", "failed", "saved"].includes(
+              params.farm_result ?? ""
+            ) && (
+              <p role="status" className="mt-3 text-sm text-slate-300">
+                {t(`clusters.reviewResult.${params.farm_result}`)}
+              </p>
             )}
           </section>
 
@@ -1158,6 +1304,11 @@ export default async function AdminSecurityPage({
                             primary: sanctionPreview.primary.pseudo
                           })}
                         </h3>
+                        <SanctionQuarantineConflicts
+                          conflicts={
+                            sanctionPreview.recovery.quarantineConflicts
+                          }
+                        />
                         <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
                           <div>
                             <dt className="text-slate-400">

@@ -82,14 +82,12 @@ await query(`create database ${database} owner postgres;`, {
   user: "supabase_admin"
 });
 const directory = new URL("../supabase/migrations/", import.meta.url);
-await query(
-  bootstrapSQL +
-    readdirSync(directory)
-      .filter(name => name.endsWith(".sql"))
-      .sort()
-      .map(name => readFileSync(new URL(name, directory), "utf8"))
-      .join("\n")
-);
+const migrations = readdirSync(directory)
+  .filter(name => name.endsWith(".sql"))
+  .sort();
+const migrationSQL = names =>
+  names.map(name => readFileSync(new URL(name, directory), "utf8")).join("\n");
+await query(bootstrapSQL + migrationSQL(migrations));
 const [sender, receiver, admin] = [1, 2, 3].map(
   index => `ad530000-0000-4000-8000-00000000000${index}`
 );
@@ -178,22 +176,67 @@ assert.equal(
   "0"
 );
 
-const timings = await query(`
-  update public.anticheat_runtime_flags set enabled=false where flag='quarantine_enforcement';
+const baseline = `${database}_baseline`;
+await query(`create database ${baseline} owner postgres;`, {
+  db: "postgres",
+  user: "supabase_admin"
+});
+const baselineFiles = execFileSync(
+  "git",
+  ["ls-tree", "-r", "--name-only", "f38ce2d2", "--", "supabase/migrations"],
+  { encoding: "utf8" }
+)
+  .trim()
+  .split(/\r?\n/)
+  .filter(path => path.endsWith(".sql"))
+  .map(path => path.split("/").at(-1))
+  .sort();
+assert.equal(
+  execFileSync(
+    "git",
+    [
+      "diff",
+      "--diff-filter=MD",
+      "--name-only",
+      "f38ce2d2",
+      "--",
+      "supabase/migrations"
+    ],
+    { encoding: "utf8" }
+  ).trim(),
+  "",
+  "Baseline migration sources must be unchanged"
+);
+await query(bootstrapSQL + migrationSQL(baselineFiles), { db: baseline });
+await query(
+  "update public.anticheat_runtime_flags set enabled=false where flag='quarantine_enforcement';"
+);
+const benchSender = "ad530000-0000-4000-8000-000000000011";
+const benchReceiver = "ad530000-0000-4000-8000-000000000012";
+const benchmark = (db, response) =>
+  query(
+    `
+  insert into auth.users(id,raw_user_meta_data) values
+    ('${benchSender}','{"pseudo":"BenchmarkSender"}'),('${benchReceiver}','{"pseudo":"BenchmarkReceiver"}');
+  insert into public.friendships(user_id,friend_id,status) values('${benchSender}','${benchReceiver}','accepted');
+  update public.user_profiles set karas_balance=1000 where user_id in('${benchSender}','${benchReceiver}');
   create temp table samples(elapsed double precision);
   create temp table offers as
     with seed as (
       insert into public.trade_offers(from_user,to_user,offered_karas,requested_karas)
-      select '${sender}','${receiver}',1,1 from generate_series(1,100) returning id
+      select '${benchSender}','${benchReceiver}',1,1 from generate_series(1,110) returning id
     ) select id from seed;
-  set request.jwt.claim.sub='${receiver}';
+  set request.jwt.claim.sub='${benchReceiver}';
   do $$
-  declare item record; started timestamptz;
+  declare item record; started timestamptz; iteration integer:=0;
   begin
     for item in select id from offers loop
       started:=clock_timestamp();
-      perform public.respond_trade_offer_with_status(item.id,'accept');
-      insert into samples values(extract(epoch from clock_timestamp()-started)*1000);
+      perform public.${response}(item.id,'accept');
+      iteration:=iteration+1;
+      if iteration>10 then
+        insert into samples values(extract(epoch from clock_timestamp()-started)*1000);
+      end if;
     end loop;
   end;
   $$;
@@ -201,6 +244,14 @@ const timings = await query(`
     'p50',percentile_cont(.5) within group(order by elapsed),
     'p95',percentile_cont(.95) within group(order by elapsed),
     'p99',percentile_cont(.99) within group(order by elapsed)) from samples;
-`);
+`,
+    { db }
+  );
+const baseTimings = await benchmark(baseline, "respond_trade_offer");
+const currentTimings = await benchmark(
+  database,
+  "respond_trade_offer_with_status"
+);
 console.log("PostgreSQL 17 concurrent reservation and review passed.");
-console.log(timings);
+console.log("Base f38ce2d2", baseTimings);
+console.log("Current", currentTimings);

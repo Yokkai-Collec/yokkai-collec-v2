@@ -2,6 +2,10 @@ import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { applyDeletedAccountSanctionAction } from "./actions";
 import { AccountStatus, type AccountState } from "./event-detail";
+import {
+  SanctionQuarantineConflicts,
+  type SanctionQuarantineConflict
+} from "./sanction-quarantine-conflicts";
 
 export type DeletedAccountHistoryData = {
   accounts: {
@@ -46,6 +50,7 @@ export type DeletedAccountPreview = {
     lockedCards: number;
     unavailableCards: number;
     transfers: number;
+    quarantineConflicts?: SanctionQuarantineConflict[];
   };
   history: {
     transfers: Transfer[];
@@ -410,6 +415,9 @@ export async function DeletedAccountHistory({
                 {t("confirmation", { player: preview.primary.pseudo })}
               </span>
             </label>
+            <SanctionQuarantineConflicts
+              conflicts={preview.recovery.quarantineConflicts}
+            />
             {!preview.eligible && (
               <p className="text-sm text-amber-100">{t("blocked")}</p>
             )}
