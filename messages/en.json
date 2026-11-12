@@ -990,7 +990,11 @@
     "notificationAchievementFallback": "an achievement",
     "friends": "Friends",
     "notificationCommentReplyTitle": "New reply to your comment",
-    "notificationCommentReplyText": "{actorPseudo} replied to your comment."
+    "notificationCommentReplyText": "{actorPseudo} replied to your comment.",
+    "notificationMysteryTitle": "Mystery Auction",
+    "notificationMysteryStarted": "The event has started! Join the mystery auction.",
+    "notificationMysteryResult": "The auction has ended: the mystery card was {cardName}. View the result.",
+    "events": "Events"
   },
   "accountMenu": {
     "signIn": "Sign in",
@@ -2389,7 +2393,8 @@
     "emptyunsoldTitle": "No unsold auctions",
     "emptyunsoldText": "Listings that end without a bid will appear here.",
     "emptyunsoldAction": "List a card",
-    "alreadyOwned": "Already owned · {count}"
+    "alreadyOwned": "Already owned · {count}",
+    "mysteryTitle": "Mystery Auction"
   },
   "binderDiscovery": {
     "cardsTab": "My cards",
@@ -3382,8 +3387,14 @@
     "requestCorrection": "Mark for correction",
     "voidWarning": "Void warning",
     "warningVoided": "Warning voided",
-    "kind": { "ACCOUNT": "Account sanction", "SMURF": "Smurf sanction" },
-    "state": { "APPLIED": "Applied", "ROLLED_BACK": "Rolled back" },
+    "kind": {
+      "ACCOUNT": "Account sanction",
+      "SMURF": "Smurf sanction"
+    },
+    "state": {
+      "APPLIED": "Applied",
+      "ROLLED_BACK": "Rolled back"
+    },
     "status": {
       "PENDING": "Awaiting review",
       "UPHELD": "Sanction upheld",
@@ -4465,5 +4476,26 @@
     "creationHint": "The folder will be created immediately and added to your current selection. Save the selection afterwards to feature it on your profile.",
     "customize": "Customize",
     "savedShort": "Saved"
+  },
+  "mysteryAuction": {
+    "title": "Mystery Auction",
+    "cardBack": "Mystery card back",
+    "description": "One normal card, drawn from the entire catalogue at closing. The winner’s Karas are destroyed.",
+    "nextEvent": "A new mystery card every week.",
+    "startsIn": "Next event in {countdown}",
+    "endsIn": "Ends in {countdown}",
+    "leader": "Leading bidder: {name}",
+    "noBids": "No bids yet",
+    "revealed": "Revealed card: {name}",
+    "view": "Join the auction",
+    "viewResult": "View result",
+    "revealing": "Revealing the card…",
+    "unavailable": "The event is temporarily unavailable. Retrying…",
+    "loading": "Loading the Mystery Auction…"
+  },
+  "events": {
+    "title": "Events",
+    "overline": "The weekly rendezvous",
+    "description": "Join the weekly Mystery Auction and discover the card when bidding closes."
   }
 }

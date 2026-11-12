@@ -990,7 +990,11 @@
     "notificationAchievementFallback": "un succès",
     "friends": "Amis",
     "notificationCommentReplyTitle": "Nouvelle réponse à ton commentaire",
-    "notificationCommentReplyText": "{actorPseudo} a répondu à ton commentaire."
+    "notificationCommentReplyText": "{actorPseudo} a répondu à ton commentaire.",
+    "notificationMysteryTitle": "Mystery Auction",
+    "notificationMysteryStarted": "L’event a commencé ! Découvre l’enchère mystère.",
+    "notificationMysteryResult": "L’enchère est terminée : la carte mystère était {cardName}. Consulte le résultat.",
+    "events": "Événements"
   },
   "accountMenu": {
     "signIn": "Se connecter",
@@ -2389,7 +2393,8 @@
     "emptyunsoldTitle": "Aucune enchère invendue",
     "emptyunsoldText": "Les annonces terminées sans offre apparaîtront ici.",
     "emptyunsoldAction": "Mettre une carte aux enchères",
-    "alreadyOwned": "Déjà possédée · {count}"
+    "alreadyOwned": "Déjà possédée · {count}",
+    "mysteryTitle": "Mystery Auction"
   },
   "binderDiscovery": {
     "cardsTab": "Mes cartes",
@@ -3386,7 +3391,10 @@
       "ACCOUNT": "Sanction de compte",
       "SMURF": "Sanction de compte secondaire"
     },
-    "state": { "APPLIED": "Appliquée", "ROLLED_BACK": "Annulée" },
+    "state": {
+      "APPLIED": "Appliquée",
+      "ROLLED_BACK": "Annulée"
+    },
     "status": {
       "PENDING": "En attente de revue",
       "UPHELD": "Sanction maintenue",
@@ -4468,5 +4476,26 @@
     "creationHint": "Le dossier sera créé immédiatement et ajouté à ta sélection en cours. Enregistre ensuite la sélection pour le mettre en avant sur ton profil.",
     "customize": "Personnaliser",
     "savedShort": "Enregistré"
+  },
+  "mysteryAuction": {
+    "title": "Mystery Auction",
+    "cardBack": "Dos de carte mystère",
+    "description": "Une carte normale tirée au sort parmi tout le catalogue à la clôture. Les Karas du gagnant sont détruits.",
+    "nextEvent": "Une nouvelle carte mystère chaque semaine.",
+    "startsIn": "Prochain event dans {countdown}",
+    "endsIn": "Fin dans {countdown}",
+    "leader": "Meilleure enchère : {name}",
+    "noBids": "Aucune enchère",
+    "revealed": "Carte révélée : {name}",
+    "view": "Participer",
+    "viewResult": "Voir le résultat",
+    "revealing": "Révélation en cours…",
+    "unavailable": "L’event est momentanément indisponible. Nouvelle tentative en cours…",
+    "loading": "Chargement de la Mystery Auction…"
+  },
+  "events": {
+    "title": "Événements",
+    "overline": "Le rendez-vous hebdomadaire",
+    "description": "Participe à la Mystery Auction hebdomadaire et découvre la carte à la clôture."
   }
 }

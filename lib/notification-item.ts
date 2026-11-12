@@ -90,6 +90,22 @@ export function notificationItem(
       href: "/friends",
       kind: "friend"
     };
+  if (
+    notification.type === "mystery_auction_started" ||
+    notification.type === "mystery_auction_result"
+  )
+    return {
+      ...common,
+      title: t("notificationMysteryTitle"),
+      text:
+        notification.type === "mystery_auction_started"
+          ? t("notificationMysteryStarted")
+          : t("notificationMysteryResult", {
+              cardName: notification.cardName ?? t("notificationCardFallback")
+            }),
+      href: `/market/${notification.referenceId}`,
+      kind: "pack"
+    };
   if (notification.type === "outbid")
     return {
       ...common,

@@ -1,0 +1,82 @@
+.yk-mystery-back {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 2.5 / 3.5;
+  border: 1px solid #d9c59480;
+  border-radius: 1rem;
+  background:
+    radial-gradient(
+      circle at 50% 43%,
+      #080910 20%,
+      #edcc7b 21%,
+      #b38b4738 23%,
+      transparent 36%
+    ),
+    linear-gradient(145deg, #111421, #05060b);
+  color: #f3dfae;
+  box-shadow:
+    inset 0 0 0 7px #d9c59412,
+    0 0 28px #c2a05b18;
+  font-size: clamp(2rem, 9vw, 5rem);
+  font-family: serif;
+}
+.yk-mystery-banner {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 2rem);
+  min-width: 0;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid #d9c59440;
+  border-radius: 1.25rem;
+  background:
+    radial-gradient(ellipse at 0 50%, #bb91451a, transparent 65%), #080a11;
+}
+.yk-mystery-banner-art {
+  flex: 0 0 clamp(64px, 20vw, 116px);
+  min-width: 0;
+}
+.yk-mystery-banner-copy {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.yk-mystery-banner-copy > * + * {
+  margin-top: 0.5rem;
+}
+.yk-market > .yk-mystery-banner {
+  margin-bottom: 1.5rem;
+}
+.yk-auction-page.yk-mystery-detail {
+  left: 0;
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 100%;
+  gap: clamp(1rem, 3vw, 2rem);
+}
+.yk-mystery-detail .yk-auction-art {
+  flex: 0 1 18rem;
+  width: min(100%, 18rem);
+  margin-inline: auto;
+}
+.yk-mystery-detail .yk-auction-main {
+  flex: 1 1 26rem;
+  width: auto;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "header" "panel" "chat";
+}
+.yk-mystery-detail .yk-auction-history {
+  flex: 1 1 100%;
+}
+.yk-mystery-detail .yk-auction-panel {
+  grid-template-columns: minmax(0, 1fr);
+}
+.yk-mystery-detail .yk-auction-hint,
+.yk-mystery-detail .yk-auction-outcome {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+@media (max-width: 359px) {
+  .yk-mystery-banner {
+    align-items: flex-start;
+  }
+}
