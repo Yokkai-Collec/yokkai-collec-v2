@@ -3401,13 +3401,13 @@
   "accountSanctions": {
     "farmWarning": {
       "title": "Avertissement pour abus du parrainage",
-      "intro": "Des demandes de transfert de cartes ont établi ton implication dans un abus confirmé du parrainage.",
+      "intro": "Une activité de parrainage associée à ton compte a déclenché une sanction.",
       "rules": "Créer et utiliser des comptes secondaires pour obtenir et transférer des récompenses de parrainage enfreint les règles de Yokkai.",
       "future": "Trois avertissements actifs provenant de dossiers distincts peuvent entraîner une suspension de 48 heures."
     },
     "farmBan": {
       "title": "Compte banni définitivement",
-      "intro": "Des transferts de cartes enregistrés ont confirmé que ce compte a participé à un abus du parrainage.",
+      "intro": "Ton compte a été banni à la suite d’une détection d’abus du parrainage.",
       "rules": "Créer et utiliser des comptes secondaires pour obtenir et transférer des récompenses de parrainage enfreint les règles de Yokkai.",
       "future": "Contacte l’assistance pour demander un réexamen de cette décision."
     },

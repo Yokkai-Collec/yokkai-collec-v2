@@ -3398,13 +3398,13 @@
   "accountSanctions": {
     "farmWarning": {
       "title": "Warning for referral farming",
-      "intro": "Recorded card requests established your involvement in confirmed referral farming.",
+      "intro": "Referral activity linked to your account triggered a sanction.",
       "rules": "Creating and using secondary accounts to collect and transfer referral rewards violates Yokkai’s rules.",
       "future": "Three active warnings from separate cases can lead to a 48-hour suspension."
     },
     "farmBan": {
       "title": "Permanent account ban",
-      "intro": "This account was linked to confirmed referral farming through recorded card transfers.",
+      "intro": "Your account was banned after referral abuse was detected.",
       "rules": "Creating and using secondary accounts to collect and transfer referral rewards violates Yokkai’s rules.",
       "future": "Contact support to request a review of this decision."
     },
