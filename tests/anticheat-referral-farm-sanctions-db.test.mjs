@@ -64,6 +64,12 @@ test("two recent referrals on one IP trigger sanctions regardless of browser or 
         [user]
       )
     ).rows[0].state;
+  const assetWorker = async () =>
+    (
+      await db.query(
+        "select public.run_anticheat_referral_asset_recovery() as total"
+      )
+    ).rows[0].total;
 
   const sponsor = await makeSponsor("ReferralSponsor", "a");
   const unrelated = await makeSponsor("OtherSponsor", "b");
@@ -80,6 +86,90 @@ test("two recent referrals on one IP trigger sanctions regardless of browser or 
   assert.equal(await worker(), 0);
   assert.equal(await bonus(sponsor.user), 10);
   assert.equal(await bonus(unrelated.user), 5);
+
+  const buyer = await makeUser("HonestBuyer");
+  await db.query(
+    "insert into public.friendships(user_id,friend_id,status) values($1,$2,'accepted')",
+    [sponsor.user, buyer]
+  );
+  await db.query(
+    "update public.user_profiles set karas_balance=1000 where user_id=$1",
+    [buyer]
+  );
+  const { rows: catalog } = await db.query(
+    "insert into public.cards(source,source_id,nom,categorie,franchise,rarete_base,image_url) values('test','referral','ReferralCard','Test','Test','LR','https://example.invalid/card.png') returning id"
+  );
+  const catalogId = catalog[0].id;
+  const { rows: openings } = await db.query(
+    `
+    insert into public.regular_pack_openings(opened_by,source,referral_reward_lot_id,referral_id,
+      source_referrer_id,source_referred_id,beneficiary_role)
+    select beneficiary_id,'referral_reward',id,referral_id,referrer_id,referred_id,beneficiary_role
+    from public.referral_pack_reward_lots where referral_id=$1 and beneficiary_role='referrer' returning id
+  `,
+    [first.referral]
+  );
+  const makeCard = async (tracked = true) => {
+    const { rows } = await db.query(
+      "insert into public.user_cards(user_id,card_id,rarity) values($1,$2,'LR') returning id",
+      [sponsor.user, catalogId]
+    );
+    const card = rows[0].id;
+    if (tracked)
+      await db.query(
+        "insert into public.regular_pack_opening_cards(card_instance_id,pack_opening_id,card_id,original_owner_id) values($1,$2,$3,$4)",
+        [card, openings[0].id, catalogId, sponsor.user]
+      );
+    return card;
+  };
+  const kept = await makeCard();
+  const sold = await makeCard();
+  const active = await makeCard();
+  const lateSale = await makeCard();
+  const mixed = [await makeCard(), await makeCard(), await makeCard(false)];
+  const onlyFraud = [await makeCard(), await makeCard()];
+  const free = await makeCard();
+  const legitimate = await makeCard(false);
+  async function trade(cardIds, requested, offered = 0, reverse = false) {
+    const { rows } = await db.query(
+      `
+      insert into public.trade_offers(from_user,to_user,offered_card_ids,requested_card_ids,offered_karas,requested_karas)
+      values($1,$2,$3,$4,$5,$6) returning id
+    `,
+      reverse
+        ? [buyer, sponsor.user, [], cardIds, requested, offered]
+        : [sponsor.user, buyer, cardIds, [], offered, requested]
+    );
+    await db.query("select set_config('request.jwt.claim.sub',$1,false)", [
+      reverse ? sponsor.user : buyer
+    ]);
+    try {
+      const { rows: response } = await db.query(
+        "select public.respond_trade_offer($1,'accept') as accepted",
+        [rows[0].id]
+      );
+      assert.equal(response[0].accepted, true);
+    } finally {
+      await db.query("select set_config('request.jwt.claim.sub','',false)");
+    }
+    return rows[0].id;
+  }
+  await db.query(
+    "update public.user_profiles set karas_balance=20 where user_id=$1",
+    [sponsor.user]
+  );
+  const mixedId = await trade(mixed, 121, 20);
+  const pureId = await trade(onlyFraud, 70, 0, true);
+  await trade([free], 0);
+  await db.query(
+    `
+    insert into public.auctions(card_instance_id,seller_id,buyer_id,starting_price,current_price,duration_minutes,ends_at)
+    values($1,$2,$3,10,50,15,now()-interval '1 minute'),($4,$2,null,10,10,15,now()+interval '1 day'),
+      ($5,$2,$3,10,40,15,now()+interval '1 day')
+  `,
+    [sold, sponsor.user, buyer, active, lateSale]
+  );
+  await db.exec("select public.settle_expired_auctions()");
 
   await observe(sponsor.user, "a");
   const second = await invite(sponsor, "SharedSecond", "a");
@@ -123,6 +213,73 @@ test("two recent referrals on one IP trigger sanctions regardless of browser or 
   assert.equal(await restriction(sponsor.user), "none");
   assert.equal(await restriction(separate.user), "none");
   assert.equal(await restriction(other.user), "none");
+  assert.equal(await assetWorker(), 1);
+  assert.equal(await assetWorker(), 0);
+  const { rows: recoveries } = await db.query(`
+    select asset_kind,sum(recovered_karas)::int as karas,count(*)::int as instances
+    from public.anticheat_asset_recoveries group by asset_kind order by asset_kind
+  `);
+  assert.deepEqual(recoveries, [
+    { asset_kind: "CARD", karas: 0, instances: 1 },
+    { asset_kind: "SALE", karas: 50, instances: 1 },
+    { asset_kind: "TRADE", karas: 150, instances: 4 }
+  ]);
+  const tradeDebit = async id =>
+    (
+      await db.query(
+        "select sum(recovered_karas)::int as debit from public.anticheat_asset_recoveries where source_trade_id=$1",
+        [id]
+      )
+    ).rows[0].debit;
+  assert.equal(await tradeDebit(mixedId), 80);
+  assert.equal(await tradeDebit(pureId), 70);
+  const owner = async id =>
+    (await db.query("select user_id from public.user_cards where id=$1", [id]))
+      .rows[0]?.user_id;
+  assert.equal(await owner(kept), undefined);
+  assert.equal(await owner(legitimate), sponsor.user);
+  assert.equal(await owner(active), sponsor.user);
+  assert.equal(await owner(lateSale), sponsor.user);
+  for (const id of [sold, ...mixed, ...onlyFraud, free])
+    assert.equal(await owner(id), buyer);
+  assert.equal(
+    (
+      await db.query(
+        "select karas_balance from public.user_profiles where user_id=$1",
+        [sponsor.user]
+      )
+    ).rows[0].karas_balance,
+    41
+  );
+  await db.query(
+    "update public.auctions set status='expired' where card_instance_id=$1",
+    [active]
+  );
+  await db.query(
+    "update public.auctions set ends_at=now()-interval '1 minute' where card_instance_id=$1",
+    [lateSale]
+  );
+  await db.exec("select public.settle_expired_auctions()");
+  await db.query(
+    "update public.user_profiles set karas_balance=6 where user_id=$1",
+    [sponsor.user]
+  );
+  await db.exec(
+    "update public.anticheat_referral_asset_queue set next_check_at=now()"
+  );
+  assert.equal(await assetWorker(), 1);
+  assert.equal(await owner(active), undefined);
+  assert.equal(await owner(lateSale), buyer);
+  assert.deepEqual(
+    (
+      await db.query(
+        "select recovered_karas,unrecovered_karas from public.anticheat_asset_recoveries where card_instance_id=$1",
+        [lateSale]
+      )
+    ).rows,
+    [{ recovered_karas: 6, unrecovered_karas: 34 }]
+  );
+  assert.equal(await assetWorker(), 0);
   await verify(second);
   await observe(second.user, "a");
   assert.equal(await worker(), 0);
@@ -147,6 +304,24 @@ test("two recent referrals on one IP trigger sanctions regardless of browser or 
     /5 bloqués.*3 packs non ouverts retirés/
   );
   assert.ok(!JSON.stringify(alerts).includes(ip("a")));
+  const { rows: recoveryAlerts } = await db.query(
+    `
+    select o.payload from public.anticheat_discord_outbox o
+    join public.anticheat_events e on e.id=o.event_id
+    where e.metadata->>'category'='REFERRAL_ASSET_RECOVERY' and e.actor_user_id=$1
+    order by e.id
+  `,
+    [sponsor.user]
+  );
+  assert.deepEqual(
+    recoveryAlerts.map(({ payload }) =>
+      payload.embeds[0].fields.slice(1).map(field => field.value)
+    ),
+    [
+      ["1", "200", "0"],
+      ["1", "6", "34"]
+    ]
+  );
   assert.equal(
     (
       await db.query(
@@ -154,6 +329,7 @@ test("two recent referrals on one IP trigger sanctions regardless of browser or 
     select count(*)::int as count from public.anticheat_discord_outbox o
     join public.anticheat_events e on e.id=o.event_id
     where e.event_type='anticheat_operational_alert' and e.actor_user_id=any($1::uuid[])
+        and e.metadata->>'category'<>'REFERRAL_ASSET_RECOVERY'
   `,
         [[sponsor.user, first.user, second.user]]
       )
