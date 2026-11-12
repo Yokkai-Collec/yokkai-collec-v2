@@ -91,7 +91,7 @@ begin
         card_snapshot=snapshot,card_instance_id=copy_id where id=sale.id;
       -- Escrow was already debited by place_bid: no seller credit burns it.
       insert into public.notifications(user_id,type,reference_id)
-        select distinct bidder_id,'mystery_auction_result',sale.id from public.bids where auction_id=sale.id
+        select distinct bidder_id,'mystery_auction_result',sale.id from public.bids where auction_id=sale.id and bidder_id is not null
         on conflict do nothing;
     elsif sale.buyer_id is null then$branch$);
   if updated=definition or strpos(updated,'into strict drawn')=0 then raise exception 'MYSTERY_SETTLEMENT_PATCH_MISSING'; end if;

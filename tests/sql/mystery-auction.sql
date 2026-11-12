@@ -34,6 +34,9 @@ begin
   assert (select count(*)=1 from public.notifications where user_id=loser and reference_id=auction and type='outbid'), 'outbid notification missing';
   assert (select karas_balance=1000 from public.user_profiles where user_id=loser), 'loser not refunded';
   assert (select karas_balance=930 from public.user_profiles where user_id=winner), 'winner not debited';
+  -- Deleted accounts leave anonymized losing bids; they must not block closing.
+  insert into public.bids(auction_id,bidder_id,amount) values(auction,spectator,10);
+  update public.bids set bidder_id=null where auction_id=auction and bidder_id=spectator;
   select count(*) into copies from public.user_cards;
   update public.auctions set ends_at=clock_timestamp()-interval '1 second' where id=auction;
   perform public.settle_expired_auctions();
