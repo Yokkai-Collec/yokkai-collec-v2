@@ -28,10 +28,26 @@ const responses = {
   get_game_info: { user: { name: "FixtureAdmin" }, karasBalance: 42 },
   admin_list_anticheat_cases: { cases: [], summary: {} },
   admin_list_anticheat_events: { events: [] },
-  admin_list_anticheat_quarantines: { items: [], awaitingReview: 0 },
+  admin_list_anticheat_quarantines: {
+    items: [true, false].map((recorded, i) => ({
+      id: `ad560000-0000-4000-8000-00000000001${i}`,
+      subjectType: "trade",
+      subjectId: receipt,
+      status: "AWAITING_REVIEW",
+      sender: { id: admin, pseudo: "FixtureAdmin" },
+      recipient: { id: member, pseudo: "FixtureMember" },
+      confidence: "CORROBORATED",
+      economicSeverity: "MEDIUM",
+      reasonCodes: recorded ? ["SHARED_NETWORK_BROWSER_ONE_WAY_TRANSFER"] : [],
+      createdAt: now,
+      expiresAt: now
+    })),
+    awaitingReview: 2
+  },
   admin_list_anticheat_connections: {},
   admin_anticheat_workload: {
     clusters: 1,
+    activeQuarantines: 2,
     investigated: 1,
     confirmed: 1,
     pendingAppeals: 1
@@ -220,6 +236,28 @@ try {
     const appeals = page.locator("#anticheat-appeals");
     await groups.waitFor({ timeout: 40000 });
     await appeals.waitFor();
+    const counters = groups.locator(":scope > dl > div");
+    assert.deepEqual(await counters.locator("dt").allTextContents(), [
+      "Groupes réseau",
+      "Quarantaines actives"
+    ]);
+    const reviews = page
+      .locator("#anticheat-quarantines")
+      .locator("details")
+      .filter({ hasText: "Examiner l’échange" });
+    assert.equal(await reviews.count(), 2);
+    for (const [index, status] of ["Oui", "Non renseigné"].entries()) {
+      const review = reviews.nth(index);
+      await review.locator("summary").click();
+      assert.deepEqual(await review.locator("dt").allTextContents(), [
+        "Même adresse IP",
+        "Même navigateur"
+      ]);
+      assert.deepEqual(await review.locator("dd").allTextContents(), [
+        status,
+        status
+      ]);
+    }
     await groups
       .getByText("Examiner les actifs traçables", { exact: true })
       .click();

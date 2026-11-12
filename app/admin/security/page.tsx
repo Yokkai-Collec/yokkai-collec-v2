@@ -130,7 +130,7 @@ type QuarantineRow = {
   riskScore: number;
   confidence: string;
   economicSeverity: string;
-  reasonCodes: string[];
+  sharedConnectionRecorded: boolean;
   createdAt: string;
   expiresAt: string;
   version: number;
@@ -293,7 +293,11 @@ function quarantineFromRpc(value: Record<string, unknown>): QuarantineRow {
     riskScore: Number(value.riskScore ?? 0),
     confidence: String(value.confidence ?? "LOW"),
     economicSeverity: String(value.economicSeverity ?? "LOW"),
-    reasonCodes: strings(value.reasonCodes),
+    sharedConnectionRecorded: strings(value.reasonCodes).some(
+      code =>
+        code === "SHARED_NETWORK_BROWSER_ONE_WAY_TRANSFER" ||
+        code === "SHARED_NETWORK_AND_BROWSER_WITH_ACCEPTED_TRADE"
+    ),
     createdAt: String(value.createdAt ?? ""),
     expiresAt: String(value.expiresAt ?? ""),
     version: Number(value.version ?? 1),
@@ -971,6 +975,35 @@ export default async function AdminSecurityPage({
                                 <summary className="cursor-pointer text-cyan-200">
                                   {t("quarantines.review")}
                                 </summary>
+                                <dl className="mt-2 grid gap-1.5 rounded border border-slate-700 bg-slate-950/60 p-2 text-xs">
+                                  {(["sameIp", "sameBrowser"] as const).map(
+                                    signal => (
+                                      <div
+                                        key={signal}
+                                        className="flex flex-wrap justify-between gap-x-2"
+                                      >
+                                        <dt>
+                                          {t(
+                                            `quarantines.connection.${signal}`
+                                          )}
+                                        </dt>
+                                        <dd
+                                          className={
+                                            item.sharedConnectionRecorded
+                                              ? "font-semibold text-amber-200"
+                                              : "text-slate-400"
+                                          }
+                                        >
+                                          {t(
+                                            item.sharedConnectionRecorded
+                                              ? "quarantines.connection.confirmed"
+                                              : "quarantines.connection.unknown"
+                                          )}
+                                        </dd>
+                                      </div>
+                                    )
+                                  )}
+                                </dl>
                                 <form
                                   action={resolveTradeQuarantineAction}
                                   className="mt-2 grid gap-2"
@@ -1040,36 +1073,8 @@ export default async function AdminSecurityPage({
                 kind={assetKind}
               />
             )}
-            <dl className="my-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-3 lg:grid-cols-5">
-              {(
-                [
-                  "clusters",
-                  "investigated",
-                  "confirmed",
-                  "dismissed",
-                  "activeQuarantines",
-                  "overdueQuarantines",
-                  "analysisFailures",
-                  "manualSmurfSanctions",
-                  "deadlocks",
-                  "pendingAppeals",
-                  "correctionRequests",
-                  "recoveredPacks",
-                  "simulations",
-                  "farmBans",
-                  "farmWarnings",
-                  "farmSuspensions",
-                  "recoveredCards",
-                  "recoveredKaras",
-                  "partialRecoveries",
-                  "recoveryFailures",
-                  "compensations",
-                  "jobErrors",
-                  "jobRetries",
-                  "jobDurationMs",
-                  "queueAgeSeconds"
-                ] as const
-              ).map(key => (
+            <dl className="my-3 grid max-w-md grid-cols-2 gap-2 text-sm">
+              {(["clusters", "activeQuarantines"] as const).map(key => (
                 <div
                   key={key}
                   className="rounded-lg border border-slate-800 p-2"

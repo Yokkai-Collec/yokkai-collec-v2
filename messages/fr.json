@@ -3619,6 +3619,12 @@
       "empty": "Aucune quarantaine ne correspond à ce filtre.",
       "shadowNotice": "Le mode observation est actif. L’application des quarantaines reste désactivée tant que les faux positifs, latences et garde-fous de récupération n’ont pas été validés.",
       "review": "Examiner l’échange",
+      "connection": {
+        "sameIp": "Même adresse IP",
+        "sameBrowser": "Même navigateur",
+        "confirmed": "Oui",
+        "unknown": "Non renseigné"
+      },
       "reviewDue": "Échéance de revue le {date}",
       "sanctionConflict": "Résous ces quarantaines, puis génère une nouvelle prévisualisation de la sanction.",
       "sanctionConflictCase": "{id} · {cards} cartes · {karas} Karas réservés",
