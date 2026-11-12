@@ -209,3 +209,76 @@ test("Discord V2 is feature-gated, selective and has a private dead-letter queue
     /network_identity.*jsonb_build_object|device_identity.*jsonb_build_object/
   );
 });
+
+test("Discord suppresses score-only legacy reviews while preserving V2 alerts and applied sanctions", async t => {
+  const { db } = await replayMigrations();
+  t.after(() => db.close());
+  const actor = "ad570000-0000-4000-8000-000000000001";
+  await db.query(
+    'insert into auth.users(id,raw_user_meta_data) values($1,\'{"pseudo":"DiscordFixture"}\')',
+    [actor]
+  );
+  await db.exec(
+    "update public.anticheat_runtime_flags set enabled=true where flag='discord_alerts_v2'"
+  );
+  async function record(type, points, metadata = {}) {
+    const {
+      rows: [event]
+    } = await db.query(
+      "insert into public.anticheat_events(event_type,actor_user_id,subject_id,metadata) values($1,$2,gen_random_uuid(),$3) returning id",
+      [type, actor, JSON.stringify(metadata)]
+    );
+    await db.query(
+      "insert into public.anticheat_event_subjects(event_id,user_id,risk_points,reason_codes) values($1,$2,$3,array['FIXTURE'])",
+      [event.id, actor, points]
+    );
+    return event.id;
+  }
+  const review = await record("referral_network_review", 100);
+  const unbalanced = await record("trade_accepted", 100);
+  const uncorroborated = await record("trade_shared_network_identity", 100);
+  const corroborated = await record("trade_shared_network_identity", 20, {
+    sharedDevice: true
+  });
+  const applied = await record("referral_network_enforcement", 30);
+  const queued = async () =>
+    (
+      await db.query(
+        "select event_id from public.anticheat_discord_outbox order by event_id"
+      )
+    ).rows.map(row => row.event_id);
+  assert.deepEqual(await queued(), [corroborated, applied]);
+
+  await db.query(
+    `insert into public.anticheat_discord_outbox(event_id,payload,dispatched_at,request_id)
+     values($1,'{}',null,null),($2,'{}',now(),null),($3,'{}',null,42)`,
+    [review, unbalanced, uncorroborated]
+  );
+  await db.exec("select public.dispatch_anticheat_discord_alerts()");
+  assert.deepEqual(await queued(), [
+    unbalanced,
+    uncorroborated,
+    corroborated,
+    applied
+  ]);
+  assert.equal(
+    (
+      await db.query(
+        "select count(*)::int as total from public.anticheat_events where id=$1",
+        [review]
+      )
+    ).rows[0].total,
+    1
+  );
+
+  await db.exec(
+    "update public.anticheat_runtime_flags set enabled=false where flag='discord_alerts_v2'"
+  );
+  await record("referral_network_enforcement", 100);
+  assert.deepEqual(await queued(), [
+    unbalanced,
+    uncorroborated,
+    corroborated,
+    applied
+  ]);
+});
