@@ -80,6 +80,84 @@
   "public.anticheat_cases": {
     "excluded": "Private derived anti-fraud scores and internal review status. Requests concerning these security records require separate manual privacy review; exclusion from self-service downloads is not a legal exemption."
   },
+  "public.anticheat_appeal_capabilities": {
+    "excluded": "Single-use appeal access hashes, operator identity-verification notes and expiry metadata are excluded from self-service exports. Requests require a separate privacy and security review."
+  },
+  "public.anticheat_asset_compensations": {
+    "excluded": "Private receipts linking corrected asset deductions to player appeals and operator decisions. Requests require manual privacy review for related moderation and third-party records."
+  },
+  "public.anticheat_asset_recoveries": {
+    "excluded": "Private exact asset and ownership snapshots, original sale proceeds and administrator decisions. Requests require manual privacy review of third-party evidence."
+  },
+  "public.anticheat_cluster_settings": {
+    "excluded": "Global thresholds and investigation windows for the anti-cheat system; contains no individual player records."
+  },
+  "public.anticheat_compensation_proposals": {
+    "excluded": "Private proposed compensation linked to original receipts, restrictions and administrator review. Requests require manual privacy review."
+  },
+  "public.anticheat_discord_dead_letters": {
+    "excluded": "Private incident-delivery records, retries and alert payloads. Requests require separate privacy and security review."
+  },
+  "public.anticheat_farm_bans": {
+    "excluded": "Private enforcement journal joining ban receipts to corroborated cases and moderator audit references. Requests require separate privacy review."
+  },
+  "public.anticheat_farm_evidence": {
+    "excluded": "Private economic provenance and network-group evidence involving multiple players. Requests require separate manual privacy review."
+  },
+  "public.anticheat_farm_job_progress": {
+    "excluded": "Operational worker state and error codes linked to internal investigation groups. Requests require separate manual privacy review."
+  },
+  "public.anticheat_farm_restriction_corrections": {
+    "excluded": "Private append-only history of reviewed restriction corrections and related appeal receipts. Requests require separate manual privacy review."
+  },
+  "public.anticheat_farm_reviews": {
+    "excluded": "Administrator decisions and reasons linked to case evidence versions and third-party involvement. Requests require separate manual privacy review."
+  },
+  "public.anticheat_farm_runs": {
+    "excluded": "Private simulation and enforcement snapshots containing cross-account evidence and administrative decisions. Requests require separate manual privacy review."
+  },
+  "public.anticheat_farm_suspensions": {
+    "excluded": "Private suspension provenance and relationships among corroborated warning receipts. Requests require separate manual privacy review."
+  },
+  "public.anticheat_farm_warnings": {
+    "excluded": "Private warning provenance and identified secondary-account associations. Requests require separate manual privacy review."
+  },
+  "public.anticheat_network_clusters": {
+    "excluded": "Private derived HMAC cohorts, recent activity summaries and multi-account fraud evidence. Requests require separate manual privacy review."
+  },
+  "public.anticheat_pending_reward_cancellations": {
+    "excluded": "Private cancellation receipts with related referral evidence and reviewer reasons. Requests require separate manual privacy review."
+  },
+  "public.anticheat_quarantine_audit": {
+    "excluded": "Private exchange review and version history including moderator notes and third-party evidence. Requests require separate manual privacy review."
+  },
+  "public.anticheat_quarantines": {
+    "excluded": "Private pending trade decisions, evidence, and reservation snapshots involving both counterparties. Requests require separate manual privacy review."
+  },
+  "public.anticheat_recovery_failures": {
+    "excluded": "Private operational error codes and internal identifiers for failed asset recovery attempts. Requests require separate manual privacy review."
+  },
+  "public.anticheat_reward_pack_recoveries": {
+    "excluded": "Private pack recovery provenance, amounts and review reasons linked to other accounts. Requests require separate manual privacy review."
+  },
+  "public.anticheat_runtime_flags": {
+    "excluded": "Global private runtime flags and configuration. No player records are stored here."
+  },
+  "public.anticheat_sanction_appeal_decisions": {
+    "excluded": "Private administrator decisions available to the appellant through the appeal history. Additional records require manual privacy review."
+  },
+  "public.anticheat_sanction_appeals": {
+    "excluded": "Private player-submitted appeal records visible through the appeal history. Additional records require separate manual privacy review."
+  },
+  "public.anticheat_trade_card_holds": {
+    "excluded": "Private card reservations linked to an active trade and both accounts. Requests require separate manual privacy review."
+  },
+  "public.anticheat_trade_kara_holds": {
+    "excluded": "Private currency reservations linked to an active trade and both accounts. Requests require separate manual privacy review."
+  },
+  "public.anticheat_warning_corrections": {
+    "excluded": "Private immutable corrections to player warning receipts. Additional records require separate manual privacy review."
+  },
   "public.anticheat_case_reviews": {
     "excluded": "Immutable administrator review decisions and notes about security cases. Requires separate manual privacy review because records contain operator and third-party context."
   },

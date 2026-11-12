@@ -12,6 +12,34 @@ export const ownerOnly = [
   "public.capture_registration_anticheat_event()", // Trigger-only registration event; records no address or IP.
   "public.record_anticheat_context_signal(text, uuid, uuid, uuid, integer, text, jsonb)", // Internal network-context recorder; HMAC stays in the short-lived private association table. Walid approved the anti-cheat extension.
   "public.capture_trade_network_anticheat_event()", // Trigger-only shared-network trade signal; observation only, never an automatic sanction.
+  "public.anticheat_runtime_flag_enabled(text)", // Private feature-flag reader used only by the quarantine trigger; never exposed through the API.
+  "public.capture_trade_quarantine_shadow()", // Trigger-only shadow evaluator; cannot reserve assets, change trade status, or sanction a player.
+  "public.expire_anticheat_shadow_quarantines()", // Scheduled private cleanup of observation-only records; never mutates a player asset.
+  "public.anticheat_discord_event_allowed(bigint)", // Private routing policy for the Discord outbox; it exposes no event data and is called only by the trigger.
+  "public.archive_failed_anticheat_discord_alerts()", // Scheduled private dead-letter archival after the existing bounded dispatch retries.
+  "public.guard_quarantined_trade_card()", // Trigger-only fence on reserved inventory.
+  "public.guard_quarantined_trade_listing()", // Trigger-only auction admission fence.
+  "public.guard_quarantined_trade_kara()", // Trigger-only protection of reserved balances.
+  "public.anticheat_trade_needs_review(trade_offers)", // Private trade admission signal.
+  "public.anticheat_settle_trade(trade_offers, uuid)", // Shared settlement reached only through locked and authorized callers.
+  "public.close_cancelled_trade_quarantine()", // Trigger-only release of holds after offer withdrawal.
+  "public.resolve_trade_quarantine(uuid, integer, text, text, uuid)", // Private common resolution with offer and case locks.
+  "public.expire_active_trade_quarantines()", // Flag-gated deadline worker.
+  "public.reassess_quarantined_trade(trade_offers, anticheat_quarantines)", // Private deadline classification, no asset mutation.
+  "public.evaluate_anticheat_network_clusters()", // Private worker over pseudonymized observations.
+  "public.trace_anticheat_pack_edges(uuid[], timestamp with time zone)", // Bounded private traversal over exact card instances.
+  "public.evaluate_anticheat_farm_evidence()", // Flag-gated, non-punitive evidence worker.
+  "public.anticheat_farm_enforcement_plan(uuid)", // Private deterministic policy evaluator.
+  "public.apply_anticheat_farm_policy(uuid)", // Private flag-gated account mutation.
+  "public.run_anticheat_farm_policy()", // Private bounded enforcement job.
+  "public.enqueue_anticheat_operational_alert(text, uuid, uuid)", // Private allowlisted events for the Discord outbox.
+  "public.capture_anticheat_operational_alert()", // Trigger-only operational alert projection.
+  "public.anticheat_pending_farm_rewards(uuid, text)", // Private proof projection for pending referral rewards.
+  "public.anticheat_additional_farm_scenarios(uuid[])", // Private independent classifiers.
+  "public.attach_anticheat_farm_scenarios(uuid, uuid[], integer)", // Private merge of scenario evidence into the current cohort review.
+  "public.with_anticheat_sanction_hold_conflicts(jsonb)", // Private decorator for existing admin-only previews.
+  "public.anticheat_evidenced_referral_hold(referrals)", // Private corroborated hold policy used by referral verification.
+  "public.anticheat_farm_evidence_version(anticheat_farm_evidence)", // Private deterministic version of the case evidence.
   "public.reopen_anticheat_case_on_new_signal()", // Trigger-only workflow fence: a fresh signal reopens a reviewed case without applying a sanction.
   "public.is_disposable_email(text)", // Indexed public-source signup policy; only the Auth INSERT trigger, never API roles. Walid approved.
   "public.guard_disposable_signup()", // Auth INSERT-only trigger: rejects new disposable addresses without touching existing accounts. Walid approved.
@@ -90,6 +118,48 @@ const allowlist = {
   ], // Walid approved: bounded catalogue reader, owner or featured folder, collection privacy.
   "public.admin_list_anticheat_related_accounts(uuid, text, text, integer, integer)":
     ["authenticated"], // Bounded, read-only admin overview of existing/deleted economic and recent connection links; identities expire after 90 days. Walid approved.
+  "public.admin_list_anticheat_quarantines(text, integer, integer)": [
+    "authenticated"
+  ], // Admin-only bounded quarantine queue; it returns conclusions, never network or browser pseudonyms.
+  "public.admin_resolve_trade_quarantine(uuid, integer, text, text)": [
+    "authenticated"
+  ], // Admin guard, versioned decision and mandatory reason.
+  "public.respond_trade_offer_with_status(uuid, text)": ["authenticated"], // Same recipient and ban guards as the existing response RPC.
+  "public.admin_list_anticheat_clusters(uuid)": ["authenticated"], // Admin-only bounded cluster and member summaries without technical identifiers.
+  "public.admin_preview_anticheat_farm_recovery(uuid)": ["authenticated"], // Admin-only plan for attributed assets and protected holdings.
+  "public.admin_anticheat_workload()": ["authenticated"], // Admin-only workload and database counters.
+  "public.admin_simulate_anticheat_farm(uuid)": ["authenticated"], // Admin-only dry run without account mutations.
+  "public.admin_restore_anticheat_restriction(uuid, text)": ["authenticated"], // Admin, accepted appeal and exact restriction match.
+  "public.admin_compensate_anticheat_recovery(uuid, text, uuid, text)": [
+    "authenticated"
+  ], // Exact matching receipt, approved appeal and enabled compensation.
+  "public.admin_record_anticheat_recovery_failure(uuid, text)": [
+    "authenticated"
+  ], // Admin-only sanitized failure accounting.
+  "public.admin_issue_anticheat_appeal_token(uuid, text)": ["authenticated"], // Admin-only after documented identity verification.
+  "public.consume_anticheat_appeal_token(text, text)": [
+    "anon",
+    "authenticated"
+  ], // Scoped single-use 15-minute capability; no public receipt lookup.
+  "public.admin_preview_anticheat_asset_recovery(uuid, text, uuid)": [
+    "authenticated"
+  ], // Read-only exact attribution and availability.
+  "public.admin_apply_anticheat_asset_recovery(uuid, text, uuid, text, text)": [
+    "authenticated"
+  ], // Flag, admin, current proof and locked exact asset.
+  "public.admin_cancel_anticheat_pending_reward(uuid, text, uuid, text)": [
+    "authenticated"
+  ], // Reviewed individual proof and locked, unpaid referral.
+  "public.admin_recover_anticheat_unused_reward_lot(uuid, text, uuid, integer, text)":
+    ["authenticated"], // Admin-only reviewed and reconciled single-lot recovery.
+  "public.get_my_anticheat_sanction_history()": ["authenticated"], // Own published receipts and own appeal outcome only.
+  "public.submit_my_anticheat_appeal(text, uuid, text)": ["authenticated"], // Owned receipt, one append-only appeal.
+  "public.admin_list_anticheat_appeals()": ["authenticated"], // Admin-only bounded appeal inbox.
+  "public.admin_review_anticheat_appeal(uuid, text, text)": ["authenticated"], // Admin-only one terminal review per appeal.
+  "public.admin_void_anticheat_warning(uuid, text)": ["authenticated"], // Admin-only correction of a zero-asset warning after review.
+  "public.admin_review_anticheat_farm(uuid, text, text, text)": [
+    "authenticated"
+  ], // Admin-only append-only review; applies no sanctions.
   "public.admin_get_referral_pack_provenance(uuid[])": ["authenticated"], // Admin-only bounded source and transfer trail for referral-funded pack cards. Walid approved.
   "public.get_pack_favorite_card_ids(uuid[], boolean)": ["authenticated"], // Own favorite membership only, active session, at most 500 catalogue IDs, no mutation. Walid approved.
   "public.admin_list_deleted_accounts(text, uuid, boolean, integer, integer)": [

@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { applyDeletedSmurfRecoveryAction } from "./actions";
+import {
+  SanctionQuarantineConflicts,
+  type SanctionQuarantineConflict
+} from "./sanction-quarantine-conflicts";
 
 type Recovery = {
   cardIds?: string[];
@@ -11,6 +15,7 @@ type Recovery = {
   saleKaras: number;
   saleCount: number;
   karas: number;
+  quarantineConflicts?: SanctionQuarantineConflict[];
 };
 
 export type DeletedSmurfRecoveryPreview = {
@@ -269,6 +274,9 @@ export async function DeletedSmurfRecovery({
               />
               <span className="min-w-0">{t("confirmation")}</span>
             </label>
+            <SanctionQuarantineConflicts
+              conflicts={data.recovery.quarantineConflicts}
+            />
             {!data.eligible && (
               <p className="text-sm font-semibold text-amber-200">
                 {t("ineligible")}

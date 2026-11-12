@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import Link from "next/link";
 import type { Metadata } from "next";
 import { AuthForm } from "@/components/auth-form";
 import { AuthExperience } from "@/components/auth-experience";
@@ -25,6 +26,7 @@ export default async function SignInPage({
 }) {
   const t = await getTranslations("page");
   const authT = await getTranslations("authForm");
+  const appeals = await getTranslations("sanctionAppeals");
   const {
     account,
     confirmation,
@@ -69,6 +71,12 @@ export default async function SignInPage({
         confirmationError={confirmation === "erreur"}
         confirmationUnavailable={confirmation === "service"}
       />
+      <Link
+        href="/appeal"
+        className="mt-4 inline-block text-sm text-cyan-200 underline"
+      >
+        {appeals("tokenAccess")}
+      </Link>
     </AuthExperience>
   );
 }

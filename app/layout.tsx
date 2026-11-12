@@ -150,6 +150,7 @@ export default async function RootLayout({
       "productUpdates",
       "maintenanceCompensation",
       "accountSanctions",
+      "sanctionAppeals",
       "boosters",
       "packs",
       "collectionUi",

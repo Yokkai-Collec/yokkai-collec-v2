@@ -5,7 +5,7 @@ import vm from "node:vm";
 import { createRequire } from "node:module";
 import ts from "typescript";
 import React from "react";
-import { renderToStaticMarkup } from "react-dom/server";
+import { renderToReadableStream } from "react-dom/server";
 import { createTranslator } from "next-intl";
 
 const require = createRequire(import.meta.url);
@@ -15,41 +15,52 @@ export async function renderRecoveryFixture(locale = "en") {
     fs.readFileSync(`messages/${locale}.json`, "utf8")
   );
   const mod = { exports: {} };
-  vm.runInNewContext(
-    ts.transpileModule(fs.readFileSync(componentFile, "utf8"), {
-      compilerOptions: {
-        module: ts.ModuleKind.CommonJS,
-        jsx: ts.JsxEmit.ReactJSX,
-        esModuleInterop: true,
-        target: ts.ScriptTarget.ES2022
+  function load(file, target) {
+    vm.runInNewContext(
+      ts.transpileModule(fs.readFileSync(file, "utf8"), {
+        compilerOptions: {
+          module: ts.ModuleKind.CommonJS,
+          jsx: ts.JsxEmit.ReactJSX,
+          esModuleInterop: true,
+          target: ts.ScriptTarget.ES2022
+        }
+      }).outputText,
+      {
+        module: target,
+        exports: target.exports,
+        require(id) {
+          if (id === "next-intl/server")
+            return {
+              getLocale: async () => locale,
+              getTranslations: async namespace =>
+                createTranslator({ locale, messages, namespace })
+            };
+          if (id === "next/link")
+            return {
+              __esModule: true,
+              default: ({ children, ...props }) =>
+                React.createElement("a", props, children)
+            };
+          if (id === "./actions")
+            return {
+              applyDeletedSmurfRecoveryAction: () => {
+                throw Error("fixture must not submit a sanction");
+              }
+            };
+          if (id === "./sanction-quarantine-conflicts") {
+            const conflicts = { exports: {} };
+            load(
+              "app/admin/security/sanction-quarantine-conflicts.tsx",
+              conflicts
+            );
+            return conflicts.exports;
+          }
+          return require(id);
+        }
       }
-    }).outputText,
-    {
-      module: mod,
-      exports: mod.exports,
-      require(id) {
-        if (id === "next-intl/server")
-          return {
-            getLocale: async () => locale,
-            getTranslations: async namespace =>
-              createTranslator({ locale, messages, namespace })
-          };
-        if (id === "next/link")
-          return {
-            __esModule: true,
-            default: ({ children, ...props }) =>
-              React.createElement("a", props, children)
-          };
-        if (id === "./actions")
-          return {
-            applyDeletedSmurfRecoveryAction: () => {
-              throw Error("fixture must not submit a sanction");
-            }
-          };
-        return require(id);
-      }
-    }
-  );
+    );
+  }
+  load(componentFile, mod);
   const id = "ac510000-0000-4000-8000-000000000001";
   const recovery = {
     cards: 2,
@@ -60,7 +71,7 @@ export async function renderRecoveryFixture(locale = "en") {
     saleCount: 1,
     karas: 520
   };
-  return renderToStaticMarkup(
+  const stream = await renderToReadableStream(
     await mod.exports.DeletedSmurfRecovery({
       data: {
         primary: {
@@ -100,6 +111,7 @@ export async function renderRecoveryFixture(locale = "en") {
       applied: false
     })
   );
+  return new Response(stream).text();
 }
 
 test("historical recovery renders real English and French messages with explicit evidence and confirmation", async () => {

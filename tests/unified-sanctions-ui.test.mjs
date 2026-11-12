@@ -338,6 +338,11 @@ export async function renderSanctionPage(
               getTranslations: async namespace =>
                 createTranslator({ locale, messages: translations, namespace })
             };
+          if (module === "next-intl")
+            return {
+              useTranslations: namespace =>
+                createTranslator({ locale, messages: translations, namespace })
+            };
           if (module === "next/link")
             return {
               __esModule: true,
@@ -371,6 +376,14 @@ export async function renderSanctionPage(
             return load("app/admin/security/deleted-account-history.tsx");
           if (module === "./related-account-picker")
             return load("app/admin/security/related-account-picker.tsx");
+          if (module === "./sanction-appeals")
+            return load("app/admin/security/sanction-appeals.tsx");
+          if (module === "./appeal-token-form")
+            return load("app/admin/security/appeal-token-form.tsx");
+          if (module === "./farm-asset-preview")
+            return load("app/admin/security/farm-asset-preview.tsx");
+          if (module === "./sanction-quarantine-conflicts")
+            return load("app/admin/security/sanction-quarantine-conflicts.tsx");
           if (module === "@/components/topbar")
             return { Topbar: () => React.createElement("div", null, "Yokkai") };
           if (module === "@/components/account-menu")

@@ -2294,8 +2294,10 @@
     "accept": "Accept",
     "decline": "Decline",
     "waiting": "Waiting for {name} to respond.",
+    "quarantineNotice": "This trade is undergoing a security review. The cards and Karas involved are temporarily reserved.",
     "status": {
       "pending": "Pending",
+      "quarantined": "Trade under review",
       "accepted": "Accepted",
       "declined": "Declined",
       "cancelled": "Cancelled",
@@ -2733,6 +2735,8 @@
     "seenDays": "Last seen {count, plural, one {# day} other {# days}} ago",
     "seenDate": "Last seen {date}",
     "tradeStatuspending": "Pending",
+    "tradeStatusquarantined": "Trade under review",
+    "tradeQuarantineNotice": "This trade is undergoing a security review. The cards and Karas involved are temporarily reserved.",
     "tradeStatusaccepted": "Accepted",
     "tradeStatusdeclined": "Declined",
     "tradeStatuscountered": "Countered",
@@ -3348,7 +3352,68 @@
     "sectionpro": "Pro",
     "pageTitle": "Missions & achievements"
   },
+  "sanctionAppeals": {
+    "compensationProposed": "Exact restoration is unavailable. Compensation requires administrator review.",
+    "tokenAccess": "Access your sanction appeal",
+    "tokenHelp": "Enter the single-use code supplied by support. Leave the reason empty to check your appeal status.",
+    "token": "Access code",
+    "tokenReason": "Appeal reason (optional)",
+    "tokenContinue": "Continue",
+    "tokenInvalid": "This code is invalid, expired or already used.",
+    "farmBan": "Permanent ban",
+    "farmSuspension": "Temporary suspension",
+    "issueToken": "Issue an appeal access code",
+    "receiptId": "Sanction receipt ID",
+    "identityNote": "Record how you verified the player’s identity",
+    "restoreRestriction": "Lift this restriction",
+    "compensation": {
+      "CARD": "Restore the recovered card",
+      "SALE": "Refund {count} Karas",
+      "PACK": "Restore {count, plural, one {# pack} other {# packs}}"
+    },
+    "compensate": "Apply compensation",
+    "history": "Sanction history",
+    "inbox": "Sanction appeals",
+    "empty": "No appeals.",
+    "submit": "Submit an appeal",
+    "reason": "Why should this sanction be reviewed?",
+    "decisionReason": "Reason for the decision, visible to the player",
+    "uphold": "Uphold sanction",
+    "requestCorrection": "Mark for correction",
+    "voidWarning": "Void warning",
+    "warningVoided": "Warning voided",
+    "kind": { "ACCOUNT": "Account sanction", "SMURF": "Smurf sanction" },
+    "state": { "APPLIED": "Applied", "ROLLED_BACK": "Rolled back" },
+    "status": {
+      "PENDING": "Awaiting review",
+      "UPHELD": "Sanction upheld",
+      "CORRECTION_REQUIRED": "Correction required"
+    },
+    "result": {
+      "invalid": "Enter a reason of at least 10 characters.",
+      "failed": "The request could not be saved. Check its current status.",
+      "saved": "Saved."
+    }
+  },
   "accountSanctions": {
+    "farmWarning": {
+      "title": "Warning for referral farming",
+      "intro": "Recorded card requests established your involvement in confirmed referral farming.",
+      "rules": "Creating and using secondary accounts to collect and transfer referral rewards violates Yokkai’s rules.",
+      "future": "Three active warnings from separate cases can lead to a 48-hour suspension."
+    },
+    "farmBan": {
+      "title": "Permanent account ban",
+      "intro": "This account was linked to confirmed referral farming through recorded card transfers.",
+      "rules": "Creating and using secondary accounts to collect and transfer referral rewards violates Yokkai’s rules.",
+      "future": "Contact support to request a review of this decision."
+    },
+    "farmSuspension": {
+      "title": "Account suspended for 48 hours",
+      "intro": "Your account received three active warnings for involvement in confirmed referral farming.",
+      "rules": "Creating and using secondary accounts to collect and transfer referral rewards violates Yokkai’s rules.",
+      "future": "Contact support to request a review of this decision."
+    },
     "cardsRemoved": "Cards removed",
     "karaRemoved": "Kara removed",
     "acknowledge": "I understand",
@@ -3445,6 +3510,165 @@
     "karas": "{count} Karas",
     "observationNotice": "Observation mode is active: no score triggers an automatic ban or sanction. An administrator must inspect the evidence. The smurf sanction remains a separate, explicit and traceable action.",
     "prepareSanction": "Sanction",
+    "clusters": {
+      "assetPreview": "Review recovery",
+      "assetUnavailable": "This asset cannot currently be recovered.",
+      "protectedHolder": "This card is held by a protected third party.",
+      "assetReserved": "This card is reserved.",
+      "assetAmounts": "{credited} Karas credited · {recoverable} recoverable · {unrecoverable} unavailable",
+      "recoverAsset": "Confirm recovery",
+      "pendingReward": "{name} · {packs, plural, one {# pending referral pack} other {# pending referral packs}}",
+      "cancelReward": "Cancel unpaid referral reward",
+      "dryRun": "Simulate enforcement",
+      "enforcement": {
+        "SUSPECTED": "Suspected",
+        "CORROBORATED": "Corroborated",
+        "CONFIRMED": "Confirmed",
+        "NEEDS_REVIEW": "Needs review",
+        "REJECTED": "Rejected"
+      },
+      "title": "Account farm investigations",
+      "scenarios": {
+        "A": "Referral rewards and card transfers",
+        "B": "Free pack farming",
+        "C": "Coordinated referral consumption",
+        "D": "Transfers of Karas and auction cycles"
+      },
+      "workload": {
+        "clusters": "Network groups",
+        "investigated": "Investigated",
+        "confirmed": "Confirmed by admins",
+        "dismissed": "Dismissed suspicions",
+        "activeQuarantines": "Active holds",
+        "overdueQuarantines": "Overdue reviews",
+        "analysisFailures": "Analysis failures",
+        "manualSmurfSanctions": "Manual smurf sanctions",
+        "deadlocks": "Database deadlocks",
+        "pendingAppeals": "Pending appeals",
+        "correctionRequests": "Corrections requested",
+        "recoveredPacks": "Packs recovered",
+        "simulations": "Simulations",
+        "farmBans": "Farm bans",
+        "farmWarnings": "Farm warnings",
+        "farmSuspensions": "Farm suspensions",
+        "recoveredCards": "Cards recovered",
+        "recoveredKaras": "Karas recovered",
+        "partialRecoveries": "Partial recoveries",
+        "recoveryFailures": "Recovery failures",
+        "compensations": "Compensations",
+        "jobErrors": "Job errors",
+        "jobRetries": "Job retries",
+        "jobDurationMs": "Slowest recent farm evaluation (ms)",
+        "queueAgeSeconds": "Oldest queued alert (seconds)"
+      },
+      "recoveryTitle": "Review attributed assets",
+      "recoverUnusedLot": "Recover {packs} unused packs from {name}",
+      "recoveryAssets": "{packs, plural, one {# unused pack} other {# unused packs}} · {available} of {attributed} attributed cards held by involved accounts · {blocked} blocked · {protected, plural, one {# protected third-party card} other {# protected third-party cards}}",
+      "recoveryKaras": "{credited} Karas credited by recorded sales · up to {possible} currently available",
+      "recoverySale": "Sale {id} · {karas} Karas credited",
+      "previewPair": "Open the manual sanction preview for {name}",
+      "all": "All groups",
+      "empty": "No group to investigate.",
+      "review": "Examine group",
+      "traceSummary": "{indirect, plural, one {# card transferred through an intermediary} other {# cards transferred through intermediaries}} · {cycles, plural, one {# card cycle} other {# card cycles}} · {sales, plural, one {# auction sale} other {# auction sales}}",
+      "tracedCard": "Card instance {id}",
+      "confirm": "Confirm farm",
+      "dismiss": "Dismiss suspicion",
+      "reviewDecision": {
+        "CONFIRMED": "Farm confirmed by an administrator",
+        "DISMISSED": "Suspicion dismissed"
+      },
+      "reviewResult": {
+        "invalid": "Enter a valid decision and a reason of at least 10 characters.",
+        "failed": "The review could not be saved. Check the current evidence.",
+        "saved": "Review recorded."
+      },
+      "farmDecision": {
+        "INVESTIGATE": "Investigation required",
+        "ECONOMICALLY_CONFIRMED": "Economic rule matched"
+      },
+      "farmConfidence": {
+        "INSUFFICIENT": "Insufficient evidence",
+        "CORROBORATED": "Corroborated evidence"
+      },
+      "accounts": "{count, plural, one {# account} other {# accounts}}",
+      "activity": "{recent} created and {active} observed in the past 24 hours",
+      "economy": "{trades} internal trades · {referrals} referrals · {cards} cards · {karas} Karas",
+      "beneficiary": "Most one-way transfers received by {name}",
+      "priority": {
+        "INVESTIGATE": "Investigation",
+        "CRITICAL": "Critical suspicion",
+        "ENHANCED": "Enhanced review",
+        "PRIORITY": "Priority review"
+      },
+      "state": {
+        "PENDING": "Pending",
+        "REVIEWED_SIGNALS": "Economic signals collected"
+      }
+    },
+    "quarantines": {
+      "eyebrow": "Preventive controls",
+      "title": "Anti-cheat quarantines",
+      "help": "Review held trades and observations recorded in shadow mode.",
+      "awaitingReview": "{count, plural, =0 {No quarantine to review} one {# quarantine to review} other {# quarantines to review}}",
+      "filterLabel": "Quarantine status",
+      "all": "All quarantines",
+      "empty": "No quarantine matches this filter.",
+      "shadowNotice": "Shadow mode is active. Quarantine enforcement remains disabled until false-positive, latency and recovery safeguards have been validated.",
+      "review": "Review trade",
+      "reviewDue": "Review deadline {date}",
+      "sanctionConflict": "Resolve these quarantines, then generate a new sanction preview.",
+      "sanctionConflictCase": "{id} · {cards} cards · {karas} reserved Karas",
+      "analysis": {
+        "CRITICAL_UNRESOLVED": "Critical risk unresolved",
+        "SIGNALS_UNRESOLVED": "Suspicious activity still requires review",
+        "INSUFFICIENT_EVIDENCE": "Evidence is insufficient for automatic clearance",
+        "ANALYSIS_ERROR": "Analysis failed. Manual review required"
+      },
+      "reason": "Decision reason",
+      "release": "Authorize trade",
+      "cancel": "Cancel trade",
+      "result": {
+        "invalid": "Enter a valid decision and a reason.",
+        "failed": "The trade could not be updated. Review its current status.",
+        "saved": "Decision recorded."
+      },
+      "risk": "{count} risk points",
+      "columns": {
+        "detected": "Detected",
+        "transaction": "Transaction",
+        "accounts": "Accounts",
+        "evidence": "Evidence",
+        "status": "Status",
+        "expires": "Expires"
+      },
+      "types": {
+        "trade": "Trade",
+        "auction": "Auction",
+        "kara_transfer": "Kara transfer",
+        "referral": "Referral reward"
+      },
+      "statuses": {
+        "SHADOW": "Shadow observation",
+        "PENDING_ANALYSIS": "Awaiting analysis",
+        "AWAITING_REVIEW": "Awaiting review",
+        "RELEASED": "Released",
+        "CANCELLED": "Cancelled",
+        "EXPIRED": "Expired"
+      },
+      "confidence": {
+        "LOW": "Low confidence",
+        "CORROBORATED": "Corroborated",
+        "HIGH": "High confidence",
+        "DETERMINISTIC": "Deterministic"
+      },
+      "severity": {
+        "LOW": "Low economic impact",
+        "MEDIUM": "Medium economic impact",
+        "HIGH": "High economic impact",
+        "CRITICAL": "Critical economic impact"
+      }
+    },
     "deletedRecovery": {
       "open": "Gains from deleted smurfs",
       "title": "Historical recovery · {player}",

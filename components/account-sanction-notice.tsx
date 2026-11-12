@@ -12,7 +12,10 @@ type Receipt = {
     | "AFFILIATE_ABUSE_WARNING_WITH_PENALTY"
     | "AFFILIATE_ABUSE_WARNING"
     | "AFFILIATE_ABUSE_NETWORK_WARNING"
-    | "SMURF_ASSET_RECOVERY";
+    | "SMURF_ASSET_RECOVERY"
+    | "FARM_BAN"
+    | "FARM_WARNING"
+    | "FARM_SUSPENSION";
   cards_removed: number;
   kara_removed: number;
 };
@@ -109,13 +112,19 @@ export function AccountSanctionNotice() {
   const kind =
     receipt.sanction_type === "SMURF_ASSET_RECOVERY"
       ? "recovery"
-      : receipt.sanction_type === "AFFILIATE_ABUSE_SANCTION"
-        ? "sanction"
-        : receipt.sanction_type === "AFFILIATE_ABUSE_WARNING_WITH_PENALTY"
-          ? "penalty"
-          : receipt.sanction_type === "AFFILIATE_ABUSE_NETWORK_WARNING"
-            ? "networkWarning"
-            : "warning";
+      : receipt.sanction_type === "FARM_BAN"
+        ? "farmBan"
+        : receipt.sanction_type === "FARM_SUSPENSION"
+          ? "farmSuspension"
+          : receipt.sanction_type === "AFFILIATE_ABUSE_SANCTION"
+            ? "sanction"
+            : receipt.sanction_type === "AFFILIATE_ABUSE_WARNING_WITH_PENALTY"
+              ? "penalty"
+              : receipt.sanction_type === "AFFILIATE_ABUSE_NETWORK_WARNING"
+                ? "networkWarning"
+                : receipt.sanction_type === "FARM_WARNING"
+                  ? "farmWarning"
+                  : "warning";
   const acknowledge = async () => {
     if (saving) return;
     setSaving(true);
@@ -147,7 +156,13 @@ export function AccountSanctionNotice() {
     >
       <h2 id={title}>{t(`${kind}.title`)}</h2>
       <p>{t(`${kind}.intro`)}</p>
-      {kind !== "warning" && kind !== "networkWarning" && (
+      {![
+        "warning",
+        "networkWarning",
+        "farmBan",
+        "farmSuspension",
+        "farmWarning"
+      ].includes(kind) && (
         <>
           <p>{t(`${kind}.decision`)}</p>
           <dl>

@@ -30,7 +30,13 @@ export type TradeOffer = {
   offeredKaras: number;
   requestedCards: CollectedCard[];
   requestedKaras: number;
-  status: "pending" | "accepted" | "declined" | "countered" | "cancelled";
+  status:
+    | "pending"
+    | "accepted"
+    | "declined"
+    | "countered"
+    | "cancelled"
+    | "quarantined";
   parentOfferId: string | null;
   createdAt: string;
 };
@@ -41,8 +47,9 @@ export function filterTradeOffers(
 ) {
   return offers.filter(offer =>
     tab === "history"
-      ? offer.status !== "pending"
-      : offer.status === "pending" && offer.incoming === (tab === "received")
+      ? offer.status !== "pending" && offer.status !== "quarantined"
+      : (offer.status === "pending" || offer.status === "quarantined") &&
+        offer.incoming === (tab === "received")
   );
 }
 export async function loadTradeContextIfCurrent<T>(
@@ -64,7 +71,9 @@ export function hasNewAcceptedTrade(
 ) {
   const statuses = new Map(previous.map(offer => [offer.id, offer.status]));
   return next.some(
-    offer => offer.status === "accepted" && statuses.get(offer.id) === "pending"
+    offer =>
+      offer.status === "accepted" &&
+      ["pending", "quarantined"].includes(statuses.get(offer.id) ?? "")
   );
 }
 export function tradeSubmission(input: {
@@ -150,6 +159,8 @@ export function tradeStatusPresentation(status?: string): {
   switch (status) {
     case "pending":
       return { label: "Pending", tone: "gold" };
+    case "quarantined":
+      return { label: "Under review", tone: "info" };
     case "accepted":
       return { label: "Accepted", tone: "success" };
     case "declined":
@@ -306,6 +317,18 @@ export async function respondTradeOffer(
   });
   if (action === "accept" && accepted)
     invalidatePlayerSnapshots(["collection", "balance"]);
-  // SQL returns false for a successful decline; errors still throw above.
   return action === "decline" ? true : accepted;
+}
+
+export async function respondTradeOfferWithStatus(
+  id: string,
+  action: "accept" | "decline"
+): Promise<boolean | "quarantined"> {
+  const status = await call<string>("respond_trade_offer_with_status", {
+    p_offer_id: id,
+    p_action: action
+  });
+  if (status === "accepted") invalidatePlayerSnapshots(["collection", "balance"]);
+  if (status === "quarantined") return status;
+  return status === "accepted" || status === "declined";
 }

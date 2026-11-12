@@ -8,6 +8,29 @@ import { getSupabaseConfig } from "@/utils/supabase/config";
 import { hasRecentAuthentication } from "@/lib/auth/recent-auth";
 import { deleteAccount } from "@/lib/server/account-deletion";
 
+export async function submitSanctionAppealAction(form: FormData) {
+  const kind = String(form.get("kind") ?? "");
+  const receipt = String(form.get("receipt") ?? "");
+  const reason = String(form.get("reason") ?? "").trim();
+  const destination = "/settings?appeal=";
+  if (
+    !["ACCOUNT", "SMURF"].includes(kind) ||
+    !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(receipt) ||
+    reason.length < 10 ||
+    reason.length > 1000
+  ) {
+    redirect(`${destination}invalid#sanction-history`);
+  }
+  const client = createClient(await cookies());
+  const { error } = await client.rpc("submit_my_anticheat_appeal", {
+    p_kind: kind,
+    p_receipt: receipt,
+    p_reason: reason
+  });
+  revalidatePath("/settings");
+  redirect(`${destination}${error ? "failed" : "saved"}#sanction-history`);
+}
+
 type DeletionState = {
   error?: string;
   reconnect?: boolean;

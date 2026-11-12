@@ -166,6 +166,40 @@ test("manual sanctions unite both paths, recover locked assets and refund bidder
   assert.equal(initial.recovery.karas, 270);
   assert.equal(initial.cardLabels[direct].name, "BROLY");
   assert.equal(initial.cardLabels[direct].franchise, "Dragon Ball");
+  const heldCase = (
+    await db.query(
+      "insert into public.anticheat_quarantines(subject_type,subject_id,status,sender_user_id,recipient_user_id,evidence_confidence,economic_severity,expires_at) values('trade',$1,'AWAITING_REVIEW',$2,$3,'CORROBORATED','MEDIUM',now()+interval '1 hour') returning id",
+      [pending, primary, bidder]
+    )
+  ).rows[0].id;
+  await db.query(
+    "update public.trade_offers set status='quarantined' where id=$1",
+    [pending]
+  );
+  await db.query(
+    "insert into public.anticheat_trade_card_holds(card_id,quarantine_id) values($1,$2)",
+    [direct, heldCase]
+  );
+  await db.query(
+    "insert into public.anticheat_trade_kara_holds(quarantine_id,user_id,amount) values($1,$2,900)",
+    [heldCase, primary]
+  );
+  const blockedPreview = await preview(smurf);
+  assert.equal(blockedPreview.eligible, false);
+  assert.deepEqual(blockedPreview.recovery.quarantineConflicts, [
+    { id: heldCase, cards: 1, karas: 900 }
+  ]);
+  await assert.rejects(
+    apply(smurf, "active", primary, [], undefined, smurf, initial.previewToken),
+    /SANCTION_PREVIEW_CHANGED/
+  );
+  await assert.rejects(apply(smurf), /MANUAL_SANCTION_NOT_ELIGIBLE/);
+  await asUser(
+    admin,
+    "select public.admin_resolve_trade_quarantine($1,1,'cancel','Reviewed conflict')",
+    [heldCase]
+  );
+  assert.equal((await preview(smurf)).eligible, true);
   await assert.rejects(
     apply(smurf, "active", primary, [], undefined, smurf, "stale"),
     /SANCTION_PREVIEW_CHANGED/

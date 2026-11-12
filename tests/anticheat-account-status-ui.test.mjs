@@ -57,6 +57,8 @@ export async function renderStatusPreview(locale) {
             return load("app/admin/security/event-detail.tsx");
           if (name === "@/app/admin/security/deleted-account-history")
             return load("app/admin/security/deleted-account-history.tsx");
+          if (name === "./sanction-quarantine-conflicts")
+            return load("app/admin/security/sanction-quarantine-conflicts.tsx");
           return require(name);
         }
       }

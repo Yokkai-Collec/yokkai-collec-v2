@@ -12,6 +12,7 @@ import { AccountDeletionForm } from "@/components/account-deletion-form";
 import { SubscriptionSettings } from "@/components/subscription-settings";
 import { ReferralPanel } from "@/components/referral-panel";
 import { SiteFooter } from "@/components/site-footer";
+import { SanctionHistory } from "./sanction-history";
 import { getBillingSettings } from "@/lib/billing/settings";
 import { getDiscordInviteUrl } from "@/lib/discord-invite";
 import { getReferralStatus } from "@/lib/referrals/server";
@@ -26,7 +27,11 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("settings") };
 }
 
-export default async function SettingsPage() {
+export default async function SettingsPage({
+  searchParams
+}: {
+  searchParams: Promise<{ appeal?: string }>;
+}) {
   const t = await getTranslations();
   const user = await getCurrentUser();
   if (!user) redirect("/login");
@@ -70,6 +75,7 @@ export default async function SettingsPage() {
           <SettingsPanel />
           <PushSettings userId={user.id} />
           <DataExportForm />
+          <SanctionHistory result={(await searchParams).appeal} />
           {name && (
             <div className="mt-6">
               <AccountDeletionForm pseudo={name} />

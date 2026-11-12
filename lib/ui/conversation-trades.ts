@@ -3,7 +3,10 @@ import type { PrivateMessage } from "@/lib/data/private-messages";
 
 export type ConversationTradeAdapter = {
   listOffers: () => Promise<TradeOffer[]>;
-  respond: (id: string, action: "accept" | "decline") => Promise<boolean>;
+  respond: (
+    id: string,
+    action: "accept" | "decline"
+  ) => Promise<boolean | "quarantined">;
 };
 export type ConversationTradeState = {
   offers: TradeOffer[];
@@ -119,7 +122,8 @@ export function createConversationTradeFeed({
                 offer.status === "accepted" &&
                 state.offers.some(
                   previous =>
-                    previous.id === offer.id && previous.status === "pending"
+                    previous.id === offer.id &&
+                    ["pending", "quarantined"].includes(previous.status)
                 )
             )
           )
@@ -164,7 +168,8 @@ export function createConversationTradeFeed({
       publish({ busyId: id, actionError: "" });
       let succeeded = false;
       try {
-        succeeded = await adapter.respond(id, action);
+        const result = await adapter.respond(id, action);
+        succeeded = Boolean(result);
         if (!active) return succeeded;
         if (!succeeded)
           throw Error(
@@ -176,12 +181,17 @@ export function createConversationTradeFeed({
             item.id === id
               ? {
                   ...item,
-                  status: action === "accept" ? "accepted" : "declined"
+                  status:
+                    result === "quarantined"
+                      ? "quarantined"
+                      : action === "accept"
+                        ? "accepted"
+                        : "declined"
                 }
               : item
           )
         });
-        if (action === "accept") onAccepted();
+        if (action === "accept" && result === true) onAccepted();
       } catch (reason) {
         publish({
           actionError:

@@ -2294,8 +2294,10 @@
     "accept": "Accepter",
     "decline": "Refuser",
     "waiting": "En attente de la réponse de {name}.",
+    "quarantineNotice": "Cet échange fait l’objet d’une vérification de sécurité. Les cartes et Karas concernés sont temporairement réservés.",
     "status": {
       "pending": "En attente",
+      "quarantined": "Transaction en cours de vérification",
       "accepted": "Acceptée",
       "declined": "Refusée",
       "cancelled": "Annulée",
@@ -2733,6 +2735,8 @@
     "seenDays": "Vu il y a {count, plural, one {# jour} other {# jours}}",
     "seenDate": "Vu le {date}",
     "tradeStatuspending": "En attente",
+    "tradeStatusquarantined": "Transaction en cours de vérification",
+    "tradeQuarantineNotice": "Cet échange fait l’objet d’une vérification de sécurité. Les cartes et Karas concernés sont temporairement réservés.",
     "tradeStatusaccepted": "Acceptée",
     "tradeStatusdeclined": "Refusée",
     "tradeStatuscountered": "Contre-offre reçue",
@@ -3348,7 +3352,71 @@
     "sectionpro": "Pro",
     "pageTitle": "Missions et succès"
   },
+  "sanctionAppeals": {
+    "compensationProposed": "La restitution exacte est indisponible. Une proposition de compensation attend une revue administrative.",
+    "tokenAccess": "Accéder à ton recours",
+    "tokenHelp": "Saisis le code à usage unique fourni par l’assistance. Laisse le motif vide pour consulter le statut du recours.",
+    "token": "Code d’accès",
+    "tokenReason": "Motif du recours (facultatif)",
+    "tokenContinue": "Continuer",
+    "tokenInvalid": "Ce code est invalide, expiré ou déjà utilisé.",
+    "farmBan": "Bannissement définitif",
+    "farmSuspension": "Suspension temporaire",
+    "issueToken": "Générer un code d’accès au recours",
+    "receiptId": "Identifiant du reçu de sanction",
+    "identityNote": "Indique comment tu as vérifié l’identité du joueur",
+    "restoreRestriction": "Lever cette restriction",
+    "compensation": {
+      "CARD": "Restituer la carte récupérée",
+      "SALE": "Rembourser {count} Karas",
+      "PACK": "Restituer {count, plural, one {# pack} other {# packs}}"
+    },
+    "compensate": "Appliquer la compensation",
+    "history": "Historique des sanctions",
+    "inbox": "Recours contre les sanctions",
+    "empty": "Aucun recours.",
+    "submit": "Déposer un recours",
+    "reason": "Pourquoi cette sanction doit-elle être réexaminée ?",
+    "decisionReason": "Motif de la décision, visible par le joueur",
+    "uphold": "Maintenir la sanction",
+    "requestCorrection": "Demander une correction",
+    "voidWarning": "Annuler l’avertissement",
+    "warningVoided": "Avertissement annulé",
+    "kind": {
+      "ACCOUNT": "Sanction de compte",
+      "SMURF": "Sanction de compte secondaire"
+    },
+    "state": { "APPLIED": "Appliquée", "ROLLED_BACK": "Annulée" },
+    "status": {
+      "PENDING": "En attente de revue",
+      "UPHELD": "Sanction maintenue",
+      "CORRECTION_REQUIRED": "Correction nécessaire"
+    },
+    "result": {
+      "invalid": "Indique un motif d’au moins 10 caractères.",
+      "failed": "Impossible d’enregistrer la demande. Vérifie son état actuel.",
+      "saved": "Enregistré."
+    }
+  },
   "accountSanctions": {
+    "farmWarning": {
+      "title": "Avertissement pour abus du parrainage",
+      "intro": "Des demandes de transfert de cartes ont établi ton implication dans un abus confirmé du parrainage.",
+      "rules": "Créer et utiliser des comptes secondaires pour obtenir et transférer des récompenses de parrainage enfreint les règles de Yokkai.",
+      "future": "Trois avertissements actifs provenant de dossiers distincts peuvent entraîner une suspension de 48 heures."
+    },
+    "farmBan": {
+      "title": "Compte banni définitivement",
+      "intro": "Des transferts de cartes enregistrés ont confirmé que ce compte a participé à un abus du parrainage.",
+      "rules": "Créer et utiliser des comptes secondaires pour obtenir et transférer des récompenses de parrainage enfreint les règles de Yokkai.",
+      "future": "Contacte l’assistance pour demander un réexamen de cette décision."
+    },
+    "farmSuspension": {
+      "title": "Compte suspendu pour 48 heures",
+      "intro": "Ton compte a reçu trois avertissements actifs pour participation à des abus confirmés du parrainage.",
+      "rules": "Créer et utiliser des comptes secondaires pour obtenir et transférer des récompenses de parrainage enfreint les règles de Yokkai.",
+      "future": "Contacte l’assistance pour demander un réexamen de cette décision."
+    },
     "cardsRemoved": "Cartes retirées",
     "karaRemoved": "Kara retirés",
     "acknowledge": "J’ai compris",
@@ -3445,6 +3513,165 @@
     "karas": "{count} Karas",
     "observationNotice": "Le mode observation est actif : aucun score ne provoque automatiquement un bannissement ou une sanction. Un administrateur doit examiner les éléments. La sanction smurf reste une action séparée, explicite et traçable.",
     "prepareSanction": "Sanctionner",
+    "clusters": {
+      "assetPreview": "Vérifier la récupération",
+      "assetUnavailable": "Cet actif ne peut pas être récupéré pour le moment.",
+      "protectedHolder": "Cette carte appartient à un tiers protégé.",
+      "assetReserved": "Cette carte est réservée.",
+      "assetAmounts": "{credited} Karas crédités · {recoverable} récupérables · {unrecoverable} indisponibles",
+      "recoverAsset": "Confirmer la récupération",
+      "pendingReward": "{name} · {packs, plural, one {# pack de parrainage en attente} other {# packs de parrainage en attente}}",
+      "cancelReward": "Annuler la récompense de parrainage en attente",
+      "dryRun": "Simuler les sanctions",
+      "enforcement": {
+        "SUSPECTED": "Suspectée",
+        "CORROBORATED": "Corroborée",
+        "CONFIRMED": "Confirmée",
+        "NEEDS_REVIEW": "À examiner",
+        "REJECTED": "Écartée"
+      },
+      "title": "Fermes de comptes",
+      "scenarios": {
+        "A": "Parrainages et transferts de cartes",
+        "B": "Invocations gratuites",
+        "C": "Consommation coordonnée de parrainages",
+        "D": "Transferts de Karas et cycles d’enchères"
+      },
+      "workload": {
+        "clusters": "Groupes réseau",
+        "investigated": "Groupes examinés",
+        "confirmed": "Confirmés par un admin",
+        "dismissed": "Soupçons rejetés",
+        "activeQuarantines": "Quarantaines actives",
+        "overdueQuarantines": "Revues en retard",
+        "analysisFailures": "Échecs d’analyse",
+        "manualSmurfSanctions": "Sanctions smurf manuelles",
+        "deadlocks": "Interblocages SQL",
+        "pendingAppeals": "Recours en attente",
+        "correctionRequests": "Corrections demandées",
+        "recoveredPacks": "Packs récupérés",
+        "simulations": "Simulations",
+        "farmBans": "Bannissements liés aux fermes",
+        "farmWarnings": "Avertissements liés aux fermes",
+        "farmSuspensions": "Suspensions liées aux fermes",
+        "recoveredCards": "Cartes récupérées",
+        "recoveredKaras": "Karas récupérés",
+        "partialRecoveries": "Récupérations partielles",
+        "recoveryFailures": "Échecs de récupération",
+        "compensations": "Compensations",
+        "jobErrors": "Erreurs des tâches",
+        "jobRetries": "Nouvelles tentatives",
+        "jobDurationMs": "Évaluation récente la plus longue (ms)",
+        "queueAgeSeconds": "Plus ancienne alerte en attente (secondes)"
+      },
+      "recoveryTitle": "Examiner les actifs traçables",
+      "recoverUnusedLot": "Récupérer {packs} packs non consommés chez {name}",
+      "recoveryAssets": "{packs, plural, one {# pack non consommé} other {# packs non consommés}} · {available} cartes sur {attributed} détenues par les comptes concernés · {blocked} bloquées · {protected, plural, one {# carte de tiers protégée} other {# cartes de tiers protégées}}",
+      "recoveryKaras": "{credited} Karas crédités par les ventes enregistrées · jusqu’à {possible} disponibles actuellement",
+      "recoverySale": "Vente {id} · {karas} Karas crédités",
+      "previewPair": "Ouvrir la prévisualisation de sanction manuelle pour {name}",
+      "all": "Tous les groupes",
+      "empty": "Aucun groupe à examiner.",
+      "review": "Examiner le groupe",
+      "traceSummary": "{indirect, plural, one {# carte transférée via un intermédiaire} other {# cartes transférées via un intermédiaire}} · {cycles, plural, one {# cycle de carte} other {# cycles de cartes}} · {sales, plural, one {# vente aux enchères} other {# ventes aux enchères}}",
+      "tracedCard": "Exemplaire {id}",
+      "confirm": "Confirmer la ferme",
+      "dismiss": "Rejeter le soupçon",
+      "reviewDecision": {
+        "CONFIRMED": "Ferme confirmée par un administrateur",
+        "DISMISSED": "Soupçon rejeté"
+      },
+      "reviewResult": {
+        "invalid": "Indique une décision valide et un motif d’au moins 10 caractères.",
+        "failed": "Impossible d’enregistrer la revue. Vérifie les éléments actuels.",
+        "saved": "Revue enregistrée."
+      },
+      "farmDecision": {
+        "INVESTIGATE": "Investigation nécessaire",
+        "ECONOMICALLY_CONFIRMED": "Critères économiques remplis"
+      },
+      "farmConfidence": {
+        "INSUFFICIENT": "Preuves insuffisantes",
+        "CORROBORATED": "Preuves corroborées"
+      },
+      "accounts": "{count, plural, one {# compte} other {# comptes}}",
+      "activity": "{recent} créés et {active} observés dans les dernières 24 h",
+      "economy": "{trades} échanges internes · {referrals} parrainages · {cards} cartes · {karas} Karas",
+      "beneficiary": "Le plus de transferts à sens unique reçus par {name}",
+      "priority": {
+        "INVESTIGATE": "Investigation",
+        "CRITICAL": "Suspicion critique",
+        "ENHANCED": "Analyse renforcée",
+        "PRIORITY": "Revue prioritaire"
+      },
+      "state": {
+        "PENDING": "En attente",
+        "REVIEWED_SIGNALS": "Signaux économiques collectés"
+      }
+    },
+    "quarantines": {
+      "eyebrow": "Contrôles préventifs",
+      "title": "Quarantaines anti-triche",
+      "help": "Consulte les échanges retenus et les signalements du mode observation.",
+      "awaitingReview": "{count, plural, =0 {Aucune quarantaine à traiter} one {# quarantaine à traiter} other {# quarantaines à traiter}}",
+      "filterLabel": "Statut de la quarantaine",
+      "all": "Toutes les quarantaines",
+      "empty": "Aucune quarantaine ne correspond à ce filtre.",
+      "shadowNotice": "Le mode observation est actif. L’application des quarantaines reste désactivée tant que les faux positifs, latences et garde-fous de récupération n’ont pas été validés.",
+      "review": "Examiner l’échange",
+      "reviewDue": "Échéance de revue le {date}",
+      "sanctionConflict": "Résous ces quarantaines, puis génère une nouvelle prévisualisation de la sanction.",
+      "sanctionConflictCase": "{id} · {cards} cartes · {karas} Karas réservés",
+      "analysis": {
+        "CRITICAL_UNRESOLVED": "Risque critique non résolu",
+        "SIGNALS_UNRESOLVED": "Les signaux suspects nécessitent toujours une revue",
+        "INSUFFICIENT_EVIDENCE": "Éléments insuffisants pour autoriser automatiquement l’échange",
+        "ANALYSIS_ERROR": "L’analyse a échoué. Revue manuelle nécessaire"
+      },
+      "reason": "Motif de la décision",
+      "release": "Autoriser l’échange",
+      "cancel": "Annuler l’échange",
+      "result": {
+        "invalid": "Indique une décision valide et son motif.",
+        "failed": "Impossible de mettre à jour l’échange. Vérifie son état actuel.",
+        "saved": "Décision enregistrée."
+      },
+      "risk": "{count} points de risque",
+      "columns": {
+        "detected": "Détection",
+        "transaction": "Transaction",
+        "accounts": "Comptes",
+        "evidence": "Éléments",
+        "status": "Statut",
+        "expires": "Expiration"
+      },
+      "types": {
+        "trade": "Échange",
+        "auction": "Enchère",
+        "kara_transfer": "Transfert de Kara",
+        "referral": "Récompense de parrainage"
+      },
+      "statuses": {
+        "SHADOW": "Observation silencieuse",
+        "PENDING_ANALYSIS": "Analyse en attente",
+        "AWAITING_REVIEW": "Décision requise",
+        "RELEASED": "Autorisée",
+        "CANCELLED": "Annulée",
+        "EXPIRED": "Expirée"
+      },
+      "confidence": {
+        "LOW": "Confiance faible",
+        "CORROBORATED": "Éléments recoupés",
+        "HIGH": "Confiance élevée",
+        "DETERMINISTIC": "Preuve déterministe"
+      },
+      "severity": {
+        "LOW": "Impact économique faible",
+        "MEDIUM": "Impact économique moyen",
+        "HIGH": "Impact économique élevé",
+        "CRITICAL": "Impact économique critique"
+      }
+    },
     "deletedRecovery": {
       "open": "Gains de smurfs supprimés",
       "title": "Récupération historique · {player}",

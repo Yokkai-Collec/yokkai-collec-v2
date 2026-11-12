@@ -39,7 +39,7 @@ import {
   listTradeOffers,
   listTradeOffersPage,
   loadTradeContextIfCurrent,
-  respondTradeOffer,
+  respondTradeOfferWithStatus,
   resolveTradeReview,
   runTradeCancellation,
   tradeStatusPresentation,
@@ -575,9 +575,11 @@ function TradeReview({
                   ? tPr4("socialUi.aCounterofferReplacedThisOffer")
                   : offer.status === "cancelled"
                     ? tPr4("socialUi.thisOfferWasCanceled")
-                    : offer.status === "pending"
-                      ? tPr4("socialUi.reviewBothSidesBeforeResponding")
-                      : tPr4("socialUi.thisOfferIsNoLongerAvailable")}
+                    : offer.status === "quarantined"
+                      ? tPr4("socialUi.tradeQuarantineNotice")
+                      : offer.status === "pending"
+                        ? tPr4("socialUi.reviewBothSidesBeforeResponding")
+                        : tPr4("socialUi.thisOfferIsNoLongerAvailable")}
           </p>
           <div className="yk-trade-review-lots">
             <article className="is-offered">
@@ -655,7 +657,7 @@ export type TradesPanelAdapter = {
   context: typeof getTradeContext;
   create: typeof createTradeOffer;
   cancel: typeof cancelTradeOffer;
-  respond: typeof respondTradeOffer;
+  respond: typeof respondTradeOfferWithStatus;
 };
 const defaultAdapter: TradesPanelAdapter = {
   friendships: getFriendships,
@@ -663,7 +665,7 @@ const defaultAdapter: TradesPanelAdapter = {
   context: getTradeContext,
   create: createTradeOffer,
   cancel: cancelTradeOffer,
-  respond: respondTradeOffer
+  respond: respondTradeOfferWithStatus
 };
 // #388: offers are not a live chat; actions and accepted-trade invalidations
 // cover the rest.
@@ -1263,7 +1265,14 @@ export function TradesPanel({
       const accepted = await adapter.respond(id, action);
       if (action === "accept" && !accepted)
         throw new Error("This offer is no longer available.");
-      commitOfferStatus(id, action === "accept" ? "accepted" : "declined");
+      commitOfferStatus(
+        id,
+        accepted === "quarantined"
+          ? "quarantined"
+          : action === "accept"
+            ? "accepted"
+            : "declined"
+      );
       setAccepting(undefined);
       try {
         await reload();
