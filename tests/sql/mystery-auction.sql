@@ -59,7 +59,7 @@ begin
   assert (select status='expired' and card_instance_id is null and card_snapshot->>'id' is not null from public.auctions where id=empty_auction), 'no-bid revelation failed';
   assert (select count(*)=copies+1 from public.user_cards), 'unsold card awarded';
   assert exists(select 1 from cron.job where jobname='weekly-mystery-auction'
-    and schedule=case when current_setting('cron.timezone',true)='Europe/Paris' then '0 20 * * 3' else '0 * * * *' end
+    and schedule=case when (select setting from pg_settings where name='cron.timezone')='Europe/Paris' then '0 20 * * 3' else '0 * * * *' end
     and command='select public.create_weekly_mystery_auction();' and active), 'weekly job missing';
 
   -- Exercise the REAL creator with a fixed server clock, rolled back below.

@@ -1,7 +1,8 @@
 "use client";
 import {
   MysteryAuctionBanner,
-  MysteryCardBack
+  MysteryCardBack,
+  MysteryAuctionTile
 } from "@/components/mystery-auction";
 import { EmojiReactionPicker } from "@/components/emoji-reaction-picker";
 import { reactionEmoji } from "@/lib/ui/reaction-emojis";
@@ -556,6 +557,7 @@ function AuctionTile({ auction: a }: { auction: AuctionPresentation }) {
                 remaining: a.remaining
               })
   });
+  if (a.mysteryHidden) return <MysteryAuctionTile auction={a} label={label} />;
   return (
     <li
       className={
@@ -568,11 +570,7 @@ function AuctionTile({ auction: a }: { auction: AuctionPresentation }) {
           className="yk-market-tile-link"
           aria-label={label}
         >
-          {a.mysteryHidden ? (
-            <MysteryCardBack />
-          ) : (
-            <YokaiCard {...a.card} imageSizes="100vw" />
-          )}
+          <YokaiCard {...a.card} imageSizes="100vw" />
         </Link>
       </CardShell>
       <Link

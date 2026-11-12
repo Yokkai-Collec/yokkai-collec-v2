@@ -9,6 +9,7 @@ import {
 } from "@/lib/data/market";
 import { YokaiCard } from "@/components/yokai-card";
 import { Karas } from "@/components/ui";
+import { CardShell } from "@/components/card-shell";
 import "@/styles/mystery-auction.css";
 
 export function MysteryCardBack() {
@@ -17,6 +18,36 @@ export function MysteryCardBack() {
     <div role="img" aria-label={t("cardBack")} className="yk-mystery-back">
       <span aria-hidden="true">?</span>
     </div>
+  );
+}
+
+export function MysteryAuctionTile({
+  auction,
+  label
+}: {
+  auction: { id: string; amount: number; remaining: string };
+  label: string;
+}) {
+  const t = useTranslations("mysteryAuction");
+  return (
+    <li className="yk-market-tile">
+      <CardShell>
+        <Link
+          href={`/market/${auction.id}`}
+          className="yk-market-tile-link"
+          aria-label={label}
+        >
+          <MysteryCardBack />
+        </Link>
+      </CardShell>
+      <div className="yk-market-tile-meta">
+        <span className="yk-market-seller">{t("title")}</span>
+        <div className="yk-market-tile-line">
+          <span className="yk-market-timer">{auction.remaining}</span>
+          <Karas amount={auction.amount} className="yk-market-price" />
+        </div>
+      </div>
+    </li>
   );
 }
 

@@ -41,8 +41,10 @@ revoke all on function public.create_weekly_mystery_auction() from public,anon,a
 -- https://github.com/citusdata/pg_cron#setting-up-pg_cron
 -- Use a weekly job only when it is ALREADY Europe/Paris; otherwise hourly,
 -- with a server-side Paris clock check and a unique Wednesday key.
+-- pg_settings also handles an unreadable privileged setting without requiring
+-- pg_read_all_settings (current_setting would raise even with missing_ok).
 select cron.schedule('weekly-mystery-auction',
-  case when current_setting('cron.timezone',true)='Europe/Paris' then '0 20 * * 3' else '0 * * * *' end,
+  case when (select setting from pg_settings where name='cron.timezone')='Europe/Paris' then '0 20 * * 3' else '0 * * * *' end,
   'select public.create_weekly_mystery_auction();');
 
 create or replace function public.notify_auction_sold() returns trigger

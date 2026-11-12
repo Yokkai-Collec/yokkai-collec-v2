@@ -438,8 +438,19 @@ test("drift detects changed, missing and extra cron jobs", async t => {
       "purge-friend-request-events@postgres",
       "refresh-catalogue-links-cache@postgres",
       "release-quiet-referral-reward-holds@postgres",
-      "settle-expired-auctions@postgres"
+      "settle-expired-auctions@postgres",
+      "weekly-mystery-auction@postgres"
     ]
+  );
+  assert.deepEqual(
+    jobs.find(job => job.name === "weekly-mystery-auction@postgres").value,
+    {
+      schedule: "0 * * * *",
+      command: "select public.create_weekly_mystery_auction();",
+      username: "postgres",
+      database: "postgres",
+      active: true
+    }
   );
   assert.deepEqual(existingJobs[0].value, {
     schedule: "* * * * *",
