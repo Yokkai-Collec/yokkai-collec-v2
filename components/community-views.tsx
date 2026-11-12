@@ -1821,11 +1821,6 @@ export function AuctionView({
               })}
             </p>
           )}
-          {auction.isMystery && auction.mysteryHidden && auction.finished && (
-            <p role="status" className="yk-auction-hint">
-              {t("mysteryAuction.revealing")}
-            </p>
-          )}
           {auction.extended && !auction.finished && (
             <p role="status" className="yk-auction-extension">
               <HourglassIcon />
@@ -1841,7 +1836,13 @@ export function AuctionView({
               </p>
             )}
           {auction.finished ? (
-            <AuctionOutcome auction={auction} />
+            auction.mysteryHidden ? (
+              <p role="status" className="yk-auction-hint">
+                {t("mysteryAuction.revealing")}
+              </p>
+            ) : (
+              <AuctionOutcome auction={auction} />
+            )
           ) : auction.nextBid == null ? (
             <>
               <p className="yk-auction-hint">
