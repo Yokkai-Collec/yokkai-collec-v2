@@ -10,9 +10,12 @@ import { getCurrentKarasBalance, getCurrentPseudo } from "@/lib/auth/session";
 import { createClient } from "@/utils/supabase/server";
 import { AdminNavigation } from "../admin-navigation";
 import { SanctionAppeals } from "./sanction-appeals";
+import { FarmAssetPreview } from "./farm-asset-preview";
 import {
   applySmurfSanctionAction,
+  cancelPendingReferralRewardAction,
   recoverUnusedReferralLotAction,
+  simulateFarmAction,
   resolveTradeQuarantineAction,
   reviewAnticheatFarmAction,
   reviewAnticheatCaseAction
@@ -371,6 +374,8 @@ export default async function AdminSecurityPage({
     cluster?: string;
     farm_result?: string;
     appeal_result?: string;
+    asset?: string;
+    asset_kind?: string;
   }>;
 }) {
   const admin = await requireAdminPage();
@@ -378,6 +383,15 @@ export default async function AdminSecurityPage({
   const t = await getTranslations("adminSecurity");
   const locale = await getLocale();
   const params = await searchParams;
+  const assetId = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(
+    params.asset ?? ""
+  )
+    ? params.asset!
+    : null;
+  const assetKind =
+    params.asset_kind === "CARD" || params.asset_kind === "SALE"
+      ? params.asset_kind
+      : null;
   const clusterId = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(
     params.cluster ?? ""
   )
@@ -551,7 +565,9 @@ export default async function AdminSecurityPage({
     possibleKaras: number;
     recoveryEnabled?: boolean;
     referredLots?: { id: string; owner: string; packs: number }[];
+    pendingRewards?: { id: string; recipient: string; packs: number }[];
     sales: { id: string; sale_karas: number }[];
+    cards?: { card_instance_id: string; state: string }[];
   } | null;
   const clusters = (clustersResult.data ?? []) as {
     id: string;
@@ -570,6 +586,11 @@ export default async function AdminSecurityPage({
     farmRisk: number | null;
     farmVersion: string | null;
     farmReview: "CONFIRMED" | "DISMISSED" | null;
+    enforcement?: {
+      decision: string;
+      principalInvolved?: boolean;
+      secondaries?: string[];
+    };
     farmEvidence: {
       indirectCards?: number;
       cycleCards?: number;
@@ -1012,6 +1033,13 @@ export default async function AdminSecurityPage({
             <h2 className="text-xl font-bold text-slate-100">
               {t("clusters.title")}
             </h2>
+            {clusterId && assetId && assetKind && (
+              <FarmAssetPreview
+                cluster={clusterId}
+                asset={assetId}
+                kind={assetKind}
+              />
+            )}
             <dl className="my-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-3 lg:grid-cols-5">
               {(
                 [
@@ -1026,7 +1054,20 @@ export default async function AdminSecurityPage({
                   "deadlocks",
                   "pendingAppeals",
                   "correctionRequests",
-                  "recoveredPacks"
+                  "recoveredPacks",
+                  "simulations",
+                  "farmBans",
+                  "farmWarnings",
+                  "farmSuspensions",
+                  "recoveredCards",
+                  "recoveredKaras",
+                  "partialRecoveries",
+                  "recoveryFailures",
+                  "compensations",
+                  "jobErrors",
+                  "jobRetries",
+                  "jobDurationMs",
+                  "queueAgeSeconds"
                 ] as const
               ).map(key => (
                 <div
@@ -1103,6 +1144,30 @@ export default async function AdminSecurityPage({
                       <p className="mt-2 text-sm text-cyan-100">
                         {t(`clusters.reviewDecision.${cluster.farmReview}`)}
                       </p>
+                    )}
+                    {clusterId && (
+                      <form action={simulateFarmAction} className="mt-3">
+                        <input
+                          type="hidden"
+                          name="cluster"
+                          value={cluster.id}
+                        />
+                        <button className="yk-button min-h-11">
+                          {t("clusters.dryRun")}
+                        </button>
+                        {cluster.enforcement && (
+                          <p className="mt-2 text-sm">
+                            {t(
+                              `clusters.enforcement.${cluster.enforcement.decision}`
+                            )}{" "}
+                            ·{" "}
+                            {t("clusters.accounts", {
+                              count:
+                                cluster.enforcement.secondaries?.length ?? 0
+                            })}
+                          </p>
+                        )}
+                      </form>
                     )}
                     {cluster.farmEvidence && (
                       <div className="mt-2 rounded border border-slate-800 p-2 text-sm text-slate-300">
@@ -1228,14 +1293,79 @@ export default async function AdminSecurityPage({
                               </button>
                             </form>
                           ))}
+                        {(farmRecovery.cards ?? [])
+                          .filter(
+                            card => card.state === "HELD_BY_INVOLVED_ACCOUNT"
+                          )
+                          .map(card => (
+                            <Link
+                              key={card.card_instance_id}
+                              className="mt-1 block break-all text-cyan-200 underline"
+                              href={`/admin/security?cluster=${cluster.id}&asset_kind=CARD&asset=${card.card_instance_id}#farm-asset-preview`}
+                            >
+                              {t("clusters.tracedCard", {
+                                id: card.card_instance_id
+                              })}
+                            </Link>
+                          ))}
+                        {farmRecovery.recoveryEnabled &&
+                          (farmRecovery.pendingRewards ?? []).map(reward => (
+                            <form
+                              key={reward.id}
+                              action={cancelPendingReferralRewardAction}
+                              className="mt-3 grid gap-2"
+                            >
+                              <input
+                                type="hidden"
+                                name="cluster"
+                                value={cluster.id}
+                              />
+                              <input
+                                type="hidden"
+                                name="version"
+                                value={cluster.farmVersion ?? ""}
+                              />
+                              <input
+                                type="hidden"
+                                name="referral"
+                                value={reward.id}
+                              />
+                              <p className="break-words text-sm">
+                                {t("clusters.pendingReward", {
+                                  packs: reward.packs,
+                                  name:
+                                    cluster.members.find(
+                                      member => member.id === reward.recipient
+                                    )?.pseudo ?? reward.recipient
+                                })}
+                              </p>
+                              <textarea
+                                name="reason"
+                                minLength={10}
+                                maxLength={500}
+                                required
+                                className="yk-field-control w-full"
+                                aria-label={t("quarantines.reason")}
+                                placeholder={t("quarantines.reason")}
+                              />
+                              <button className="yk-button min-h-11">
+                                {t("clusters.cancelReward")}
+                              </button>
+                            </form>
+                          ))}
                         {farmRecovery.sales.length > 0 && (
                           <ul className="mt-2 space-y-1">
                             {farmRecovery.sales.map(sale => (
                               <li key={sale.id} className="break-all">
-                                {t("clusters.recoverySale", {
-                                  id: sale.id,
-                                  karas: sale.sale_karas
-                                })}
+                                <Link
+                                  className="text-cyan-200 underline"
+                                  href={`/admin/security?cluster=${cluster.id}&asset_kind=SALE&asset=${sale.id}#farm-asset-preview`}
+                                >
+                                  {t("clusters.recoverySale", {
+                                    id: sale.id,
+                                    karas: sale.sale_karas
+                                  })}
+                                </Link>
                               </li>
                             ))}
                           </ul>

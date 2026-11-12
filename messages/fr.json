@@ -3353,6 +3353,25 @@
     "pageTitle": "Missions et succès"
   },
   "sanctionAppeals": {
+    "compensationProposed": "La restitution exacte est indisponible. Une proposition de compensation attend une revue administrative.",
+    "tokenAccess": "Accéder à ton recours",
+    "tokenHelp": "Saisis le code à usage unique fourni par l’assistance. Laisse le motif vide pour consulter le statut du recours.",
+    "token": "Code d’accès",
+    "tokenReason": "Motif du recours (facultatif)",
+    "tokenContinue": "Continuer",
+    "tokenInvalid": "Ce code est invalide, expiré ou déjà utilisé.",
+    "farmBan": "Bannissement définitif",
+    "farmSuspension": "Suspension temporaire",
+    "issueToken": "Générer un code d’accès au recours",
+    "receiptId": "Identifiant du reçu de sanction",
+    "identityNote": "Indique comment tu as vérifié l’identité du joueur",
+    "restoreRestriction": "Lever cette restriction",
+    "compensation": {
+      "CARD": "Restituer la carte récupérée",
+      "SALE": "Rembourser {count} Karas",
+      "PACK": "Restituer {count, plural, one {# pack} other {# packs}}"
+    },
+    "compensate": "Appliquer la compensation",
     "history": "Historique des sanctions",
     "inbox": "Recours contre les sanctions",
     "empty": "Aucun recours.",
@@ -3380,6 +3399,24 @@
     }
   },
   "accountSanctions": {
+    "farmWarning": {
+      "title": "Avertissement pour abus du parrainage",
+      "intro": "Des demandes de transfert de cartes ont établi ton implication dans un abus confirmé du parrainage.",
+      "rules": "Créer et utiliser des comptes secondaires pour obtenir et transférer des récompenses de parrainage enfreint les règles de Yokkai.",
+      "future": "Trois avertissements actifs provenant de dossiers distincts peuvent entraîner une suspension de 48 heures."
+    },
+    "farmBan": {
+      "title": "Compte banni définitivement",
+      "intro": "Des transferts de cartes enregistrés ont confirmé que ce compte a participé à un abus du parrainage.",
+      "rules": "Créer et utiliser des comptes secondaires pour obtenir et transférer des récompenses de parrainage enfreint les règles de Yokkai.",
+      "future": "Contacte l’assistance pour demander un réexamen de cette décision."
+    },
+    "farmSuspension": {
+      "title": "Compte suspendu pour 48 heures",
+      "intro": "Ton compte a reçu trois avertissements actifs pour participation à des abus confirmés du parrainage.",
+      "rules": "Créer et utiliser des comptes secondaires pour obtenir et transférer des récompenses de parrainage enfreint les règles de Yokkai.",
+      "future": "Contacte l’assistance pour demander un réexamen de cette décision."
+    },
     "cardsRemoved": "Cartes retirées",
     "karaRemoved": "Kara retirés",
     "acknowledge": "J’ai compris",
@@ -3477,6 +3514,22 @@
     "observationNotice": "Le mode observation est actif : aucun score ne provoque automatiquement un bannissement ou une sanction. Un administrateur doit examiner les éléments. La sanction smurf reste une action séparée, explicite et traçable.",
     "prepareSanction": "Sanctionner",
     "clusters": {
+      "assetPreview": "Vérifier la récupération",
+      "assetUnavailable": "Cet actif ne peut pas être récupéré pour le moment.",
+      "protectedHolder": "Cette carte appartient à un tiers protégé.",
+      "assetReserved": "Cette carte est réservée.",
+      "assetAmounts": "{credited} Karas crédités · {recoverable} récupérables · {unrecoverable} indisponibles",
+      "recoverAsset": "Confirmer la récupération",
+      "pendingReward": "{name} · {packs, plural, one {# pack de parrainage en attente} other {# packs de parrainage en attente}}",
+      "cancelReward": "Annuler la récompense de parrainage en attente",
+      "dryRun": "Simuler les sanctions",
+      "enforcement": {
+        "SUSPECTED": "Suspectée",
+        "CORROBORATED": "Corroborée",
+        "CONFIRMED": "Confirmée",
+        "NEEDS_REVIEW": "À examiner",
+        "REJECTED": "Écartée"
+      },
       "title": "Fermes de comptes",
       "scenarios": {
         "A": "Parrainages et transferts de cartes",
@@ -3496,7 +3549,20 @@
         "deadlocks": "Interblocages SQL",
         "pendingAppeals": "Recours en attente",
         "correctionRequests": "Corrections demandées",
-        "recoveredPacks": "Packs récupérés"
+        "recoveredPacks": "Packs récupérés",
+        "simulations": "Simulations",
+        "farmBans": "Bannissements liés aux fermes",
+        "farmWarnings": "Avertissements liés aux fermes",
+        "farmSuspensions": "Suspensions liées aux fermes",
+        "recoveredCards": "Cartes récupérées",
+        "recoveredKaras": "Karas récupérés",
+        "partialRecoveries": "Récupérations partielles",
+        "recoveryFailures": "Échecs de récupération",
+        "compensations": "Compensations",
+        "jobErrors": "Erreurs des tâches",
+        "jobRetries": "Nouvelles tentatives",
+        "jobDurationMs": "Évaluation récente la plus longue (ms)",
+        "queueAgeSeconds": "Plus ancienne alerte en attente (secondes)"
       },
       "recoveryTitle": "Examiner les actifs traçables",
       "recoverUnusedLot": "Récupérer {packs} packs non consommés chez {name}",

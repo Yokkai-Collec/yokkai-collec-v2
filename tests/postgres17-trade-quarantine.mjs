@@ -313,23 +313,70 @@ assert.equal(
   "Baseline migration sources must be unchanged"
 );
 await query(bootstrapSQL + migrationSQL(baselineFiles), { db: baseline });
-await query(
-  "update public.anticheat_runtime_flags set enabled=false where flag='quarantine_enforcement';"
+const [loadSender, loadReceiver, loadPeer, loadFourth] = [7, 8, 9, 10].map(
+  index => `ad530000-0000-4000-8000-${String(index).padStart(12, "0")}`
 );
-const benchSender = "ad530000-0000-4000-8000-000000000011";
-const benchReceiver = "ad530000-0000-4000-8000-000000000012";
-const benchmark = (db, response) =>
-  query(
+await query(`
+  alter table auth.users add column if not exists created_at timestamptz not null default now();
+  insert into auth.users(id,raw_user_meta_data) values
+    ('${loadSender}','{"pseudo":"LoadHoldSender"}'),('${loadReceiver}','{"pseudo":"LoadHoldReceiver"}'),
+    ('${loadPeer}','{"pseudo":"LoadHoldPeer"}'),('${loadFourth}','{"pseudo":"LoadHoldFourth"}');
+  insert into public.friendships(user_id,friend_id,status) values('${loadSender}','${loadReceiver}','accepted');
+  update public.user_profiles set karas_balance=1000 where user_id='${loadSender}';
+  insert into public.anticheat_network_observations(network_identity,user_id)
+    select 'v1:'||repeat('e',64),id from auth.users where id in('${loadSender}','${loadReceiver}','${loadPeer}','${loadFourth}');
+  insert into public.anticheat_device_observations(device_identity,user_id)
+    select 'v1:'||repeat('f',64),id from auth.users where id in('${loadSender}','${loadReceiver}');
+  update public.anticheat_runtime_flags set enabled=true
+    where flag in('quarantine_enforcement','quarantine_auto_release','ip_cluster_detection','cluster_investigation','graph_detection_v2');
+`);
+const loadOffers = (
+  await query(`
+  with copies as (
+    insert into public.user_cards(user_id,card_id,rarity)
+    select '${loadSender}',id,'LR' from public.cards cross join generate_series(1,2)
+    where source_id='concurrency-hold' returning id
+  )
+  insert into public.trade_offers(from_user,to_user,offered_card_ids,offered_karas)
+  select '${loadSender}','${loadReceiver}',array[id],300 from copies returning id;
+`)
+).split(/\r?\n/);
+for (const offer of loadOffers) {
+  assert.equal(
+    await query(
+      `${actor(loadReceiver)}select public.respond_trade_offer_with_status('${offer}','accept');`
+    ),
+    "quarantined"
+  );
+}
+await query(
+  `update public.anticheat_quarantines set expires_at=clock_timestamp() where subject_id='${loadOffers[0]}';`
+);
+const analysis = () =>
+  query(`
+  select public.expire_active_trade_quarantines();
+  select public.evaluate_anticheat_network_clusters();
+  select public.evaluate_anticheat_farm_evidence();
+  set request.jwt.claim.sub='${admin}';
+  select public.admin_simulate_anticheat_farm(id)->>'mode'
+    from public.anticheat_network_clusters where network_identity='v1:'||repeat('e',64);
+`);
+const benchmarkWorker = (db, response, size, slot) => {
+  const id = offset =>
+    `ad530000-0000-4000-8000-${String(slot * 2 + offset).padStart(12, "0")}`;
+  const benchSender = id(101);
+  const benchReceiver = id(102);
+  return query(
     `
   insert into auth.users(id,raw_user_meta_data) values
-    ('${benchSender}','{"pseudo":"BenchmarkSender"}'),('${benchReceiver}','{"pseudo":"BenchmarkReceiver"}');
+    ('${benchSender}','{"pseudo":"BenchSender${slot}"}'),('${benchReceiver}','{"pseudo":"BenchReceiver${slot}"}');
   insert into public.friendships(user_id,friend_id,status) values('${benchSender}','${benchReceiver}','accepted');
   update public.user_profiles set karas_balance=1000 where user_id in('${benchSender}','${benchReceiver}');
   create temp table samples(elapsed double precision);
   create temp table offers as
     with seed as (
       insert into public.trade_offers(from_user,to_user,offered_karas,requested_karas)
-      select '${benchSender}','${benchReceiver}',1,1 from generate_series(1,110) returning id
+      select '${benchSender}','${benchReceiver}',1,1 from generate_series(1,${size + 10}) returning id
     ) select id from seed;
   set request.jwt.claim.sub='${benchReceiver}';
   do $$
@@ -345,18 +392,80 @@ const benchmark = (db, response) =>
     end loop;
   end;
   $$;
-  select json_build_object('samples',count(*),'unit','ms',
-    'p50',percentile_cont(.5) within group(order by elapsed),
-    'p95',percentile_cont(.95) within group(order by elapsed),
-    'p99',percentile_cont(.99) within group(order by elapsed)) from samples;
+  select json_agg(elapsed) from samples;
 `,
     { db }
   );
-const baseTimings = await benchmark(baseline, "respond_trade_offer");
-const currentTimings = await benchmark(
-  database,
-  "respond_trade_offer_with_status"
-);
+};
+const percentile = (samples, fraction) => {
+  const index = (samples.length - 1) * fraction;
+  const low = Math.floor(index);
+  return Number(
+    (
+      samples[low] +
+      (samples[Math.ceil(index)] - samples[low]) * (index - low)
+    ).toFixed(3)
+  );
+};
+const benchmark = async (db, response, count, workers, firstSlot) => {
+  const started = performance.now();
+  const runs = await Promise.all(
+    Array.from({ length: workers }, (_, i) =>
+      benchmarkWorker(db, response, count / workers, firstSlot + i)
+    )
+  );
+  const samples = runs.flatMap(run => JSON.parse(run)).sort((a, b) => a - b);
+  assert.equal(samples.length, count);
+  return {
+    samples: count,
+    workers,
+    unit: "ms",
+    p50: percentile(samples, 0.5),
+    p95: percentile(samples, 0.95),
+    p99: percentile(samples, 0.99),
+    wallMs: Math.round(performance.now() - started)
+  };
+};
 console.log("PostgreSQL 17 concurrent reservation and review passed.");
-console.log("Base f38ce2d2", baseTimings);
-console.log("Current", currentTimings);
+const workloads = [
+  [100, 1, 0],
+  [1000, 4, 1]
+];
+if (process.env.YOKKAI_TRADE_LOAD_10000 === "1") workloads.push([10000, 10, 5]);
+for (const [count, workers, slot] of workloads) {
+  console.log(
+    "Base f38ce2d2",
+    await benchmark(baseline, "respond_trade_offer", count, workers, slot)
+  );
+  console.log(
+    "Current",
+    await Promise.all([
+      benchmark(
+        database,
+        "respond_trade_offer_with_status",
+        count,
+        workers,
+        slot
+      ),
+      analysis()
+    ]).then(([timings, result]) => {
+      assert.match(result, /DRY_RUN/);
+      return timings;
+    })
+  );
+}
+const diagnostics = JSON.parse(
+  await query(`
+  select json_build_object(
+    'activeHolds',(select count(*) from public.anticheat_trade_card_holds h
+      join public.user_cards c on c.id=h.card_id where c.user_id='${loadSender}'),
+    'reservedKaras',(select coalesce(sum(amount),0) from public.anticheat_trade_kara_holds where user_id='${loadSender}'),
+    'deadlocks',(select deadlocks from pg_catalog.pg_stat_database where datname=current_database()));
+`)
+);
+assert.deepEqual(diagnostics, {
+  activeHolds: 2,
+  reservedKaras: 600,
+  deadlocks: 0
+});
+console.log("Mixed workload diagnostics", diagnostics);

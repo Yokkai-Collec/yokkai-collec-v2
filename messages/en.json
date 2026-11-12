@@ -3353,6 +3353,25 @@
     "pageTitle": "Missions & achievements"
   },
   "sanctionAppeals": {
+    "compensationProposed": "Exact restoration is unavailable. Compensation requires administrator review.",
+    "tokenAccess": "Access your sanction appeal",
+    "tokenHelp": "Enter the single-use code supplied by support. Leave the reason empty to check your appeal status.",
+    "token": "Access code",
+    "tokenReason": "Appeal reason (optional)",
+    "tokenContinue": "Continue",
+    "tokenInvalid": "This code is invalid, expired or already used.",
+    "farmBan": "Permanent ban",
+    "farmSuspension": "Temporary suspension",
+    "issueToken": "Issue an appeal access code",
+    "receiptId": "Sanction receipt ID",
+    "identityNote": "Record how you verified the player’s identity",
+    "restoreRestriction": "Lift this restriction",
+    "compensation": {
+      "CARD": "Restore the recovered card",
+      "SALE": "Refund {count} Karas",
+      "PACK": "Restore {count, plural, one {# pack} other {# packs}}"
+    },
+    "compensate": "Apply compensation",
     "history": "Sanction history",
     "inbox": "Sanction appeals",
     "empty": "No appeals.",
@@ -3377,6 +3396,24 @@
     }
   },
   "accountSanctions": {
+    "farmWarning": {
+      "title": "Warning for referral farming",
+      "intro": "Recorded card requests established your involvement in confirmed referral farming.",
+      "rules": "Creating and using secondary accounts to collect and transfer referral rewards violates Yokkai’s rules.",
+      "future": "Three active warnings from separate cases can lead to a 48-hour suspension."
+    },
+    "farmBan": {
+      "title": "Permanent account ban",
+      "intro": "This account was linked to confirmed referral farming through recorded card transfers.",
+      "rules": "Creating and using secondary accounts to collect and transfer referral rewards violates Yokkai’s rules.",
+      "future": "Contact support to request a review of this decision."
+    },
+    "farmSuspension": {
+      "title": "Account suspended for 48 hours",
+      "intro": "Your account received three active warnings for involvement in confirmed referral farming.",
+      "rules": "Creating and using secondary accounts to collect and transfer referral rewards violates Yokkai’s rules.",
+      "future": "Contact support to request a review of this decision."
+    },
     "cardsRemoved": "Cards removed",
     "karaRemoved": "Kara removed",
     "acknowledge": "I understand",
@@ -3474,6 +3511,22 @@
     "observationNotice": "Observation mode is active: no score triggers an automatic ban or sanction. An administrator must inspect the evidence. The smurf sanction remains a separate, explicit and traceable action.",
     "prepareSanction": "Sanction",
     "clusters": {
+      "assetPreview": "Review recovery",
+      "assetUnavailable": "This asset cannot currently be recovered.",
+      "protectedHolder": "This card is held by a protected third party.",
+      "assetReserved": "This card is reserved.",
+      "assetAmounts": "{credited} Karas credited · {recoverable} recoverable · {unrecoverable} unavailable",
+      "recoverAsset": "Confirm recovery",
+      "pendingReward": "{name} · {packs, plural, one {# pending referral pack} other {# pending referral packs}}",
+      "cancelReward": "Cancel unpaid referral reward",
+      "dryRun": "Simulate enforcement",
+      "enforcement": {
+        "SUSPECTED": "Suspected",
+        "CORROBORATED": "Corroborated",
+        "CONFIRMED": "Confirmed",
+        "NEEDS_REVIEW": "Needs review",
+        "REJECTED": "Rejected"
+      },
       "title": "Account farm investigations",
       "scenarios": {
         "A": "Referral rewards and card transfers",
@@ -3493,7 +3546,20 @@
         "deadlocks": "Database deadlocks",
         "pendingAppeals": "Pending appeals",
         "correctionRequests": "Corrections requested",
-        "recoveredPacks": "Packs recovered"
+        "recoveredPacks": "Packs recovered",
+        "simulations": "Simulations",
+        "farmBans": "Farm bans",
+        "farmWarnings": "Farm warnings",
+        "farmSuspensions": "Farm suspensions",
+        "recoveredCards": "Cards recovered",
+        "recoveredKaras": "Karas recovered",
+        "partialRecoveries": "Partial recoveries",
+        "recoveryFailures": "Recovery failures",
+        "compensations": "Compensations",
+        "jobErrors": "Job errors",
+        "jobRetries": "Job retries",
+        "jobDurationMs": "Slowest recent farm evaluation (ms)",
+        "queueAgeSeconds": "Oldest queued alert (seconds)"
       },
       "recoveryTitle": "Review attributed assets",
       "recoverUnusedLot": "Recover {packs} unused packs from {name}",

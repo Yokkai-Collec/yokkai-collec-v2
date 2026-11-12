@@ -7,6 +7,125 @@ import { requireAdminAction } from "@/lib/auth/admin";
 import { createClient } from "@/utils/supabase/server";
 
 const statuses = new Set(["open", "reviewed", "dismissed"]);
+const uuid = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
+
+export async function simulateFarmAction(form: FormData) {
+  await requireAdminAction();
+  const cluster = String(form.get("cluster") ?? "");
+  if (!uuid.test(cluster)) redirect("/admin/security#anticheat-clusters");
+  const client = createClient(await cookies());
+  const { error } = await client.rpc("admin_simulate_anticheat_farm", {
+    p_cluster: cluster
+  });
+  revalidatePath("/admin/security");
+  redirect(
+    `/admin/security?cluster=${cluster}&farm_result=${error ? "failed" : "saved"}#anticheat-clusters`
+  );
+}
+
+export async function applyFarmAssetRecoveryAction(form: FormData) {
+  await requireAdminAction();
+  const cluster = String(form.get("cluster") ?? "");
+  const kind = String(form.get("kind") ?? "");
+  const asset = String(form.get("asset") ?? "");
+  const token = String(form.get("token") ?? "");
+  const reason = String(form.get("reason") ?? "").trim();
+  if (!uuid.test(cluster)) redirect("/admin/security#anticheat-clusters");
+  const destination = `/admin/security?cluster=${cluster}&farm_result=`;
+  if (
+    !uuid.test(asset) ||
+    !["CARD", "SALE"].includes(kind) ||
+    !/^[0-9a-f]{32}$/.test(token) ||
+    reason.length < 10 ||
+    reason.length > 500
+  ) {
+    redirect(`${destination}invalid#anticheat-clusters`);
+  }
+  const client = createClient(await cookies());
+  const { error } = await client.rpc("admin_apply_anticheat_asset_recovery", {
+    p_cluster: cluster,
+    p_kind: kind,
+    p_asset: asset,
+    p_token: token,
+    p_reason: reason
+  });
+  if (error)
+    await client.rpc("admin_record_anticheat_recovery_failure", {
+      p_asset: asset,
+      p_code: error.code ?? ""
+    });
+  revalidatePath("/admin/security");
+  redirect(`${destination}${error ? "failed" : "saved"}#anticheat-clusters`);
+}
+
+export async function issueAppealTokenAction(
+  _state: { token?: string; failed?: boolean },
+  form: FormData
+) {
+  await requireAdminAction();
+  const receipt = String(form.get("receipt") ?? "");
+  const reason = String(form.get("identity") ?? "").trim();
+  if (!uuid.test(receipt) || reason.length < 20 || reason.length > 500)
+    return { failed: true };
+  const client = createClient(await cookies());
+  const { data, error } = await client.rpc(
+    "admin_issue_anticheat_appeal_token",
+    { p_receipt: receipt, p_verified_identity_note: reason }
+  );
+  return error || typeof data !== "string" ? { failed: true } : { token: data };
+}
+
+export async function compensateAppealAssetAction(form: FormData) {
+  await requireAdminAction();
+  const appeal = String(form.get("appeal") ?? "");
+  const recovery = String(form.get("recovery") ?? "");
+  const kind = String(form.get("kind") ?? "");
+  const reason = String(form.get("reason") ?? "").trim();
+  const dest = "/admin/security?appeal_result=";
+  if (
+    !uuid.test(appeal) ||
+    !uuid.test(recovery) ||
+    !["CARD", "SALE", "PACK"].includes(kind) ||
+    reason.length < 10 ||
+    reason.length > 500
+  )
+    redirect(`${dest}invalid#anticheat-appeals`);
+  const client = createClient(await cookies());
+  const { error } = await client.rpc("admin_compensate_anticheat_recovery", {
+    p_appeal: appeal,
+    p_kind: kind,
+    p_recovery: recovery,
+    p_reason: reason
+  });
+  revalidatePath("/admin/security");
+  redirect(`${dest}${error ? "failed" : "saved"}#anticheat-appeals`);
+}
+
+export async function cancelPendingReferralRewardAction(form: FormData) {
+  await requireAdminAction();
+  const cluster = String(form.get("cluster") ?? "");
+  const referral = String(form.get("referral") ?? "");
+  const version = String(form.get("version") ?? "");
+  const reason = String(form.get("reason") ?? "").trim();
+  if (!uuid.test(cluster)) redirect("/admin/security#anticheat-clusters");
+  const destination = `/admin/security?cluster=${cluster}&farm_result=`;
+  if (
+    !uuid.test(referral) ||
+    !/^[0-9a-f]{32}$/.test(version) ||
+    reason.length < 10 ||
+    reason.length > 500
+  )
+    redirect(`${destination}invalid#anticheat-clusters`);
+  const client = createClient(await cookies());
+  const { error } = await client.rpc("admin_cancel_anticheat_pending_reward", {
+    p_cluster: cluster,
+    p_version: version,
+    p_referral: referral,
+    p_reason: reason
+  });
+  revalidatePath("/admin/security");
+  redirect(`${destination}${error ? "failed" : "saved"}#anticheat-clusters`);
+}
 
 export async function recoverUnusedReferralLotAction(form: FormData) {
   await requireAdminAction();
@@ -52,7 +171,12 @@ export async function reviewSanctionAppealAction(form: FormData) {
   const destination = "/admin/security?appeal_result=";
   if (
     !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(id) ||
-    !["UPHELD", "CORRECTION_REQUIRED", "VOID_WARNING"].includes(outcome) ||
+    ![
+      "UPHELD",
+      "CORRECTION_REQUIRED",
+      "VOID_WARNING",
+      "RESTORE_RESTRICTION"
+    ].includes(outcome) ||
     reason.length < 10 ||
     reason.length > 1000
   ) {
@@ -65,11 +189,16 @@ export async function reviewSanctionAppealAction(form: FormData) {
           p_appeal: id,
           p_reason: reason
         })
-      : await client.rpc("admin_review_anticheat_appeal", {
-          p_id: id,
-          p_outcome: outcome,
-          p_reason: reason
-        });
+      : outcome === "RESTORE_RESTRICTION"
+        ? await client.rpc("admin_restore_anticheat_restriction", {
+            p_appeal: id,
+            p_reason: reason
+          })
+        : await client.rpc("admin_review_anticheat_appeal", {
+            p_id: id,
+            p_outcome: outcome,
+            p_reason: reason
+          });
   revalidatePath("/admin/security");
   redirect(`${destination}${error ? "failed" : "saved"}#anticheat-appeals`);
 }

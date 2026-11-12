@@ -54,6 +54,7 @@ const responses = {
       farmRisk: 75,
       farmReview: "CONFIRMED",
       farmVersion: "a".repeat(32),
+      enforcement: { decision: "CORROBORATED", secondaries: [member] },
       members: [
         { id: admin, pseudo: "FixtureAdmin", createdAt: now },
         {
@@ -90,7 +91,18 @@ const responses = {
     possibleKaras: 300,
     sales: [{ id: receipt, sale_karas: 777 }],
     recoveryEnabled: true,
-    referredLots: [{ id: receipt, owner: member, packs: 3 }]
+    referredLots: [{ id: receipt, owner: member, packs: 3 }],
+    pendingRewards: [{ id: cluster, recipient: member, packs: 2 }]
+  },
+  admin_preview_anticheat_asset_recovery: {
+    eligible: true,
+    enabled: true,
+    protectedHolder: true,
+    reserved: false,
+    token: "b".repeat(32),
+    credited: 777,
+    recoverable: 300,
+    unrecoverable: 477
   },
   admin_list_anticheat_appeals: [
     {
@@ -228,6 +240,25 @@ try {
         .getByRole("button", { name: /Récupérer 3 packs/ })
         .isVisible()
     );
+    assert.ok(
+      await groups
+        .getByRole("button", { name: "Simuler les sanctions" })
+        .isVisible()
+    );
+    assert.ok(
+      await groups
+        .getByRole("button", {
+          name: "Annuler la récompense de parrainage en attente"
+        })
+        .isVisible()
+    );
+    await appeals
+      .locator("summary")
+      .filter({ hasText: "Générer un code d’accès au recours" })
+      .click();
+    assert.ok(
+      await appeals.getByLabel("Identifiant du reçu de sanction").isVisible()
+    );
     assert.equal(
       await page.evaluate(
         () => document.documentElement.scrollWidth > innerWidth + 1
@@ -248,6 +279,38 @@ try {
         style: screenshotStyle
       });
     }
+    await groups.getByRole("link", { name: /Vente .*777 Karas/ }).click();
+    const recovery = page.locator("#farm-asset-preview");
+    await recovery.waitFor();
+    assert.ok(
+      await recovery
+        .getByText(/300 récupérables · 477 indisponibles/)
+        .isVisible()
+    );
+    assert.ok(
+      await recovery
+        .getByRole("button", { name: "Confirmer la récupération" })
+        .isVisible()
+    );
+    await page.context().clearCookies();
+    await page
+      .context()
+      .addCookies([
+        { name: "yokkai_locale", value: "v1:manual:fr:seen", url: origin }
+      ]);
+    await page.goto(`${origin}/appeal`);
+    assert.ok(
+      await page
+        .getByRole("heading", { name: "Accéder à ton recours" })
+        .isVisible()
+    );
+    assert.equal(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth > innerWidth + 1
+      ),
+      false
+    );
+    assert.deepEqual(errors, []);
     await page.close();
   }
   console.log(`Seven admin browser layouts passed. Screenshots: ${output}`);

@@ -29,6 +29,12 @@ export const ownerOnly = [
   "public.evaluate_anticheat_network_clusters()", // Private worker over pseudonymized observations.
   "public.trace_anticheat_pack_edges(uuid[], timestamp with time zone)", // Bounded private traversal over exact card instances.
   "public.evaluate_anticheat_farm_evidence()", // Flag-gated, non-punitive evidence worker.
+  "public.anticheat_farm_enforcement_plan(uuid)", // Private deterministic policy evaluator.
+  "public.apply_anticheat_farm_policy(uuid)", // Private flag-gated account mutation.
+  "public.run_anticheat_farm_policy()", // Private bounded enforcement job.
+  "public.enqueue_anticheat_operational_alert(text, uuid, uuid)", // Private allowlisted events for the Discord outbox.
+  "public.capture_anticheat_operational_alert()", // Trigger-only operational alert projection.
+  "public.anticheat_pending_farm_rewards(uuid, text)", // Private proof projection for pending referral rewards.
   "public.anticheat_additional_farm_scenarios(uuid[])", // Private independent classifiers.
   "public.attach_anticheat_farm_scenarios(uuid, uuid[], integer)", // Private merge of scenario evidence into the current cohort review.
   "public.with_anticheat_sanction_hold_conflicts(jsonb)", // Private decorator for existing admin-only previews.
@@ -122,6 +128,28 @@ const allowlist = {
   "public.admin_list_anticheat_clusters(uuid)": ["authenticated"], // Admin-only bounded cluster and member summaries without technical identifiers.
   "public.admin_preview_anticheat_farm_recovery(uuid)": ["authenticated"], // Admin-only plan for attributed assets and protected holdings.
   "public.admin_anticheat_workload()": ["authenticated"], // Admin-only workload and database counters.
+  "public.admin_simulate_anticheat_farm(uuid)": ["authenticated"], // Admin-only dry run without account mutations.
+  "public.admin_restore_anticheat_restriction(uuid, text)": ["authenticated"], // Admin, accepted appeal and exact restriction match.
+  "public.admin_compensate_anticheat_recovery(uuid, text, uuid, text)": [
+    "authenticated"
+  ], // Exact matching receipt, approved appeal and enabled compensation.
+  "public.admin_record_anticheat_recovery_failure(uuid, text)": [
+    "authenticated"
+  ], // Admin-only sanitized failure accounting.
+  "public.admin_issue_anticheat_appeal_token(uuid, text)": ["authenticated"], // Admin-only after documented identity verification.
+  "public.consume_anticheat_appeal_token(text, text)": [
+    "anon",
+    "authenticated"
+  ], // Scoped single-use 15-minute capability; no public receipt lookup.
+  "public.admin_preview_anticheat_asset_recovery(uuid, text, uuid)": [
+    "authenticated"
+  ], // Read-only exact attribution and availability.
+  "public.admin_apply_anticheat_asset_recovery(uuid, text, uuid, text, text)": [
+    "authenticated"
+  ], // Flag, admin, current proof and locked exact asset.
+  "public.admin_cancel_anticheat_pending_reward(uuid, text, uuid, text)": [
+    "authenticated"
+  ], // Reviewed individual proof and locked, unpaid referral.
   "public.admin_recover_anticheat_unused_reward_lot(uuid, text, uuid, integer, text)":
     ["authenticated"], // Admin-only reviewed and reconciled single-lot recovery.
   "public.get_my_anticheat_sanction_history()": ["authenticated"], // Own published receipts and own appeal outcome only.
