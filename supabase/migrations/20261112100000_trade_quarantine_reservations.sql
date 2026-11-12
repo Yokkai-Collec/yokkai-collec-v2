@@ -238,6 +238,7 @@ $$;
 create function public.respond_trade_offer_with_status(p_offer_id uuid,p_action text)
 returns text language plpgsql security definer set search_path='' as $$
 begin
+  perform public.assert_player_not_banned();
   if public.respond_trade_offer(p_offer_id,p_action) then return 'accepted'; end if;
   return case when p_action='decline' then 'declined' else 'quarantined' end;
 end;
@@ -330,6 +331,7 @@ $$;
 create function public.admin_resolve_trade_quarantine(p_id uuid,p_version integer,p_action text,p_reason text)
 returns text language plpgsql security definer set search_path='' as $$
 begin
+  perform public.assert_player_not_banned();
   if not public.is_current_user_admin() then raise exception 'ADMIN_REQUIRED' using errcode='P0001'; end if;
   if p_action is null or p_action not in('release','cancel')
     or length(btrim(coalesce(p_reason,''))) not between 1 and 500 then

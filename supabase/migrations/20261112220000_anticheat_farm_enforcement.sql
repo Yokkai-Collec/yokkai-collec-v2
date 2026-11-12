@@ -155,6 +155,7 @@ create function public.admin_simulate_anticheat_farm(p_cluster uuid)
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare plan jsonb;
 begin
+  perform public.assert_player_not_banned();
   if not public.is_current_user_admin() then raise exception 'ADMIN_REQUIRED'; end if;
   plan:=public.anticheat_farm_enforcement_plan(p_cluster);
   if plan ? 'version' then

@@ -155,6 +155,8 @@ async function fixture(t) {
             if (id in mock) return mock[id];
             if (id.startsWith("@/components/"))
               return new Proxy({}, { get: () => () => null });
+            if (id === "./sanction-history")
+              return { SanctionHistory: () => null };
             if (id.startsWith("./"))
               return load(resolve(dirname(path), id + ".ts"));
             if (id.startsWith("@/")) return load(id.slice(2) + ".ts");
@@ -164,8 +166,9 @@ async function fixture(t) {
       );
       return compiled.exports;
     };
+    const settingsPage = load("app/settings/page.tsx").default;
     return {
-      settings: load("app/settings/page.tsx").default,
+      settings: () => settingsPage({ searchParams: Promise.resolve({}) }),
       premium: load("app/premium/page.tsx").default,
       api: load("app/api/billing/status/route.ts").GET
     };

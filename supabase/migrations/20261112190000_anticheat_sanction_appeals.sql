@@ -57,6 +57,7 @@ create function public.submit_my_anticheat_appeal(p_kind text,p_receipt uuid,p_r
 returns uuid language plpgsql security definer set search_path='' as $$
 declare viewer uuid:=auth.uid(); appeal_id uuid;
 begin
+  perform public.assert_player_not_banned();
   if viewer is null then raise exception 'AUTH_REQUIRED'; end if;
   if length(btrim(coalesce(p_reason,''))) not between 10 and 1000 then
     raise exception 'INVALID_APPEAL_REASON';

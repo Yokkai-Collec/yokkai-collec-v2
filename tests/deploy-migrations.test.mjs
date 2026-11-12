@@ -386,8 +386,48 @@ test("drift detects changed, missing and extra cron jobs", async t => {
     JSON.parse(Object.values(r)[0])
   );
   const jobs = rows.filter(r => r.kind === "cron-job");
+  const anticheatJobs = new Map([
+    [
+      "archive-failed-anticheat-discord-alerts@postgres",
+      ["*/5 * * * *", "archive_failed_anticheat_discord_alerts"]
+    ],
+    [
+      "evaluate-anticheat-farm-evidence@postgres",
+      ["2-59/5 * * * *", "evaluate_anticheat_farm_evidence"]
+    ],
+    [
+      "evaluate-anticheat-network-clusters@postgres",
+      ["*/5 * * * *", "evaluate_anticheat_network_clusters"]
+    ],
+    [
+      "expire-active-trade-quarantines@postgres",
+      ["*/5 * * * *", "expire_active_trade_quarantines"]
+    ],
+    [
+      "expire-anticheat-shadow-quarantines@postgres",
+      ["*/5 * * * *", "expire_anticheat_shadow_quarantines"]
+    ],
+    [
+      "run-anticheat-farm-policy@postgres",
+      ["4-59/5 * * * *", "run_anticheat_farm_policy"]
+    ]
+  ]);
+  const existingJobs = jobs.filter(job => !anticheatJobs.has(job.name));
   assert.deepEqual(
-    jobs.map(j => j.name),
+    jobs.filter(job => anticheatJobs.has(job.name)).map(job => job.name),
+    [...anticheatJobs.keys()]
+  );
+  for (const [name, [schedule, fn]] of anticheatJobs) {
+    assert.deepEqual(jobs.find(job => job.name === name).value, {
+      schedule,
+      command: `select public.${fn}();`,
+      username: "postgres",
+      database: "postgres",
+      active: true
+    });
+  }
+  assert.deepEqual(
+    existingJobs.map(j => j.name),
     [
       "dispatch-anticheat-discord-alerts@postgres",
       "fold-collection-score-changes@postgres",
@@ -401,35 +441,35 @@ test("drift detects changed, missing and extra cron jobs", async t => {
       "settle-expired-auctions@postgres"
     ]
   );
-  assert.deepEqual(jobs[0].value, {
+  assert.deepEqual(existingJobs[0].value, {
     schedule: "* * * * *",
     command: "select public.dispatch_anticheat_discord_alerts();",
     username: "postgres",
     database: "postgres",
     active: true
   });
-  assert.deepEqual(jobs[1].value, {
+  assert.deepEqual(existingJobs[1].value, {
     schedule: "* * * * *",
     command: "select public.fold_collection_score_changes();",
     username: "postgres",
     database: "postgres",
     active: true
   });
-  assert.deepEqual(jobs[2].value, {
+  assert.deepEqual(existingJobs[2].value, {
     schedule: "* * * * *",
     command: "select public.fold_license_score_changes();",
     username: "postgres",
     database: "postgres",
     active: true
   });
-  assert.deepEqual(jobs[3].value, {
+  assert.deepEqual(existingJobs[3].value, {
     schedule: "*/15 * * * *",
     command: "select public.purge_anticheat_deleted_identities();",
     username: "postgres",
     database: "postgres",
     active: true
   });
-  assert.deepEqual(jobs[4].value, {
+  assert.deepEqual(existingJobs[4].value, {
     schedule: "0 3 * * *",
     command:
       "delete from cron.job_run_details where end_time < now() - interval '7 days';",
@@ -437,14 +477,14 @@ test("drift detects changed, missing and extra cron jobs", async t => {
     database: "postgres",
     active: true
   });
-  assert.deepEqual(jobs[5].value, {
+  assert.deepEqual(existingJobs[5].value, {
     schedule: "*/15 * * * *",
     command: "select public.purge_deleted_email_cooldowns();",
     username: "postgres",
     database: "postgres",
     active: true
   });
-  assert.deepEqual(jobs[6].value, {
+  assert.deepEqual(existingJobs[6].value, {
     schedule: "17 * * * *",
     command:
       "delete from public.friend_request_events where occurred_at<=clock_timestamp()-interval '24 hours'",
@@ -452,21 +492,21 @@ test("drift detects changed, missing and extra cron jobs", async t => {
     database: "postgres",
     active: true
   });
-  assert.deepEqual(jobs[7].value, {
+  assert.deepEqual(existingJobs[7].value, {
     schedule: "* * * * *",
     command: "select public.refresh_catalogue_links_cache();",
     username: "postgres",
     database: "postgres",
     active: true
   });
-  assert.deepEqual(jobs[8].value, {
+  assert.deepEqual(existingJobs[8].value, {
     schedule: "*/15 * * * *",
     command: "select public.release_quiet_referral_reward_holds();",
     username: "postgres",
     database: "postgres",
     active: true
   });
-  assert.deepEqual(jobs[9].value, {
+  assert.deepEqual(existingJobs[9].value, {
     schedule: "* * * * *",
     command: "select public.settle_expired_auctions();",
     username: "postgres",
@@ -490,7 +530,7 @@ test("drift detects changed, missing and extra cron jobs", async t => {
   assert.equal(compare(rows).status, 0);
   for (const job of jobs) {
     for (const patch of [
-      { schedule: "*/5 * * * *" },
+      { schedule: "*/11 * * * *" },
       { command: "select 1;" },
       { active: false },
       { username: "supabase_admin" }

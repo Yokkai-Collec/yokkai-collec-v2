@@ -115,6 +115,7 @@ create function public.consume_anticheat_appeal_token(p_token text,p_reason text
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare target uuid; receipt public.account_sanctions%rowtype; result jsonb;
 begin
+  perform public.assert_player_not_banned();
   if p_token is null or p_token!~'^[0-9a-f]{64}$' then raise exception 'INVALID_APPEAL_TOKEN'; end if;
   if p_reason is not null and length(btrim(p_reason)) not between 10 and 1000 then raise exception 'INVALID_APPEAL_REASON'; end if;
   update public.anticheat_appeal_capabilities set consumed_at=clock_timestamp()

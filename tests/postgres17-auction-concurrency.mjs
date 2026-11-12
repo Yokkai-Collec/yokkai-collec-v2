@@ -1296,7 +1296,7 @@ async function decisionKeepOpenOverlap() {
 // Counterproofs alter definitions ONLY in this disposable database. Every
 // scenario must reject a specific unsafe implementation and pass after restore.
 const orderedProfiles =
-  "perform 1 from public.user_profiles where user_id in (offer.from_user,offer.to_user) order by user_id for update;";
+  /perform 1 from public\.user_profiles where user_id in \(p_offer\.from_user,p_offer\.to_user\)\s+order by user_id for update;/;
 for (const [name, signature, scenario, mutate] of [
   [
     "Regular Pack double open",
@@ -1331,7 +1331,7 @@ for (const [name, signature, scenario, mutate] of [
   ],
   [
     "Crossed A/B trades",
-    "respond_trade_offer(uuid,text)",
+    "anticheat_settle_trade(public.trade_offers,uuid)",
     crossedTradeOverlap,
     sql => sql.replace(orderedProfiles, "")
   ],

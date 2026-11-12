@@ -78,6 +78,7 @@ revoke all on public.anticheat_recovery_failures from public,anon,authenticated,
 create function public.admin_record_anticheat_recovery_failure(p_asset uuid,p_code text)
 returns void language plpgsql security definer set search_path='' as $$
 begin
+  perform public.assert_player_not_banned();
   if not public.is_current_user_admin() then raise exception 'ADMIN_REQUIRED'; end if;
   if p_asset is null or p_code is null or p_code!~'^[0-9A-Z]{5}$' or p_code in('P0001','42501') then return; end if;
   insert into public.anticheat_recovery_failures(asset_id,sql_state) values(p_asset,p_code) on conflict do nothing;
