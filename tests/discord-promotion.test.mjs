@@ -78,6 +78,11 @@ test("the home Discord gift uses the accessible centered modal and remembers dis
     /<form\s+id="community-twitter-claim"[\s\S]*?\/>/
   )?.[0];
   assert.ok(twitterForm);
+  assert.match(
+    twitterForm,
+    /target="_self"/,
+    "keep the reward POST in the current browser window on mobile"
+  );
   assert.match(twitterForm, /rel="noopener"/);
   assert.doesNotMatch(twitterForm, /noreferrer/);
 });
