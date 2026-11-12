@@ -255,7 +255,7 @@ export function DiscordPromo({ enabled }: { enabled: boolean }) {
         id="community-twitter-claim"
         action="/twitter"
         method="post"
-        target="_blank"
+        target="_self"
         rel="noopener"
         onSubmit={dismiss}
         hidden
