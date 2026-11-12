@@ -410,6 +410,14 @@ test("drift detects changed, missing and extra cron jobs", async t => {
     [
       "run-anticheat-farm-policy@postgres",
       ["4-59/5 * * * *", "run_anticheat_farm_policy"]
+    ],
+    [
+      "run-anticheat-referral-asset-recovery@postgres",
+      ["* * * * *", "run_anticheat_referral_asset_recovery"]
+    ],
+    [
+      "run-anticheat-referral-farms@postgres",
+      ["* * * * *", "run_anticheat_referral_farms"]
     ]
   ]);
   const existingJobs = jobs.filter(job => !anticheatJobs.has(job.name));

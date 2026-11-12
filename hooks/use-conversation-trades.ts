@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { listTradeOffers, respondTradeOffer } from "@/lib/data/trades";
+import {
+  listTradeOffers,
+  respondTradeOfferWithStatus
+} from "@/lib/data/trades";
 import { invalidatePlayerSnapshots } from "@/lib/data/cards";
 import { startVisiblePolling } from "@/lib/ui/visible-polling";
 import {
@@ -12,7 +15,7 @@ import {
 
 const liveTrades: ConversationTradeAdapter = {
   listOffers: listTradeOffers,
-  respond: respondTradeOffer
+  respond: respondTradeOfferWithStatus
 };
 export function useConversationTrades(
   viewerId: string | undefined,

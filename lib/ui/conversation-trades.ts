@@ -1,12 +1,12 @@
-import type { TradeOffer } from "@/lib/data/trades";
+import type {
+  respondTradeOfferWithStatus,
+  TradeOffer
+} from "@/lib/data/trades";
 import type { PrivateMessage } from "@/lib/data/private-messages";
 
 export type ConversationTradeAdapter = {
   listOffers: () => Promise<TradeOffer[]>;
-  respond: (
-    id: string,
-    action: "accept" | "decline"
-  ) => Promise<boolean | "quarantined">;
+  respond: typeof respondTradeOfferWithStatus;
 };
 export type ConversationTradeState = {
   offers: TradeOffer[];
@@ -182,8 +182,8 @@ export function createConversationTradeFeed({
               ? {
                   ...item,
                   status:
-                    result === "quarantined"
-                      ? "quarantined"
+                    typeof result === "string"
+                      ? result
                       : action === "accept"
                         ? "accepted"
                         : "declined"

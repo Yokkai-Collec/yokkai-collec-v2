@@ -185,8 +185,14 @@
   "public.anticheat_network_observations": {
     "excluded": "Short-lived keyed network pseudonyms used for anti-cheat correlation. Raw addresses are not stored; records require separate manual privacy and security review and expire after seven days."
   },
+  "public.anticheat_referral_asset_queue": {
+    "excluded": "Temporary internal work queue for applying referral recovery decisions. The queue holds processing identifiers and retry times; linked multi-account security records require separate manual privacy review."
+  },
   "public.anticheat_referral_enforcements": {
     "excluded": "Immutable automated referral enforcement and reward-recovery receipts involving multiple accounts; requires separate manual privacy and security review."
+  },
+  "public.anticheat_referral_farm_queue": {
+    "excluded": "Temporary internal work queue for checking recent referrals. Processing identifiers and retry times are operational metadata; linked multi-account security records require separate manual privacy review."
   },
   "public.anticheat_referral_network_reviews": {
     "excluded": "Private network-based referral review decisions and account associations; third-party security evidence requires separate manual privacy review."

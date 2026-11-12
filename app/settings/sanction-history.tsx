@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { getFormatter, getTranslations } from "next-intl/server";
+import { anticheatSanctionLabel } from "@/lib/anticheat-sanction-labels";
 import { createClient } from "@/utils/supabase/server";
 import { submitSanctionAppealAction } from "./actions";
 
@@ -33,22 +34,15 @@ export async function SanctionHistory({ result }: { result?: string }) {
       )}
       <div className="mt-3 grid gap-3">
         {receipts.map(receipt => {
-          const farmKind =
-            receipt.type === "FARM_BAN"
-              ? "farmBan"
-              : receipt.type === "FARM_SUSPENSION"
-                ? "farmSuspension"
-                : receipt.type === "FARM_WARNING"
-                  ? "farmWarning"
-                  : null;
+          const sanctionKind = anticheatSanctionLabel(receipt.type);
           return (
             <article
               className="min-w-0 rounded-lg border border-slate-800 p-3"
               key={receipt.id}
             >
               <p className="font-semibold">
-                {farmKind
-                  ? sanctions(`${farmKind}.title`)
+                {sanctionKind
+                  ? sanctions(`${sanctionKind}.title`)
                   : t(`kind.${receipt.kind}`)}
               </p>
               <p className="text-sm">
@@ -57,8 +51,8 @@ export async function SanctionHistory({ result }: { result?: string }) {
                 })}{" "}
                 · {t(`state.${receipt.state}`)}
               </p>
-              {farmKind && (
-                <p className="text-sm">{sanctions(`${farmKind}.intro`)}</p>
+              {sanctionKind && (
+                <p className="text-sm">{sanctions(`${sanctionKind}.intro`)}</p>
               )}
               {receipt.appealStatus && (
                 <p className="text-sm">{t(`status.${receipt.appealStatus}`)}</p>

@@ -5,6 +5,7 @@ import vm from "node:vm";
 import ts from "typescript";
 import * as jsx from "react/jsx-runtime";
 import nextTesting from "next/experimental/testing/server.js";
+import { anticheatSanctionLabels } from "./helpers/anticheat-sanction-labels.mjs";
 function compile(file, mocks, globals = {}) {
   const exports = {};
   vm.runInNewContext(
@@ -213,6 +214,7 @@ test("notice bursts never overlap and a changed account cannot receive a stale r
   const api = compile(
     "components/account-sanction-notice.tsx",
     {
+      "@/lib/anticheat-sanction-labels": anticheatSanctionLabels,
       "react/jsx-runtime": jsx,
       react: {
         useEffect: fn => {
