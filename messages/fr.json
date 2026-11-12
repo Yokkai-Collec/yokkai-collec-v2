@@ -990,7 +990,11 @@
     "notificationAchievementFallback": "un succès",
     "friends": "Amis",
     "notificationCommentReplyTitle": "Nouvelle réponse à ton commentaire",
-    "notificationCommentReplyText": "{actorPseudo} a répondu à ton commentaire."
+    "notificationCommentReplyText": "{actorPseudo} a répondu à ton commentaire.",
+    "notificationMysteryTitle": "Mystery Auction",
+    "notificationMysteryStarted": "L’event a commencé ! Découvre l’enchère mystère.",
+    "notificationMysteryResult": "L’enchère est terminée : la carte mystère était {cardName}. Consulte le résultat.",
+    "events": "Événements"
   },
   "accountMenu": {
     "signIn": "Se connecter",
@@ -2389,7 +2393,8 @@
     "emptyunsoldTitle": "Aucune enchère invendue",
     "emptyunsoldText": "Les annonces terminées sans offre apparaîtront ici.",
     "emptyunsoldAction": "Mettre une carte aux enchères",
-    "alreadyOwned": "Déjà possédée · {count}"
+    "alreadyOwned": "Déjà possédée · {count}",
+    "mysteryTitle": "Mystery Auction"
   },
   "binderDiscovery": {
     "cardsTab": "Mes cartes",
@@ -3386,7 +3391,10 @@
       "ACCOUNT": "Sanction de compte",
       "SMURF": "Sanction de compte secondaire"
     },
-    "state": { "APPLIED": "Appliquée", "ROLLED_BACK": "Annulée" },
+    "state": {
+      "APPLIED": "Appliquée",
+      "ROLLED_BACK": "Annulée"
+    },
     "status": {
       "PENDING": "En attente de revue",
       "UPHELD": "Sanction maintenue",
@@ -4468,5 +4476,47 @@
     "creationHint": "Le dossier sera créé immédiatement et ajouté à ta sélection en cours. Enregistre ensuite la sélection pour le mettre en avant sur ton profil.",
     "customize": "Personnaliser",
     "savedShort": "Enregistré"
+  },
+  "mysteryAuction": {
+    "title": "Mystery Auction",
+    "cardBack": "Dos de carte mystère",
+    "description": "Une carte normale tirée au sort parmi tout le catalogue à la clôture. Les Karas du gagnant sont détruits.",
+    "nextEvent": "Une nouvelle carte mystère chaque semaine.",
+    "startsIn": "Prochain event dans {countdown}",
+    "endsIn": "Fin dans {countdown}",
+    "leader": "Meilleure enchère : {name}",
+    "noBids": "Aucune enchère",
+    "revealed": "Carte révélée : {name}",
+    "view": "Participer",
+    "viewResult": "Voir le résultat",
+    "revealing": "Révélation en cours…",
+    "unavailable": "L’event est momentanément indisponible. Nouvelle tentative en cours…",
+    "loading": "Chargement de la Mystery Auction…"
+  },
+  "events": {
+    "title": "Événements",
+    "overline": "Toute l’activité Yokkai",
+    "description": "Retrouve les événements en cours, prépare les prochains et découvre leurs résultats. Tous les événements Yokkai sont réunis ici.",
+    "filters": "Filtrer les événements",
+    "all": "Tous les événements",
+    "live": "En cours",
+    "upcoming": "À venir",
+    "explore": "Explorer les événements",
+    "count": "{count, plural, one {# événement} other {# événements}}",
+    "weekly": "Hebdomadaire",
+    "auction": "Enchère",
+    "mysteryDescription": "Une carte cachée, des enchères et une révélation à la clôture. Tente ta chance pour remporter une carte normale du catalogue.",
+    "lastReveal": "Dernière carte révélée : {name}",
+    "endsIn": "Se termine dans",
+    "nextEdition": "Prochaine édition dans",
+    "currentPrice": "Prix actuel",
+    "startingPrice": "Prix de départ",
+    "join": "Participer à l’événement",
+    "result": "Voir le dernier résultat",
+    "noLive": "Aucun événement en cours. Découvre les prochaines éditions dans « À venir ».",
+    "noUpcoming": "Aucun événement à venir pour le moment.",
+    "loading": "Chargement du programme des événements…",
+    "unavailable": "Le programme est momentanément indisponible. Nouvelle tentative en cours…",
+    "hubNote": "Les prochains événements seront ajoutés à ce hub dès leur arrivée."
   }
 }

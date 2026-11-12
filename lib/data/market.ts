@@ -7,6 +7,8 @@ import {
 } from "@/lib/data/cards";
 
 export type AuctionData = {
+  isMystery?: boolean;
+  mysteryHidden?: boolean;
   id: string;
   card: Card & { shiny?: boolean; isEvolved?: boolean; catalogueImage?: string };
   amount: number;
@@ -36,6 +38,7 @@ export type AuctionDetail = AuctionData & {
     mine: boolean;
   }[];
 };
+type AuctionPayload<T extends AuctionData> = Omit<T, "card"> & { card: T["card"] | null };
 export type AuctionChatMessage = {
   profileStyle?: PlayerCosmetics;
   id: string;
@@ -138,26 +141,29 @@ async function call<T>(
   }
   return data as T;
 }
-async function enrichAuctions(auctions: AuctionData[], sort = true) {
+async function enrichAuctions(auctions: AuctionPayload<AuctionData>[], sort = true) {
   if (sort)
     auctions.sort((a, b) => Date.parse(a.endsAt) - Date.parse(b.endsAt));
   const cards = await withLiveCardFranchises(
-    auctions.map(auction => auction.card)
+    auctions.flatMap(auction => auction.card ? [auction.card] : [])
   );
-  return auctions.map((auction, index) => ({
+  let index = 0;
+  return auctions.map(auction => ({
     ...auction,
+    mysteryHidden: !!auction.isMystery && !auction.card,
     seller: auction.seller || "Deleted player",
-    card: cards[index]
+    card: auction.card ? cards[index++] : mysteryCard
   }));
 }
 export const getAuctions = async () =>
   enrichAuctions(await call<AuctionData[]>("list_auctions", undefined, true));
 export const getAuction = async (id: string) => {
-  const auction = await call<AuctionDetail>("get_auction", {
+  const auction = await call<AuctionPayload<AuctionDetail>>("get_auction", {
     p_auction_id: id
   });
   return {
     ...auction,
+    mysteryHidden: !!auction.isMystery && !auction.card,
     seller: auction.seller || "Deleted player",
     winner:
       auction.status === "sold"
@@ -167,9 +173,13 @@ export const getAuction = async (id: string) => {
       ...bid,
       name: bid.name || "Deleted player"
     })),
-    card: (await withLiveCardFranchises([auction.card]))[0]
+    card: auction.card ? (await withLiveCardFranchises([auction.card]))[0] : mysteryCard
   };
 };
+// Presentation placeholder only; the server returns JSON null until settlement.
+const mysteryCard: Card = { id: "", name: "", category: "", rarity: "C", image: "", liveFranchise: true };
+export type MysteryAuctionEvent = { nextStartsAt: string; isWednesday: boolean; auction: AuctionPayload<AuctionDetail> | null };
+export const getMysteryAuctionEvent = () => call<MysteryAuctionEvent>("get_mystery_auction_event");
 export async function createAuction(
   instanceId: string,
   startingPrice: number,
@@ -239,7 +249,7 @@ export async function browseHomeAuctions(): Promise<MarketPage> {
     p_section: "active",
     p_limit: 6
   });
-  return { ...page, items: await enrichAuctions(page.items, false) };
+  return { ...page, items: await enrichAuctions(page.items.filter(a => !a.isMystery), false) };
 }
 export async function browseAuctions(
   query: MarketQuery,

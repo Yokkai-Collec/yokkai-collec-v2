@@ -1,5 +1,6 @@
 // Exact overloads and roles only. Every addition requires an access justification.
 export const ownerOnly = [
+  "public.create_weekly_mystery_auction()", // Existing cron owner alone creates system auctions; no client/service execution.
   "public.build_data_export_without_twitter_reward(uuid, uuid)", // Existing reservation-gated export; only the owning wrapper adds the caller's Twitter visit receipt.
   "public.build_data_export_without_discord_reward(uuid, uuid)", // Existing reservation-gated export builder; only the owning wrapper adds the caller's Discord receipt.
   "public.anticheat_deleted_account_snapshot_trigger()", // Trigger-only identity/transfer snapshot, private 90-day identity retention. Walid approved.
@@ -301,6 +302,7 @@ const allowlist = {
   "public.evolve_ssr_card(uuid[])": ["authenticated"], // Player evolves validated owned copies.
   "public.get_achievements()": ["authenticated"], // Reads the current player's achievement progress.
   "public.get_auction(uuid)": ["authenticated"], // Marketplace detail with viewer access checks.
+  "public.get_mystery_auction_event()": ["authenticated"], // Public event timing and the same authenticated auction detail; no write path.
   "public.get_auction_chat(uuid)": ["authenticated"], // Auction chat read checks viewer eligibility.
   "public.get_card_discovery(uuid, integer, integer, boolean)": [
     "authenticated"

@@ -171,6 +171,8 @@ export default async function RootLayout({
       "privateMessages",
       "playerPreview",
       "market",
+      "events",
+      "mysteryAuction",
       "siteFooter",
       "error",
       "adminReportedCard",

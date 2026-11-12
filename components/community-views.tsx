@@ -1,4 +1,10 @@
 "use client";
+import { EventsHub } from "@/components/events-hub";
+import {
+  MysteryAuctionBanner,
+  MysteryCardBack,
+  MysteryAuctionTile
+} from "@/components/mystery-auction";
 import { EmojiReactionPicker } from "@/components/emoji-reaction-picker";
 import { reactionEmoji } from "@/lib/ui/reaction-emojis";
 import { insertMessageEmoji } from "@/lib/ui/message-emoji";
@@ -105,7 +111,8 @@ export type CommunityScreen =
   | "auction"
   | "trades"
   | "search"
-  | "wishlist";
+  | "wishlist"
+  | "events";
 const headings = {
   profile: ["Collector", "My profile"],
   friends: ["Between collectors", "Social"],
@@ -385,6 +392,8 @@ export function CatalogueCardModal({
 // View models receive display values from their eventual API adapters. No prices,
 // minimum bids, durations, balances or auction rules are computed in these views.
 export type AuctionPresentation = {
+  isMystery?: boolean;
+  mysteryHidden?: boolean;
   id: string;
   ownedCount?: number;
   card: Card;
@@ -532,7 +541,7 @@ function AuctionTile({ auction: a }: { auction: AuctionPresentation }) {
       : undefined;
   const ended = formatEndDate(a.endsAt, locale);
   const label = tm("viewAuction", {
-    name: a.card.name,
+    name: a.mysteryHidden ? tm("mysteryTitle") : a.card.name,
     details:
       outcome === "won"
         ? tm("wonDetails", { amount: formatKaras(a.amount), date: ended })
@@ -549,6 +558,7 @@ function AuctionTile({ auction: a }: { auction: AuctionPresentation }) {
                 remaining: a.remaining
               })
   });
+  if (a.mysteryHidden) return <MysteryAuctionTile auction={a} label={label} />;
   return (
     <li
       className={
@@ -571,7 +581,9 @@ function AuctionTile({ auction: a }: { auction: AuctionPresentation }) {
         aria-label={label}
       >
         <div className="yk-market-tile-meta">
-          {outcome ? (
+          {a.isMystery ? (
+            <span className="yk-market-seller">{tm("mysteryTitle")}</span>
+          ) : outcome ? (
             <span className="yk-market-outcome truncate">
               {outcome === "won"
                 ? tm("boughtFrom", { name: a.seller })
@@ -957,6 +969,7 @@ export function MarketView({
   );
   return (
     <section aria-label={tm("region")} className="yk-market">
+      <MysteryAuctionBanner />
       {pageHeading ? (
         <header className="yk-market-heading">
           {pageHeading}
@@ -1709,9 +1722,15 @@ export function AuctionView({
   const biddable = !!onBid && !auction.finished && auction.nextBid != null;
   const franchise = auction.card.anime?.trim();
   return (
-    <div className="yk-auction-page">
+    <div
+      className={`yk-auction-page${auction.isMystery ? " yk-mystery-detail" : ""}`}
+    >
       <div className="yk-auction-art">
-        <YokaiCard {...auction.card} />
+        {auction.mysteryHidden ? (
+          <MysteryCardBack />
+        ) : (
+          <YokaiCard {...auction.card} />
+        )}
       </div>
       <div className="yk-auction-main">
         <header className="yk-auction-header">
@@ -1720,32 +1739,44 @@ export function AuctionView({
               <span
                 className={`text-sm font-bold tracking-widest ${catalogueRarityText[auction.card.rarity]}`}
               >
-                {auction.card.rarity}
+                {auction.mysteryHidden
+                  ? t("mysteryAuction.title")
+                  : auction.card.rarity}
               </span>
               {auction.status && <AuctionStatus status={auction.status} />}
             </div>
-            <h2 className="mt-2 font-display">{auction.card.name}</h2>
-            <p className="yk-auction-seller mt-2 text-sm text-ink-2">
-              {franchise ? `${franchise} · ` : ""}
-              {t("profileUi.listedBy")}{" "}
-              <Avatar
-                name={auction.seller}
-                image={auction.sellerAvatarUrl ?? undefined}
-                size={26}
-              />
-              {auction.sellerId === null ? (
-                <span className="font-semibold">
-                  {t("profileUi.deletedPlayer")}
-                </span>
-              ) : (
-                <Link
-                  href={`/profile/${encodeURIComponent(auction.seller)}`}
-                  className="font-semibold hover:text-accent-gold"
-                >
-                  {auction.seller}
-                </Link>
-              )}
-            </p>
+            <h2 className="mt-2 font-display">
+              {auction.mysteryHidden
+                ? t("mysteryAuction.title")
+                : auction.card.name}
+            </h2>
+            {auction.isMystery ? (
+              <p className="mt-2 text-sm text-ink-2">
+                {t("mysteryAuction.description")}
+              </p>
+            ) : (
+              <p className="yk-auction-seller mt-2 text-sm text-ink-2">
+                {franchise ? `${franchise} · ` : ""}
+                {t("profileUi.listedBy")}{" "}
+                <Avatar
+                  name={auction.seller}
+                  image={auction.sellerAvatarUrl ?? undefined}
+                  size={26}
+                />
+                {auction.sellerId === null ? (
+                  <span className="font-semibold">
+                    {t("profileUi.deletedPlayer")}
+                  </span>
+                ) : (
+                  <Link
+                    href={`/profile/${encodeURIComponent(auction.seller)}`}
+                    className="font-semibold hover:text-accent-gold"
+                  >
+                    {auction.seller}
+                  </Link>
+                )}
+              </p>
+            )}
           </div>
           {onToggleWatch && (
             <WatchButton
@@ -1784,6 +1815,13 @@ export function AuctionView({
               </p>
             </div>
           </div>
+          {auction.isMystery && (
+            <p className="yk-auction-hint">
+              {t("mysteryAuction.leader", {
+                name: auction.winner ?? t("mysteryAuction.noBids")
+              })}
+            </p>
+          )}
           {auction.extended && !auction.finished && (
             <p role="status" className="yk-auction-extension">
               <HourglassIcon />
@@ -1799,7 +1837,13 @@ export function AuctionView({
               </p>
             )}
           {auction.finished ? (
-            <AuctionOutcome auction={auction} />
+            auction.mysteryHidden ? (
+              <p role="status" className="yk-auction-hint">
+                {t("mysteryAuction.revealing")}
+              </p>
+            ) : (
+              <AuctionOutcome auction={auction} />
+            )
           ) : auction.nextBid == null ? (
             <>
               <p className="yk-auction-hint">
@@ -2793,6 +2837,8 @@ export function presentAuction(
               : undefined;
   return {
     id: raw.id,
+    isMystery: raw.isMystery,
+    mysteryHidden: raw.mysteryHidden,
     ...(raw.ownedCount !== undefined ? { ownedCount: raw.ownedCount } : {}),
     card: { ...raw.card, image: raw.card.catalogueImage ?? raw.card.image },
     amount: raw.amount,
@@ -2816,7 +2862,7 @@ export function presentAuction(
     minimumBid: raw.amount + 10,
     wishlist: raw.watched,
     antiSnipeMessage:
-      left.seconds < 300 && !finished
+      !raw.isMystery && left.seconds < 300 && !finished
         ? "Each bid adds one minute to the end time."
         : undefined,
     history: detail.history?.map(b => ({
@@ -3120,25 +3166,27 @@ export function CommunityView({
     }
   }
   const [overline, title] =
-    screen === "search"
-      ? [tv("catalogOverline"), tv("catalogTitle")]
-      : screen === "wishlist"
-        ? [tv("wishlistOverline"), tv("wishlistTitle")]
-        : screen === "profile"
-          ? [tError("profileUi.collector"), tError("profileUi.myProfile")]
-          : screen === "friends" || screen === "feed"
-            ? [
-                tError("socialFriends.overline"),
-                tError(
-                  screen === "feed" ? "topbar.social" : "socialFriends.title"
-                )
-              ]
-            : screen === "auction"
+    screen === "events"
+      ? [tError("events.overline"), tError("events.title")]
+      : screen === "search"
+        ? [tv("catalogOverline"), tv("catalogTitle")]
+        : screen === "wishlist"
+          ? [tv("wishlistOverline"), tv("wishlistTitle")]
+          : screen === "profile"
+            ? [tError("profileUi.collector"), tError("profileUi.myProfile")]
+            : screen === "friends" || screen === "feed"
               ? [
-                  tError("market.auctionOverline"),
-                  tError("market.auctionTitle")
+                  tError("socialFriends.overline"),
+                  tError(
+                    screen === "feed" ? "topbar.social" : "socialFriends.title"
+                  )
                 ]
-              : headings[screen];
+              : screen === "auction"
+                ? [
+                    tError("market.auctionOverline"),
+                    tError("market.auctionTitle")
+                  ]
+                : headings[screen];
   const notificationItems = useNotificationItems(feed.notifications ?? []);
   return (
     <>
@@ -3224,6 +3272,7 @@ export function CommunityView({
           )}
           {screen === "friends" && (children ?? <FriendsView />)}
           {screen === "feed" && children}
+          {screen === "events" && <EventsHub />}
           {screen === "market" && (
             <MarketView
               pageHeading={pageHeading}

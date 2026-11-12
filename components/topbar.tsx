@@ -113,7 +113,8 @@ export function Topbar({
     | "wishlist"
     | "admin"
     | "achievements"
-    | "settings";
+    | "settings"
+    | "events";
   account?: ReactNode;
   name?: string;
   collection?: CollectedCard[];
@@ -251,6 +252,13 @@ export function Topbar({
             }
           >
             {t("market")}
+          </Link>
+          <Link
+            href="/events"
+            aria-current={view === "events" ? "page" : undefined}
+            onClick={() => setMobileMenu(false)}
+          >
+            {t("events")}
           </Link>
           <Link
             href="/trades"
