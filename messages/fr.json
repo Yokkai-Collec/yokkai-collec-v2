@@ -3352,6 +3352,33 @@
     "sectionpro": "Pro",
     "pageTitle": "Missions et succès"
   },
+  "sanctionAppeals": {
+    "history": "Historique des sanctions",
+    "inbox": "Recours contre les sanctions",
+    "empty": "Aucun recours.",
+    "submit": "Déposer un recours",
+    "reason": "Pourquoi cette sanction doit-elle être réexaminée ?",
+    "decisionReason": "Motif de la décision, visible par le joueur",
+    "uphold": "Maintenir la sanction",
+    "requestCorrection": "Demander une correction",
+    "voidWarning": "Annuler l’avertissement",
+    "warningVoided": "Avertissement annulé",
+    "kind": {
+      "ACCOUNT": "Sanction de compte",
+      "SMURF": "Sanction de compte secondaire"
+    },
+    "state": { "APPLIED": "Appliquée", "ROLLED_BACK": "Annulée" },
+    "status": {
+      "PENDING": "En attente de revue",
+      "UPHELD": "Sanction maintenue",
+      "CORRECTION_REQUIRED": "Correction nécessaire"
+    },
+    "result": {
+      "invalid": "Indique un motif d’au moins 10 caractères.",
+      "failed": "Impossible d’enregistrer la demande. Vérifie son état actuel.",
+      "saved": "Enregistré."
+    }
+  },
   "accountSanctions": {
     "cardsRemoved": "Cartes retirées",
     "karaRemoved": "Kara retirés",
@@ -3451,10 +3478,36 @@
     "prepareSanction": "Sanctionner",
     "clusters": {
       "title": "Fermes de comptes",
+      "scenarios": {
+        "A": "Parrainages et transferts de cartes",
+        "B": "Invocations gratuites",
+        "C": "Consommation coordonnée de parrainages",
+        "D": "Transferts de Karas et cycles d’enchères"
+      },
+      "workload": {
+        "clusters": "Groupes réseau",
+        "investigated": "Groupes examinés",
+        "confirmed": "Confirmés par un admin",
+        "dismissed": "Soupçons rejetés",
+        "activeQuarantines": "Quarantaines actives",
+        "overdueQuarantines": "Revues en retard",
+        "analysisFailures": "Échecs d’analyse",
+        "manualSmurfSanctions": "Sanctions smurf manuelles",
+        "deadlocks": "Interblocages SQL",
+        "pendingAppeals": "Recours en attente",
+        "correctionRequests": "Corrections demandées",
+        "recoveredPacks": "Packs récupérés"
+      },
+      "recoveryTitle": "Examiner les actifs traçables",
+      "recoverUnusedLot": "Récupérer {packs} packs non consommés chez {name}",
+      "recoveryAssets": "{packs, plural, one {# pack non consommé} other {# packs non consommés}} · {available} cartes sur {attributed} détenues par les comptes concernés · {blocked} bloquées · {protected, plural, one {# carte de tiers protégée} other {# cartes de tiers protégées}}",
+      "recoveryKaras": "{credited} Karas crédités par les ventes enregistrées · jusqu’à {possible} disponibles actuellement",
+      "recoverySale": "Vente {id} · {karas} Karas crédités",
+      "previewPair": "Ouvrir la prévisualisation de sanction manuelle pour {name}",
       "all": "Tous les groupes",
       "empty": "Aucun groupe à examiner.",
       "review": "Examiner le groupe",
-      "traceSummary": "{indirect} cartes transférées via un intermédiaire · {cycles} cycles de cartes · {sales} ventes aux enchères",
+      "traceSummary": "{indirect, plural, one {# carte transférée via un intermédiaire} other {# cartes transférées via un intermédiaire}} · {cycles, plural, one {# cycle de carte} other {# cycles de cartes}} · {sales, plural, one {# vente aux enchères} other {# ventes aux enchères}}",
       "tracedCard": "Exemplaire {id}",
       "confirm": "Confirmer la ferme",
       "dismiss": "Rejeter le soupçon",

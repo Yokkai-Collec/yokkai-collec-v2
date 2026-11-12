@@ -176,6 +176,111 @@ assert.equal(
   "0"
 );
 
+// A complete manual sanction and an independent quarantine release share
+// a payer. Both must commit once while respecting the payer's row lock.
+const [smurf, payer, tradePeer] = [4, 5, 6].map(
+  index => `ad530000-0000-4000-8000-00000000000${index}`
+);
+const sanctionFixture = JSON.parse(
+  await query(`
+  alter table auth.users add column email text,add column banned_until timestamptz,add column updated_at timestamptz;
+  create table auth.sessions(user_id uuid);
+  insert into auth.users(id,raw_user_meta_data) values
+    ('${smurf}','{"pseudo":"SanctionRaceSmurf"}'),
+    ('${payer}','{"pseudo":"SanctionRacePayer"}'),
+    ('${tradePeer}','{"pseudo":"SanctionRacePeer"}');
+  insert into auth.sessions values('${smurf}');
+  insert into public.friendships(user_id,friend_id,status) values
+    ('${smurf}','${payer}','accepted'),('${payer}','${tradePeer}','accepted');
+  update public.user_profiles set karas_balance=1000 where user_id in('${smurf}','${payer}','${tradePeer}');
+  insert into public.anticheat_network_observations(network_identity,user_id)
+    values('v1:'||repeat('c',64),'${payer}'),('v1:'||repeat('c',64),'${tradePeer}');
+  insert into public.anticheat_device_observations(device_identity,user_id)
+    values('v1:'||repeat('d',64),'${payer}'),('v1:'||repeat('d',64),'${tradePeer}');
+  with copies as (
+    insert into public.user_cards(user_id,card_id,rarity)
+    select '${payer}',id,'LR' from public.cards where source_id='concurrency-hold'
+    returning id
+  ), historical as (
+    insert into public.trade_offers(from_user,to_user,offered_card_ids,offered_karas,status)
+    select '${smurf}','${payer}',array[id],70,'accepted' from copies returning id
+  ), held as (
+    insert into public.trade_offers(from_user,to_user,offered_karas)
+    values('${payer}','${tradePeer}',10) returning id
+  ) select jsonb_build_object('card',(select id from copies),'held',(select id from held));
+`)
+);
+assert.equal(
+  await query(
+    `${actor(tradePeer)}select public.respond_trade_offer_with_status('${sanctionFixture.held}','accept');`
+  ),
+  "quarantined"
+);
+const sanctionHold = await query(
+  `select id from public.anticheat_quarantines where subject_id='${sanctionFixture.held}';`
+);
+const sanctionPreview = JSON.parse(
+  await query(`${actor(admin)}
+  select public.admin_preview_sanction('${smurf}','active','${payer}','{}');`)
+);
+assert.equal(sanctionPreview.eligible, true);
+const applySanction = `${actor(admin)}set application_name='quarantine-sanction-race';set statement_timeout='10s';
+  select public.admin_apply_sanction('${smurf}','active','${payer}','{}',
+    'Manually reviewed concurrency test','','${smurf}','${sanctionPreview.previewToken}');`;
+const releasing = session();
+try {
+  releasing.child.stdin.write(`${actor(admin)}begin;
+    select public.admin_resolve_trade_quarantine('${sanctionHold}',1,'release','Manual concurrent review');
+    select 'QUARANTINE_SETTLED';\n`);
+  await releasing.until("QUARANTINE_SETTLED");
+  const sanction = query(applySanction);
+  sanction.catch(() => {});
+  let blocked = false;
+  for (let attempt = 0; attempt < 30 && !blocked; attempt++) {
+    blocked =
+      (await query(
+        "select exists(select 1 from pg_stat_activity where application_name='quarantine-sanction-race' and wait_event_type='Lock');"
+      )) === "t";
+    if (!blocked) await delay(25);
+  }
+  assert.ok(
+    blocked,
+    "The sanction must wait for the releasing transaction's payer lock"
+  );
+  releasing.child.stdin.end("commit;\n");
+  assert.match(await releasing.done, /RELEASED/);
+  assert.ok(JSON.parse(await sanction).receiptId);
+  await assert.rejects(
+    query(applySanction),
+    /SANCTION_PREVIEW_CHANGED|MANUAL_SANCTION_NOT_ELIGIBLE/
+  );
+} finally {
+  if (!releasing.child.stdin.writableEnded)
+    releasing.child.stdin.end("rollback;\n");
+}
+assert.equal(
+  await query(
+    `select count(*) from public.anticheat_smurf_sanctions where smurf_user_id='${smurf}';`
+  ),
+  "1"
+);
+assert.equal(
+  await query(`select count(*) from auth.sessions where user_id='${smurf}';`),
+  "0"
+);
+assert.equal(
+  await query(
+    `select user_id from public.user_cards where id='${sanctionFixture.card}';`
+  ),
+  smurf
+);
+assert.equal(
+  await query(
+    `select karas_balance from public.user_profiles where user_id='${payer}';`
+  ),
+  "920"
+);
+
 const baseline = `${database}_baseline`;
 await query(`create database ${baseline} owner postgres;`, {
   db: "postgres",

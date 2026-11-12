@@ -29,6 +29,8 @@ export const ownerOnly = [
   "public.evaluate_anticheat_network_clusters()", // Private worker over pseudonymized observations.
   "public.trace_anticheat_pack_edges(uuid[], timestamp with time zone)", // Bounded private traversal over exact card instances.
   "public.evaluate_anticheat_farm_evidence()", // Flag-gated, non-punitive evidence worker.
+  "public.anticheat_additional_farm_scenarios(uuid[])", // Private independent classifiers.
+  "public.attach_anticheat_farm_scenarios(uuid, uuid[], integer)", // Private merge of scenario evidence into the current cohort review.
   "public.with_anticheat_sanction_hold_conflicts(jsonb)", // Private decorator for existing admin-only previews.
   "public.anticheat_evidenced_referral_hold(referrals)", // Private corroborated hold policy used by referral verification.
   "public.anticheat_farm_evidence_version(anticheat_farm_evidence)", // Private deterministic version of the case evidence.
@@ -118,6 +120,15 @@ const allowlist = {
   ], // Admin guard, versioned decision and mandatory reason.
   "public.respond_trade_offer_with_status(uuid, text)": ["authenticated"], // Same recipient and ban guards as the existing response RPC.
   "public.admin_list_anticheat_clusters(uuid)": ["authenticated"], // Admin-only bounded cluster and member summaries without technical identifiers.
+  "public.admin_preview_anticheat_farm_recovery(uuid)": ["authenticated"], // Admin-only plan for attributed assets and protected holdings.
+  "public.admin_anticheat_workload()": ["authenticated"], // Admin-only workload and database counters.
+  "public.admin_recover_anticheat_unused_reward_lot(uuid, text, uuid, integer, text)":
+    ["authenticated"], // Admin-only reviewed and reconciled single-lot recovery.
+  "public.get_my_anticheat_sanction_history()": ["authenticated"], // Own published receipts and own appeal outcome only.
+  "public.submit_my_anticheat_appeal(text, uuid, text)": ["authenticated"], // Owned receipt, one append-only appeal.
+  "public.admin_list_anticheat_appeals()": ["authenticated"], // Admin-only bounded appeal inbox.
+  "public.admin_review_anticheat_appeal(uuid, text, text)": ["authenticated"], // Admin-only one terminal review per appeal.
+  "public.admin_void_anticheat_warning(uuid, text)": ["authenticated"], // Admin-only correction of a zero-asset warning after review.
   "public.admin_review_anticheat_farm(uuid, text, text, text)": [
     "authenticated"
   ], // Admin-only append-only review; applies no sanctions.

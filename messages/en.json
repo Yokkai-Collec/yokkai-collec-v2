@@ -3352,6 +3352,30 @@
     "sectionpro": "Pro",
     "pageTitle": "Missions & achievements"
   },
+  "sanctionAppeals": {
+    "history": "Sanction history",
+    "inbox": "Sanction appeals",
+    "empty": "No appeals.",
+    "submit": "Submit an appeal",
+    "reason": "Why should this sanction be reviewed?",
+    "decisionReason": "Reason for the decision, visible to the player",
+    "uphold": "Uphold sanction",
+    "requestCorrection": "Mark for correction",
+    "voidWarning": "Void warning",
+    "warningVoided": "Warning voided",
+    "kind": { "ACCOUNT": "Account sanction", "SMURF": "Smurf sanction" },
+    "state": { "APPLIED": "Applied", "ROLLED_BACK": "Rolled back" },
+    "status": {
+      "PENDING": "Awaiting review",
+      "UPHELD": "Sanction upheld",
+      "CORRECTION_REQUIRED": "Correction required"
+    },
+    "result": {
+      "invalid": "Enter a reason of at least 10 characters.",
+      "failed": "The request could not be saved. Check its current status.",
+      "saved": "Saved."
+    }
+  },
   "accountSanctions": {
     "cardsRemoved": "Cards removed",
     "karaRemoved": "Kara removed",
@@ -3451,10 +3475,36 @@
     "prepareSanction": "Sanction",
     "clusters": {
       "title": "Account farm investigations",
+      "scenarios": {
+        "A": "Referral rewards and card transfers",
+        "B": "Free pack farming",
+        "C": "Coordinated referral consumption",
+        "D": "Kara transfers and auction cycles"
+      },
+      "workload": {
+        "clusters": "Network groups",
+        "investigated": "Investigated",
+        "confirmed": "Confirmed by admins",
+        "dismissed": "Dismissed suspicions",
+        "activeQuarantines": "Active holds",
+        "overdueQuarantines": "Overdue reviews",
+        "analysisFailures": "Analysis failures",
+        "manualSmurfSanctions": "Manual smurf sanctions",
+        "deadlocks": "Database deadlocks",
+        "pendingAppeals": "Pending appeals",
+        "correctionRequests": "Corrections requested",
+        "recoveredPacks": "Packs recovered"
+      },
+      "recoveryTitle": "Review attributed assets",
+      "recoverUnusedLot": "Recover {packs} unused packs from {name}",
+      "recoveryAssets": "{packs, plural, one {# unused pack} other {# unused packs}} · {available} of {attributed} attributed cards held by involved accounts · {blocked} blocked · {protected, plural, one {# protected third-party card} other {# protected third-party cards}}",
+      "recoveryKaras": "{credited} Karas credited by recorded sales · up to {possible} currently available",
+      "recoverySale": "Sale {id} · {karas} Karas credited",
+      "previewPair": "Open the manual sanction preview for {name}",
       "all": "All groups",
       "empty": "No group to investigate.",
       "review": "Examine group",
-      "traceSummary": "{indirect} cards transferred through intermediaries · {cycles} card cycles · {sales} auction sales",
+      "traceSummary": "{indirect, plural, one {# card transferred through an intermediary} other {# cards transferred through intermediaries}} · {cycles, plural, one {# card cycle} other {# card cycles}} · {sales, plural, one {# auction sale} other {# auction sales}}",
       "tracedCard": "Card instance {id}",
       "confirm": "Confirm farm",
       "dismiss": "Dismiss suspicion",

@@ -9,8 +9,10 @@ import { requireAdminPage } from "@/lib/auth/admin";
 import { getCurrentKarasBalance, getCurrentPseudo } from "@/lib/auth/session";
 import { createClient } from "@/utils/supabase/server";
 import { AdminNavigation } from "../admin-navigation";
+import { SanctionAppeals } from "./sanction-appeals";
 import {
   applySmurfSanctionAction,
+  recoverUnusedReferralLotAction,
   resolveTradeQuarantineAction,
   reviewAnticheatFarmAction,
   reviewAnticheatCaseAction
@@ -368,6 +370,7 @@ export default async function AdminSecurityPage({
     quarantine_result?: string;
     cluster?: string;
     farm_result?: string;
+    appeal_result?: string;
   }>;
 }) {
   const admin = await requireAdminPage();
@@ -497,7 +500,9 @@ export default async function AdminSecurityPage({
     casesResult,
     eventsResult,
     quarantinesResult,
-    clustersResult
+    clustersResult,
+    workloadResult,
+    farmRecoveryResult
   ] = await Promise.all([
     getCurrentPseudo(admin.id),
     getCurrentKarasBalance(client),
@@ -518,12 +523,36 @@ export default async function AdminSecurityPage({
       p_limit: 30,
       p_offset: 0
     }),
-    client.rpc("admin_list_anticheat_clusters", { p_id: clusterId })
+    client.rpc("admin_list_anticheat_clusters", { p_id: clusterId }),
+    client.rpc("admin_anticheat_workload"),
+    clusterId
+      ? client.rpc("admin_preview_anticheat_farm_recovery", {
+          p_cluster: clusterId
+        })
+      : Promise.resolve({ data: null, error: null })
   ]);
   if (casesResult.error) throw new Error(casesResult.error.message);
   if (eventsResult.error) throw new Error(eventsResult.error.message);
   if (quarantinesResult.error) throw new Error(quarantinesResult.error.message);
   if (clustersResult.error) throw new Error(clustersResult.error.message);
+  if (workloadResult.error) throw new Error(workloadResult.error.message);
+  if (farmRecoveryResult.error)
+    throw new Error(farmRecoveryResult.error.message);
+  const workload = (workloadResult.data ?? {}) as Record<string, number>;
+  const farmRecovery = farmRecoveryResult.data as {
+    beneficiary: string;
+    secondaries: string[];
+    unusedPacks: number;
+    attributedCards: number;
+    protectedCards: number;
+    availableCards: number;
+    blockedCards: number;
+    creditedKaras: number;
+    possibleKaras: number;
+    recoveryEnabled?: boolean;
+    referredLots?: { id: string; owner: string; packs: number }[];
+    sales: { id: string; sale_karas: number }[];
+  } | null;
   const clusters = (clustersResult.data ?? []) as {
     id: string;
     accountCount: number;
@@ -545,6 +574,19 @@ export default async function AdminSecurityPage({
       indirectCards?: number;
       cycleCards?: number;
       auctionSales?: number;
+      scenarioFindings?: Partial<
+        Record<
+          "A" | "B" | "C" | "D",
+          {
+            score: number;
+            confidence: "CORROBORATED" | "INSUFFICIENT";
+            decision: "INVESTIGATE" | "ECONOMICALLY_CONFIRMED";
+            cards?: number;
+            netKaras?: number;
+            secondaries: string[];
+          }
+        >
+      >;
       proofs?: {
         secondary: string;
         card: string;
@@ -970,6 +1012,36 @@ export default async function AdminSecurityPage({
             <h2 className="text-xl font-bold text-slate-100">
               {t("clusters.title")}
             </h2>
+            <dl className="my-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-3 lg:grid-cols-5">
+              {(
+                [
+                  "clusters",
+                  "investigated",
+                  "confirmed",
+                  "dismissed",
+                  "activeQuarantines",
+                  "overdueQuarantines",
+                  "analysisFailures",
+                  "manualSmurfSanctions",
+                  "deadlocks",
+                  "pendingAppeals",
+                  "correctionRequests",
+                  "recoveredPacks"
+                ] as const
+              ).map(key => (
+                <div
+                  key={key}
+                  className="rounded-lg border border-slate-800 p-2"
+                >
+                  <dt className="text-slate-400">
+                    {t(`clusters.workload.${key}`)}
+                  </dt>
+                  <dd className="font-semibold text-slate-100">
+                    {workload[key] ?? 0}
+                  </dd>
+                </div>
+              ))}
+            </dl>
             {clusterId && (
               <Link
                 href="/admin/security#anticheat-clusters"
@@ -1039,6 +1111,36 @@ export default async function AdminSecurityPage({
                           cycles: cluster.farmEvidence.cycleCards ?? 0,
                           sales: cluster.farmEvidence.auctionSales ?? 0
                         })}
+                        {Object.entries(
+                          cluster.farmEvidence.scenarioFindings ?? {}
+                        ).map(([key, finding]) => (
+                          <div
+                            key={key}
+                            className="mt-2 rounded border border-slate-800 p-2"
+                          >
+                            <p className="font-semibold">
+                              {t(`clusters.scenarios.${key}`)}
+                            </p>
+                            <p>
+                              {t(
+                                `clusters.farmConfidence.${finding.confidence}`
+                              )}{" "}
+                              ·{" "}
+                              {t("quarantines.risk", { count: finding.score })}
+                            </p>
+                            <p>
+                              {t("clusters.accounts", {
+                                count: finding.secondaries.length
+                              })}
+                            </p>
+                            {finding.cards !== undefined && (
+                              <p>{t("cards", { count: finding.cards })}</p>
+                            )}
+                            {finding.netKaras !== undefined && (
+                              <p>{t("karas", { count: finding.netKaras })}</p>
+                            )}
+                          </div>
+                        ))}
                         {(cluster.farmEvidence.proofs ?? []).map(proof => (
                           <div
                             key={proof.edge}
@@ -1060,6 +1162,104 @@ export default async function AdminSecurityPage({
                           </div>
                         ))}
                       </div>
+                    )}
+                    {clusterId && farmRecovery && (
+                      <details className="mt-3 rounded-lg border border-slate-800 p-3 text-sm text-slate-200">
+                        <summary className="cursor-pointer font-semibold">
+                          {t("clusters.recoveryTitle")}
+                        </summary>
+                        <p className="mt-2">
+                          {t("clusters.recoveryAssets", {
+                            packs: farmRecovery.unusedPacks,
+                            available: farmRecovery.availableCards,
+                            attributed: farmRecovery.attributedCards,
+                            blocked: farmRecovery.blockedCards,
+                            protected: farmRecovery.protectedCards
+                          })}
+                        </p>
+                        <p>
+                          {t("clusters.recoveryKaras", {
+                            credited: farmRecovery.creditedKaras,
+                            possible: farmRecovery.possibleKaras
+                          })}
+                        </p>
+                        {farmRecovery.recoveryEnabled &&
+                          cluster.farmReview === "CONFIRMED" &&
+                          cluster.farmVersion &&
+                          (farmRecovery.referredLots ?? []).map(lot => (
+                            <form
+                              key={lot.id}
+                              action={recoverUnusedReferralLotAction}
+                              className="mt-2 grid gap-2 rounded border border-slate-700 p-2"
+                            >
+                              <input
+                                type="hidden"
+                                name="cluster"
+                                value={cluster.id}
+                              />
+                              <input type="hidden" name="lot" value={lot.id} />
+                              <input
+                                type="hidden"
+                                name="version"
+                                value={cluster.farmVersion ?? undefined}
+                              />
+                              <input
+                                type="hidden"
+                                name="packs"
+                                value={lot.packs}
+                              />
+                              <textarea
+                                name="reason"
+                                aria-label={t("quarantines.reason")}
+                                placeholder={t("quarantines.reason")}
+                                required
+                                minLength={10}
+                                maxLength={500}
+                                className="yk-field-control w-full"
+                              />
+                              <button className="yk-button min-h-11">
+                                {t("clusters.recoverUnusedLot", {
+                                  packs: lot.packs,
+                                  name:
+                                    cluster.members.find(
+                                      member => member.id === lot.owner
+                                    )?.pseudo ?? lot.owner
+                                })}
+                              </button>
+                            </form>
+                          ))}
+                        {farmRecovery.sales.length > 0 && (
+                          <ul className="mt-2 space-y-1">
+                            {farmRecovery.sales.map(sale => (
+                              <li key={sale.id} className="break-all">
+                                {t("clusters.recoverySale", {
+                                  id: sale.id,
+                                  karas: sale.sale_karas
+                                })}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                        {cluster.farmReview === "CONFIRMED" && (
+                          <ul className="mt-2 space-y-1">
+                            {farmRecovery.secondaries.map(id => (
+                              <li key={id} className="[overflow-wrap:anywhere]">
+                                <Link
+                                  className="text-cyan-200 underline"
+                                  href={`/admin/security?sanction=${id}&primary=${farmRecovery.beneficiary}&role=smurf#sanction-preview`}
+                                >
+                                  {t("clusters.previewPair", {
+                                    name:
+                                      cluster.members.find(
+                                        member => member.id === id
+                                      )?.pseudo ?? id
+                                  })}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </details>
                     )}
                     {clusterId ? (
                       <ul className="mt-2 space-y-1 text-sm text-slate-300">
@@ -1142,6 +1342,8 @@ export default async function AdminSecurityPage({
               </p>
             )}
           </section>
+
+          <SanctionAppeals result={params.appeal_result} />
 
           <section className="rounded-2xl border border-cyan-300/20 bg-slate-900/70 p-4 sm:p-5">
             <form

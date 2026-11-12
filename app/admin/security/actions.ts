@@ -8,6 +8,72 @@ import { createClient } from "@/utils/supabase/server";
 
 const statuses = new Set(["open", "reviewed", "dismissed"]);
 
+export async function recoverUnusedReferralLotAction(form: FormData) {
+  await requireAdminAction();
+  const cluster = String(form.get("cluster") ?? "");
+  const lot = String(form.get("lot") ?? "");
+  const version = String(form.get("version") ?? "");
+  const reason = String(form.get("reason") ?? "").trim();
+  const packs = Number(form.get("packs"));
+  const uuid = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
+  if (!uuid.test(cluster)) redirect("/admin/security#anticheat-clusters");
+  const destination = `/admin/security?cluster=${cluster}&farm_result=`;
+  if (
+    !uuid.test(lot) ||
+    !/^[0-9a-f]{32}$/.test(version) ||
+    !Number.isSafeInteger(packs) ||
+    packs < 1 ||
+    packs > 5 ||
+    reason.length < 10 ||
+    reason.length > 500
+  ) {
+    redirect(`${destination}invalid#anticheat-clusters`);
+  }
+  const client = createClient(await cookies());
+  const { error } = await client.rpc(
+    "admin_recover_anticheat_unused_reward_lot",
+    {
+      p_cluster: cluster,
+      p_version: version,
+      p_lot: lot,
+      p_expected_packs: packs,
+      p_reason: reason
+    }
+  );
+  revalidatePath("/admin/security");
+  redirect(`${destination}${error ? "failed" : "saved"}#anticheat-clusters`);
+}
+
+export async function reviewSanctionAppealAction(form: FormData) {
+  await requireAdminAction();
+  const id = String(form.get("appeal_id") ?? "");
+  const outcome = String(form.get("outcome") ?? "");
+  const reason = String(form.get("reason") ?? "").trim();
+  const destination = "/admin/security?appeal_result=";
+  if (
+    !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(id) ||
+    !["UPHELD", "CORRECTION_REQUIRED", "VOID_WARNING"].includes(outcome) ||
+    reason.length < 10 ||
+    reason.length > 1000
+  ) {
+    redirect(`${destination}invalid#anticheat-appeals`);
+  }
+  const client = createClient(await cookies());
+  const { error } =
+    outcome === "VOID_WARNING"
+      ? await client.rpc("admin_void_anticheat_warning", {
+          p_appeal: id,
+          p_reason: reason
+        })
+      : await client.rpc("admin_review_anticheat_appeal", {
+          p_id: id,
+          p_outcome: outcome,
+          p_reason: reason
+        });
+  revalidatePath("/admin/security");
+  redirect(`${destination}${error ? "failed" : "saved"}#anticheat-appeals`);
+}
+
 export async function reviewAnticheatFarmAction(form: FormData) {
   await requireAdminAction();
   const id = String(form.get("cluster_id") ?? "");
