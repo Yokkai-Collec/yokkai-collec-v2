@@ -29,16 +29,20 @@ const responses = {
   admin_list_anticheat_cases: { cases: [], summary: {} },
   admin_list_anticheat_events: { events: [] },
   admin_list_anticheat_quarantines: {
-    items: [true, false].map((recorded, i) => ({
+    items: [
+      ["AWAITING_REVIEW", ["SHARED_NETWORK_BROWSER_ONE_WAY_TRANSFER"]],
+      ["AWAITING_REVIEW", []],
+      ["CANCELLED", ["SHARED_NETWORK_AND_BROWSER_TRADE_SANCTION"]]
+    ].map(([status, reasonCodes], i) => ({
       id: `ad560000-0000-4000-8000-00000000001${i}`,
       subjectType: "trade",
       subjectId: receipt,
-      status: "AWAITING_REVIEW",
+      status,
       sender: { id: admin, pseudo: "FixtureAdmin" },
       recipient: { id: member, pseudo: "FixtureMember" },
       confidence: "CORROBORATED",
       economicSeverity: "MEDIUM",
-      reasonCodes: recorded ? ["SHARED_NETWORK_BROWSER_ONE_WAY_TRANSFER"] : [],
+      reasonCodes,
       createdAt: now,
       expiresAt: now
     })),
@@ -246,6 +250,14 @@ try {
       .locator("details")
       .filter({ hasText: "Examiner l’échange" });
     assert.equal(await reviews.count(), 2);
+    assert.ok(
+      await page
+        .locator("#anticheat-quarantines")
+        .getByText("Annulation automatique · même IP et même navigateur", {
+          exact: true
+        })
+        .isVisible()
+    );
     for (const [index, status] of ["Oui", "Non renseigné"].entries()) {
       const review = reviews.nth(index);
       await review.locator("summary").click();

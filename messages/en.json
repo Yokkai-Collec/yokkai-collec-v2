@@ -3396,6 +3396,24 @@
     }
   },
   "accountSanctions": {
+    "sharedTradeWarning": {
+      "title": "Warning after a trade cancellation",
+      "intro": "The trade was cancelled because both accounts used the same IP address and browser.",
+      "rules": "The newer account was banned and your account received a warning.",
+      "future": "After three active warnings, another trade that meets this rule results in a 48-hour suspension."
+    },
+    "sharedTradeBan": {
+      "title": "Account permanently banned",
+      "intro": "Your account was the newer of the two accounts involved in a cancelled trade.",
+      "rules": "Both accounts used the same IP address and browser.",
+      "future": "Contact support to request a review of the decision."
+    },
+    "sharedTradeSuspension": {
+      "title": "Account suspended for 48 hours",
+      "intro": "Another trade was cancelled after three active warnings.",
+      "rules": "Both accounts used the same IP address and browser.",
+      "future": "Contact support to request a review of the decision."
+    },
     "farmWarning": {
       "title": "Warning for referral farming",
       "intro": "Recorded card requests established your involvement in confirmed referral farming.",
@@ -3619,6 +3637,7 @@
       "connection": {
         "sameIp": "Same IP address",
         "sameBrowser": "Same browser",
+        "automaticCancellation": "Automatically cancelled · same IP and browser",
         "confirmed": "Yes",
         "unknown": "Not recorded"
       },

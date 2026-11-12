@@ -2,20 +2,14 @@
 
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
+import { anticheatSanctionLabel } from "@/lib/anticheat-sanction-labels";
 import { useAppealTokenAction } from "./actions";
 
 export function AppealAccess() {
   const t = useTranslations("sanctionAppeals");
   const sanctions = useTranslations("accountSanctions");
   const [state, action, pending] = useActionState(useAppealTokenAction, {});
-  const farmKind =
-    state.type === "FARM_BAN"
-      ? "farmBan"
-      : state.type === "FARM_SUSPENSION"
-        ? "farmSuspension"
-        : state.type === "FARM_WARNING"
-          ? "farmWarning"
-          : null;
+  const sanctionKind = anticheatSanctionLabel(state.type);
   return (
     <section className="yk-panel p-4 sm:p-6">
       <h1 className="text-xl font-bold">{t("tokenAccess")}</h1>
@@ -53,10 +47,12 @@ export function AppealAccess() {
       {state.state && (
         <div className="mt-3 grid gap-1 text-sm" role="status">
           <p>
-            {farmKind ? sanctions(`${farmKind}.title`) : t("kind.ACCOUNT")} ·{" "}
-            {t(`state.${state.state}`)}
+            {sanctionKind
+              ? sanctions(`${sanctionKind}.title`)
+              : t("kind.ACCOUNT")}{" "}
+            · {t(`state.${state.state}`)}
           </p>
-          {farmKind && <p>{sanctions(`${farmKind}.intro`)}</p>}
+          {sanctionKind && <p>{sanctions(`${sanctionKind}.intro`)}</p>}
           {state.status && <p>{t(`status.${state.status}`)}</p>}
           {state.decisionReason && (
             <p className="break-words">{state.decisionReason}</p>

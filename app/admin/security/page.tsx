@@ -131,6 +131,7 @@ type QuarantineRow = {
   confidence: string;
   economicSeverity: string;
   sharedConnectionRecorded: boolean;
+  automaticallyCancelled: boolean;
   createdAt: string;
   expiresAt: string;
   version: number;
@@ -276,6 +277,7 @@ function eventFromRpc(value: Record<string, unknown>): EventRow {
 }
 
 function quarantineFromRpc(value: Record<string, unknown>): QuarantineRow {
+  const reasonCodes = strings(value.reasonCodes);
   const party = (key: "sender" | "recipient") => {
     const record = value[key] as Record<string, unknown> | undefined;
     return {
@@ -293,10 +295,15 @@ function quarantineFromRpc(value: Record<string, unknown>): QuarantineRow {
     riskScore: Number(value.riskScore ?? 0),
     confidence: String(value.confidence ?? "LOW"),
     economicSeverity: String(value.economicSeverity ?? "LOW"),
-    sharedConnectionRecorded: strings(value.reasonCodes).some(
+    sharedConnectionRecorded: reasonCodes.some(
       code =>
         code === "SHARED_NETWORK_BROWSER_ONE_WAY_TRANSFER" ||
+        code === "SHARED_NETWORK_BROWSER_ROLES_UNRESOLVED" ||
+        code === "SHARED_NETWORK_AND_BROWSER_TRADE_SANCTION" ||
         code === "SHARED_NETWORK_AND_BROWSER_WITH_ACCEPTED_TRADE"
+    ),
+    automaticallyCancelled: reasonCodes.includes(
+      "SHARED_NETWORK_AND_BROWSER_TRADE_SANCTION"
     ),
     createdAt: String(value.createdAt ?? ""),
     expiresAt: String(value.expiresAt ?? ""),
@@ -948,6 +955,13 @@ export default async function AdminSecurityPage({
                           <span className="rounded-full border border-violet-300/20 bg-violet-500/10 px-2 py-1 text-xs font-bold text-violet-100">
                             {t(`quarantines.statuses.${item.status}`)}
                           </span>
+                          {item.automaticallyCancelled && (
+                            <p className="mt-1 text-xs text-slate-400">
+                              {t(
+                                "quarantines.connection.automaticCancellation"
+                              )}
+                            </p>
+                          )}
                         </td>
                         <td className="px-3 py-3 text-slate-300">
                           {dateFormatter.format(new Date(item.expiresAt))}

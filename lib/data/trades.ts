@@ -323,12 +323,12 @@ export async function respondTradeOffer(
 export async function respondTradeOfferWithStatus(
   id: string,
   action: "accept" | "decline"
-): Promise<boolean | "quarantined"> {
+): Promise<boolean | "quarantined" | "cancelled"> {
   const status = await call<string>("respond_trade_offer_with_status", {
     p_offer_id: id,
     p_action: action
   });
   if (status === "accepted") invalidatePlayerSnapshots(["collection", "balance"]);
-  if (status === "quarantined") return status;
+  if (status === "quarantined" || status === "cancelled") return status;
   return status === "accepted" || status === "declined";
 }
