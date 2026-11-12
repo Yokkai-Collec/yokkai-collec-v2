@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { anticheatSanctionLabel } from "@/lib/anticheat-sanction-labels";
 import { createClient } from "@/utils/supabase/client";
 import "@/styles/account-sanctions.css";
 
@@ -15,7 +16,10 @@ type Receipt = {
     | "SMURF_ASSET_RECOVERY"
     | "FARM_BAN"
     | "FARM_WARNING"
-    | "FARM_SUSPENSION";
+    | "FARM_SUSPENSION"
+    | "SHARED_TRADE_BAN"
+    | "SHARED_TRADE_WARNING"
+    | "SHARED_TRADE_SUSPENSION";
   cards_removed: number;
   kara_removed: number;
 };
@@ -109,22 +113,18 @@ export function AccountSanctionNotice() {
     };
   }, [receiptId]);
   if (!receipt) return null;
+  const anticheatKind = anticheatSanctionLabel(receipt.sanction_type);
   const kind =
-    receipt.sanction_type === "SMURF_ASSET_RECOVERY"
+    anticheatKind ??
+    (receipt.sanction_type === "SMURF_ASSET_RECOVERY"
       ? "recovery"
-      : receipt.sanction_type === "FARM_BAN"
-        ? "farmBan"
-        : receipt.sanction_type === "FARM_SUSPENSION"
-          ? "farmSuspension"
-          : receipt.sanction_type === "AFFILIATE_ABUSE_SANCTION"
-            ? "sanction"
-            : receipt.sanction_type === "AFFILIATE_ABUSE_WARNING_WITH_PENALTY"
-              ? "penalty"
-              : receipt.sanction_type === "AFFILIATE_ABUSE_NETWORK_WARNING"
-                ? "networkWarning"
-                : receipt.sanction_type === "FARM_WARNING"
-                  ? "farmWarning"
-                  : "warning";
+      : receipt.sanction_type === "AFFILIATE_ABUSE_SANCTION"
+        ? "sanction"
+        : receipt.sanction_type === "AFFILIATE_ABUSE_WARNING_WITH_PENALTY"
+          ? "penalty"
+          : receipt.sanction_type === "AFFILIATE_ABUSE_NETWORK_WARNING"
+            ? "networkWarning"
+            : "warning");
   const acknowledge = async () => {
     if (saving) return;
     setSaving(true);
@@ -156,13 +156,7 @@ export function AccountSanctionNotice() {
     >
       <h2 id={title}>{t(`${kind}.title`)}</h2>
       <p>{t(`${kind}.intro`)}</p>
-      {![
-        "warning",
-        "networkWarning",
-        "farmBan",
-        "farmSuspension",
-        "farmWarning"
-      ].includes(kind) && (
+      {!anticheatKind && kind !== "warning" && kind !== "networkWarning" && (
         <>
           <p>{t(`${kind}.decision`)}</p>
           <dl>

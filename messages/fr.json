@@ -3399,6 +3399,24 @@
     }
   },
   "accountSanctions": {
+    "sharedTradeWarning": {
+      "title": "Avertissement après annulation d’un échange",
+      "intro": "L’échange a été annulé car les deux comptes utilisaient la même adresse IP et le même navigateur.",
+      "rules": "Le compte le plus récent a été banni et ton compte a reçu un avertissement.",
+      "future": "Après trois avertissements actifs, un nouvel échange répondant à cette règle entraîne une suspension de 48 heures."
+    },
+    "sharedTradeBan": {
+      "title": "Compte banni définitivement",
+      "intro": "Ton compte était le plus récent des deux comptes impliqués dans un échange annulé.",
+      "rules": "Les deux comptes utilisaient la même adresse IP et le même navigateur.",
+      "future": "Contacte l’assistance pour demander un réexamen de la décision."
+    },
+    "sharedTradeSuspension": {
+      "title": "Compte suspendu pour 48 heures",
+      "intro": "Un nouvel échange a été annulé après trois avertissements actifs.",
+      "rules": "Les deux comptes utilisaient la même adresse IP et le même navigateur.",
+      "future": "Contacte l’assistance pour demander un réexamen de la décision."
+    },
     "farmWarning": {
       "title": "Avertissement pour abus du parrainage",
       "intro": "Une activité de parrainage associée à ton compte a déclenché une sanction.",
@@ -3622,6 +3640,7 @@
       "connection": {
         "sameIp": "Même adresse IP",
         "sameBrowser": "Même navigateur",
+        "automaticCancellation": "Annulation automatique · même IP et même navigateur",
         "confirmed": "Oui",
         "unknown": "Non renseigné"
       },

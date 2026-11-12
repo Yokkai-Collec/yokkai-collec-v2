@@ -7,6 +7,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createTranslator } from "next-intl";
 import { createRequire } from "node:module";
+import { anticheatSanctionLabels } from "./helpers/anticheat-sanction-labels.mjs";
 const require = createRequire(import.meta.url);
 export function noticeHarness(
   locale = "en",
@@ -96,9 +97,11 @@ export function noticeHarness(
                       }
                     })
                   }
-                : name.endsWith(".css")
-                  ? {}
-                  : require(name)
+                : name === "@/lib/anticheat-sanction-labels"
+                  ? anticheatSanctionLabels
+                  : name.endsWith(".css")
+                    ? {}
+                    : require(name)
     }
   );
   const node = exports.AccountSanctionNotice();

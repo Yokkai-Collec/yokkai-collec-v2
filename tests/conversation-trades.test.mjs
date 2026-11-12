@@ -229,6 +229,31 @@ test("a pre-response read cannot restore Pending after acceptance; refresh reque
   feed.stop();
 });
 
+test("a security cancellation stays cancelled when the follow-up read fails", async () => {
+  let responded = false;
+  let accepted = false;
+  const { feed, latest } = setup(
+    {
+      listOffers: async () => {
+        if (responded) throw new Error("Read failed");
+        return [offer()];
+      },
+      respond: async () => {
+        responded = true;
+        return "cancelled";
+      }
+    },
+    () => {
+      accepted = true;
+    }
+  );
+  await feed.refresh();
+  assert.equal(await feed.respond("trade-1", "accept"), true);
+  assert.equal(latest().offers[0].status, "cancelled");
+  assert.equal(accepted, false);
+  feed.stop();
+});
+
 test("server rejection refreshes a stale offer; failed reload never erases a successful response", async () => {
   let count = 0;
   const rejected = setup({

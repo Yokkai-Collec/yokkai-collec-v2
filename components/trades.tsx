@@ -1267,8 +1267,8 @@ export function TradesPanel({
         throw new Error("This offer is no longer available.");
       commitOfferStatus(
         id,
-        accepted === "quarantined"
-          ? "quarantined"
+        typeof accepted === "string"
+          ? accepted
           : action === "accept"
             ? "accepted"
             : "declined"
