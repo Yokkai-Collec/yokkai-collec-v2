@@ -63,6 +63,7 @@ returns integer language plpgsql security definer set search_path='' as $$
 declare batch public.catalogue_discord_imports%rowtype; count_events integer; result integer:=0;
   summary_data jsonb; details text; added bigint; changed bigint;
 begin
+  perform public.assert_player_not_banned();
   if not (current_setting('role',true)='service_role' or (current_setting('role',true)='none' and session_user in('postgres','supabase_admin')) or exists(select 1 from public.admin_users where user_id=auth.uid())) then raise exception 'ADMIN_REQUIRED'; end if;
   select * into batch from public.catalogue_discord_imports where id=p_import_id for update;
   if not found or batch.finished_at is not null then return 0; end if;
@@ -119,6 +120,7 @@ create function public.import_catalogue_cards_announced(p_rows jsonb,p_import_id
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare result jsonb; previous text:=current_setting('yokkai.catalogue_discord_import',true);
 begin
+  perform public.assert_player_not_banned();
   if not (current_setting('role',true)='service_role' or (current_setting('role',true)='none' and session_user in('postgres','supabase_admin')) or exists(select 1 from public.admin_users where user_id=auth.uid())) then raise exception 'ADMIN_REQUIRED'; end if;
   if p_anilist and current_setting('role',true) not in('service_role','none') then raise exception 'SERVICE_ROLE_REQUIRED'; end if;
   if p_import_id is null or jsonb_typeof(p_rows) is distinct from 'array' or jsonb_array_length(p_rows)>200 then raise exception 'INVALID_IMPORT'; end if;
@@ -149,6 +151,7 @@ create function public.update_catalogue_card_announced(p_card_id uuid,p_patch js
 returns void language plpgsql security definer set search_path='' as $$
 declare previous text:=current_setting('yokkai.catalogue_discord_import',true);
 begin
+  perform public.assert_player_not_banned();
   if not (current_setting('role',true)='service_role' or (current_setting('role',true)='none' and session_user in('postgres','supabase_admin')) or exists(select 1 from public.admin_users where user_id=auth.uid())) then raise exception 'ADMIN_REQUIRED'; end if;
   if p_import_id is null then raise exception 'INVALID_IMPORT'; end if;
   insert into public.catalogue_discord_imports(id) values(p_import_id) on conflict(id) do nothing;
