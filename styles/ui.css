@@ -67,7 +67,7 @@ body {
    apply, and the navigation, backgrounds and pack cinematics span the screen. */
 @media (1024px <= width <= 1920px) {
   .yk-page-transition
-    :is(main, .yk-auth-shell):not(
+    main:not(
       :where(
         .yk-auth-main,
         .yk-card-browse-page,
@@ -75,6 +75,13 @@ body {
       )
     ) {
     width: calc(100% - 2 * var(--page-inline-gutter));
+    margin-inline: auto;
+  }
+  .yk-auth-shell > .yk-auth-main {
+    width: min(
+      100%,
+      calc(100vw - 2 * (var(--page-inline-gutter) + var(--layout-gutter)))
+    );
     margin-inline: auto;
   }
 }
