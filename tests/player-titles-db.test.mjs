@@ -72,6 +72,11 @@ test("players can equip only their own unlocked titles", async t => {
   const viewed = await profile("TitleOther");
   assert.equal(viewed.titleId, "test_reward");
   assert.equal(viewed.unlockedTitleIds, undefined);
+  const socialIdentity = (
+    await db.query("select public.search_users('TitleOther') as value")
+  ).rows[0].value[0];
+  assert.equal(socialIdentity.profileStyle.titleId, "test_reward");
+  assert.equal(socialIdentity.profileStyle.active, false);
   await db.exec("reset role");
   await db.query("delete from public.player_title_unlocks where user_id=$1", [
     other

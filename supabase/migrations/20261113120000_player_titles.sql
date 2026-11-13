@@ -25,6 +25,19 @@ alter table public.player_equipped_titles enable row level security;
 revoke all on public.player_title_catalog, public.player_title_unlocks, public.player_equipped_titles from public, anon, authenticated;
 grant select, insert, update, delete on public.player_title_catalog, public.player_title_unlocks, public.player_equipped_titles to service_role;
 
+-- Reuse the existing social identity projection. Titles remain visible for
+-- Basic players too; only paid style fields depend on Pro entitlement.
+create or replace function public.billing_profile_cosmetics(p_user uuid) returns jsonb
+language sql volatile security definer set search_path = '' as $$
+  select jsonb_build_object('active', paid, 'style', case when paid then
+    coalesce((select style from public.profile_customizations where user_id = p_user), '{}'::jsonb)
+    else '{}'::jsonb end,
+    'titleId', coalesce((select title_id from public.player_equipped_titles where user_id = p_user), 'collector'))
+  from (select public.billing_has_game_pro(p_user) paid) membership;
+$$;
+revoke all on function public.billing_profile_cosmetics(uuid) from public, anon, authenticated;
+grant execute on function public.billing_profile_cosmetics(uuid) to service_role;
+
 -- Preserve the function identity used by Storage policies and the existing
 -- privacy, block and membership projection.
 create or replace function public.get_profile(p_identifier text default null) returns jsonb

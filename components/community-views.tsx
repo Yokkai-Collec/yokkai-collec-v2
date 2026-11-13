@@ -1,4 +1,5 @@
 "use client";
+import { PlayerTitle } from "@/components/player-title";
 import { EmojiReactionPicker } from "@/components/emoji-reaction-picker";
 import { reactionEmoji } from "@/lib/ui/reaction-emojis";
 import { insertMessageEmoji } from "@/lib/ui/message-emoji";
@@ -1470,6 +1471,9 @@ export function AuctionChatPanel({
                       cosmetics={item.profileStyle}
                       fallbackLabel={item.mine ? t("profileUi.you") : undefined}
                     />
+                    <small className="yk-auction-player-title">
+                      <PlayerTitle titleId={item.profileStyle?.titleId} />
+                    </small>
                   </Link>
                   <time dateTime={item.createdAt}>
                     {format.dateTime(new Date(item.createdAt), {
