@@ -317,8 +317,15 @@
   inset-inline-end: -3px;
   box-shadow: 0 0 0 2px var(--color-surface);
 }
-.yk-account-action > .yk-progress-badge {
-  margin-inline-start: auto;
+.yk-account-achievements {
+  position: relative;
+}
+.yk-account-achievements > .yk-progress-badge {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: calc(var(--spacing) * 3);
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 .yk-account-backdrop {
   background: transparent;

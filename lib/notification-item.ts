@@ -218,7 +218,9 @@ export function notificationItem(
           t("notificationAchievementFallback"));
     return {
       ...common,
-      progressCompletion: true,
+      ...(notification.type === "catalogue_achievement_completed"
+        ? { progressCompletion: true }
+        : {}),
       title: t("notificationAchievementTitle"),
       text:
         catalogueT?.has(familyDescription) &&
@@ -232,7 +234,7 @@ export function notificationItem(
               category: notification.achievementCategory ?? "none"
             })
           : t("notificationAchievementText", { achievementName }),
-      href: `/achievements#${encodeURIComponent(notification.referenceId)}`,
+      href: `/achievements#${notification.referenceId}`,
       kind: "mission"
     };
   }

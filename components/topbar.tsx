@@ -161,6 +161,8 @@ export function Topbar({
       {unreadProgress > 99 ? "99+" : unreadProgress}
     </span>
   );
+  const progressDescriptionId =
+    unreadProgress > 0 ? "account-progress" : undefined;
   const name = providedName || profileName;
   useEffect(() => {
     let active = true;
@@ -536,11 +538,8 @@ export function Topbar({
           <div className="relative">
             <button
               type="button"
-              aria-label={
-                unreadProgress
-                  ? t("openMyAccountProgress", { count: unreadProgress })
-                  : t("openMyAccount")
-              }
+              aria-label={t("openMyAccount")}
+              aria-describedby={progressDescriptionId}
               title={t("myAccount")}
               aria-expanded={panel === "account"}
               aria-controls="account-panel"
@@ -565,6 +564,11 @@ export function Topbar({
                 <path d="m7 10 5 5 5-5" />
               </svg>
             </button>
+            {progressDescriptionId && (
+              <span id={progressDescriptionId} className="sr-only">
+                {t("unreadProgress", { count: unreadProgress })}
+              </span>
+            )}
             {panel === "account" && (
               <>
                 <button
@@ -651,32 +655,28 @@ export function Topbar({
                       </svg>
                       {t("settings")}
                     </Link>
-                    <Link
-                      href="/achievements"
-                      className="yk-account-action"
-                      onClick={() => setPanel(null)}
-                      aria-label={
-                        unreadProgress
-                          ? t("myAchievementsProgress", {
-                              count: unreadProgress
-                            })
-                          : undefined
-                      }
-                    >
-                      <svg
-                        aria-hidden="true"
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
+                    <div className="yk-account-achievements">
+                      <Link
+                        href="/achievements"
+                        className="yk-account-action"
+                        onClick={() => setPanel(null)}
+                        aria-describedby={progressDescriptionId}
                       >
-                        <path d="M8 3h8v6a4 4 0 0 1-8 0V3ZM10 17h4M12 13v4M8 21h8M8 6H4v2a4 4 0 0 0 4 4M16 6h4v2a4 4 0 0 1-4 4" />
-                      </svg>
-                      {t("myAchievements")}
+                        <svg
+                          aria-hidden="true"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                        >
+                          <path d="M8 3h8v6a4 4 0 0 1-8 0V3ZM10 17h4M12 13v4M8 21h8M8 6H4v2a4 4 0 0 0 4 4M16 6h4v2a4 4 0 0 1-4 4" />
+                        </svg>
+                        {t("myAchievements")}
+                      </Link>
                       {progressBadge}
-                    </Link>
+                    </div>
                   </nav>
                   <div className="yk-account-separator" />
                   {account || (
