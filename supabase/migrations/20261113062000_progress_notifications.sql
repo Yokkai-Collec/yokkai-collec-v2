@@ -152,8 +152,11 @@ end;
 $evaluator$;
 
 create or replace function public.get_achievement_catalogue() returns jsonb
-language sql volatile security definer set search_path = '' as $$
-  select public.evaluate_achievement_catalogue(true)
+language plpgsql volatile security definer set search_path = '' as $$
+begin
+  perform public.assert_player_not_banned();
+  return public.evaluate_achievement_catalogue(true);
+end;
 $$;
 
 -- Pack/trade mutations retain their bounded evaluator. Compare the player's
@@ -199,6 +202,7 @@ language plpgsql volatile security definer set search_path = '' as $$
 declare
   player uuid := auth.uid();
 begin
+  perform public.assert_player_not_banned();
   if not coalesce(p_include_progress, false) then return public.list_notifications(p_limit); end if;
   if player is null then raise exception 'AUTH_REQUIRED'; end if;
   perform public.refresh_notification_achievements(player);
@@ -217,8 +221,8 @@ language plpgsql volatile security definer set search_path = '' as $$
 declare
   player uuid := auth.uid();
 begin
-  if player is null then raise exception 'AUTH_REQUIRED'; end if;
   perform public.assert_player_not_banned();
+  if player is null then raise exception 'AUTH_REQUIRED'; end if;
   update public.notifications set read_at = clock_timestamp()
   where user_id = player and read_at is null
     and type in ('mission_completed', 'catalogue_achievement_completed', 'achievement_completed');
