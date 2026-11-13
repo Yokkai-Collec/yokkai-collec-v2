@@ -198,65 +198,38 @@
   font-size: 12px;
   font-weight: 600;
 }
-/* Timer · status · price on one line when the tile is wide enough; the status drops below on narrow tiles. */
+/* Let the timer and price wrap based on their actual widths. */
 .yk-market-tile-line {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  grid-template-areas: "timer state price";
+  display: flex;
+  flex-wrap: wrap;
+  min-width: 0;
   align-items: center;
-  gap: calc(var(--spacing) * 1.5);
+  gap: calc(var(--spacing) * 1) calc(var(--spacing) * 1.5);
 }
-.yk-market-tile-line > .yk-market-timer {
-  grid-area: timer;
+.yk-market-tile-line > :is(.yk-market-timer, .yk-market-price) {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .yk-market-tile-line > .yk-market-price {
-  grid-area: price;
-  justify-self: end;
+  margin-inline-start: auto;
 }
 .yk-market-tile-state {
-  grid-area: state;
-  display: flex;
+  order: 1;
+  flex-basis: 100%;
   min-width: 0;
-  justify-content: center;
-  white-space: nowrap;
 }
 .yk-market-tile-state:empty {
   display: none;
 }
 .yk-market-tile-state > span {
-  display: block;
-  max-width: 100%;
-  overflow: hidden;
   padding-inline: calc(var(--spacing) * 2);
   font-size: 10px;
-  text-overflow: ellipsis;
-}
-@container (max-width: 14rem) {
-  .yk-market-tile-line {
-    grid-template-columns: auto minmax(0, 1fr);
-    grid-template-areas: "timer price" "state state";
-    row-gap: calc(var(--spacing) * 1);
-  }
-  .yk-market-tile-state {
-    justify-content: flex-start;
-  }
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 /* Keep every value readable when zoom leaves very little room per card. */
 @container (max-width: 8rem) {
-  .yk-market-tile-line {
-    min-width: 0;
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: "timer" "price" "state";
-    justify-items: start;
-  }
-  .yk-market-tile-line > .yk-market-price {
-    justify-self: start;
-  }
-  .yk-market-tile-line > .yk-market-timer {
-    max-width: 100%;
-    white-space: normal;
-    overflow-wrap: anywhere;
-  }
   .yk-market-seller {
     max-width: 100%;
     flex-wrap: wrap;
@@ -298,6 +271,7 @@
 .yk-market-timer svg {
   width: 11px;
   height: 11px;
+  flex: 0 0 11px;
 }
 .yk-watch-button {
   display: inline-flex;

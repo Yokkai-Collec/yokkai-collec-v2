@@ -1926,7 +1926,7 @@ test("le Decision Pack confirmé affiche une carte gardée et quatre perdues", (
 
 test("la collection pagine par multiples de 6 pour remplir la grille", () => {
   const { CollectionView } = load("components/collection.tsx");
-  const cards = Array.from({ length: 30 }, (_, i) => ({
+  const cards = Array.from({ length: 42 }, (_, i) => ({
     ...card,
     id: `card-${i}`,
     instanceId: `copy-${i}`,
@@ -1943,10 +1943,10 @@ test("la collection pagine par multiples de 6 pour remplir la grille", () => {
     async onDiscard() {},
     async onDiscardMany() {}
   });
-  assert.equal((html.match(/class="yk-collection-card[ "]/g) || []).length, 24);
+  assert.equal((html.match(/class="yk-collection-card[ "]/g) || []).length, 36);
   assert.match(
     html,
-    /<option value="24"[^>]*>24<\/option><option value="36"[^>]*>36<\/option><option value="48"[^>]*>48<\/option>/
+    /<option value="24"[^>]*>24<\/option><option value="36" selected=""[^>]*>36<\/option><option value="48"[^>]*>48<\/option>/
   );
   assert.doesNotMatch(html, /Cards per page \(unavailable/);
 });

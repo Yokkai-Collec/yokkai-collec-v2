@@ -41,7 +41,7 @@ import { YokaiCard } from "@/components/yokai-card";
 import { CardShell } from "@/components/card-shell";
 import { CardReportButton } from "@/components/card-report-button";
 import { GifPicker, type GifChoice } from "@/components/gif-picker";
-import { CARD_PAGE_SIZES } from "@/lib/ui/pagination";
+import { CARD_PAGE_SIZES, DEFAULT_CARD_PAGE_SIZE } from "@/lib/ui/pagination";
 import { startVisiblePolling } from "@/lib/ui/visible-polling";
 import {
   marketLabelKeys as labelKeys,
@@ -2087,7 +2087,7 @@ function SearchViewContent({
 } = {}) {
   const tError = useTranslations();
   const tv = useTranslations("catalogueUi");
-  const [pageSize, setPageSize] = useState<number>(CARD_PAGE_SIZES[0]);
+  const [pageSize, setPageSize] = useState<number>(DEFAULT_CARD_PAGE_SIZE);
   const [categories, setCategories] = useState<string[]>(
     previewCategories ?? []
   );

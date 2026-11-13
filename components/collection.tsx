@@ -39,7 +39,11 @@ import { CollectionLoading } from "@/components/collection-loading";
 import { CardShareButton, MyCardShares } from "@/components/card-sharing";
 import { CardReportButton } from "@/components/card-report-button";
 import { CatalogueCardModal } from "@/components/catalogue-card-modal";
-import { BINDER_CARD_PAGE_SIZES, CARD_PAGE_SIZES } from "@/lib/ui/pagination";
+import {
+  BINDER_CARD_PAGE_SIZES,
+  CARD_PAGE_SIZES,
+  DEFAULT_CARD_PAGE_SIZE
+} from "@/lib/ui/pagination";
 import {
   COLLECTION_SORTS,
   isCollectionSort,
@@ -348,7 +352,7 @@ export function CollectionView({
   const [duplicatesOnly, setDuplicatesOnly] = useState(false);
   const [page, setPage] = useState(1);
   const [sort, setSort] = useCollectionSort();
-  const [pageSize, setPageSize] = useState<number>(CARD_PAGE_SIZES[0]);
+  const [pageSize, setPageSize] = useState<number>(DEFAULT_CARD_PAGE_SIZE);
   const [folderName, setFolderName] = useState("");
   const [showFolderCreator, setShowFolderCreator] = useState(false);
   const [folderBusy, setFolderBusy] = useState(false);
