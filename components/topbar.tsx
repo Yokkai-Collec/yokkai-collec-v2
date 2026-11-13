@@ -55,6 +55,8 @@ const notificationStyle = {
 export function useNotificationItems(notifications?: AppNotification[]) {
   const t = useTranslations("topbar");
   const tAchievements = useTranslations("achievementUi");
+  const tMissions = useTranslations("missionUi");
+  const tCatalogue = useTranslations("achievementCatalog");
   const fmt = useFormatter();
   const hydrated = useSyncExternalStore(
     subscribeToHydration,
@@ -78,7 +80,9 @@ export function useNotificationItems(notifications?: AppNotification[]) {
             })
           : "—"
         : undefined,
-      i18nEnabled() ? tAchievements : undefined
+      i18nEnabled() ? tAchievements : undefined,
+      tMissions,
+      tCatalogue
     )
   );
 }
@@ -91,6 +95,7 @@ export function Topbar({
   infoError,
   onRetryInfo,
   notifications,
+  progressUnread,
   socialUnread,
   notificationError: externalNotificationError,
   onRetryNotifications,
@@ -121,6 +126,7 @@ export function Topbar({
   infoError?: string;
   onRetryInfo?: () => void;
   notifications?: NotificationItem[];
+  progressUnread?: number | null;
   socialUnread?: SocialUnreadAdapter;
   notificationError?: string;
   onRetryNotifications?: () => void;
@@ -145,6 +151,16 @@ export function Topbar({
   const shown = notifications ?? loaded;
   const visibleNotificationError = externalNotificationError ?? feed.error;
   const unread = shown?.filter(n => !n.read).length;
+  const unreadProgress =
+    progressUnread ??
+    feed.progressUnread ??
+    shown?.filter(n => !n.read && n.progressCompletion).length ??
+    0;
+  const progressBadge = unreadProgress > 0 && (
+    <span className="yk-progress-badge" aria-hidden="true">
+      {unreadProgress > 99 ? "99+" : unreadProgress}
+    </span>
+  );
   const name = providedName || profileName;
   useEffect(() => {
     let active = true;
@@ -184,12 +200,7 @@ export function Topbar({
     if (onReadAll) await onReadAll();
     else {
       await markNotificationRead();
-      feed.setNotifications(current =>
-        current?.map(n => ({
-          ...n,
-          readAt: n.readAt ?? new Date().toISOString()
-        }))
-      );
+      feed.markAllRead();
     }
   }
   function toggleNotifications() {
@@ -525,7 +536,11 @@ export function Topbar({
           <div className="relative">
             <button
               type="button"
-              aria-label={t("openMyAccount")}
+              aria-label={
+                unreadProgress
+                  ? t("openMyAccountProgress", { count: unreadProgress })
+                  : t("openMyAccount")
+              }
               title={t("myAccount")}
               aria-expanded={panel === "account"}
               aria-controls="account-panel"
@@ -534,7 +549,10 @@ export function Topbar({
                 setPanel(current => (current === "account" ? null : "account"))
               }
             >
-              <Avatar name={name || "Account"} image={avatarUrl} />
+              <span className="yk-account-avatar">
+                <Avatar name={name || "Account"} image={avatarUrl} />
+                {progressBadge}
+              </span>
               <svg
                 aria-hidden="true"
                 width="12"
@@ -637,6 +655,13 @@ export function Topbar({
                       href="/achievements"
                       className="yk-account-action"
                       onClick={() => setPanel(null)}
+                      aria-label={
+                        unreadProgress
+                          ? t("myAchievementsProgress", {
+                              count: unreadProgress
+                            })
+                          : undefined
+                      }
                     >
                       <svg
                         aria-hidden="true"
@@ -650,6 +675,7 @@ export function Topbar({
                         <path d="M8 3h8v6a4 4 0 0 1-8 0V3ZM10 17h4M12 13v4M8 21h8M8 6H4v2a4 4 0 0 0 4 4M16 6h4v2a4 4 0 0 1-4 4" />
                       </svg>
                       {t("myAchievements")}
+                      {progressBadge}
                     </Link>
                   </nav>
                   <div className="yk-account-separator" />

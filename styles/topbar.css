@@ -292,6 +292,34 @@
   transform: rotate(180deg);
   color: var(--color-ink);
 }
+.yk-account-avatar {
+  position: relative;
+  display: inline-flex;
+}
+.yk-progress-badge {
+  display: inline-grid;
+  flex: none;
+  min-width: 16px;
+  min-height: 16px;
+  place-items: center;
+  padding-inline: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--color-danger);
+  color: var(--color-void);
+  font-size: 10px;
+  font-weight: 750;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.yk-account-avatar > .yk-progress-badge {
+  position: absolute;
+  inset-block-start: -3px;
+  inset-inline-end: -3px;
+  box-shadow: 0 0 0 2px var(--color-surface);
+}
+.yk-account-action > .yk-progress-badge {
+  margin-inline-start: auto;
+}
 .yk-account-backdrop {
   background: transparent;
   backdrop-filter: none;

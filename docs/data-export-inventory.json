@@ -1,4 +1,7 @@
 {
+  "public.achievement_notification_refreshes": {
+    "excluded": "Internal evaluation cache with a timestamp and a digest of progress counters already included in the player's export. It expires for evaluation purposes and is deleted with the account."
+  },
   "public.catalogue_discord_imports": {
     "excluded": "Global catalogue import grouping identifiers and completion dates; no player records."
   },

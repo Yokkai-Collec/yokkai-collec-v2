@@ -14,6 +14,8 @@ import { Button, Karas, StatusPill, Toast } from "@/components/ui";
 import { getGameInfo } from "@/lib/data/cards";
 import type { Achievement } from "@/lib/data/achievements";
 import { subscribePlayerSnapshotInvalidation } from "@/lib/data/player-state";
+import { markProgressNotificationsRead } from "@/lib/data/notifications";
+import { invalidateSocialUnread } from "@/lib/data/social-unread";
 
 export function AchievementCard({
   item,
@@ -153,18 +155,20 @@ export function AchievementCard({
 function AchievementFamily({
   tiers,
   next,
+  focusedId,
   busyId,
   onClaim
 }: {
   tiers: Achievement[];
   next: Achievement;
+  focusedId?: string;
   busyId?: string | null;
   onClaim: (item: Achievement) => Promise<void> | void;
 }) {
   const t = useTranslations("achievementUi");
   // Until the player browses, the card follows the next tier to play or claim.
   const [picked, setPicked] = useState<string | null>(null);
-  const found = tiers.findIndex(item => item.id === picked);
+  const found = tiers.findIndex(item => item.id === (picked ?? focusedId));
   const index = found >= 0 ? found : tiers.indexOf(next);
   return (
     <div
@@ -215,10 +219,12 @@ function AchievementFamily({
 export function AchievementsGallery({
   items,
   busyId,
+  focusedId,
   onClaim
 }: {
   items: Achievement[];
   busyId?: string | null;
+  focusedId?: string;
   onClaim: (item: Achievement) => Promise<void> | void;
 }) {
   const t = useTranslations("achievementUi");
@@ -309,6 +315,7 @@ export function AchievementsGallery({
             key={key}
             next={next}
             tiers={tiers}
+            focusedId={focusedId}
             busyId={busyId}
             onClaim={onClaim}
           />
@@ -328,6 +335,8 @@ export function AchievementsPage({ account }: { account?: ReactNode }) {
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
+  const [focusedId, setFocusedId] = useState<string>();
+  const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     let active = true;
     const unsubscribe = subscribePlayerSnapshotInvalidation(scopes => {
@@ -356,10 +365,14 @@ export function AchievementsPage({ account }: { account?: ReactNode }) {
     Promise.all([getAchievementCatalogue(), getGameInfo()]).then(
       ([achievements, game]) => {
         if (!active) return;
+        const hash = window.location.hash.slice(1);
+        // Achievement IDs are slugs. Unrelated or malformed hashes can be ignored.
+        setFocusedId(/^[a-z\d-]+$/i.test(hash) ? hash : undefined);
         setItems(achievements);
         setName(game.user.name);
         setBalance(game.karasBalance);
         setError("");
+        setLoaded(true);
       },
       reason => {
         if (active) setError(gameErrorKey(reason, "achievementUi.loadError"));
@@ -369,6 +382,12 @@ export function AchievementsPage({ account }: { account?: ReactNode }) {
       active = false;
     };
   }, []);
+  useEffect(() => {
+    if (!loaded) return;
+    if (focusedId)
+      document.getElementById(focusedId)?.scrollIntoView({ block: "center" });
+    void markProgressNotificationsRead().then(invalidateSocialUnread, () => {});
+  }, [loaded, focusedId]);
   async function claim(item: Achievement) {
     if (busy) return;
     setBusy(item.id);
@@ -424,7 +443,12 @@ export function AchievementsPage({ account }: { account?: ReactNode }) {
             {t("loading")}
           </p>
         ) : (
-          <AchievementsGallery items={items} busyId={busy} onClaim={claim} />
+          <AchievementsGallery
+            items={items}
+            busyId={busy}
+            focusedId={focusedId}
+            onClaim={claim}
+          />
         )}
       </main>
       <Toast message={toast} onDismiss={() => setToast("")} />
