@@ -85,6 +85,9 @@ export const serverOnly = {
   "public.begin_self_requested_account_deletion(uuid)": ["service_role"], // Server-only provenance after recent authentication and explicit self-deletion confirmation; same deletion fence, no browser access. Walid approved.
   "public.record_anticheat_network_observation(uuid, text)": ["service_role"], // Trusted same-origin route only; verified session plus Cloudflare-produced versioned HMAC, never a raw IP. Walid approved.
   "public.record_anticheat_device_observation(uuid, text)": ["service_role"], // Trusted same-origin route only; verified session plus a seven-day first-party random token hash. Walid approved.
+  "public.record_anticheat_trade_connection(uuid, text, text)": [
+    "service_role"
+  ], // Latest pair comes from the verified session and one trusted request.
   "public.get_push_notification(uuid, timestamp with time zone)": [
     "service_role"
   ], // Exact notification/version, same live ACL as the in-app reader, trusted push route only.

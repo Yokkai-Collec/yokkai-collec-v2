@@ -121,6 +121,10 @@ test("shadow quarantine observation is opt-in and never changes an accepted trad
       "insert into public.anticheat_device_observations(device_identity,user_id) values($1,$2)",
       [device, userId]
     );
+    await db.query(
+      "select public.record_anticheat_trade_connection($1,$2,$3)",
+      [userId, network, device]
+    );
   }
   await db.query(
     "insert into public.friendships(user_id,friend_id,status) values($1,$2,'accepted')",

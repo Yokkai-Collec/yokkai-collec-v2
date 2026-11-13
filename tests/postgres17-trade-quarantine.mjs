@@ -105,6 +105,8 @@ const card = await query(`
     select 'v1:'||repeat('a',64),id from auth.users where id in('${sender}','${receiver}');
   insert into public.anticheat_device_observations(device_identity,user_id)
     select 'v1:'||repeat('b',64),id from auth.users where id in('${sender}','${receiver}');
+  select public.record_anticheat_trade_connection(id,'v1:'||repeat('a',64),'v1:'||repeat('b',64))
+    from auth.users where id in('${sender}','${receiver}');
   update public.anticheat_runtime_flags set enabled=true where flag='quarantine_enforcement';
   with catalogue as (
     insert into public.cards(source,source_id,nom,categorie,franchise,rarete_base,image_url)
@@ -197,6 +199,8 @@ const sanctionFixture = JSON.parse(
     values('v1:'||repeat('c',64),'${payer}'),('v1:'||repeat('c',64),'${tradePeer}');
   insert into public.anticheat_device_observations(device_identity,user_id)
     values('v1:'||repeat('d',64),'${payer}'),('v1:'||repeat('d',64),'${tradePeer}');
+  select public.record_anticheat_trade_connection(id,'v1:'||repeat('c',64),'v1:'||repeat('d',64))
+    from auth.users where id in('${payer}','${tradePeer}');
   with copies as (
     insert into public.user_cards(user_id,card_id,rarity)
     select '${payer}',id,'LR' from public.cards where source_id='concurrency-hold'
@@ -327,6 +331,8 @@ await query(`
     select 'v1:'||repeat('e',64),id from auth.users where id in('${loadSender}','${loadReceiver}','${loadPeer}','${loadFourth}');
   insert into public.anticheat_device_observations(device_identity,user_id)
     select 'v1:'||repeat('f',64),id from auth.users where id in('${loadSender}','${loadReceiver}');
+  select public.record_anticheat_trade_connection(id,'v1:'||repeat('e',64),'v1:'||repeat('f',64))
+    from auth.users where id in('${loadSender}','${loadReceiver}');
   update public.anticheat_runtime_flags set enabled=true
     where flag in('quarantine_enforcement','quarantine_auto_release','ip_cluster_detection','cluster_investigation','graph_detection_v2');
 `);

@@ -34,6 +34,10 @@ test("a valid trade with both recent connection signals is cancelled before sett
         [signal("b"), id]
       );
     }
+    await db.query(
+      "select public.record_anticheat_trade_connection($1,$2,$3)",
+      [id, signal(index === 6 ? "c" : "a"), signal(index === 5 ? "d" : "b")]
+    );
     if (id !== primary) {
       await db.query(
         "insert into public.friendships(user_id,friend_id,status) values($1,$2,'accepted')",
@@ -98,14 +102,77 @@ test("a valid trade with both recent connection signals is cancelled before sett
   const disabled = await makeOffer(primary, first);
   assert.equal(await accept(disabled, first), "accepted");
   await db.exec(
-    "update public.anticheat_runtime_flags set enabled=true where flag in('automatic_sanctions','discord_alerts_v2')"
+    "update public.anticheat_runtime_flags set enabled=true where flag in('automatic_sanctions','quarantine_enforcement','discord_alerts_v2')"
+  );
+  // Independent history still shows the browser previously shared at home.
+  await db.query(
+    "insert into public.anticheat_device_observations(device_identity,user_id) values($1,$2)",
+    [signal("b"), ipOnly]
+  );
+  // The latest browser replaces the previous one immediately, even inside the
+  // observation refresh interval.
+  await db.query("select public.record_anticheat_trade_connection($1,$2,$3)", [
+    ipOnly,
+    signal("a"),
+    signal("b")
+  ]);
+  await db.query("select public.record_anticheat_trade_connection($1,$2,$3)", [
+    ipOnly,
+    signal("a"),
+    signal("d")
+  ]);
+  await assert.rejects(
+    asUser(
+      ipOnly,
+      "select public.record_anticheat_trade_connection($1,$2,$3)",
+      [primary, signal("a"), signal("d")]
+    ),
+    /permission denied/
+  );
+  const gift = (
+    await db.query(
+      "insert into public.trade_offers(from_user,to_user,offered_karas) values($1,$2,1) returning id",
+      [primary, ipOnly]
+    )
+  ).rows[0].id;
+  assert.equal(await accept(gift, ipOnly), "accepted");
+  assert.equal(await restriction(ipOnly), "none");
+  await db.query(
+    "update public.user_profiles set karas_balance=100 where user_id in ($1,$2)",
+    [primary, ipOnly]
   );
   const ordinary = await makeOffer(primary, ipOnly);
   assert.equal(await accept(ordinary, ipOnly), "accepted");
   assert.equal(
+    (
+      await db.query(
+        "select count(*)::int as total from public.account_sanctions"
+      )
+    ).rows[0].total,
+    0
+  );
+  assert.equal(
     await accept(await makeOffer(primary, browserOnly), browserOnly),
     "accepted"
   );
+  // Missing or expired IP/browser pairs cannot activate either enforcement path.
+  await db.query(
+    "select public.record_anticheat_trade_connection($1,null,$2)",
+    [browserOnly, signal("b")]
+  );
+  assert.equal(
+    await accept(await makeOffer(primary, browserOnly), browserOnly),
+    "accepted"
+  );
+  await db.query(
+    "update public.anticheat_trade_connections set network_identity=$1, observed_at=now()-interval '8 days' where user_id=$2",
+    [signal("a"), browserOnly]
+  );
+  assert.equal(
+    await accept(await makeOffer(primary, browserOnly), browserOnly),
+    "accepted"
+  );
+  assert.equal(await restriction(browserOnly), "none");
   assert.equal(
     await accept(await makeOffer(primary, sameAge), sameAge),
     "quarantined"
