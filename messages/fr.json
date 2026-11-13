@@ -4505,7 +4505,10 @@
     "stageHidden": "Son identité reste secrète jusqu’à la clôture.",
     "stageRevealed": "Le mystère de cette édition est révélé.",
     "hiddenCard": "Carte inconnue",
-    "enterAuction": "Entre dans l’enchère"
+    "enterAuction": "Entre dans l’enchère",
+    "hours": "H",
+    "minutes": "MIN",
+    "seconds": "S"
   },
   "events": {
     "title": "Événements",

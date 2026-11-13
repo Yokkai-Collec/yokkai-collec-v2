@@ -4505,7 +4505,10 @@
     "stageHidden": "Its identity stays secret until closing.",
     "stageRevealed": "This edition’s mystery is revealed.",
     "hiddenCard": "Unknown card",
-    "enterAuction": "Enter the auction"
+    "enterAuction": "Enter the auction",
+    "hours": "HRS",
+    "minutes": "MIN",
+    "seconds": "SEC"
   },
   "events": {
     "title": "Events",

@@ -1978,13 +1978,25 @@ export function AuctionView({
             </p>
           )}
         </section>
-        <AuctionChatPanel
-          auctionId={auction.id}
-          refreshKey={auction.bids}
-          finished={!!auction.finished}
-          adapter={chatAdapter}
-        />
+        {!auction.isMystery && (
+          <AuctionChatPanel
+            auctionId={auction.id}
+            refreshKey={auction.bids}
+            finished={!!auction.finished}
+            adapter={chatAdapter}
+          />
+        )}
       </div>
+      {auction.isMystery && (
+        <div className="yk-mystery-chat">
+          <AuctionChatPanel
+            auctionId={auction.id}
+            refreshKey={auction.bids}
+            finished={!!auction.finished}
+            adapter={chatAdapter}
+          />
+        </div>
+      )}
       <Modal
         open={cancelConfirm}
         onClose={() => {

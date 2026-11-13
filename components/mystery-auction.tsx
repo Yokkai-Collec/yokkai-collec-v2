@@ -56,8 +56,22 @@ export function MysteryEventHeader({
           <span className="yk-mystery-event-clock-label">
             {t(finished ? "reveal" : "revealIn")}
           </span>
-          <strong role="timer" aria-live="off">
-            {finished ? "00:00:00" : remaining}
+          <strong
+            role="timer"
+            aria-live="off"
+            aria-label={finished ? "00:00:00" : remaining}
+            className="yk-mystery-clock-digits"
+          >
+            {(finished ? "00:00:00" : remaining)
+              .split(":")
+              .map((value, index) => (
+                <span key={index}>
+                  <span>{value}</span>
+                  <small>
+                    {t((["hours", "minutes", "seconds"] as const)[index])}
+                  </small>
+                </span>
+              ))}
           </strong>
           <span className="yk-mystery-event-bids">
             {tp("bidCount", { count: bids })}
