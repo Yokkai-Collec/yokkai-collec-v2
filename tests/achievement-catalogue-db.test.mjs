@@ -72,7 +72,7 @@ test("legacy upgrades preserve original claims and prepare exactly one player-cl
   const migrations = readdirSync(
     new URL("../supabase/migrations/", import.meta.url)
   )
-    .filter(n => n.endsWith(".sql") && n !== latest)
+    .filter(n => n.endsWith(".sql") && n < latest)
     .sort();
   const { db } = await replayMigrations({ migrations });
   t.after(() => db.close());

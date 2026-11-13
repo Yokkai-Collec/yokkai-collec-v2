@@ -55,6 +55,8 @@ const notificationStyle = {
 export function useNotificationItems(notifications?: AppNotification[]) {
   const t = useTranslations("topbar");
   const tAchievements = useTranslations("achievementUi");
+  const tMissions = useTranslations("missionUi");
+  const tCatalogue = useTranslations("achievementCatalog");
   const fmt = useFormatter();
   const hydrated = useSyncExternalStore(
     subscribeToHydration,
@@ -78,7 +80,9 @@ export function useNotificationItems(notifications?: AppNotification[]) {
             })
           : "—"
         : undefined,
-      i18nEnabled() ? tAchievements : undefined
+      i18nEnabled() ? tAchievements : undefined,
+      tMissions,
+      tCatalogue
     )
   );
 }
@@ -91,6 +95,7 @@ export function Topbar({
   infoError,
   onRetryInfo,
   notifications,
+  progressUnread,
   socialUnread,
   notificationError: externalNotificationError,
   onRetryNotifications,
@@ -121,6 +126,7 @@ export function Topbar({
   infoError?: string;
   onRetryInfo?: () => void;
   notifications?: NotificationItem[];
+  progressUnread?: number | null;
   socialUnread?: SocialUnreadAdapter;
   notificationError?: string;
   onRetryNotifications?: () => void;
@@ -145,6 +151,18 @@ export function Topbar({
   const shown = notifications ?? loaded;
   const visibleNotificationError = externalNotificationError ?? feed.error;
   const unread = shown?.filter(n => !n.read).length;
+  const unreadProgress =
+    progressUnread ??
+    feed.progressUnread ??
+    shown?.filter(n => !n.read && n.progressCompletion).length ??
+    0;
+  const progressBadge = unreadProgress > 0 && (
+    <span className="yk-progress-badge" aria-hidden="true">
+      {unreadProgress > 99 ? "99+" : unreadProgress}
+    </span>
+  );
+  const progressDescriptionId =
+    unreadProgress > 0 ? "account-progress" : undefined;
   const name = providedName || profileName;
   useEffect(() => {
     let active = true;
@@ -184,12 +202,7 @@ export function Topbar({
     if (onReadAll) await onReadAll();
     else {
       await markNotificationRead();
-      feed.setNotifications(current =>
-        current?.map(n => ({
-          ...n,
-          readAt: n.readAt ?? new Date().toISOString()
-        }))
-      );
+      feed.markAllRead();
     }
   }
   function toggleNotifications() {
@@ -526,6 +539,7 @@ export function Topbar({
             <button
               type="button"
               aria-label={t("openMyAccount")}
+              aria-describedby={progressDescriptionId}
               title={t("myAccount")}
               aria-expanded={panel === "account"}
               aria-controls="account-panel"
@@ -534,7 +548,10 @@ export function Topbar({
                 setPanel(current => (current === "account" ? null : "account"))
               }
             >
-              <Avatar name={name || "Account"} image={avatarUrl} />
+              <span className="yk-account-avatar">
+                <Avatar name={name || "Account"} image={avatarUrl} />
+                {progressBadge}
+              </span>
               <svg
                 aria-hidden="true"
                 width="12"
@@ -547,6 +564,11 @@ export function Topbar({
                 <path d="m7 10 5 5 5-5" />
               </svg>
             </button>
+            {progressDescriptionId && (
+              <span id={progressDescriptionId} className="sr-only">
+                {t("unreadProgress", { count: unreadProgress })}
+              </span>
+            )}
             {panel === "account" && (
               <>
                 <button
@@ -633,24 +655,28 @@ export function Topbar({
                       </svg>
                       {t("settings")}
                     </Link>
-                    <Link
-                      href="/achievements"
-                      className="yk-account-action"
-                      onClick={() => setPanel(null)}
-                    >
-                      <svg
-                        aria-hidden="true"
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
+                    <div className="yk-account-achievements">
+                      <Link
+                        href="/achievements"
+                        className="yk-account-action"
+                        onClick={() => setPanel(null)}
+                        aria-describedby={progressDescriptionId}
                       >
-                        <path d="M8 3h8v6a4 4 0 0 1-8 0V3ZM10 17h4M12 13v4M8 21h8M8 6H4v2a4 4 0 0 0 4 4M16 6h4v2a4 4 0 0 1-4 4" />
-                      </svg>
-                      {t("myAchievements")}
-                    </Link>
+                        <svg
+                          aria-hidden="true"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                        >
+                          <path d="M8 3h8v6a4 4 0 0 1-8 0V3ZM10 17h4M12 13v4M8 21h8M8 6H4v2a4 4 0 0 0 4 4M16 6h4v2a4 4 0 0 1-4 4" />
+                        </svg>
+                        {t("myAchievements")}
+                      </Link>
+                      {progressBadge}
+                    </div>
                   </nav>
                   <div className="yk-account-separator" />
                   {account || (

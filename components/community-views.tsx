@@ -3157,17 +3157,13 @@ export function CommunityView({
         name={isMe ? name : undefined}
         karas={karas}
         notifications={notificationItems}
+        progressUnread={feed.progressUnread}
         notificationError={feed.error || undefined}
         onRetryNotifications={feed.retry}
         onRefreshNotifications={() => void feed.refresh()}
         onReadAll={async () => {
           await markNotificationRead();
-          feed.setNotifications(current =>
-            current?.map(n => ({
-              ...n,
-              readAt: n.readAt ?? new Date().toISOString()
-            }))
-          );
+          feed.markAllRead();
         }}
         onOpenNotification={async (id, href) => {
           await markNotificationRead(id);
