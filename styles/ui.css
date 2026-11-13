@@ -735,21 +735,51 @@ select,
 /* Leave room beside the full-page card grids for the floating messenger. */
 .yk-card-browse-page {
   --card-browse-gutter: var(--layout-gutter-compact);
+  --card-browse-max: calc(
+    var(--layout-collection-max) - 2 * var(--layout-gutter)
+  );
   width: calc(100% - 2 * var(--card-browse-gutter));
-  max-width: calc(var(--layout-collection-max) - 2 * var(--layout-gutter));
+  max-width: var(--card-browse-max);
   padding-inline: 0;
 }
 
-@media (min-width: 761px) {
+@media (761px <= width < 1024px) {
   .yk-card-browse-page {
-    --card-browse-gutter: clamp(5rem, 6vw, 7rem);
+    --card-browse-gutter: 1.5rem;
+    --collection-sidebar-width: clamp(10rem, 22vw, 13rem);
   }
 }
 
 @media (min-width: 1024px) {
   .yk-card-browse-page {
-    --card-browse-gutter: var(--layout-desktop-gutter);
+    --card-browse-start: clamp(1.25rem, 2.5vw, 4rem);
+    --card-browse-end: max(
+      var(--layout-desktop-gutter),
+      calc(env(safe-area-inset-right, 0px) + 14.5rem)
+    );
     --collection-sidebar-width: clamp(12rem, 12.5vw, 15rem);
+    width: calc(100% - var(--card-browse-start) - var(--card-browse-end));
+    margin-inline-start: max(
+      var(--card-browse-start),
+      min(
+        calc((100% - var(--card-browse-max)) / 2),
+        calc(100% - var(--card-browse-max) - var(--card-browse-end))
+      )
+    );
+    margin-inline-end: auto;
+  }
+  .yk-card-browse-page:has(.yk-catalogue, .yk-market) {
+    --card-browse-max: 92rem;
+  }
+  .yk-card-browse-page .yk-collection-sidebar {
+    position: sticky;
+    top: calc(var(--topbar-height) + var(--layout-gutter-compact));
+    align-self: start;
+    max-height: calc(
+      100dvh - var(--topbar-height) - 2 * var(--layout-gutter-compact)
+    );
+    overflow-y: auto;
+    scrollbar-width: thin;
   }
 }
 
@@ -772,29 +802,28 @@ select,
     --card-grid-columns: var(--card-grid-columns-md);
   }
 }
-@media (761px <= width <= 900px) {
-  .yk-card-browse-page .yk-card-grid {
-    --card-grid-columns: 3;
-  }
-}
-@media (1367px <= width <= 1439px) {
-  .yk-card-browse-page .yk-card-grid {
-    --card-grid-columns: var(--card-grid-columns-lg);
-  }
-}
-@media (1181px <= width <= 1366px) {
-  .yk-card-browse-page .yk-card-grid {
-    --card-grid-columns: var(--card-grid-columns-md);
-  }
-}
-@media (1024px <= width <= 1180px) {
-  .yk-card-browse-page .yk-card-grid {
-    --card-grid-columns: 3;
-  }
-}
 @media (max-width: 760px) {
   .yk-card-grid {
     --card-grid-columns: var(--card-grid-columns-sm);
+  }
+}
+
+.yk-card-browse-page
+  :is(.yk-collection-grid, .yk-catalogue-grid, .yk-market-list) {
+  --browse-card-min: 7.375rem;
+  --browse-six-col-width: calc((100% - 5 * var(--collection-grid-gap)) / 6);
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(
+      min(100%, max(var(--browse-card-min), var(--browse-six-col-width))),
+      1fr
+    )
+  );
+}
+@media (max-width: 760px) {
+  .yk-card-browse-page
+    :is(.yk-collection-grid, .yk-catalogue-grid, .yk-market-list) {
+    --browse-card-min: clamp(7.375rem, 21vw, 9.5rem);
   }
 }
 

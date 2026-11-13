@@ -92,7 +92,9 @@ export function MarketPreview({
   // No live auction left: My auctions must open on the history.
   history?: boolean;
 }) {
-  const previewActive = long ? active : active.slice(0, 12);
+  const previewActive = long
+    ? [{ ...active[0], amount: 2_147_483_647 }, ...active.slice(1)]
+    : active.slice(0, 12);
   const [watched, setWatched] = useState(
     () => new Set(active.filter(a => a.wishlist).map(a => a.id))
   );

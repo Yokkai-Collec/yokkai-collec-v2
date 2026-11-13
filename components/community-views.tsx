@@ -605,20 +605,25 @@ function AuctionTile({ auction: a }: { auction: AuctionPresentation }) {
               {tm("alreadyOwned", { count: a.ownedCount! })}
             </span>
           )}
-          <div className="yk-market-tile-line">
+          <div
+            className="yk-market-tile-line"
+            data-large-price={a.amount >= 1_000_000 ? "" : undefined}
+          >
             <span
-              className={`yk-market-timer ${a.finished ? "" : urgencyClass(a.remainingSeconds)}`}
+              className={`yk-market-timer ${outcome ? "yk-market-ended-date" : a.finished ? "" : urgencyClass(a.remainingSeconds)}`}
             >
               <HourglassIcon />
               {outcome ? ended : a.finished ? tm("ended") : a.remaining}
-            </span>
-            <span className="yk-market-tile-state">
-              {a.status && <AuctionStatus status={a.status} />}
             </span>
             {outcome !== "unsold" && (
               <Karas amount={a.amount} className="yk-market-price" />
             )}
           </div>
+          {a.status && (
+            <span className="yk-market-tile-state">
+              <AuctionStatus status={a.status} />
+            </span>
+          )}
         </div>
       </Link>
     </li>
@@ -2087,7 +2092,16 @@ function SearchViewContent({
 } = {}) {
   const tError = useTranslations();
   const tv = useTranslations("catalogueUi");
-  const [pageSize, setPageSize] = useState<number>(CARD_PAGE_SIZES[0]);
+  const filtersRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLUListElement>(null);
+  const [gridSize, setGridSize] = useState({ columns: 6, automatic: 24 });
+  const [preferredSize, setPreferredSize] = useState(0);
+  const pageSizes = CARD_PAGE_SIZES.map(
+    size => Math.round(size / gridSize.columns) * gridSize.columns
+  );
+  const pageSize = preferredSize
+    ? pageSizes[preferredSize - 1]
+    : gridSize.automatic;
   const [categories, setCategories] = useState<string[]>(
     previewCategories ?? []
   );
@@ -2096,13 +2110,50 @@ function SearchViewContent({
     initialCategory ? [initialCategory] : []
   );
   const [rarity, setRarity] = useState<Rarity[]>([]);
-  const [page, setPage] = useState(1);
+  const [pageOffset, setPageOffset] = useState(0);
+  const page = Math.floor(pageOffset / pageSize) + 1;
   const [selected, setSelected] = useState<Card | null>(null);
   const [results, setResults] = useState<Card[]>([]);
   const [total, setTotal] = useState(0);
   const [searching, setSearching] = useState(true);
   const [searchError, setSearchError] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
+  useEffect(() => {
+    const grid = gridRef.current;
+    const filters = filtersRef.current;
+    if (!grid || !filters) return;
+
+    const desktop = window.matchMedia("(min-width: 761px)");
+    const measure = () => {
+      const style = getComputedStyle(grid);
+      const tracks = style.gridTemplateColumns.split(" ");
+      const cardWidth = Number.parseFloat(tracks[0]);
+      if (!cardWidth) return;
+      const columns = tracks.length;
+      const gap = Number.parseFloat(style.rowGap) || 0;
+      // CardShell keeps the card art at a 5:7 aspect ratio.
+      const rowHeight = cardWidth * (7 / 5) + gap;
+      const rows = desktop.matches
+        ? Math.round((filters.offsetHeight + 2 + gap) / rowHeight)
+        : Math.ceil(CARD_PAGE_SIZES[0] / columns);
+      const automatic =
+        columns * Math.min(Math.floor(60 / columns), Math.max(2, rows));
+      setGridSize(current =>
+        current.columns === columns && current.automatic === automatic
+          ? current
+          : { columns, automatic }
+      );
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(grid);
+    observer.observe(filters);
+    desktop.addEventListener("change", measure);
+    measure();
+    return () => {
+      observer.disconnect();
+      desktop.removeEventListener("change", measure);
+    };
+  }, []);
   useEffect(() => {
     if (previewCategories) return;
     let active = true;
@@ -2126,6 +2177,7 @@ function SearchViewContent({
               if (active) {
                 setResults(value.cards);
                 setTotal(value.total);
+                setSearchError("");
               }
             },
             () => {
@@ -2147,7 +2199,7 @@ function SearchViewContent({
   }, [query, category, rarity, page, pageSize, loadPage]);
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
   const resetPage = () => {
-    setPage(1);
+    setPageOffset(0);
     setSearching(true);
     setSearchError("");
   };
@@ -2215,7 +2267,11 @@ function SearchViewContent({
           }}
         />
       </CatalogueFilterSection>
-      <CatalogueFilterSection title="Category" count={category.length}>
+      <CatalogueFilterSection
+        title="Category"
+        sectionId="catalogue-category"
+        count={category.length}
+      >
         {categories.map(item => (
           <button
             type="button"
@@ -2244,7 +2300,7 @@ function SearchViewContent({
           onClick={() => setFiltersOpen(false)}
         />
       )}
-      <div className="yk-collection-layout">
+      <div className="yk-collection-layout yk-catalogue-layout">
         {pageHeading && (
           <header className="yk-catalogue-title">{pageHeading}</header>
         )}
@@ -2263,7 +2319,11 @@ function SearchViewContent({
               ×
             </button>
           </div>
-          {filters}
+          <div className="yk-catalogue-filter-scroll">
+            <div ref={filtersRef} className="yk-catalogue-filter-content">
+              {filters}
+            </div>
+          </div>
         </aside>
         <div className="yk-collection-main">
           <div className="yk-catalogue-heading">
@@ -2307,6 +2367,7 @@ function SearchViewContent({
             <Unavailable>{tv("noCardsMatchTheseFilters")}</Unavailable>
           )}
           <ul
+            ref={gridRef}
             id="catalog-cards-list"
             tabIndex={0}
             className="yk-card-grid yk-catalogue-grid"
@@ -2331,33 +2392,42 @@ function SearchViewContent({
               </li>
             ))}
           </ul>
-          <div className="yk-collection-pagination">
-            <Pagination
-              page={page}
-              pageCount={pageCount}
-              scrollTargetId="catalog-cards-list"
-              onPageChange={number => {
-                setPage(number);
-                setSearching(true);
+        </div>
+        <div className="yk-collection-pagination yk-catalogue-pagination">
+          <Pagination
+            page={page}
+            pageCount={pageCount}
+            scrollTargetId="catalog-cards-list"
+            onPageChange={number => {
+              setPageOffset((number - 1) * pageSize);
+              setSearchError("");
+              setSearching(true);
+            }}
+          />
+          <label>
+            {tv("cardsPerPage")}
+            <select
+              value={preferredSize}
+              onChange={event => {
+                const size = Number(event.target.value);
+                setPreferredSize(size);
+                if (
+                  (size ? pageSizes[size - 1] : gridSize.automatic) === pageSize
+                )
+                  return;
+                resetPage();
               }}
-            />
-            <label>
-              {tv("cardsPerPage")}
-              <select
-                value={pageSize}
-                onChange={event => {
-                  setPageSize(Number(event.target.value));
-                  resetPage();
-                }}
-              >
-                {CARD_PAGE_SIZES.map(size => (
-                  <option key={size} value={size}>
-                    {size}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
+            >
+              <option value={0}>
+                {tv("automaticPageSize", { count: gridSize.automatic })}
+              </option>
+              {pageSizes.map((size, index) => (
+                <option key={size} value={index + 1}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
       </div>
       <CatalogueCardModal
