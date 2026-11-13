@@ -36,6 +36,16 @@ export function notificationItem(
     time: time ?? new Date(notification.createdAt).toLocaleString("en-US"),
     read: !!notification.readAt
   };
+  if (notification.type === "referral_event_tier")
+    return {
+      ...common,
+      title: t("notificationReferralEventTitle"),
+      text: t("notificationReferralEventText", {
+        amount: notification.referralReward ?? 0
+      }),
+      href: "/referral-event",
+      kind: "mission"
+    };
   if (notification.type === "wall_reply_received")
     return {
       ...common,

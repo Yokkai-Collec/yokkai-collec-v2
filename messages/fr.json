@@ -990,7 +990,9 @@
     "notificationAchievementFallback": "un succès",
     "friends": "Amis",
     "notificationCommentReplyTitle": "Nouvelle réponse à ton commentaire",
-    "notificationCommentReplyText": "{actorPseudo} a répondu à ton commentaire."
+    "notificationCommentReplyText": "{actorPseudo} a répondu à ton commentaire.",
+    "notificationReferralEventTitle": "Palier de parrainage débloqué",
+    "notificationReferralEventText": "Tu as reçu {amount, number} Karas. Retrouve tes récompenses du Referral Event."
   },
   "accountMenu": {
     "signIn": "Se connecter",
@@ -3396,7 +3398,10 @@
       "ACCOUNT": "Sanction de compte",
       "SMURF": "Sanction de compte secondaire"
     },
-    "state": { "APPLIED": "Appliquée", "ROLLED_BACK": "Annulée" },
+    "state": {
+      "APPLIED": "Appliquée",
+      "ROLLED_BACK": "Annulée"
+    },
     "status": {
       "PENDING": "En attente de revue",
       "UPHELD": "Sanction maintenue",
@@ -4497,5 +4502,35 @@
     "creationHint": "Le dossier sera créé immédiatement et ajouté à ta sélection en cours. Enregistre ensuite la sélection pour le mettre en avant sur ton profil.",
     "customize": "Personnaliser",
     "savedShort": "Enregistré"
+  },
+  "referralEvent": {
+    "title": "Referral Event",
+    "limited": "ÉVÉNEMENT LIMITÉ",
+    "upcoming": "BIENTÔT",
+    "ended": "ÉVÉNEMENT TERMINÉ",
+    "intro": "Agrandis ton équipe. Franchis les paliers. Gagne des Karas supplémentaires.",
+    "startsIn": "Début dans",
+    "endsIn": "Temps restant",
+    "countdown": "{days}j {hours}h {minutes}m {seconds}s",
+    "promotion": "Invite tes amis et débloque des Karas supplémentaires et le badge Recruiter.",
+    "validReferrals": "{count, plural, one {filleul valide} other {filleuls valides}}",
+    "nextTier": "Encore {count, plural, one {# filleul valide} other {# filleuls valides}} pour débloquer {karas, number} Karas.",
+    "allReached": "Tu as atteint tous les paliers. Merci de faire grandir la communauté !",
+    "progressLabel": "{count, number} filleuls valides sur {target, number} pour le prochain palier",
+    "tier": "{count, number} filleuls valides",
+    "karas": "{amount, number} Karas",
+    "badge": "Recruiter",
+    "badgeDescription": "Badge exclusif du Referral Event, obtenu avec 20 filleuls valides.",
+    "awarded": "Attribué",
+    "processing": "Atteint · récompense en cours",
+    "locked": "Verrouillé",
+    "howTitle": "Quand un filleul est-il valide ?",
+    "validExplanation": "Ton ami doit créer son compte via ton lien pendant l’événement, vérifier son adresse e-mail et passer les contrôles habituels du parrainage. Son compte doit avoir au moins 24 heures, puis il doit ouvrir un Regular Pack ou récupérer un Decision Pack après ces premières 24 heures. Les comptes supprimés, anonymisés ou bannis ne comptent pas.",
+    "graceExplanation": "Les amis inscrits dans les dernières 24 heures disposent de 24 heures supplémentaires après la fin pour devenir valides. Les autres doivent devenir valides avant la fin du compte à rebours.",
+    "automatic": "Les récompenses des paliers se cumulent et sont attribuées automatiquement sous une minute. Tes 5 Regular Packs bonus habituels par ami vérifié restent inchangés.",
+    "pendingTitle": "Amis en attente ({count, number})",
+    "noPending": "Aucun ami en attente de validation.",
+    "noEvent": "Aucun Referral Event n’est prévu pour le moment.",
+    "refreshError": "La progression n’a pas pu être actualisée. Ta dernière progression confirmée reste affichée ; réessaie dans un instant."
   }
 }
