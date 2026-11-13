@@ -3,7 +3,8 @@ export type FilterSectionsOpen = Record<string, boolean>;
 export const FILTER_SECTIONS_OPEN_STORAGE_KEY = "yokkai:filters-open:v1";
 // Sections missing from the map are closed.
 export const DEFAULT_FILTER_SECTIONS_OPEN: FilterSectionsOpen = {
-  rarity: true
+  rarity: true,
+  "catalogue-category": true
 };
 
 // Invalid JSON or a throwing storage (private mode, blocked site data) falls back to the default.

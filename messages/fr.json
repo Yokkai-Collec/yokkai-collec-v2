@@ -481,6 +481,7 @@
     "noCardsMatchTheseFilters": "Aucune carte ne correspond à ces filtres.",
     "catalogCards": "Cartes du catalogue",
     "cardsPerPage": "Cartes par page",
+    "automaticPageSize": "Auto ({count, number})",
     "wishlistIndisponible": "Liste de souhaits indisponible.",
     "couldntRemoveThisCardFromYourWishlist": "Impossible de retirer cette carte de ta liste de souhaits.",
     "searchWishlist": "Rechercher dans la liste de souhaits",

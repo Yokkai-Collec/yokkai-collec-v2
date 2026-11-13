@@ -108,6 +108,7 @@ test("l'état stocké est restauré et chaque bascule est mémorisée", () => {
   setSectionOpen("category", true);
   assert.deepEqual(JSON.parse(store.values.get(KEY)), {
     rarity: false,
+    "catalogue-category": true,
     folder: true,
     category: true
   });
@@ -118,7 +119,7 @@ test("un JSON invalide ou un localStorage qui lève retombe sur le défaut", () 
   for (const stored of ["{not json", "[true]", '"rarity"', "null"])
     assert.deepEqual(
       { ...sections.readFilterSectionsOpen(() => stored) },
-      { rarity: true }
+      { rarity: true, "catalogue-category": true }
     );
   const blocked = {
     getItem() {
@@ -129,7 +130,7 @@ test("un JSON invalide ou un localStorage qui lève retombe sur le défaut", () 
     }
   };
   const [open, setSectionOpen] = loadHook(blocked)();
-  assert.deepEqual({ ...open }, { rarity: true });
+  assert.deepEqual({ ...open }, { rarity: true, "catalogue-category": true });
   assert.doesNotThrow(() => setSectionOpen("category", true));
 });
 

@@ -752,7 +752,7 @@ select,
 
 @media (min-width: 1024px) {
   .yk-card-browse-page {
-    --card-browse-start: clamp(1.5rem, 3vw, 4rem);
+    --card-browse-start: clamp(1.25rem, 2.5vw, 4rem);
     --card-browse-end: max(
       var(--layout-desktop-gutter),
       calc(env(safe-area-inset-right, 0px) + 14.5rem)
@@ -767,6 +767,9 @@ select,
       )
     );
     margin-inline-end: auto;
+  }
+  .yk-card-browse-page:has(.yk-catalogue, .yk-market) {
+    --card-browse-max: 92rem;
   }
   .yk-card-browse-page .yk-collection-sidebar {
     position: sticky;

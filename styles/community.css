@@ -1548,6 +1548,44 @@
   .yk-catalogue-title ~ .yk-collection-main > .yk-empty-state {
     margin-top: 0;
   }
+  .yk-catalogue .yk-catalogue-layout {
+    grid-template-rows: auto auto auto;
+  }
+  .yk-catalogue-layout > .yk-collection-sidebar {
+    position: relative;
+    top: auto;
+    grid-row: 2;
+    grid-column: 1;
+    align-self: stretch;
+    max-height: none;
+    overflow: hidden;
+  }
+  .yk-catalogue-layout:not(:has(.yk-catalogue-grid > li))
+    > .yk-collection-sidebar {
+    min-height: min(17rem, 40dvh);
+  }
+  .yk-catalogue-filter-scroll {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-gutter: stable;
+  }
+  .yk-catalogue-filter-content {
+    display: flow-root;
+  }
+  .yk-catalogue-filter-content .yk-filter-section-content {
+    row-gap: calc(var(--spacing) * 1.25);
+  }
+  .yk-catalogue-layout > .yk-collection-main {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .yk-catalogue-layout > .yk-catalogue-pagination {
+    grid-column: 2;
+    grid-row: 3;
+    margin-top: 0;
+  }
 }
 @media (max-width: 760px) {
   .yk-catalogue-title {

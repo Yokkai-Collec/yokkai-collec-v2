@@ -198,29 +198,18 @@
   font-size: 12px;
   font-weight: 600;
 }
-/* Let the timer and price wrap based on their actual widths. */
 .yk-market-tile-line {
   display: flex;
-  flex-wrap: wrap;
   min-width: 0;
   align-items: center;
-  gap: calc(var(--spacing) * 1) calc(var(--spacing) * 1.5);
-}
-.yk-market-tile-line > :is(.yk-market-timer, .yk-market-price) {
-  max-width: 100%;
-  white-space: normal;
-  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+  gap: clamp(3px, 3cqi, 6px);
 }
 .yk-market-tile-line > .yk-market-price {
   margin-inline-start: auto;
 }
 .yk-market-tile-state {
-  order: 1;
-  flex-basis: 100%;
   min-width: 0;
-}
-.yk-market-tile-state:empty {
-  display: none;
 }
 .yk-market-tile-state > span {
   padding-inline: calc(var(--spacing) * 2);
@@ -238,17 +227,21 @@
 }
 .yk-market-timer {
   display: inline-flex;
+  min-width: 0;
   align-items: center;
-  gap: calc(var(--spacing) * 0.75);
-  padding: calc(var(--spacing) * 0.75) calc(var(--spacing) * 1.5);
+  gap: clamp(2px, 1.6cqi, 3px);
+  padding: 3px clamp(3px, 3.2cqi, 6px);
   border: 1px solid var(--color-veil);
   border-radius: var(--radius-pill);
   background: var(--color-void);
   color: var(--color-ink-2);
-  font-size: 11px;
+  font-size: clamp(9px, 6.15cqi, 11px);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+.yk-market-ended-date {
+  white-space: normal;
 }
 .yk-market-timer.yk-urgency-soon {
   border-color: color-mix(in srgb, var(--color-karas) 45%, transparent);
@@ -264,14 +257,23 @@
 }
 .yk-market-price {
   flex-shrink: 0;
-  gap: calc(var(--spacing) * 1.25);
-  padding: calc(var(--spacing) * 0.75) calc(var(--spacing) * 2);
-  font-size: 13px;
+  gap: clamp(2px, 2.6cqi, 5px);
+  padding: 3px clamp(3px, 4.25cqi, 8px);
+  font-size: clamp(10px, 7.4cqi, 13px);
+  white-space: nowrap;
+}
+.yk-market-tile-line[data-large-price] .yk-market-price {
+  padding-inline: clamp(3px, 2.5cqi, 8px);
+  font-size: clamp(8px, 6cqi, 13px);
+}
+.yk-market-tile-line .yk-karas-gem {
+  width: clamp(7px, 5.3cqi, 10px);
+  height: clamp(7px, 5.3cqi, 10px);
 }
 .yk-market-timer svg {
-  width: 11px;
-  height: 11px;
-  flex: 0 0 11px;
+  width: clamp(7px, 5.8cqi, 11px);
+  height: clamp(7px, 5.8cqi, 11px);
+  flex: none;
 }
 .yk-watch-button {
   display: inline-flex;

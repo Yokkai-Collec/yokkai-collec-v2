@@ -481,6 +481,7 @@
     "noCardsMatchTheseFilters": "No cards match these filters.",
     "catalogCards": "Catalog cards",
     "cardsPerPage": "Cards per page",
+    "automaticPageSize": "Auto ({count, number})",
     "wishlistIndisponible": "Wishlist indisponible.",
     "couldntRemoveThisCardFromYourWishlist": "Couldn't remove this card from your wishlist.",
     "searchWishlist": "Search wishlist",
