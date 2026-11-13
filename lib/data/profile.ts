@@ -23,6 +23,8 @@ function friendFilterParam(value: CardFilter = ""): string {
 }
 
 export type Profile = {
+  titleId?: string;
+  unlockedTitleIds?: string[];
   profileStyle?: PlayerCosmetics;
   id: string;
   pseudo: string;
@@ -144,6 +146,12 @@ export async function getProfile(identifier?: string) {
   );
   if (error) throw fail(error);
   return hydrateProfile(data as Profile, true);
+}
+export async function equipPlayerTitle(titleId: string): Promise<string> {
+  const { data, error } = await db().rpc("equip_player_title", { p_title_id: titleId });
+  if (error) throw new Error(error.message === "TITLE_NOT_UNLOCKED" ? "TITLE_NOT_UNLOCKED" : "TITLE_SAVE_FAILED");
+  publishPlayerSnapshotInvalidation(["profile"]);
+  return data as string;
 }
 export async function getProfileDetails(
   identifier?: string

@@ -389,6 +389,11 @@
   font-size: 12px;
   font-weight: 600;
 }
+.yk-account-summary .yk-account-title-line {
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: anywhere;
+}
 .yk-account-karas {
   display: none;
 }

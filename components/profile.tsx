@@ -29,6 +29,7 @@ import { BannerImage } from "@/components/banner-image";
 import { ProfileStyleFields } from "@/components/profile-style-fields";
 import { AvatarDecoration } from "@/components/avatar-decoration";
 import { StyledPlayerName } from "@/components/styled-player-name";
+import { PlayerTitle, PlayerTitlePicker } from "@/components/player-title";
 import {
   DEFAULT_PROFILE_STYLE,
   PROFILE_CARD_IMAGE_SIZES,
@@ -533,6 +534,7 @@ function FriendWishlist({
 }
 
 export type ProfileAdapter = {
+  equipTitle?: typeof import("@/lib/data/profile").equipPlayerTitle;
   messages?: import("@/lib/data/private-messages").PrivateMessagesAdapter;
   trades?: import("@/components/trades").TradesPanelAdapter;
   discovery?: CatalogueCardAdapter;
@@ -1054,7 +1056,7 @@ export function ProfileExperience({
                 <AvatarDecoration frame={activeStyle?.avatarFrame ?? "none"} />
               </div>
               <span className="yk-profile-identity-label">
-                {t("profileUi.collectorLabel")}
+                <PlayerTitle titleId={profile.titleId} />
               </span>
               <div className="yk-profile-name-row">
                 <h2>
@@ -1081,6 +1083,18 @@ export function ProfileExperience({
               <p className="yk-profile-bio">
                 {profile.bio || t("profileUi.noBioYet")}
               </p>
+              {isMe && profile.unlockedTitleIds && (
+                <PlayerTitlePicker
+                  titleId={profile.titleId}
+                  unlockedTitleIds={profile.unlockedTitleIds}
+                  save={adapter.equipTitle}
+                  onSaved={titleId =>
+                    setProfile(current =>
+                      current ? { ...current, titleId } : current
+                    )
+                  }
+                />
+              )}
               <div
                 className={`yk-profile-actions ${isAcceptedFriend ? "is-friend" : ""} ${showInlineProfileLike ? "has-profile-like" : ""}`}
               >
@@ -1653,7 +1667,7 @@ export function ProfileExperience({
             adapter={adapter}
             onClose={() => setEditing(false)}
             onSaved={p => {
-              setProfile(p);
+              setProfile(current => ({ ...current, ...p }));
               setSavedBannerUrl(p.bannerUrl);
               setSavedBannerFrame(p.bannerFrame ?? null);
               setToast(

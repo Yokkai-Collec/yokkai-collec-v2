@@ -1,4 +1,13 @@
 {
+  "playerTitles": {
+    "names": { "collector": "Collectionneur" },
+    "label": "Titre du joueur",
+    "unlockedOnly": "Seuls les titres débloqués peuvent être équipés. Obtiens de nouveaux titres en récompense.",
+    "saving": "Enregistrement du titre…",
+    "saved": "Titre mis à jour.",
+    "notUnlocked": "Tu n’as pas débloqué ce titre.",
+    "saveFailed": "Impossible de modifier ton titre. Réessaie."
+  },
   "discordReward": {
     "discordLabel": "Discord",
     "twitterLabel": "Twitter",

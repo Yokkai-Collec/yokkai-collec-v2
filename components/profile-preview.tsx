@@ -162,6 +162,8 @@ export function ProfilePreview() {
       { id: "friend-3", pseudo: "Rin" }
     ];
     const profile = () => ({
+      titleId: "collector",
+      unlockedTitleIds: visitor ? undefined : ["collector"],
       id: "preview",
       pseudo: "Toba",
       avatarUrl: "/assets/landing/gojou.webp",

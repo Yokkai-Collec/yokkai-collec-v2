@@ -1,4 +1,13 @@
 {
+  "playerTitles": {
+    "names": { "collector": "Collector" },
+    "label": "Player title",
+    "unlockedOnly": "Only titles you have unlocked can be equipped. Earn more titles through rewards.",
+    "saving": "Saving title…",
+    "saved": "Title updated.",
+    "notUnlocked": "You have not unlocked this title.",
+    "saveFailed": "Couldn't update your title. Please try again."
+  },
   "discordReward": {
     "discordLabel": "Discord",
     "twitterLabel": "Twitter",

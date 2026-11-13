@@ -33,6 +33,7 @@ import { useBoostersLoadPriority } from "@/components/boosters-load-priority";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import { ProPromotion } from "@/components/pro-promotion";
 import { getProfile } from "@/lib/data/profile";
+import { PlayerTitle } from "@/components/player-title";
 import { subscribePlayerSnapshotInvalidation } from "@/lib/data/player-state";
 
 const notificationStyle = {
@@ -142,6 +143,7 @@ export function Topbar({
   const [mobileMenu, setMobileMenu] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string>();
   const [profileName, setProfileName] = useState<string>();
+  const [titleId, setTitleId] = useState("collector");
   const feed = useNotificationFeed(!notifications && secondaryReady);
   const social = useSocialUnread(
     socialUnread,
@@ -173,6 +175,7 @@ export function Topbar({
           if (active) {
             setAvatarUrl(profile.avatarUrl ?? undefined);
             setProfileName(profile.pseudo);
+            setTitleId(profile.titleId ?? "collector");
           }
         },
         () => undefined
@@ -595,8 +598,8 @@ export function Topbar({
                     />
                     <div>
                       <strong>{name || "Account"}</strong>
-                      <span>
-                        @{name || "account"} {t("collector")}
+                      <span className="yk-account-title-line">
+                        @{name || "account"} · <PlayerTitle titleId={titleId} />
                       </span>
                       {karas != null && (
                         <small className="yk-account-karas">
