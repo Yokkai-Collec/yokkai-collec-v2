@@ -2957,7 +2957,7 @@ export function CommunityView({
       }
     );
     if (screen === "profile" && isMe)
-      void getUserCollection().then(
+      void getUserCollection(false).then(
         data => {
           if (active) setCollection(data);
         },
@@ -3069,7 +3069,7 @@ export function CommunityView({
           () => undefined
         );
       if (scopes.includes("collection") && screen === "profile" && isMe)
-        void getUserCollection().then(
+        void getUserCollection(false).then(
           cards => {
             if (active) setCollection(cards);
           },
