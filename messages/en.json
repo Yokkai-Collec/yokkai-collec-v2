@@ -990,7 +990,9 @@
     "notificationAchievementFallback": "an achievement",
     "friends": "Friends",
     "notificationCommentReplyTitle": "New reply to your comment",
-    "notificationCommentReplyText": "{actorPseudo} replied to your comment."
+    "notificationCommentReplyText": "{actorPseudo} replied to your comment.",
+    "notificationReferralEventTitle": "Referral milestone unlocked",
+    "notificationReferralEventText": "You received {amount, number} Karas. See your Referral Event rewards."
   },
   "accountMenu": {
     "signIn": "Sign in",
@@ -3392,8 +3394,14 @@
     "requestCorrection": "Mark for correction",
     "voidWarning": "Void warning",
     "warningVoided": "Warning voided",
-    "kind": { "ACCOUNT": "Account sanction", "SMURF": "Smurf sanction" },
-    "state": { "APPLIED": "Applied", "ROLLED_BACK": "Rolled back" },
+    "kind": {
+      "ACCOUNT": "Account sanction",
+      "SMURF": "Smurf sanction"
+    },
+    "state": {
+      "APPLIED": "Applied",
+      "ROLLED_BACK": "Rolled back"
+    },
     "status": {
       "PENDING": "Awaiting review",
       "UPHELD": "Sanction upheld",
@@ -4494,5 +4502,35 @@
     "creationHint": "The folder will be created immediately and added to your current selection. Save the selection afterwards to feature it on your profile.",
     "customize": "Customize",
     "savedShort": "Saved"
+  },
+  "referralEvent": {
+    "title": "Referral Event",
+    "limited": "LIMITED EVENT",
+    "upcoming": "COMING SOON",
+    "ended": "EVENT ENDED",
+    "intro": "Build your crew. Reach new milestones. Earn extra Karas together.",
+    "startsIn": "Starts in",
+    "endsIn": "Time remaining",
+    "countdown": "{days}d {hours}h {minutes}m {seconds}s",
+    "promotion": "Invite friends, unlock extra Karas and the Recruiter badge.",
+    "validReferrals": "{count, plural, one {valid referral} other {valid referrals}}",
+    "nextTier": "{count, plural, one {# more valid referral} other {# more valid referrals}} to unlock {karas, number} Karas.",
+    "allReached": "You have reached every milestone. Thanks for growing the community!",
+    "progressLabel": "{count, number} valid referrals out of {target, number} for the next milestone",
+    "tier": "{count, number} valid referrals",
+    "karas": "{amount, number} Karas",
+    "badge": "Recruiter",
+    "badgeDescription": "Exclusive Referral Event badge, earned with 20 valid referrals.",
+    "awarded": "Awarded",
+    "processing": "Reached · reward on its way",
+    "locked": "Locked",
+    "howTitle": "What makes a referral valid?",
+    "validExplanation": "Your friend must sign up through your referral link during the event, verify their email and pass the usual referral checks. Their account must be at least 24 hours old, and they must open a Regular Pack or claim a Decision Pack after those first 24 hours. Deleted, anonymized and banned accounts do not count.",
+    "graceExplanation": "Friends who sign up in the final 24 hours have 24 extra hours after the event ends to qualify. Other friends must qualify before the countdown ends.",
+    "automatic": "Milestone rewards stack and are awarded automatically within a minute. Your usual 5 bonus Regular Packs per verified friend stay the same.",
+    "pendingTitle": "Pending friends ({count, number})",
+    "noPending": "No friends waiting to qualify.",
+    "noEvent": "No Referral Event is scheduled right now.",
+    "refreshError": "Progress could not be refreshed. Your last confirmed progress is shown; try again shortly."
   }
 }

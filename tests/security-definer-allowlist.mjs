@@ -1,5 +1,8 @@
 // Exact overloads and roles only. Every addition requires an access justification.
 export const ownerOnly = [
+  "public.referral_event_candidates(uuid)", // Private eligibility includes Auth dates and existing anti-abuse approval; never exposed to players.
+  "public.referral_event_qualified(uuid)", // Private qualification/deadline query; only the protected DTO and worker consume it.
+  "public.settle_referral_events()", // Cron owner only; no client or service-role reward attribution.
   "public.queue_card_rarity_announcement()", // Trigger-only catalogue snapshots; never an API entry point.
   "public.dispatch_card_rarity_announcements()", // Operator cron only, private player-server Discord destination.
   "public.build_data_export_without_twitter_reward(uuid, uuid)", // Existing reservation-gated export; only the owning wrapper adds the caller's Twitter visit receipt.
@@ -93,6 +96,8 @@ export const serverOnly = {
 };
 
 const allowlist = {
+  "public.get_referral_event()": ["authenticated"], // Own progression and pending pseudos only; read-only, cannot award tiers.
+  "public.get_referral_event_badges(uuid)": ["authenticated"], // Earned badges only for self/public profiles, respecting blocks and account status.
   "public.update_catalogue_card_announced(uuid, jsonb, uuid)": [
     "authenticated"
   ], // Admin-only name/category import update with the same existing-card field whitelist and grouped announcement.

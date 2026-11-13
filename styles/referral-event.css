@@ -1,0 +1,212 @@
+.yk-referral-event {
+  --event-accent: #d9b77c;
+  border: 1px solid #d9b77c35;
+  border-radius: 24px;
+  background:
+    radial-gradient(ellipse at 90% 0%, #b3814320, transparent 55%),
+    var(--surface, #13141d);
+  padding: clamp(20px, 4vw, 48px);
+  color: var(--ink, #f6f2eb);
+}
+.yk-referral-event h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.8rem);
+  line-height: 1.1;
+  margin: 12px 0 18px;
+}
+.yk-referral-event h2 {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+.yk-referral-event p {
+  line-height: 1.7;
+  color: var(--ink-2, #aaa9b9);
+}
+.yk-referral-event-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.yk-referral-event-hero > div:first-child {
+  max-width: 38rem;
+}
+.yk-referral-event-timer {
+  display: grid;
+  gap: 8px;
+  align-content: center;
+}
+.yk-referral-event-clock {
+  font-variant-numeric: tabular-nums;
+  color: var(--event-accent, #d9b77c);
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  white-space: nowrap;
+}
+.yk-referral-event-progress {
+  margin: 32px 0;
+  border-block: 1px solid #d9b77c25;
+  padding: 24px 0;
+}
+.yk-referral-event-progress > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: baseline;
+}
+.yk-referral-event-progress strong {
+  font-size: 2.5rem;
+  color: var(--event-accent);
+}
+.yk-referral-event-progress progress {
+  width: 100%;
+  height: 8px;
+  margin-top: 16px;
+  border: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #ffffff12;
+  accent-color: var(--event-accent);
+}
+.yk-referral-event-progress progress::-webkit-progress-bar {
+  background: #ffffff12;
+}
+.yk-referral-event-progress progress::-webkit-progress-value {
+  background: var(--event-accent);
+  border-radius: 10px;
+}
+.yk-referral-event-tiers {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  list-style: none;
+}
+.yk-referral-event-tiers li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 22px;
+  border: 1px solid #ffffff12;
+  border-radius: 16px;
+  background: #08091244;
+  min-width: 0;
+}
+.yk-referral-event-tiers li[data-reached="true"] {
+  border-color: #d9b77c70;
+  background: #b3814315;
+}
+.yk-referral-event-tier-mark {
+  color: var(--event-accent);
+  font-size: 24px;
+}
+.yk-referral-event-tiers strong {
+  font-size: 1.5rem;
+}
+.yk-referral-event-tiers li > span:last-child {
+  margin-top: auto;
+  color: var(--ink-2, #aaa9b9);
+  font-size: 0.8rem;
+}
+.yk-referral-event-details {
+  display: grid;
+  gap: 24px;
+  margin-top: 32px;
+}
+.yk-referral-event-details p {
+  margin-top: 12px;
+  font-size: 0.9rem;
+}
+.yk-referral-event-pending {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 0;
+  list-style: none;
+}
+.yk-referral-event-pending li {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #ffffff08;
+}
+.yk-referral-event-promotion {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  width: 100%;
+  padding: 20px;
+  border: 1px solid #d9b77c50;
+  border-radius: 18px;
+  background: linear-gradient(110deg, #b3814325, #14131c);
+  color: var(--ink, #f6f2eb);
+  text-decoration: none;
+}
+.yk-referral-event-promotion > span:nth-child(2) {
+  display: grid;
+  gap: 5px;
+  flex: 1;
+  min-width: 140px;
+}
+.yk-referral-event-promotion strong {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+}
+.yk-referral-event-promotion > span:nth-child(2) > span {
+  color: var(--ink-2, #aaa9b9);
+  font-size: 0.85rem;
+}
+.yk-referral-event-promotion-time {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.yk-referral-event-seal {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #d9b77c70;
+  border-radius: 50%;
+  color: #d9b77c;
+  flex: none;
+}
+.yk-recruiter-badge {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.5;
+  padding: 5px 10px;
+  border: 1px solid #d9b77c70;
+  border-radius: 999px;
+  color: #e9ce9e;
+  background: #b381431c;
+  text-decoration: none;
+}
+.yk-referral-event-promotion:focus-visible,
+.yk-recruiter-badge:focus-visible {
+  outline: 2px solid #e9ce9e;
+  outline-offset: 4px;
+}
+@media (min-width: 600px) {
+  .yk-referral-event-tiers {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .yk-referral-event-hero {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  .yk-referral-event-tiers {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .yk-referral-event-details {
+    grid-template-columns: 1.3fr 1fr;
+    gap: 48px;
+  }
+}

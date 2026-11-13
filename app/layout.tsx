@@ -163,6 +163,7 @@ export default async function RootLayout({
       "discordPromo",
       "discordReward",
       "referralReminder",
+      "referralEvent",
       "socialTrades",
       "tradeDesign",
       "messenger",
