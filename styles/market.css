@@ -1020,7 +1020,7 @@
   }
 }
 
-@media (max-width: 1700px) and (min-width: 761px) {
+@media (761px <= width <= 1920px) {
   .yk-auction-page {
     left: 0;
   }

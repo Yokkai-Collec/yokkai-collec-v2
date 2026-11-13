@@ -8,6 +8,12 @@
   color-scheme: dark;
   --color-karas-readable-gold: #ffda75;
   --ease-yokkai: var(--ease-standard);
+  --layout-desktop-gutter: 13.5rem;
+  --page-inline-gutter: clamp(
+    4rem,
+    calc(30vw - 15.25rem),
+    var(--layout-desktop-gutter)
+  );
 }
 /* Frame the supplied PNG's transparent margins without altering the artwork. */
 img[src*="brand-logo-ice-retro.png"] {
@@ -55,6 +61,29 @@ body {
   animation: yk-page-enter var(--page-enter-duration) var(--ease-standard)
     var(--page-enter-delay) both;
   transform-origin: center top;
+}
+
+/* Cap the content lane on laptop viewports. Page-specific max widths still
+   apply, and the navigation, backgrounds and pack cinematics span the screen. */
+@media (1024px <= width <= 1920px) {
+  .yk-page-transition
+    main:not(
+      :where(
+        .yk-auth-main,
+        .yk-card-browse-page,
+        :has(.yk-opening-stage, .yk-reveal-screen)
+      )
+    ) {
+    width: calc(100% - 2 * var(--page-inline-gutter));
+    margin-inline: auto;
+  }
+  .yk-auth-shell > .yk-auth-main {
+    width: min(
+      100%,
+      calc(100vw - 2 * (var(--page-inline-gutter) + var(--layout-gutter)))
+    );
+    margin-inline: auto;
+  }
 }
 .yk-route-loading {
   width: 100%;
@@ -703,7 +732,28 @@ select,
     transform: rotate(45deg) !important;
   }
 }
-/* Shared card grid (Collection, Catalogue, Marché, future card pages): one column scale, no per-page overrides. */
+/* Leave room beside the full-page card grids for the floating messenger. */
+.yk-card-browse-page {
+  --card-browse-gutter: var(--layout-gutter-compact);
+  width: calc(100% - 2 * var(--card-browse-gutter));
+  max-width: calc(var(--layout-collection-max) - 2 * var(--layout-gutter));
+  padding-inline: 0;
+}
+
+@media (min-width: 761px) {
+  .yk-card-browse-page {
+    --card-browse-gutter: clamp(5rem, 6vw, 7rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  .yk-card-browse-page {
+    --card-browse-gutter: var(--layout-desktop-gutter);
+    --collection-sidebar-width: clamp(12rem, 12.5vw, 15rem);
+  }
+}
+
+/* Shared card grid (Collection, Catalogue, Marché, future card pages). */
 .yk-card-grid {
   display: grid;
   grid-template-columns: repeat(
@@ -720,6 +770,26 @@ select,
 @media (max-width: 1080px) {
   .yk-card-grid {
     --card-grid-columns: var(--card-grid-columns-md);
+  }
+}
+@media (761px <= width <= 900px) {
+  .yk-card-browse-page .yk-card-grid {
+    --card-grid-columns: 3;
+  }
+}
+@media (1367px <= width <= 1439px) {
+  .yk-card-browse-page .yk-card-grid {
+    --card-grid-columns: var(--card-grid-columns-lg);
+  }
+}
+@media (1181px <= width <= 1366px) {
+  .yk-card-browse-page .yk-card-grid {
+    --card-grid-columns: var(--card-grid-columns-md);
+  }
+}
+@media (1024px <= width <= 1180px) {
+  .yk-card-browse-page .yk-card-grid {
+    --card-grid-columns: 3;
   }
 }
 @media (max-width: 760px) {

@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
-import { MarketPreview } from "@/components/market-preview";
+import {
+  MarketPreview,
+  MarketPreviewMessenger
+} from "@/components/market-preview";
 import { Topbar } from "@/components/topbar";
 
 export const metadata: Metadata = {
@@ -10,13 +13,18 @@ export const metadata: Metadata = {
 export default async function MarketPreviewPage({
   searchParams
 }: {
-  searchParams: Promise<{ empty?: string; long?: string; history?: string }>;
+  searchParams: Promise<{
+    empty?: string;
+    long?: string;
+    history?: string;
+    messenger?: string;
+  }>;
 }) {
-  const { empty, long, history } = await searchParams;
+  const { empty, long, history, messenger } = await searchParams;
   return (
     <>
       <Topbar view="market" name="Kitsune" karas={4920} notifications={[]} />
-      <main className="mx-auto w-full max-w-[var(--layout-collection-max)] px-6 py-10">
+      <main className="yk-card-browse-page mx-auto py-10">
         <MarketPreview
           empty={empty !== undefined}
           long={long !== undefined}
@@ -29,6 +37,7 @@ export default async function MarketPreviewPage({
           }
         />
       </main>
+      {messenger !== undefined && <MarketPreviewMessenger />}
     </>
   );
 }

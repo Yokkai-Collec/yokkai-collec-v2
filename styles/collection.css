@@ -271,6 +271,13 @@
   min-width: calc(var(--spacing) * 50);
   max-width: calc(var(--spacing) * 50);
 }
+@media (1440px <= width <= 1792px) {
+  .yk-card-browse-page .yk-collection-toolbar-actions > :not(dialog) {
+    width: auto;
+    min-width: 0;
+    max-width: 100%;
+  }
+}
 .yk-sort-control {
   position: relative;
   display: flex;
