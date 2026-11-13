@@ -1556,7 +1556,6 @@ main:has(.yk-profile-hub:not([data-profile-compact="true"])) {
     .yk-profile-intro
     > :is(
       .yk-profile-bio,
-      .yk-player-title-picker,
       .yk-profile-actions,
       .yk-profile-like,
       .yk-profile-muted

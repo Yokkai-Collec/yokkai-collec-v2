@@ -1083,18 +1083,6 @@ export function ProfileExperience({
               <p className="yk-profile-bio">
                 {profile.bio || t("profileUi.noBioYet")}
               </p>
-              {isMe && profile.unlockedTitleIds && (
-                <PlayerTitlePicker
-                  titleId={profile.titleId}
-                  unlockedTitleIds={profile.unlockedTitleIds}
-                  save={adapter.equipTitle}
-                  onSaved={titleId =>
-                    setProfile(current =>
-                      current ? { ...current, titleId } : current
-                    )
-                  }
-                />
-              )}
               <div
                 className={`yk-profile-actions ${isAcceptedFriend ? "is-friend" : ""} ${showInlineProfileLike ? "has-profile-like" : ""}`}
               >
@@ -1650,33 +1638,47 @@ export function ProfileExperience({
             }}
           />
         ) : isMe && collection && details ? (
-          <Editor
-            key={editingMode}
-            mode={editingMode === "showcase" ? "showcase" : "profile"}
-            profile={profile}
-            collection={collection}
-            initialBannerUrl={
-              (savedBannerUrl === undefined
-                ? details?.bannerUrl
-                : savedBannerUrl) ?? null
-            }
-            initialBannerFrame={bannerFrame ?? null}
-            framingAvailable={
-              !!adapter.saveAppearance || details.bannerFrame !== undefined
-            }
-            adapter={adapter}
-            onClose={() => setEditing(false)}
-            onSaved={p => {
-              setProfile(current => ({ ...current, ...p }));
-              setSavedBannerUrl(p.bannerUrl);
-              setSavedBannerFrame(p.bannerFrame ?? null);
-              setToast(
-                editingMode === "showcase"
-                  ? "Showcase updated"
-                  : "Profile updated"
-              );
-            }}
-          />
+          <>
+            {editingMode === "profile" && profile.unlockedTitleIds && (
+              <PlayerTitlePicker
+                titleId={profile.titleId}
+                unlockedTitleIds={profile.unlockedTitleIds}
+                save={adapter.equipTitle}
+                onSaved={titleId =>
+                  setProfile(current =>
+                    current ? { ...current, titleId } : current
+                  )
+                }
+              />
+            )}
+            <Editor
+              key={editingMode}
+              mode={editingMode === "showcase" ? "showcase" : "profile"}
+              profile={profile}
+              collection={collection}
+              initialBannerUrl={
+                (savedBannerUrl === undefined
+                  ? details?.bannerUrl
+                  : savedBannerUrl) ?? null
+              }
+              initialBannerFrame={bannerFrame ?? null}
+              framingAvailable={
+                !!adapter.saveAppearance || details.bannerFrame !== undefined
+              }
+              adapter={adapter}
+              onClose={() => setEditing(false)}
+              onSaved={p => {
+                setProfile(current => ({ ...current, ...p }));
+                setSavedBannerUrl(p.bannerUrl);
+                setSavedBannerFrame(p.bannerFrame ?? null);
+                setToast(
+                  editingMode === "showcase"
+                    ? "Showcase updated"
+                    : "Profile updated"
+                );
+              }}
+            />
+          </>
         ) : (
           <p className="yk-profile-empty">
             {detailsError || t("profileUi.loadingProfileEditor")}

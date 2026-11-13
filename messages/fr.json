@@ -2,7 +2,7 @@
   "playerTitles": {
     "names": { "collector": "Collectionneur" },
     "label": "Titre du joueur",
-    "unlockedOnly": "Seuls les titres débloqués peuvent être équipés. Obtiens de nouveaux titres en récompense.",
+    "unlockedOnly": "Seuls les titres débloqués peuvent être équipés. Ton choix est enregistré automatiquement.",
     "saving": "Enregistrement du titre…",
     "saved": "Titre mis à jour.",
     "notUnlocked": "Tu n’as pas débloqué ce titre.",

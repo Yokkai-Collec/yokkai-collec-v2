@@ -2,7 +2,7 @@
   "playerTitles": {
     "names": { "collector": "Collector" },
     "label": "Player title",
-    "unlockedOnly": "Only titles you have unlocked can be equipped. Earn more titles through rewards.",
+    "unlockedOnly": "Only unlocked titles can be equipped. Your selection is saved automatically.",
     "saving": "Saving title…",
     "saved": "Title updated.",
     "notUnlocked": "You have not unlocked this title.",
