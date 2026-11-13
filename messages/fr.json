@@ -4491,7 +4491,21 @@
     "viewResult": "Voir le résultat",
     "revealing": "Révélation en cours…",
     "unavailable": "L’event est momentanément indisponible. Nouvelle tentative en cours…",
-    "loading": "Chargement de la Mystery Auction…"
+    "loading": "Chargement de la Mystery Auction…",
+    "backToEvents": "Tous les événements",
+    "weeklyEvent": "Le mystère de la semaine",
+    "eventIntro": "Le catalogue garde son secret. Enchéris pour le mystère, découvre la carte à la clôture.",
+    "liveEvent": "Événement en cours",
+    "eventEnded": "Événement terminé",
+    "revealIn": "Révélation dans",
+    "reveal": "Révélation",
+    "durationFact": "24 h pour enchérir",
+    "catalogueFact": "Tout le catalogue en jeu",
+    "normalFact": "Une carte en version normale",
+    "stageHidden": "Son identité reste secrète jusqu’à la clôture.",
+    "stageRevealed": "Le mystère de cette édition est révélé.",
+    "hiddenCard": "Carte inconnue",
+    "enterAuction": "Entre dans l’enchère"
   },
   "events": {
     "title": "Événements",

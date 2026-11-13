@@ -1,4 +1,5 @@
 .yk-mystery-back {
+  container-type: inline-size;
   display: grid;
   place-items: center;
   width: 100%;
@@ -20,6 +21,9 @@
     0 0 28px #c2a05b18;
   font-size: clamp(2rem, 9vw, 5rem);
   font-family: serif;
+}
+.yk-mystery-back > span {
+  font-size: clamp(1rem, 22cqi, 4rem);
 }
 .yk-mystery-banner {
   display: flex;
@@ -78,5 +82,178 @@
 @media (max-width: 359px) {
   .yk-mystery-banner {
     align-items: flex-start;
+  }
+}
+
+/* The event owns its stage; ordinary auction layouts retain their styling. */
+#main-content:has(.yk-mystery-detail) > div:first-child {
+  left: 0;
+}
+.yk-mystery-event-header {
+  flex: 1 1 100%;
+  min-width: 0;
+  padding-bottom: clamp(1.5rem, 4vw, 3rem);
+  border-bottom: 1px solid #d9c59430;
+}
+.yk-mystery-event-back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--color-ink-3);
+  font-size: 0.8125rem;
+}
+.yk-mystery-event-back:hover {
+  color: #efdcb0;
+}
+.yk-mystery-event-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+.yk-mystery-event-intro {
+  flex: 1 1 25rem;
+  min-width: 0;
+}
+.yk-mystery-event-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  color: #d7bd83;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.yk-mystery-event-eyebrow span {
+  font-size: 1rem;
+}
+.yk-mystery-event-intro h1 {
+  margin-top: 0.75rem;
+  color: #f4e6c6;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5.2vw, 4.75rem);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  overflow-wrap: anywhere;
+}
+.yk-mystery-event-subtitle {
+  max-width: 36rem;
+  margin-top: 1rem;
+  color: var(--color-ink-2);
+  font-size: 0.9375rem;
+  line-height: 1.8;
+}
+.yk-mystery-event-clock {
+  display: grid;
+  flex: 0 1 22rem;
+  min-width: 0;
+  gap: 0.5rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid #d9c59440;
+  border-radius: 1rem;
+  background:
+    radial-gradient(ellipse at 100% 0, #bd914319, transparent 80%), #080a11;
+}
+.yk-mystery-event-state {
+  width: fit-content;
+  max-width: 100%;
+  margin-bottom: 0.5rem;
+  color: #e1c88f;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+.yk-mystery-event-clock-label {
+  color: var(--color-ink-2);
+  font-size: 0.8125rem;
+}
+.yk-mystery-event-clock strong {
+  color: #f4e6c6;
+  font-family: var(--font-display);
+  font-size: clamp(1.875rem, 4vw, 3rem);
+  line-height: 1.15;
+  letter-spacing: 0.015em;
+  font-variant-numeric: tabular-nums;
+}
+.yk-mystery-event-bids {
+  color: var(--color-ink-3);
+  font-size: 0.75rem;
+}
+.yk-mystery-event-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin-top: 1.5rem;
+  color: var(--color-ink-3);
+  font-size: 0.75rem;
+}
+.yk-mystery-event-facts li::before {
+  content: "✦";
+  margin-right: 0.5rem;
+  color: #c6a467;
+}
+.yk-mystery-detail .yk-auction-art {
+  position: relative;
+  display: grid;
+  flex-basis: 23rem;
+  justify-items: center;
+  gap: 1.5rem;
+  padding: clamp(2rem, 5vw, 3.5rem) 1.25rem 1.5rem;
+  border: 1px solid #d9c59430;
+  border-radius: 1.5rem;
+  background:
+    radial-gradient(ellipse at 50% 40%, #b18a3c20, transparent 68%), #070910;
+  isolation: isolate;
+}
+.yk-mystery-detail .yk-auction-art::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 2rem;
+  left: 50%;
+  width: min(90%, 21rem);
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  border: 1px solid #d8ba7238;
+  border-radius: 50%;
+  box-shadow:
+    0 0 50px #b18a3c15,
+    inset 0 0 45px #b18a3c12;
+}
+.yk-mystery-detail .yk-auction-art > .yk-mystery-back,
+.yk-mystery-detail .yk-auction-art > .yk-card {
+  width: min(100%, 15rem);
+}
+.yk-mystery-stage-caption {
+  max-width: 16rem;
+  color: #baa985;
+  font-size: 0.75rem;
+  line-height: 1.7;
+  text-align: center;
+}
+.yk-mystery-detail .yk-auction-panel {
+  border-color: #d9c59445;
+  background: linear-gradient(145deg, #c19a4b09, transparent 65%), #0a0d16;
+}
+.yk-mystery-detail .yk-auction-main {
+  gap: 1.5rem;
+}
+.yk-mystery-detail .yk-auction-header h2 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+.yk-mystery-detail .yk-auction-header > div > div > span:first-child {
+  color: #c6ad78;
+}
+@media (max-width: 600px) {
+  .yk-mystery-event-clock {
+    flex-basis: 100%;
+  }
+  .yk-mystery-event-heading {
+    gap: 1.5rem;
   }
 }

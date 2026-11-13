@@ -4491,7 +4491,21 @@
     "viewResult": "View result",
     "revealing": "Revealing the card…",
     "unavailable": "The event is temporarily unavailable. Retrying…",
-    "loading": "Loading the Mystery Auction…"
+    "loading": "Loading the Mystery Auction…",
+    "backToEvents": "All events",
+    "weeklyEvent": "This week’s mystery",
+    "eventIntro": "The catalogue holds the secret. Bid for the mystery, discover the card at closing.",
+    "liveEvent": "Live event",
+    "eventEnded": "Event ended",
+    "revealIn": "The reveal in",
+    "reveal": "The reveal",
+    "durationFact": "24 hours to bid",
+    "catalogueFact": "The entire catalogue in play",
+    "normalFact": "One normal-edition card",
+    "stageHidden": "Its identity stays secret until closing.",
+    "stageRevealed": "This edition’s mystery is revealed.",
+    "hiddenCard": "Unknown card",
+    "enterAuction": "Enter the auction"
   },
   "events": {
     "title": "Events",

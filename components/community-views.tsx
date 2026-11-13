@@ -3,6 +3,7 @@ import { EventsHub } from "@/components/events-hub";
 import {
   MysteryAuctionBanner,
   MysteryCardBack,
+  MysteryEventHeader,
   MysteryAuctionTile
 } from "@/components/mystery-auction";
 import { EmojiReactionPicker } from "@/components/emoji-reaction-picker";
@@ -1725,11 +1726,28 @@ export function AuctionView({
     <div
       className={`yk-auction-page${auction.isMystery ? " yk-mystery-detail" : ""}`}
     >
+      {auction.isMystery && (
+        <MysteryEventHeader
+          remaining={auction.remaining}
+          finished={auction.finished}
+          hidden={auction.mysteryHidden}
+          bids={auction.bids}
+        />
+      )}
       <div className="yk-auction-art">
         {auction.mysteryHidden ? (
           <MysteryCardBack />
         ) : (
           <YokaiCard {...auction.card} />
+        )}
+        {auction.isMystery && (
+          <p className="yk-mystery-stage-caption">
+            {t(
+              auction.mysteryHidden
+                ? "mysteryAuction.stageHidden"
+                : "mysteryAuction.stageRevealed"
+            )}
+          </p>
         )}
       </div>
       <div className="yk-auction-main">
@@ -1740,14 +1758,14 @@ export function AuctionView({
                 className={`text-sm font-bold tracking-widest ${catalogueRarityText[auction.card.rarity]}`}
               >
                 {auction.mysteryHidden
-                  ? t("mysteryAuction.title")
+                  ? t("mysteryAuction.hiddenCard")
                   : auction.card.rarity}
               </span>
               {auction.status && <AuctionStatus status={auction.status} />}
             </div>
             <h2 className="mt-2 font-display">
               {auction.mysteryHidden
-                ? t("mysteryAuction.title")
+                ? t("mysteryAuction.enterAuction")
                 : auction.card.name}
             </h2>
             {auction.isMystery ? (
@@ -3191,7 +3209,7 @@ export function CommunityView({
   return (
     <>
       <Topbar
-        view={screen}
+        view={screen === "auction" && auction?.isMystery ? "events" : screen}
         account={account}
         name={isMe ? name : undefined}
         karas={karas}
@@ -3227,21 +3245,23 @@ export function CommunityView({
             : "max-w-6xl"
         } px-6 py-10`}
       >
-        {screen !== "market" && screen !== "search" && (
-          <div>
-            {screen === "auction" && (
-              <Link href="/market" className="yk-back-link">
-                {tError("market.back")}
-              </Link>
-            )}
-            <p className="eyebrow">{overline}</p>
-            <h1 className="yk-title mt-3">
-              {screen === "profile" && !isMe
-                ? tError("profileUi.playerProfile")
-                : title}
-            </h1>
-          </div>
-        )}
+        {screen !== "market" &&
+          screen !== "search" &&
+          !(screen === "auction" && auction?.isMystery) && (
+            <div>
+              {screen === "auction" && (
+                <Link href="/market" className="yk-back-link">
+                  {tError("market.back")}
+                </Link>
+              )}
+              <p className="eyebrow">{overline}</p>
+              <h1 className="yk-title mt-3">
+                {screen === "profile" && !isMe
+                  ? tError("profileUi.playerProfile")
+                  : title}
+              </h1>
+            </div>
+          )}
         {error && (
           <p
             role="alert"

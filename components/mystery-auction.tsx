@@ -22,6 +22,57 @@ export function MysteryCardBack() {
   );
 }
 
+export function MysteryEventHeader({
+  remaining,
+  finished,
+  hidden,
+  bids
+}: {
+  remaining: string;
+  finished?: boolean;
+  hidden?: boolean;
+  bids: number;
+}) {
+  const t = useTranslations("mysteryAuction");
+  const tp = useTranslations("profileUi");
+  return (
+    <header className="yk-mystery-event-header">
+      <Link href="/events" className="yk-mystery-event-back">
+        ← {t("backToEvents")}
+      </Link>
+      <div className="yk-mystery-event-heading">
+        <div className="yk-mystery-event-intro">
+          <p className="yk-mystery-event-eyebrow">
+            <span aria-hidden="true">◉</span>
+            {t("weeklyEvent")}
+          </p>
+          <h1>{t("title")}</h1>
+          <p className="yk-mystery-event-subtitle">{t("eventIntro")}</p>
+        </div>
+        <div className="yk-mystery-event-clock">
+          <span className="yk-mystery-event-state">
+            {t(finished ? (hidden ? "revealing" : "eventEnded") : "liveEvent")}
+          </span>
+          <span className="yk-mystery-event-clock-label">
+            {t(finished ? "reveal" : "revealIn")}
+          </span>
+          <strong role="timer" aria-live="off">
+            {finished ? "00:00:00" : remaining}
+          </strong>
+          <span className="yk-mystery-event-bids">
+            {tp("bidCount", { count: bids })}
+          </span>
+        </div>
+      </div>
+      <ul className="yk-mystery-event-facts">
+        <li>{t("durationFact")}</li>
+        <li>{t("catalogueFact")}</li>
+        <li>{t("normalFact")}</li>
+      </ul>
+    </header>
+  );
+}
+
 export function MysteryAuctionTile({
   auction,
   label
