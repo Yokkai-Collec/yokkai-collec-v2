@@ -61,6 +61,7 @@ function bannerChoices(query, collection = cards) {
   choiceScript.runInNewContext({
     exports,
     useMemo: compute => compute(),
+    mode: "profile",
     ownedBannerCards: collection,
     bannerQuery: query,
     matchesCardSearch,

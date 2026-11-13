@@ -1530,11 +1530,11 @@ test("le sélecteur de cartes mises en avant recherche et remonte la sélection"
   const source = readProfileSource();
   assert.match(
     normalizeWhitespace(source),
-    normalizeWhitespace(/const FEATURED_CARD_LIMIT=5/)
+    normalizeWhitespace(/const FEATURED_CARD_LIMIT = pro \? 10 : 5/)
   );
   assert.match(
     normalizeWhitespace(source),
-    normalizeWhitespace(/next\.size<FEATURED_CARD_LIMIT/)
+    normalizeWhitespace(/current\.size < FEATURED_CARD_LIMIT/)
   );
   assert.match(
     normalizeWhitespace(source),
@@ -1542,23 +1542,23 @@ test("le sélecteur de cartes mises en avant recherche et remonte la sélection"
   );
   assert.match(
     normalizeWhitespace(source),
-    normalizeWhitespace(/matchesCardSearch\(featuredQuery/)
+    normalizeWhitespace(/cardSearchTerms\(deferredQuery\)/)
   );
   assert.match(
     normalizeWhitespace(source),
     normalizeWhitespace(
-      /const selectedFeaturedCards = useMemo\(\(\) => showcaseSelection\(collection, selected\)/
+      /const selectedFeaturedCards = useMemo\(\(\) => \[\.\.\.selected\]\.flatMap/
     )
   );
-  // Master now puts selected cards in a separate tray above the available list.
+  // The selected cards stay above the paginated list of available cards.
   assert.match(
     normalizeWhitespace(source),
     normalizeWhitespace(
-      /unique.filter\(card => !selected.has\(card.instanceId\)\)/
+      /orderedChoices\.filter\(card => !selectedCardIds\.has\(card.id\)/
     )
   );
   const selectedTray = source.indexOf("{selectedFeaturedCards.map(");
-  const availableList = source.indexOf("{featuredChoices.map(");
+  const availableList = source.search(/\{featuredChoices\s*\.slice\(/);
   assert.notEqual(selectedTray, -1);
   assert.notEqual(availableList, -1);
   assert.ok(selectedTray < availableList);

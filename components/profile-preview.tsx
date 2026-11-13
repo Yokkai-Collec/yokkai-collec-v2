@@ -8,6 +8,7 @@ import { getPaniniAlbumsPage, type CollectedCard } from "@/lib/data/cards";
 import type { ProfileDetails, ProfileInterests } from "@/lib/data/profile";
 import { PROFILE_IMAGE_MAX_BYTES } from "@/lib/data/profile";
 import type { ProfileEngagement } from "@/lib/data/profile";
+import { showcaseSelection, type ProfileStyle } from "@/lib/ui/profile-style";
 import type { WallPost } from "@/lib/data/profile-wall";
 import type { AuctionDetail, AuctionChatMessage } from "@/lib/data/market";
 
@@ -47,6 +48,22 @@ const collection: CollectedCard[] = [
   isEvolved: false,
   isFirstOwner: true
 }));
+const showcaseDemoCollection = Array.from({ length: 989 }, (_, index) => {
+  const sample = collection[index % collection.length];
+  const rarities = ["LR", "SSR", "SR", "R", "C"] as const;
+  return {
+    ...sample,
+    id: "showcase-demo-" + index,
+    instanceId: "showcase-demo-instance-" + index,
+    name:
+      index < 3
+        ? sample.name
+        : String(index + 1).padStart(3, "0") + " · " + sample.name,
+    category: ["ANIME/MANGA", "VIDEO GAMES", "COMICS"][index % 3],
+    rarity: rarities[index % rarities.length],
+    shiny: index % 25 === 0
+  };
+});
 const initial: ProfileInterests = {
   anime: ["One Piece", "Noragami", "Black Butler", "Jujutsu Kaisen"],
   games: ["Final Fantasy VII", "Silent Hill 2", "Hollow Knight"],
@@ -103,6 +120,9 @@ export function ProfilePreview() {
   const previewWidgets = demoCatalogue && params.get("widgets") === "1";
   const emptyFavorites = params.get("favorites") === "empty";
   const reportError = params.get("reportError") === "1";
+  const showcaseDemo = params.get("showcase") === "demo";
+  const owned = showcaseDemo ? showcaseDemoCollection : collection;
+  const demoStyle = useRef<ProfileStyle | null>(null);
   const previewUrls = useRef<string[]>([]);
   const wishlistedCards = useRef(new Set<string>());
   const social = useRef<ProfileEngagement>({
@@ -150,7 +170,14 @@ export function ProfilePreview() {
       friendshipStatus: visitor ? ("accepted" as const) : ("self" as const),
       isPublic: !privateProfile,
       canViewCollection: !hiddenCollection,
-      featuredCards: hiddenCollection ? [] : collection,
+      featuredCards: hiddenCollection
+        ? []
+        : showcaseDemo
+          ? owned.slice(0, 10)
+          : collection,
+      ...(demoStyle.current
+        ? { profileStyle: { active: true, style: demoStyle.current } }
+        : {}),
       friendsVisible: !hiddenCollection,
       friends: hiddenCollection ? [] : friends,
       cardCount: hiddenCollection ? null : 2578,
@@ -457,6 +484,13 @@ export function ProfilePreview() {
       },
       uploadAvatar: upload,
       uploadBanner: upload,
+      ...(showcaseDemo
+        ? {
+            saveShowcaseStyle: async (style: ProfileStyle) => {
+              demoStyle.current = style;
+            }
+          }
+        : {}),
       saveAppearance: async (
         bio,
         avatarUrl,
@@ -471,7 +505,7 @@ export function ProfilePreview() {
         bannerUrl,
         bannerFrame,
         bannerCard: collection.find(card => card.id === bannerCardId) ?? null,
-        featuredCards: collection.filter(card => ids.includes(card.instanceId))
+        featuredCards: showcaseSelection(owned, new Set(ids))
       }),
       details: async () =>
         ({
@@ -533,6 +567,8 @@ export function ProfilePreview() {
     reportError,
     previewWidgets,
     emptyFavorites,
+    showcaseDemo,
+    owned,
     params
   ]);
   return (
@@ -550,7 +586,7 @@ export function ProfilePreview() {
                 ? []
                 : params.get("bannerCards") === "duplicates"
                   ? [...collection, ...collection]
-                  : collection
+                  : owned
             }
           />
         </div>

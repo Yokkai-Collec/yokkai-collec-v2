@@ -1,6 +1,47 @@
 .yk-modal.yk-showcase-edit-modal {
-  width: min(1480px, calc(100vw - 32px));
-  max-width: min(1480px, calc(100vw - 32px));
+  width: min(1320px, calc(100vw - 24px));
+  max-width: none;
+  height: min(860px, 92dvh);
+  max-height: 92dvh;
+  padding: 0;
+  overflow: hidden;
+  /* A transform on the dialog would make the fixed drag preview relative to it. */
+  animation-name: yk-ui-fade-in;
+}
+.yk-showcase-edit-modal[open] {
+  display: flex;
+  flex-direction: column;
+}
+.yk-showcase-edit-modal > div:first-child {
+  flex: none;
+  margin: 0;
+  padding: 12px clamp(12px, 2.3vw, 28px);
+  border-bottom: 1px solid var(--color-veil);
+}
+.yk-showcase-edit-modal > p {
+  padding: 16px;
+}
+.yk-profile-edit-grid[data-profile-editor="showcase"] {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+.yk-showcase-editor-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 0 clamp(12px, 2.3vw, 28px) 20px;
+}
+[data-profile-editor="showcase"] > .yk-profile-edit-actions {
+  flex: none;
+  margin: 0;
+  padding: 10px clamp(12px, 2.3vw, 28px);
+  border-top: 1px solid var(--color-veil);
+}
+[data-profile-editor="showcase"] > [role="alert"] {
+  padding: 8px clamp(12px, 2.3vw, 28px);
 }
 .yk-showcase-editor-tabs {
   position: sticky;
@@ -8,17 +49,12 @@
   z-index: 6;
   display: flex;
   gap: 6px;
-  width: fit-content;
+  width: 100%;
   max-width: 100%;
-  margin-bottom: 18px;
-  padding: 5px;
+  margin-bottom: 10px;
+  padding: 8px 0;
   overflow-x: auto;
-  border: 1px solid
-    color-mix(in srgb, var(--color-veil-strong) 86%, transparent);
-  border-radius: 14px;
-  background: color-mix(in srgb, var(--color-night) 92%, transparent);
-  box-shadow: 0 10px 28px rgb(0 0 0 / 22%);
-  backdrop-filter: blur(14px);
+  background: var(--color-surface);
 }
 .yk-showcase-editor-tabs button {
   min-height: 38px;
@@ -164,69 +200,67 @@
   display: flex;
   gap: 8px;
   margin: 0;
-  padding: 0 2px 2px;
+  padding: 9px 6px 10px;
   overflow-x: auto;
   scrollbar-width: thin;
   list-style: none;
 }
 .yk-showcase-selection-strip li {
   position: relative;
-  flex: 0 0 120px;
+  flex: 0 0 clamp(86px, 9vw, 108px);
   transition:
     opacity 0.18s,
     transform 0.18s;
 }
-.yk-showcase-selection-strip li[draggable="true"] .yk-showcase-selection-card {
+.yk-showcase-selection-strip li[data-reorderable="true"] {
   cursor: grab;
-}
-.yk-showcase-selection-strip
-  li[data-dragging="true"]
-  .yk-showcase-selection-card {
-  cursor: grabbing;
+  user-select: none;
 }
 .yk-showcase-selection-strip li[data-dragging="true"] {
+  cursor: grabbing;
   opacity: 0.38;
   transform: scale(0.96);
 }
-.yk-showcase-selection-strip
-  li[data-drop-target="true"]
-  .yk-showcase-selection-card {
-  border-color: var(--color-accent-gold);
-  box-shadow: 0 0 0 2px
-    color-mix(in srgb, var(--color-accent-gold) 42%, transparent);
+.yk-showcase-selection-strip li[data-drop-target]::after {
+  position: absolute;
+  z-index: 2;
+  inset-block: 3px;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--color-accent-gold);
+  box-shadow: 0 0 8px
+    color-mix(in srgb, var(--color-accent-gold) 45%, transparent);
+  pointer-events: none;
+  content: "";
+}
+.yk-showcase-selection-strip li[data-drop-target="before"]::after {
+  left: -5px;
+}
+.yk-showcase-selection-strip li[data-drop-target="after"]::after {
+  right: -5px;
 }
 .yk-showcase-selection-card {
   position: relative;
-  display: grid;
   width: 100%;
-  gap: 5px;
-  padding: 5px;
-  border: 1px solid #f6d87975;
-  border-radius: 10px;
-  background: #101522;
-  color: var(--color-ink);
-  text-align: left;
-  transition:
-    border-color 0.18s,
-    transform 0.18s,
-    background 0.18s;
+  transition: transform 160ms ease;
 }
-.yk-showcase-selection-card:hover:not(:disabled) {
-  transform: translateY(-2px);
-  border-color: var(--color-accent-gold);
-  background: #191817;
+.yk-showcase-selection-card img {
+  -webkit-user-drag: none;
 }
-.yk-showcase-selection-card:focus-visible,
-.yk-showcase-selection-actions button:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: 3px;
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .yk-showcase-selection-strip:not(:has([data-dragging="true"]))
+    li[data-reorderable="true"]:hover
+    .yk-showcase-selection-card {
+    transform: translateY(-4px);
+  }
 }
-.yk-showcase-selection-strip img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 0.7;
-  border-radius: 6px;
-  object-fit: cover;
+.yk-showcase-replace-slot {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+}
+.yk-showcase-replace-slot:hover {
+  box-shadow: inset 0 0 0 2px var(--color-accent-gold);
 }
 .yk-showcase-selection-order,
 .yk-showcase-selection-remove {
@@ -239,11 +273,40 @@
 .yk-showcase-selection-order {
   top: 8px;
   left: 8px;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   background: var(--color-accent-gold);
   color: #201b0a;
   font-size: 11px;
+}
+.yk-showcase-position {
+  position: absolute;
+  inset: -4px;
+  width: 32px;
+  height: 32px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.yk-showcase-selection-order:has(.yk-showcase-position:focus-visible) {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+.yk-showcase-drag-preview {
+  position: fixed;
+  z-index: 20;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  object-fit: cover;
+  border: 1px solid var(--color-accent-gold);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 45%);
+  opacity: 0.9;
+  pointer-events: none;
+  will-change: transform;
 }
 .yk-showcase-selection-remove {
   top: 8px;
@@ -254,42 +317,6 @@
   color: #fff;
   font-size: 17px;
   line-height: 1;
-}
-.yk-showcase-selection-actions {
-  position: absolute;
-  right: 7px;
-  bottom: 30px;
-  left: 7px;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px;
-}
-.yk-showcase-selection-actions button {
-  min-height: 21px;
-  border: 1px solid rgb(255 255 255 / 38%);
-  border-radius: 999px;
-  background: rgb(4 8 16 / 82%);
-  color: #fff;
-  font-size: 13px;
-  line-height: 1;
-}
-.yk-showcase-selection-actions button:not(:disabled):hover {
-  border-color: var(--color-accent-gold);
-  color: var(--color-accent-gold);
-}
-.yk-showcase-selection-actions button:disabled {
-  cursor: not-allowed;
-  opacity: 0.35;
-}
-.yk-showcase-selection-name {
-  overflow: hidden;
-  color: var(--color-ink-2);
-  font-size: 10px;
-  font-weight: 600;
-  line-height: 1.2;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 .yk-showcase-card-browser {
   display: grid;
@@ -308,7 +335,7 @@
 }
 .yk-showcase-card-picker-layout {
   display: grid;
-  grid-template-columns: minmax(220px, 0.29fr) minmax(0, 1fr);
+  grid-template-columns: minmax(160px, 0.22fr) minmax(0, 1fr);
   gap: 14px;
   align-items: start;
 }
@@ -384,21 +411,20 @@
 }
 .yk-showcase-card-results-toolbar {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 580px) minmax(
-      150px,
-      240px
-    );
+  grid-template-columns: minmax(0, 1fr) minmax(125px, 215px);
   gap: 12px;
   align-items: end;
 }
 .yk-showcase-card-results-toolbar .auth-input {
-  grid-column: 2;
+  grid-column: 1;
+  min-width: 0;
 }
 .yk-showcase-card-results-toolbar .yk-showcase-card-sort {
-  grid-column: 3;
+  grid-column: 2;
 }
 .yk-showcase-card-results .yk-showcase-card-browser-grid {
-  max-height: 510px;
+  max-height: none;
+  overflow: visible;
 }
 .yk-showcase-card-search-empty {
   margin: 0;
@@ -410,14 +436,69 @@
   text-align: center;
 }
 .yk-showcase-card-browser-grid.yk-featured-picker {
-  max-height: 390px;
-  grid-template-columns: repeat(auto-fill, minmax(144px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(116px, 1fr));
   gap: 10px;
   margin: 0;
   padding: 10px;
   border: 1px solid #c4d6f220;
   border-radius: 14px;
   background: #060b13;
+}
+.yk-showcase-pagination {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-ink-2);
+  font-size: 12px;
+}
+.yk-showcase-browse-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 0 4px;
+}
+.yk-showcase-browse-controls .yk-showcase-page-size {
+  width: auto;
+  min-height: 40px;
+  border: 1px solid var(--color-veil-strong);
+  border-radius: 8px;
+  padding-inline: 8px;
+  background: var(--color-night);
+  color: var(--color-ink);
+  font-size: 12px;
+}
+.yk-showcase-pagination button,
+.yk-showcase-filter-toggle {
+  min-width: 42px;
+  min-height: 40px;
+  border: 1px solid var(--color-veil-strong);
+  border-radius: 8px;
+  background: var(--color-night);
+  color: var(--color-ink);
+}
+.yk-showcase-pagination button:disabled {
+  opacity: 0.4;
+}
+.yk-showcase-filter-toggle {
+  display: none;
+}
+.yk-showcase-card-selector[data-replacing="true"] {
+  border-color: var(--color-accent-gold);
+}
+.yk-showcase-card-selector[data-replacing="true"] .yk-showcase-replace-slot {
+  cursor: pointer;
+}
+.yk-showcase-cancel-replace {
+  min-height: 36px;
+  color: var(--color-ink-2);
+  text-decoration: underline;
+}
+.yk-showcase-card-selector-heading,
+.yk-showcase-card-browser-heading {
+  scroll-margin-top: 68px;
 }
 .yk-showcase-card-browser-grid button > span {
   display: flex;
@@ -2036,6 +2117,15 @@
   .yk-showcase-card-filters {
     max-height: none;
   }
+  .yk-showcase-card-filters[data-expanded="false"] {
+    display: none;
+  }
+  .yk-showcase-filter-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+  }
   .yk-showcase-card-filter-sections {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     border: 1px solid var(--color-veil);
@@ -2076,7 +2166,7 @@
     text-align: left;
   }
   .yk-showcase-selection-strip li {
-    flex-basis: 98px;
+    flex-basis: 88px;
   }
   .yk-showcase-card-sort {
     width: 100%;
@@ -2101,8 +2191,7 @@
     border-top: 0;
   }
   .yk-showcase-card-browser-grid.yk-featured-picker {
-    grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
-    max-height: 330px;
+    grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
     padding: 8px;
   }
 }

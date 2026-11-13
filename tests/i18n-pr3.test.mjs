@@ -188,10 +188,9 @@ test("profile counts use complete ICU phrases and keep player/card data verbatim
 // Golden signatures are generated from origin/master before PR 3. They cover
 // complete card JSX and every data RPC call, rather than only their tag names.
 const golden = {
-  // Profile card markup follows the showcase layout shipped in #88; keep
-  // pinning its complete JSX, without altering image props or rendering code.
+  // Pin the complete card JSX after the reviewed showcase editor update.
   "components/profile.tsx":
-    "26cbadf775ad40940b2bbfa2491645b83c49ae2da8cd8a0975d2a8a46da6cc60",
+    "ad63a61abbdaed64c5ef4e22695dcb7b75f6d3678dbd5036cd62753de05e018d",
   "components/profile-sales.tsx":
     "d4802b94528dcf8295ab4c9b894711105fdf5244371df3ca7617e643fbb1a406",
   "components/community-views.tsx":

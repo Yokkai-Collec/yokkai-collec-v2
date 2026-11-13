@@ -2,7 +2,15 @@
 /* eslint-disable @next/next/no-img-element */
 import { gameErrorKey } from "@/i18n/game-messages";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState, type DragEvent } from "react";
+import {
+  memo,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type PointerEvent
+} from "react";
 import { Avatar, Button } from "@/components/ui";
 import { YokaiCard } from "@/components/yokai-card";
 import dynamic from "next/dynamic";
@@ -10,8 +18,6 @@ import { BannerCrop } from "@/components/banner-crop";
 import { BannerImage } from "@/components/banner-image";
 import {
   DEFAULT_PROFILE_STYLE,
-  PROFILE_CARD_IMAGE_SIZES,
-  showcaseSelection,
   normalizeProfileStyle
 } from "@/lib/ui/profile-style";
 import { useProAccess, ProFeatureNotice } from "@/components/pro-access";
@@ -24,7 +30,7 @@ import {
   PROFILE_IMAGE_MAX_BYTES,
   type Profile
 } from "@/lib/data/profile";
-import { matchesCardSearch } from "@/lib/ui/card-search";
+import { cardSearchTerms, matchesCardSearch } from "@/lib/ui/card-search";
 import { compareBannerCards } from "@/lib/ui/banner-card-sort";
 import { toggleFilterValue } from "@/lib/ui/card-search";
 import {
@@ -39,6 +45,31 @@ const ShowcaseStyleFields = dynamic(() =>
     module => module.ShowcaseStyleFields
   )
 );
+const PAGE_SIZES = [48, 96] as const;
+const PickerArt = memo(function PickerArt({ card }: { card: CollectedCard }) {
+  return (
+    <YokaiCard
+      {...card}
+      image={card.catalogueImage || card.image}
+      animated={false}
+      imageSizes="(max-width: 640px) 42vw, 150px"
+    />
+  );
+});
+const SelectedShowcaseArt = memo(function SelectedShowcaseArt({
+  card
+}: {
+  card: CollectedCard;
+}) {
+  return (
+    <YokaiCard
+      {...card}
+      fallbackImage={card.catalogueImage}
+      imageSizes="108px"
+    />
+  );
+});
+
 export function Editor({
   mode,
   profile,
@@ -64,7 +95,8 @@ export function Editor({
 }) {
   const t = useTranslations();
   const [bio, setBio] = useState(profile.bio);
-  const pro = useProAccess();
+  const proAccess = useProAccess();
+  const pro = proAccess || Boolean(adapter.saveShowcaseStyle);
   const FEATURED_CARD_LIMIT = pro ? 10 : 5;
   const [style, setStyle] = useState(() =>
     normalizeProfileStyle({
@@ -113,6 +145,15 @@ export function Editor({
     () => new Set(profile.featuredCards.map(c => c.instanceId))
   );
   const [featuredQuery, setFeaturedQuery] = useState("");
+  const deferredQuery = useDeferredValue(featuredQuery);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<(typeof PAGE_SIZES)[number]>(48);
+  const [moveNotice, setMoveNotice] = useState("");
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [replacement, setReplacement] = useState<CollectedCard | null>(null);
+  const selectionHeading = useRef<HTMLDivElement>(null);
+  const resultsHeading = useRef<HTMLDivElement>(null);
+  const body = useRef<HTMLDivElement>(null);
   const [featuredRarities, setFeaturedRarities] = useState<Rarity[]>([]);
   const [featuredCategories, setFeaturedCategories] = useState<string[]>([]);
   const [featuredSpecialOnly, setFeaturedSpecialOnly] = useState(false);
@@ -120,117 +161,301 @@ export function Editor({
   const [showcaseEditorTab, setShowcaseEditorTab] = useState<"cards" | "style">(
     "cards"
   );
-  const draggedFeaturedId = useRef<string | null>(null);
+  const featuredPointer = useRef<{
+    id: string;
+    pointerId: number;
+    x: number;
+    y: number;
+    grabX: number;
+    grabY: number;
+    width: number;
+    height: number;
+    moving: boolean;
+    preview?: HTMLImageElement;
+    frame?: number;
+  } | null>(null);
+  useEffect(
+    () => () => {
+      const drag = featuredPointer.current;
+      drag?.preview?.remove();
+      if (drag?.frame !== undefined) cancelAnimationFrame(drag.frame);
+    },
+    []
+  );
   const [draggingFeaturedId, setDraggingFeaturedId] = useState<string | null>(
     null
   );
-  const [featuredDropTarget, setFeaturedDropTarget] = useState<string | null>(
-    null
-  );
+  const [featuredDropTarget, setFeaturedDropTarget] = useState<{
+    id: string;
+    side: "before" | "after";
+  } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [bannerQuery, setBannerQuery] = useState("");
   const ownedBannerChoices = useMemo(
     () =>
-      ownedBannerCards
-        .filter(card =>
-          matchesCardSearch(bannerQuery, [card.name, card.category, card.anime])
-        )
-        .toSorted(compareBannerCards),
-    [ownedBannerCards, bannerQuery]
+      mode === "showcase"
+        ? []
+        : ownedBannerCards
+            .filter(card =>
+              matchesCardSearch(bannerQuery, [
+                card.name,
+                card.category,
+                card.anime
+              ])
+            )
+            .toSorted(compareBannerCards),
+    [ownedBannerCards, bannerQuery, mode]
   );
-  const unique = useMemo(() => {
-    if (mode !== "showcase") return [];
-    const byCard = new Map<string, CollectedCard>();
-    for (const card of collection) {
-      if (!byCard.has(card.id) || selected.has(card.instanceId))
-        byCard.set(card.id, card);
-    }
-    return [...byCard.values()];
-  }, [collection, selected, mode]);
+  const catalogue = useMemo(() => {
+    const instances = new Map<string, CollectedCard>();
+    const cards = new Map<string, CollectedCard>();
+    const search = new Map<string, string[]>();
+    const categories = new Map<string, number>();
+    const rarities = new Map<Rarity, number>();
+    let special = 0;
+    if (mode === "showcase")
+      for (const card of collection) {
+        instances.set(card.instanceId, card);
+        if (cards.has(card.id)) continue;
+        cards.set(card.id, card);
+        search.set(
+          card.id,
+          [card.name, card.category, card.anime ?? ""].map(value =>
+            value.toLocaleLowerCase("en-US")
+          )
+        );
+        categories.set(card.category, (categories.get(card.category) ?? 0) + 1);
+        rarities.set(card.rarity, (rarities.get(card.rarity) ?? 0) + 1);
+        if (card.shiny || card.isEvolved) special++;
+      }
+    return {
+      instances,
+      cards: [...cards.values()],
+      search,
+      categories,
+      rarities,
+      special
+    };
+  }, [collection, mode]);
+  const orderedChoices = useMemo(
+    () => sortCollection(catalogue.cards, featuredSort),
+    [catalogue, featuredSort]
+  );
+  const selectedFeaturedCards = useMemo(
+    () =>
+      [...selected].flatMap(id => {
+        const card =
+          catalogue.instances.get(id) ??
+          profile.featuredCards.find(item => item.instanceId === id);
+        return card ? [card] : [];
+      }),
+    [catalogue, selected, profile.featuredCards]
+  );
+  const selectedCardIds = useMemo(
+    () => new Set(selectedFeaturedCards.map(card => card.id)),
+    [selectedFeaturedCards]
+  );
   const featuredChoices = useMemo(() => {
-    const available = unique
-      .filter(card => !selected.has(card.instanceId))
-      .filter(card =>
-        matchesCardSearch(featuredQuery, [card.name, card.category, card.anime])
-      )
-      .filter(
-        card =>
-          (!featuredRarities.length ||
-            featuredRarities.includes(card.rarity)) &&
-          (!featuredCategories.length ||
-            featuredCategories.includes(card.category)) &&
-          (!featuredSpecialOnly || card.shiny || card.isEvolved)
-      );
-    return sortCollection(available, featuredSort);
+    const terms = cardSearchTerms(deferredQuery);
+    return orderedChoices.filter(
+      card =>
+        !selectedCardIds.has(card.id) &&
+        (!featuredRarities.length || featuredRarities.includes(card.rarity)) &&
+        (!featuredCategories.length ||
+          featuredCategories.includes(card.category)) &&
+        (!featuredSpecialOnly || card.shiny || card.isEvolved) &&
+        terms.every(term =>
+          catalogue.search.get(card.id)?.some(value => value.includes(term))
+        )
+    );
   }, [
-    unique,
-    featuredQuery,
-    selected,
+    orderedChoices,
+    catalogue,
+    selectedCardIds,
+    deferredQuery,
     featuredRarities,
     featuredCategories,
-    featuredSpecialOnly,
-    featuredSort
+    featuredSpecialOnly
   ]);
   const featuredCategoryChoices = useMemo(
     () =>
-      [...new Set(unique.map(card => card.category))].toSorted((a, b) =>
-        a.localeCompare(b, "fr")
-      ),
-    [unique]
+      [...catalogue.categories.keys()].toSorted((a, b) => a.localeCompare(b)),
+    [catalogue]
   );
-  const selectedFeaturedCards = useMemo(
-    () => showcaseSelection(collection, selected),
-    [collection, selected]
-  );
-  function toggle(id: string) {
-    setSelected(current => {
-      const next = new Set(current);
-      if (next.has(id)) next.delete(id);
-      else if (next.size < FEATURED_CARD_LIMIT) next.add(id);
-      return next;
-    });
-  }
-  function reorderFeaturedCard(id: string, beforeId: string) {
-    if (id === beforeId) return;
-    setSelected(current => {
-      const ordered = [...current];
-      const sourceIndex = ordered.indexOf(id);
-      const targetIndex = ordered.indexOf(beforeId);
-      if (sourceIndex < 0 || targetIndex < 0) return current;
-      ordered.splice(sourceIndex, 1);
-      ordered.splice(ordered.indexOf(beforeId), 0, id);
-      return new Set(ordered);
-    });
-  }
-  function moveFeaturedCard(id: string, direction: -1 | 1) {
-    setSelected(current => {
-      const ordered = [...current];
-      const sourceIndex = ordered.indexOf(id);
-      const targetIndex = sourceIndex + direction;
-      if (sourceIndex < 0 || targetIndex < 0 || targetIndex >= ordered.length)
-        return current;
-      [ordered[sourceIndex], ordered[targetIndex]] = [
-        ordered[targetIndex],
-        ordered[sourceIndex]
-      ];
-      return new Set(ordered);
-    });
-  }
-  function startFeaturedDrag(event: DragEvent<HTMLLIElement>, id: string) {
-    if (busy) {
-      event.preventDefault();
+  const pages = Math.max(1, Math.ceil(featuredChoices.length / pageSize));
+  const activePage = Math.min(page, pages);
+  const isFull = selected.size >= FEATURED_CARD_LIMIT;
+
+  function chooseCard(card: CollectedCard) {
+    if (isFull) {
+      setReplacement(card);
+      selectionHeading.current?.focus();
       return;
     }
-    draggedFeaturedId.current = id;
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData("text/plain", id);
-    setDraggingFeaturedId(id);
+    setSelected(current =>
+      current.size < FEATURED_CARD_LIMIT
+        ? new Set([...current, card.instanceId])
+        : current
+    );
   }
+  function removeCard(id: string) {
+    setSelected(current => new Set([...current].filter(item => item !== id)));
+    setReplacement(null);
+  }
+  function replaceCard(id: string, card: CollectedCard) {
+    setSelected(
+      current =>
+        new Set(
+          [...current].map(item => (item === id ? card.instanceId : item))
+        )
+    );
+    setReplacement(null);
+    selectionHeading.current?.focus();
+  }
+  function selectTab(tab: "cards" | "style") {
+    setShowcaseEditorTab(tab);
+    setReplacement(null);
+    body.current?.scrollTo({ top: 0 });
+  }
+  function moveFeaturedCard(id: string, target: number) {
+    const ordered = selectedFeaturedCards.map(card => card.instanceId);
+    const source = ordered.indexOf(id);
+    if (
+      source < 0 ||
+      source === target ||
+      target < 0 ||
+      target >= ordered.length
+    )
+      return;
+    const card = selectedFeaturedCards[source];
+    ordered.splice(source, 1);
+    ordered.splice(target, 0, id);
+    setSelected(new Set(ordered));
+    setMoveNotice(
+      t("profileUi.showcaseMoved", { name: card.name, position: target + 1 })
+    );
+  }
+
+  function startFeaturedDrag(event: PointerEvent<HTMLLIElement>, id: string) {
+    if (
+      busy ||
+      replacement ||
+      event.pointerType === "touch" ||
+      event.button !== 0 ||
+      (event.target as HTMLElement).closest("button:not(:disabled), select")
+    )
+      return;
+    const card = event.currentTarget.querySelector(".yk-card");
+    if (!card) return;
+    const bounds = card.getBoundingClientRect();
+    featuredPointer.current = {
+      id,
+      pointerId: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      grabX: event.clientX - bounds.left,
+      grabY: event.clientY - bounds.top,
+      width: bounds.width,
+      height: bounds.height,
+      moving: false
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function featuredDropAt(event: PointerEvent<HTMLLIElement>) {
+    const strip = event.currentTarget.parentElement;
+    if (!strip) return null;
+    const { clientX: x, clientY: y } = event;
+    const stripBounds = strip.getBoundingClientRect();
+    if (
+      x < stripBounds.left ||
+      x > stripBounds.right ||
+      y < stripBounds.top ||
+      y > stripBounds.bottom
+    )
+      return null;
+
+    for (const slot of strip.querySelectorAll<HTMLElement>(
+      "[data-showcase-slot]"
+    )) {
+      if (!slot.dataset.showcaseSlot) continue;
+      const bounds = slot.getBoundingClientRect();
+      if (x <= bounds.left + bounds.width / 2)
+        return { id: slot.dataset.showcaseSlot, side: "before" } as const;
+      if (x <= bounds.right + 4 || slot === strip.lastElementChild)
+        return { id: slot.dataset.showcaseSlot, side: "after" } as const;
+    }
+    return null;
+  }
+
+  function trackFeaturedDrag(event: PointerEvent<HTMLLIElement>) {
+    const drag = featuredPointer.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    if (!drag.moving) {
+      if (Math.hypot(event.clientX - drag.x, event.clientY - drag.y) < 5)
+        return;
+      drag.moving = true;
+      setDraggingFeaturedId(drag.id);
+      const source = event.currentTarget.querySelector(".yk-card");
+      const dialog = event.currentTarget.closest("dialog");
+      const art = source?.querySelector<HTMLImageElement>(".yk-card-art img");
+      const poster =
+        source?.querySelector<HTMLVideoElement>(".yk-card-art video")?.poster;
+      const image = art?.currentSrc || art?.src || poster;
+      if (source && dialog && image) {
+        const preview = document.createElement("img");
+        preview.className = "yk-showcase-drag-preview";
+        preview.alt = "";
+        preview.setAttribute("aria-hidden", "true");
+        preview.src = image;
+        preview.style.width = `${drag.width}px`;
+        preview.style.height = `${drag.height}px`;
+        drag.preview = preview;
+        dialog.append(preview);
+      }
+    }
+    const { clientX, clientY } = event;
+    const preview = drag.preview;
+    if (preview) {
+      if (drag.frame !== undefined) cancelAnimationFrame(drag.frame);
+      drag.frame = requestAnimationFrame(() => {
+        preview.style.transform = `translate3d(${clientX - drag.grabX}px, ${clientY - drag.grabY}px, 0)`;
+        preview.style.visibility = "visible";
+        drag.frame = undefined;
+      });
+    }
+    const hit = featuredDropAt(event);
+    const next = hit?.id === drag.id ? null : hit;
+    setFeaturedDropTarget(current =>
+      current?.id === next?.id && current?.side === next?.side ? current : next
+    );
+  }
+
   function endFeaturedDrag() {
-    draggedFeaturedId.current = null;
+    const drag = featuredPointer.current;
+    drag?.preview?.remove();
+    if (drag?.frame !== undefined) cancelAnimationFrame(drag.frame);
+    featuredPointer.current = null;
     setDraggingFeaturedId(null);
     setFeaturedDropTarget(null);
+  }
+
+  function finishFeaturedDrag(event: PointerEvent<HTMLLIElement>) {
+    const drag = featuredPointer.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    const hit = drag.moving ? featuredDropAt(event) : null;
+    endFeaturedDrag();
+    if (!hit || hit.id === drag.id || busy || replacement) return;
+    const source = selectedFeaturedCards.findIndex(
+      item => item.instanceId === drag.id
+    );
+    const target = selectedFeaturedCards.findIndex(
+      item => item.instanceId === hit.id
+    );
+    if (source < 0 || target < 0) return;
+    const insertion = target + Number(hit.side === "after");
+    moveFeaturedCard(drag.id, insertion - Number(source < insertion));
   }
   async function photo(file?: File) {
     if (!file || busy) return;
@@ -280,9 +505,11 @@ export function Editor({
             })
           )
         )
-          await import("@/lib/data/showcase-style").then(module =>
-            module.persistProfileStyle(style)
-          );
+          await (adapter.saveShowcaseStyle
+            ? adapter.saveShowcaseStyle(style)
+            : import("@/lib/data/showcase-style").then(module =>
+                module.persistProfileStyle(style)
+              ));
         updated.profileStyle = { active: true, style };
       }
       onSaved(updated);
@@ -294,8 +521,20 @@ export function Editor({
     }
   }
   return (
-    <div className="space-y-6 yk-profile-edit-grid" data-profile-editor={mode}>
-      <div className="space-y-6">
+    <div
+      className={
+        mode === "profile"
+          ? "space-y-6 yk-profile-edit-grid"
+          : "yk-profile-edit-grid"
+      }
+      data-profile-editor={mode}
+    >
+      <div
+        ref={body}
+        className={
+          mode === "showcase" ? "yk-showcase-editor-body" : "space-y-6"
+        }
+      >
         {mode === "profile" && (
           <>
             <div className="flex items-center gap-4">
@@ -517,6 +756,28 @@ export function Editor({
               className="yk-showcase-editor-tabs"
               role="tablist"
               aria-label={t("profileUi.showcaseEditorTabs")}
+              onKeyDown={event => {
+                if (
+                  !pro ||
+                  !["ArrowLeft", "ArrowRight", "Home", "End"].includes(
+                    event.key
+                  )
+                )
+                  return;
+                event.preventDefault();
+                const tab =
+                  event.key === "Home"
+                    ? "cards"
+                    : event.key === "End"
+                      ? "style"
+                      : showcaseEditorTab === "cards"
+                        ? "style"
+                        : "cards";
+                selectTab(tab);
+                event.currentTarget
+                  .querySelector<HTMLButtonElement>("#showcase-" + tab + "-tab")
+                  ?.focus();
+              }}
             >
               <button
                 id="showcase-cards-tab"
@@ -525,21 +786,23 @@ export function Editor({
                 aria-selected={showcaseEditorTab === "cards"}
                 aria-controls="showcase-cards-panel"
                 tabIndex={showcaseEditorTab === "cards" ? 0 : -1}
-                onClick={() => setShowcaseEditorTab("cards")}
+                onClick={() => selectTab("cards")}
               >
                 {t("profileUi.showcaseEditorCards")}
               </button>
-              <button
-                id="showcase-style-tab"
-                type="button"
-                role="tab"
-                aria-selected={showcaseEditorTab === "style"}
-                aria-controls="showcase-style-panel"
-                tabIndex={showcaseEditorTab === "style" ? 0 : -1}
-                onClick={() => setShowcaseEditorTab("style")}
-              >
-                {t("profileUi.showcaseEditorStyle")}
-              </button>
+              {pro && (
+                <button
+                  id="showcase-style-tab"
+                  type="button"
+                  role="tab"
+                  aria-selected={showcaseEditorTab === "style"}
+                  aria-controls="showcase-style-panel"
+                  tabIndex={showcaseEditorTab === "style" ? 0 : -1}
+                  onClick={() => selectTab("style")}
+                >
+                  {t("profileUi.showcaseEditorStyle")}
+                </button>
+              )}
             </div>
             {showcaseEditorTab === "cards" ? (
               <section
@@ -547,21 +810,38 @@ export function Editor({
                 role="tabpanel"
                 aria-labelledby="showcase-cards-tab"
               >
-                <div className="yk-showcase-card-selector">
-                  <div className="yk-showcase-card-selector-heading">
+                <div
+                  className="yk-showcase-card-selector"
+                  data-replacing={Boolean(replacement)}
+                >
+                  <div
+                    className="yk-showcase-card-selector-heading"
+                    tabIndex={-1}
+                    ref={selectionHeading}
+                  >
                     <div>
                       <h3 className="font-display text-lg">
                         {t("profileUi.featuredCards")}
                       </h3>
-                      <p>
-                        {t("profileUi.chooseFeatured", {
-                          limit: FEATURED_CARD_LIMIT
-                        })}
+                      <p role="status">
+                        {replacement
+                          ? t("profileUi.showcasePickSlot", {
+                              name: replacement.name
+                            })
+                          : selectedFeaturedCards.length > 1
+                            ? t("profileUi.showcaseReorderHint")
+                            : t("profileUi.chooseFeatured", {
+                                limit: FEATURED_CARD_LIMIT
+                              })}
                       </p>
-                      {selectedFeaturedCards.length > 1 && (
-                        <small className="yk-showcase-selection-reorder-hint">
-                          {t("profileUi.showcaseReorderHint")}
-                        </small>
+                      {replacement && (
+                        <button
+                          type="button"
+                          className="yk-showcase-cancel-replace"
+                          onClick={() => setReplacement(null)}
+                        >
+                          {t("packs.cancel")}
+                        </button>
                       )}
                     </div>
                     <strong>
@@ -571,6 +851,9 @@ export function Editor({
                       })}
                     </strong>
                   </div>
+                  <p className="sr-only" role="status">
+                    {moveNotice}
+                  </p>
                   {selectedFeaturedCards.length > 0 && (
                     <ol
                       className="yk-showcase-selection-strip"
@@ -579,102 +862,105 @@ export function Editor({
                       {selectedFeaturedCards.map((card, index) => (
                         <li
                           key={card.instanceId}
-                          draggable={!busy}
+                          data-showcase-slot={card.instanceId}
+                          data-reorderable={!busy && !replacement}
                           data-dragging={
                             draggingFeaturedId === card.instanceId || undefined
                           }
                           data-drop-target={
-                            featuredDropTarget === card.instanceId &&
-                            draggingFeaturedId !== card.instanceId
-                              ? true
+                            featuredDropTarget?.id === card.instanceId
+                              ? featuredDropTarget.side
                               : undefined
                           }
-                          onDragStart={event =>
+                          onPointerDown={event =>
                             startFeaturedDrag(event, card.instanceId)
                           }
-                          onDragOver={event => event.preventDefault()}
-                          onDragEnter={() =>
-                            setFeaturedDropTarget(card.instanceId)
-                          }
-                          onDrop={event => {
-                            event.preventDefault();
-                            const draggedId =
-                              event.dataTransfer.getData("text/plain") ||
-                              draggedFeaturedId.current;
-                            if (draggedId)
-                              reorderFeaturedCard(draggedId, card.instanceId);
-                            endFeaturedDrag();
-                          }}
-                          onDragEnd={endFeaturedDrag}
+                          onPointerMove={trackFeaturedDrag}
+                          onPointerUp={finishFeaturedDrag}
+                          onPointerCancel={endFeaturedDrag}
+                          onLostPointerCapture={endFeaturedDrag}
                         >
-                          <button
-                            type="button"
+                          <div
                             className="yk-showcase-selection-card"
-                            onClick={() => toggle(card.instanceId)}
-                            aria-label={t("profileUi.showcaseRemoveCard", {
-                              name: card.name
-                            })}
-                            title={t("profileUi.showcaseRemoveCard", {
-                              name: card.name
-                            })}
-                            disabled={busy}
+                            onDragStart={event => event.preventDefault()}
                           >
-                            <img src={card.image} alt="" />
+                            <SelectedShowcaseArt card={card} />
+                            {replacement && (
+                              <button
+                                type="button"
+                                className="yk-showcase-replace-slot"
+                                disabled={busy}
+                                onClick={() =>
+                                  replaceCard(card.instanceId, replacement)
+                                }
+                                aria-label={t("profileUi.showcaseReplaceSlot", {
+                                  name: card.name
+                                })}
+                                title={t("profileUi.showcaseReplaceSlot", {
+                                  name: card.name
+                                })}
+                              />
+                            )}
+                          </div>
+                          {replacement ? (
                             <span className="yk-showcase-selection-order">
                               {index + 1}
                             </span>
-                            <span className="yk-showcase-selection-name">
-                              {card.name}
+                          ) : (
+                            <span className="yk-showcase-selection-order">
+                              <span aria-hidden="true">{index + 1}</span>
+                              <select
+                                className="yk-showcase-position"
+                                aria-label={t("profileUi.showcaseMoveTo", {
+                                  name: card.name
+                                })}
+                                title={t("profileUi.showcaseMoveTo", {
+                                  name: card.name
+                                })}
+                                value={index}
+                                disabled={
+                                  busy || selectedFeaturedCards.length < 2
+                                }
+                                onChange={event =>
+                                  moveFeaturedCard(
+                                    card.instanceId,
+                                    Number(event.target.value)
+                                  )
+                                }
+                              >
+                                {selectedFeaturedCards.map((item, position) => (
+                                  <option
+                                    key={item.instanceId}
+                                    value={position}
+                                  >
+                                    {position + 1}
+                                  </option>
+                                ))}
+                              </select>
                             </span>
-                            <span
-                              className="yk-showcase-selection-remove"
-                              aria-hidden="true"
-                            >
-                              ×
-                            </span>
+                          )}
+                          <button
+                            type="button"
+                            className="yk-showcase-selection-remove"
+                            disabled={busy}
+                            onClick={() => removeCard(card.instanceId)}
+                            aria-label={t("profileUi.showcaseRemoveCard", {
+                              name: card.name
+                            })}
+                          >
+                            ×
                           </button>
-                          <div className="yk-showcase-selection-actions">
-                            <button
-                              type="button"
-                              disabled={busy || index === 0}
-                              onClick={() =>
-                                moveFeaturedCard(card.instanceId, -1)
-                              }
-                              aria-label={t("profileUi.showcaseMoveEarlier", {
-                                name: card.name
-                              })}
-                              title={t("profileUi.showcaseMoveEarlier", {
-                                name: card.name
-                              })}
-                            >
-                              ←
-                            </button>
-                            <button
-                              type="button"
-                              disabled={
-                                busy ||
-                                index === selectedFeaturedCards.length - 1
-                              }
-                              onClick={() =>
-                                moveFeaturedCard(card.instanceId, 1)
-                              }
-                              aria-label={t("profileUi.showcaseMoveLater", {
-                                name: card.name
-                              })}
-                              title={t("profileUi.showcaseMoveLater", {
-                                name: card.name
-                              })}
-                            >
-                              →
-                            </button>
-                          </div>
                         </li>
                       ))}
                     </ol>
                   )}
                 </div>
                 <div className="yk-showcase-card-browser">
-                  <div className="yk-showcase-card-browser-heading">
+                  <div
+                    className="yk-showcase-card-browser-heading"
+                    ref={resultsHeading}
+                    tabIndex={-1}
+                  >
                     <h4>{t("profileUi.showcaseAvailableCards")}</h4>
                     <span>
                       {t("profileUi.showcaseSearchResults", {
@@ -682,8 +968,67 @@ export function Editor({
                       })}
                     </span>
                   </div>
+                  <div className="yk-showcase-card-results-toolbar">
+                    <label className="sr-only" htmlFor="featured-query">
+                      {t("profileUi.searchForACardToFeature")}
+                    </label>
+                    <input
+                      id="featured-query"
+                      className="auth-input"
+                      type="search"
+                      value={featuredQuery}
+                      onChange={e => {
+                        setPage(1);
+                        setFeaturedQuery(e.target.value);
+                      }}
+                      placeholder={t("collectionUi.search")}
+                    />
+                    <label className="yk-showcase-card-sort">
+                      <span>{t("collectionUi.sortBy")}</span>
+                      <select
+                        value={featuredSort}
+                        onChange={event => {
+                          setPage(1);
+                          setFeaturedSort(event.target.value as CollectionSort);
+                        }}
+                        aria-label={t("collectionUi.sortCollection")}
+                      >
+                        {COLLECTION_SORTS.map(option => (
+                          <option key={option.value} value={option.value}>
+                            {t("collectionUi.sortLabel", {
+                              sort: option.value
+                            })}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                  <button
+                    type="button"
+                    className="yk-showcase-filter-toggle"
+                    aria-controls="showcase-filters"
+                    aria-expanded={filtersOpen}
+                    onClick={() => setFiltersOpen(open => !open)}
+                  >
+                    {t("profileUi.showcaseFilterToggle")}
+                    {featuredRarities.length +
+                      featuredCategories.length +
+                      Number(featuredSpecialOnly) >
+                      0 && (
+                      <span>
+                        {" "}
+                        ·{" "}
+                        {featuredRarities.length +
+                          featuredCategories.length +
+                          Number(featuredSpecialOnly)}
+                      </span>
+                    )}
+                    <span aria-hidden="true">{filtersOpen ? "−" : "+"}</span>
+                  </button>
                   <div className="yk-showcase-card-picker-layout">
                     <aside
+                      id="showcase-filters"
+                      data-expanded={filtersOpen}
                       className="yk-showcase-card-filters"
                       aria-label={t("collectionUi.collectionFilters")}
                     >
@@ -700,6 +1045,7 @@ export function Editor({
                           )
                         }
                         onClick={() => {
+                          setPage(1);
                           setFeaturedQuery("");
                           setFeaturedRarities([]);
                           setFeaturedCategories([]);
@@ -718,14 +1064,14 @@ export function Editor({
                           <RarityChips
                             selected={featuredRarities}
                             count={rarity =>
-                              unique.filter(card => card.rarity === rarity)
-                                .length
+                              catalogue.rarities.get(rarity) ?? 0
                             }
-                            onToggle={rarity =>
+                            onToggle={rarity => {
+                              setPage(1);
                               setFeaturedRarities(current =>
                                 toggleFilterValue(current, rarity)
-                              )
-                            }
+                              );
+                            }}
                           />
                         </FilterSection>
                         <FilterSection
@@ -741,20 +1087,17 @@ export function Editor({
                               aria-pressed={featuredCategories.includes(
                                 category
                               )}
-                              onClick={() =>
+                              onClick={() => {
+                                setPage(1);
                                 setFeaturedCategories(current =>
                                   toggleFilterValue(current, category)
-                                )
-                              }
+                                );
+                              }}
                             >
                               <span className="yk-filter-check" />
                               <span>{category}</span>
                               <strong>
-                                {
-                                  unique.filter(
-                                    card => card.category === category
-                                  ).length
-                                }
+                                {catalogue.categories.get(category)}
                               </strong>
                             </button>
                           ))}
@@ -768,83 +1111,52 @@ export function Editor({
                             type="button"
                             className="yk-filter-option"
                             aria-pressed={featuredSpecialOnly}
-                            onClick={() =>
-                              setFeaturedSpecialOnly(current => !current)
-                            }
+                            onClick={() => {
+                              setPage(1);
+                              setFeaturedSpecialOnly(current => !current);
+                            }}
                           >
                             <span className="yk-filter-check" />
                             <span>{t("profileUi.showcaseSpecialCards")}</span>
-                            <strong>
-                              {
-                                unique.filter(
-                                  card => card.shiny || card.isEvolved
-                                ).length
-                              }
-                            </strong>
+                            <strong>{catalogue.special}</strong>
                           </button>
                         </FilterSection>
                       </div>
                     </aside>
                     <div className="yk-showcase-card-results">
-                      <div className="yk-showcase-card-results-toolbar">
-                        <label className="sr-only" htmlFor="featured-query">
-                          {t("profileUi.searchForACardToFeature")}
-                        </label>
-                        <input
-                          id="featured-query"
-                          className="auth-input"
-                          type="search"
-                          value={featuredQuery}
-                          onChange={e => setFeaturedQuery(e.target.value)}
-                          placeholder={t("collectionUi.search")}
-                        />
-                        <label className="yk-showcase-card-sort">
-                          <span>{t("collectionUi.sortBy")}</span>
-                          <select
-                            value={featuredSort}
-                            onChange={event =>
-                              setFeaturedSort(
-                                event.target.value as CollectionSort
-                              )
-                            }
-                            aria-label={t("collectionUi.sortCollection")}
-                          >
-                            {COLLECTION_SORTS.map(option => (
-                              <option key={option.value} value={option.value}>
-                                {t("collectionUi.sortLabel", {
-                                  sort: option.value
-                                })}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
-                      </div>
                       {featuredChoices.length ? (
-                        <div className="yk-featured-picker yk-showcase-card-browser-grid">
-                          {featuredChoices.map(card => (
-                            <button
-                              type="button"
-                              key={card.instanceId}
-                              onClick={() => toggle(card.instanceId)}
-                              aria-label={t("profileUi.showcaseAddCard", {
-                                name: card.name
-                              })}
-                              disabled={
-                                busy || selected.size >= FEATURED_CARD_LIMIT
-                              }
-                            >
-                              <YokaiCard
-                                {...card}
-                                image={card.catalogueImage}
-                                animated={false}
-                                imageSizes={PROFILE_CARD_IMAGE_SIZES}
-                              />
-                              <span>
-                                <b aria-hidden="true">+</b>
-                                {t("profileUi.choose")}
-                              </span>
-                            </button>
-                          ))}
+                        <div
+                          className="yk-featured-picker yk-showcase-card-browser-grid"
+                          aria-busy={featuredQuery !== deferredQuery}
+                        >
+                          {featuredChoices
+                            .slice(
+                              (activePage - 1) * pageSize,
+                              activePage * pageSize
+                            )
+                            .map(card => (
+                              <button
+                                type="button"
+                                key={card.instanceId}
+                                onClick={() => chooseCard(card)}
+                                aria-label={t(
+                                  isFull
+                                    ? "profileUi.showcaseUseReplacement"
+                                    : "profileUi.showcaseAddCard",
+                                  { name: card.name }
+                                )}
+                                disabled={busy}
+                              >
+                                <PickerArt card={card} />
+                                <span>
+                                  {t(
+                                    isFull
+                                      ? "profileUi.showcaseReplace"
+                                      : "profileUi.choose"
+                                  )}
+                                </span>
+                              </button>
+                            ))}
                         </div>
                       ) : (
                         <p
@@ -854,6 +1166,60 @@ export function Editor({
                           {t("profileUi.showcaseSearchEmpty")}
                         </p>
                       )}
+                      <div className="yk-showcase-browse-controls">
+                        <select
+                          className="yk-showcase-page-size"
+                          aria-label={t("profileUi.showcasePageSize")}
+                          value={pageSize}
+                          onChange={event => {
+                            setPage(1);
+                            setPageSize(event.target.value === "96" ? 96 : 48);
+                          }}
+                        >
+                          {PAGE_SIZES.map(size => (
+                            <option key={size} value={size}>
+                              {t("profileUi.showcaseCardsPerPage", {
+                                count: size
+                              })}
+                            </option>
+                          ))}
+                        </select>
+                        {pages > 1 && (
+                          <nav
+                            className="yk-showcase-pagination"
+                            aria-label={t("collectionShared.pagination")}
+                          >
+                            <button
+                              type="button"
+                              disabled={activePage === 1}
+                              aria-label={t("collectionShared.previousPage")}
+                              onClick={() => {
+                                setPage(activePage - 1);
+                                resultsHeading.current?.focus();
+                              }}
+                            >
+                              ←
+                            </button>
+                            <span aria-live="polite">
+                              {t("profileUi.showcasePage", {
+                                page: activePage,
+                                total: pages
+                              })}
+                            </span>
+                            <button
+                              type="button"
+                              disabled={activePage === pages}
+                              aria-label={t("collectionShared.nextPage")}
+                              onClick={() => {
+                                setPage(activePage + 1);
+                                resultsHeading.current?.focus();
+                              }}
+                            >
+                              →
+                            </button>
+                          </nav>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -886,7 +1252,10 @@ export function Editor({
         <Button variant="secondary" onClick={onClose}>
           {t("packs.cancel")}{" "}
         </Button>
-        <Button disabled={busy} onClick={() => void submit()}>
+        <Button
+          disabled={busy || replacement !== null}
+          onClick={() => void submit()}
+        >
           {busy ? t("collectionUi.saving") : t("profileUi.save")}
         </Button>
       </div>

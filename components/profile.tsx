@@ -555,6 +555,7 @@ export type ProfileAdapter = {
   saveWidgets?: typeof saveProfileWidgets;
   widgetLicenses?: typeof getProfileWidgetLicenses;
   saveAppearance?: typeof saveProfileAppearance;
+  saveShowcaseStyle?: (style: ProfileStyle) => Promise<void>;
   uploadAvatar?: typeof uploadAvatar;
   uploadBanner?: typeof uploadBanner;
 };
