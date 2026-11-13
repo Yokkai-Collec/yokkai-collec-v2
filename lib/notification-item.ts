@@ -39,6 +39,16 @@ export function notificationItem(
     time: time ?? new Date(notification.createdAt).toLocaleString("en-US"),
     read: !!notification.readAt
   };
+  if (notification.type === "referral_event_tier")
+    return {
+      ...common,
+      title: t("notificationReferralEventTitle"),
+      text: t("notificationReferralEventText", {
+        amount: notification.referralReward ?? 0
+      }),
+      href: "/referral-event",
+      kind: "mission"
+    };
   if (notification.type === "wall_reply_received")
     return {
       ...common,
@@ -92,6 +102,22 @@ export function notificationItem(
       }),
       href: "/friends",
       kind: "friend"
+    };
+  if (
+    notification.type === "mystery_auction_started" ||
+    notification.type === "mystery_auction_result"
+  )
+    return {
+      ...common,
+      title: t("notificationMysteryTitle"),
+      text:
+        notification.type === "mystery_auction_started"
+          ? t("notificationMysteryStarted")
+          : t("notificationMysteryResult", {
+              cardName: notification.cardName ?? t("notificationCardFallback")
+            }),
+      href: `/market/${notification.referenceId}`,
+      kind: "pack"
     };
   if (notification.type === "outbid")
     return {

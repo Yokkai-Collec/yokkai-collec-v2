@@ -1,0 +1,444 @@
+.yk-events-hub {
+  min-width: 0;
+  --event-ease: var(--ease-standard, cubic-bezier(0.2, 0.8, 0.2, 1));
+}
+.yk-events-intro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--color-veil);
+}
+.yk-events-intro p {
+  max-width: 42rem;
+  color: var(--color-ink-2);
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+.yk-events-live-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #b3c5dd;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.yk-events-live-label i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #b7d9d0;
+  box-shadow: 0 0 12px #b7d9d080;
+  animation: yk-event-beacon 3s ease-in-out infinite;
+}
+.yk-events-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 24px 0 32px;
+}
+.yk-events-filters button {
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--color-ink-3);
+  background: transparent;
+  font-size: 0.8rem;
+  transition:
+    color 200ms var(--event-ease),
+    background 200ms var(--event-ease),
+    border-color 200ms var(--event-ease);
+}
+.yk-events-filters button[aria-pressed="true"] {
+  color: #e0e9f8;
+  border-color: #a6bce52e;
+  background: #9ab9f011;
+  box-shadow: inset 0 1px #ffffff08;
+}
+.yk-events-filters button:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
+}
+.yk-events-section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.yk-events-section-head h2 {
+  color: #bdc8da;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.yk-events-section-head > span,
+.yk-events-footnote {
+  color: var(--color-ink-3);
+  font-size: 0.75rem;
+}
+.yk-events-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  counter-reset: event;
+}
+.yk-event-card {
+  display: flex;
+  flex-direction: column;
+  --event-tone: #a9bddf;
+  --event-glow: #718dcc;
+  position: relative;
+  min-width: 0;
+  counter-increment: event;
+  border: 1px solid #a6bce52b;
+  border-radius: 24px;
+  background: linear-gradient(160deg, #121824, #090e17 65%);
+  box-shadow:
+    0 16px 48px #0003,
+    inset 0 1px #ffffff06;
+  overflow: hidden;
+  isolation: isolate;
+  animation: yk-page-enter 650ms var(--event-ease) both;
+  transition:
+    translate 350ms var(--event-ease),
+    border-color 350ms var(--event-ease),
+    box-shadow 350ms var(--event-ease);
+}
+.yk-event-card[data-event="referral"] {
+  --event-tone: #e1c998;
+  --event-glow: #c19651;
+  background: linear-gradient(160deg, #1a1a20, #0e1017 65%);
+  animation-delay: 90ms;
+}
+.yk-event-cover {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  height: 280px;
+  padding: 40px;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 65%, #354e7530, transparent 66%),
+    linear-gradient(160deg, #0e1521, #080d16);
+}
+.yk-event-cover::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #080c1670, #0a0e1899);
+  pointer-events: none;
+}
+.yk-event-cover::after {
+  content: counter(event, decimal-leading-zero);
+  position: absolute;
+  right: 22px;
+  bottom: 6px;
+  color: color-mix(in srgb, var(--event-tone) 9%, transparent);
+  font-size: 92px;
+  font-weight: 700;
+  letter-spacing: -0.08em;
+  line-height: 1;
+  pointer-events: none;
+}
+.yk-event-card[data-event="referral"] .yk-event-cover {
+  background:
+    radial-gradient(ellipse at 50% 65%, #a8874520, transparent 60%),
+    linear-gradient(150deg, #181a21, #0b1019);
+}
+.yk-event-orbit {
+  position: absolute;
+  width: 250px;
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--event-tone) 15%, transparent);
+  border-radius: 50%;
+  transform: rotateX(55deg) rotate(-20deg);
+}
+.yk-event-orbit::before,
+.yk-event-orbit::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  inset: -24px;
+  border: 1px solid color-mix(in srgb, var(--event-tone) 8%, transparent);
+}
+.yk-event-orbit::after {
+  inset: 14px;
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--event-tone) 20%, transparent);
+  animation: yk-event-orbit 55s linear infinite;
+}
+.yk-event-art {
+  position: relative;
+  z-index: 1;
+  width: 116px;
+  transform: rotate(-9deg);
+  animation: yk-event-card-float 8s ease-in-out infinite;
+  filter: drop-shadow(0 18px 25px #0008);
+}
+.yk-event-art::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 235%;
+  aspect-ratio: 1;
+  left: -67.5%;
+  top: -33%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle closest-side,
+    #060a12 78%,
+    #91a9cf50 80%,
+    #e8d7a68c 81%,
+    #3f5b8f20 83%,
+    transparent 89%
+  );
+  box-shadow: 0 0 45px #688bc015;
+}
+.yk-event-art .yk-mystery-back {
+  box-shadow:
+    0 0 36px #c6ad6320,
+    inset 0 0 0 6px #d9c59410;
+}
+.yk-event-referral-art {
+  position: relative;
+  z-index: 1;
+  width: 170px;
+  animation: yk-event-emblem-float 8s ease-in-out -2s infinite;
+  filter: drop-shadow(0 16px 24px #0008);
+}
+.yk-event-frequency {
+  position: absolute;
+  z-index: 2;
+  top: 20px;
+  left: 20px;
+  padding: 7px 11px;
+  border: 1px solid color-mix(in srgb, var(--event-tone) 25%, transparent);
+  border-radius: 999px;
+  color: var(--event-tone);
+  background: #0a0e1780;
+  backdrop-filter: blur(10px);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.yk-event-body {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 26px;
+  min-height: 320px;
+  overflow-wrap: anywhere;
+  border-top: 1px solid color-mix(in srgb, var(--event-tone) 13%, transparent);
+}
+.yk-event-kind {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--color-ink-3);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.yk-event-kind .is-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #b7d9d0;
+}
+.yk-event-kind .is-live::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 10px #b7d9d060;
+}
+.yk-event-body h3 {
+  color: #f0f1f6;
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.045em;
+}
+.yk-event-description,
+.yk-event-reveal,
+.yk-event-leader,
+.yk-event-notice {
+  color: var(--color-ink-2);
+  font-size: 0.8rem;
+  line-height: 1.8;
+}
+.yk-event-description {
+  max-width: 33em;
+  min-height: 3em;
+}
+.yk-event-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 28px;
+  margin-top: 4px;
+}
+.yk-event-stats .yk-event-timing {
+  flex: 1 1 155px;
+}
+.yk-event-price > strong {
+  color: var(--event-tone);
+  font-size: 1.1rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.yk-event-timing,
+.yk-event-price {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  color: var(--color-ink-3);
+  font-size: 0.65rem;
+}
+.yk-event-timing strong,
+.yk-event-timing .yk-referral-event-clock {
+  color: var(--event-tone);
+  font-size: 1.1rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+.yk-event-price .yk-karas {
+  font-size: 1.1rem;
+}
+.yk-event-leader {
+  padding-top: 12px;
+  border-top: 1px solid #ffffff08;
+  font-size: 0.7rem;
+}
+.yk-event-action.yk-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  margin-top: auto;
+  min-height: 48px;
+  padding: 13px 16px;
+  border: 1px solid color-mix(in srgb, var(--event-tone) 32%, transparent);
+  border-radius: 12px;
+  color: var(--event-tone);
+  background: linear-gradient(
+    110deg,
+    color-mix(in srgb, var(--event-tone) 11%, transparent),
+    #ffffff02
+  );
+  box-shadow: inset 0 1px #ffffff05;
+  font-size: 0.8rem;
+  transition:
+    background 250ms var(--event-ease),
+    box-shadow 250ms var(--event-ease);
+}
+.yk-event-action > span {
+  font-size: 1.2rem;
+  transition: translate 250ms var(--event-ease);
+}
+.yk-events-footnote {
+  margin-top: 28px;
+  line-height: 1.8;
+}
+.yk-events-empty {
+  padding: 32px 20px;
+  border: 1px dashed var(--color-veil-strong);
+  border-radius: 16px;
+  color: var(--color-ink-2);
+  font-size: 0.875rem;
+}
+@keyframes yk-event-card-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-9deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(-5deg);
+  }
+}
+@keyframes yk-event-emblem-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-5deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(3deg);
+  }
+}
+@keyframes yk-event-orbit {
+  to {
+    rotate: 360deg;
+  }
+}
+@keyframes yk-event-beacon {
+  50% {
+    opacity: 0.5;
+  }
+}
+@media (min-width: 768px) {
+  .yk-events-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px;
+  }
+  .yk-event-cover {
+    height: 320px;
+  }
+  .yk-event-body {
+    padding: 30px;
+    min-height: 345px;
+  }
+  .yk-event-art {
+    width: 132px;
+  }
+  .yk-event-referral-art {
+    width: 190px;
+  }
+}
+@media (hover: hover) {
+  .yk-event-card:hover {
+    translate: 0 -5px;
+    border-color: color-mix(in srgb, var(--event-tone) 45%, transparent);
+    box-shadow:
+      0 26px 64px #0005,
+      inset 0 1px #ffffff09;
+  }
+  .yk-event-action:hover {
+    box-shadow:
+      0 0 24px color-mix(in srgb, var(--event-glow) 12%, transparent),
+      inset 0 1px #ffffff10;
+  }
+  .yk-event-action:hover > span {
+    translate: 3px -2px;
+  }
+  .yk-events-filters button:hover {
+    color: var(--color-ink);
+    background: #ffffff06;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .yk-events-hub *,
+  .yk-events-hub *::before,
+  .yk-events-hub *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

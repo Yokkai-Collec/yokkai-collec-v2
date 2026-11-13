@@ -73,6 +73,9 @@ import {
 } from "@/lib/data/profile";
 import { getWishlist, type WishlistCard } from "@/lib/data/wishlist";
 import { matchesCardSearch } from "@/lib/ui/card-search";
+const RecruiterBadge = dynamic(() =>
+  import("@/components/referral-event").then(module => module.RecruiterBadge)
+);
 const ProfileRecentCards = dynamic(() =>
   import("@/components/profile-recent-cards").then(
     module => module.ProfileRecentCards
@@ -1063,6 +1066,7 @@ export function ProfileExperience({
                     cosmetics={profile.profileStyle}
                   />
                 </h2>
+                <RecruiterBadge userId={profile.id} />
                 {isAcceptedFriend && (
                   <span className="yk-profile-friend-status">
                     {t("profileUi.friendStatusaccepted")}

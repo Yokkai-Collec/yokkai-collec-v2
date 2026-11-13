@@ -2,6 +2,9 @@ import { readRequest } from "@/lib/data/read-request";
 import { createClient } from "@/utils/supabase/client";
 
 export type KnownNotificationType =
+  | "referral_event_tier"
+  | "mystery_auction_started"
+  | "mystery_auction_result"
   | "wishlist_card_on_auction"
   | "friend_request"
   | "friend_request_accepted"
@@ -39,6 +42,7 @@ export type AppNotification = {
   postId?: string;
   replyId?: string;
   karaAmount?: number | null;
+  referralReward?: number | null;
 };
 export type NotificationFeed = {
   items: AppNotification[];
