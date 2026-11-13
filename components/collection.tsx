@@ -551,6 +551,12 @@ export function CollectionView({
   const shownGroups = remote ? remoteGroups : groups;
   const matchingGroups = remote ? (remote.page?.total ?? 0) : groups.length;
   const ownedCopies = remote ? (remote.counts?.copies ?? 0) : cards.length;
+  // A new server-side search must not briefly render the preceding result set.
+  // For the client fallback, retain its previous behaviour: cards already
+  // available remain visible while a refresh is in progress.
+  const cardsLoading = remote
+    ? remote.loading && !remote.page
+    : loading && ownedCopies === 0;
   const paniniAlbumPageCount = Math.max(1, Math.ceil(paniniAlbums.total / 72));
   const activePaniniAlbumPage = Math.min(paniniAlbumPage, paniniAlbumPageCount);
   const ownedByCardId = useMemo(() => {
@@ -2114,7 +2120,7 @@ export function CollectionView({
                     </Button>
                   )}
                 </div>
-              ) : (remote ? remote.loading : loading) && ownedCopies === 0 ? (
+              ) : cardsLoading ? (
                 <CollectionLoading />
               ) : matchingGroups === 0 ? (
                 <div className="rounded-panel border border-dashed border-veil-strong px-6 py-16 text-center">
