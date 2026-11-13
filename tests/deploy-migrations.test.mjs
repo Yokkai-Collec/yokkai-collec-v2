@@ -392,6 +392,10 @@ test("drift detects changed, missing and extra cron jobs", async t => {
       ["*/5 * * * *", "archive_failed_anticheat_discord_alerts"]
     ],
     [
+      "dispatch-card-rarity-announcements@postgres",
+      ["* * * * *", "dispatch_card_rarity_announcements"]
+    ],
+    [
       "evaluate-anticheat-farm-evidence@postgres",
       ["2-59/5 * * * *", "evaluate_anticheat_farm_evidence"]
     ],
