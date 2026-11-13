@@ -197,6 +197,9 @@
   "public.anticheat_network_observations": {
     "excluded": "Short-lived keyed network pseudonyms used for anti-cheat correlation. Raw addresses are not stored; records require separate manual privacy and security review and expire after seven days."
   },
+  "public.anticheat_trade_connections": {
+    "excluded": "Latest network and browser pseudonyms observed together for the trade rule. Raw addresses and tokens are not stored. The record expires after seven days and requires separate manual privacy and security review."
+  },
   "public.anticheat_account_exemptions": {
     "excluded": "Private operator-maintained account exceptions with internal review notes. Requests concerning security exemptions require separate manual privacy review."
   },

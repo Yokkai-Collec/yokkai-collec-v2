@@ -53,17 +53,29 @@ export async function POST(request: Request) {
       detectSessionInUrl: false
     }
   });
+  const validNetworkIdentity = identityPattern.test(networkIdentity)
+    ? networkIdentity
+    : null;
   const results = await Promise.all([
-    identityPattern.test(networkIdentity)
+    validNetworkIdentity
       ? admin.rpc("record_anticheat_network_observation", {
           p_user_id: data.user.id,
-          p_network_identity: networkIdentity
+          p_network_identity: validNetworkIdentity
         })
       : Promise.resolve({ error: null }),
     admin.rpc("record_anticheat_device_observation", {
       p_user_id: data.user.id,
       p_device_identity: deviceIdentity
-    })
+    }),
+    admin
+      .rpc("record_anticheat_trade_connection", {
+        p_user_id: data.user.id,
+        p_network_identity: validNetworkIdentity,
+        p_device_identity: deviceIdentity
+      })
+      .then(result =>
+        result.error?.code === "PGRST202" ? { error: null } : result
+      )
   ]);
   if (results.some(result => result.error)) {
     console.error("ANTICHEAT_CONTEXT_OBSERVATION_FAILED");
