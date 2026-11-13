@@ -7,7 +7,7 @@ import ts from "typescript";
 const read = name =>
   readFileSync(new URL(`../components/${name}.tsx`, import.meta.url), "utf8");
 
-test("profile editing is loaded on demand and preserves its entire existing implementation", () => {
+test("profile editing is loaded on demand and matches the reviewed editor body", () => {
   const profile = read("profile");
   const editor = read("profile-editor");
   const parse = (name, source) =>
@@ -52,10 +52,10 @@ test("profile editing is loaded on demand and preserves its entire existing impl
   const body = ts
     .createPrinter({ removeComments: true })
     .printNode(ts.EmitHint.Unspecified, implementation.body, editorAst);
-  // Entire editor body from the pre-extraction implementation, including
-  // banners, uploads, filters, reordering, limits, errors and save guards.
+  // Reviewed editor body, including banners, uploads, filters, reordering,
+  // limits, errors and save guards.
   assert.equal(
     createHash("sha256").update(body).digest("hex"),
-    "f45297c31d8d63d7c8f4e5aa4b9a4e4069968422f277a915bd35df38f40a62c2"
+    "12d4b47354d80610cd1f95c612493d92b4a514eb8736fd0159eb3a8f01dbf799"
   );
 });

@@ -50,7 +50,8 @@ test("banner choices use names within a rarity and IDs for identical names", () 
 test("the owned banner picker sorts searched choices before the result limit", () => {
   const source = readProfileSource();
   const start = source.indexOf("const ownedBannerChoices = useMemo(");
-  const end = source.indexOf("const unique = useMemo(", start);
+  const end = source.indexOf("const catalogue = useMemo(", start);
+  assert.ok(start >= 0 && end > start, "locate the banner choices memo");
   const choices = source.slice(start, end);
   assert.match(
     readFileSync(
