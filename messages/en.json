@@ -4537,7 +4537,11 @@
     "noPending": "No friends waiting to qualify.",
     "noEvent": "No Referral Event is scheduled right now.",
     "refreshError": "Progress could not be refreshed. Your last confirmed progress is shown; try again shortly.",
-    "viewEvent": "View Referral Event"
+    "viewEvent": "View Referral Event",
+    "backToEvents": "All events",
+    "badgeAt": "Exclusive badge · {count, number} valid referrals",
+    "totalRewards": "Up to {amount, number} Karas in cumulative rewards",
+    "rewardPool": "Cumulative rewards"
   },
   "mysteryAuction": {
     "title": "Mystery Auction",

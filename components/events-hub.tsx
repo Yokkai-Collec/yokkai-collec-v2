@@ -42,7 +42,15 @@ export function EventsHub() {
       : "—";
   return (
     <div className="yk-events-hub">
-      <p className="yk-events-intro">{t("description")}</p>
+      <div className="yk-events-intro">
+        <p>{t("description")}</p>
+        {(live || referralStatus === "live") && (
+          <span className="yk-events-live-label">
+            <i aria-hidden="true" />
+            {t("live")}
+          </span>
+        )}
+      </div>
       <nav className="yk-events-filters" aria-label={t("filters")}>
         {(["all", "live", "upcoming"] as const).map(value => (
           <button
@@ -65,8 +73,9 @@ export function EventsHub() {
         {visible || referralVisible ? (
           <ul className="yk-events-grid">
             {visible && (
-              <li className="yk-event-card">
+              <li className="yk-event-card" data-event="mystery">
                 <div className="yk-event-cover">
+                  <span className="yk-event-orbit" aria-hidden="true" />
                   <div className="yk-event-art">
                     {auction?.card ? (
                       <YokaiCard {...auction.card} />
@@ -94,13 +103,15 @@ export function EventsHub() {
                       {t("lastReveal", { name: auction.card.name })}
                     </p>
                   )}
-                  <div className="yk-event-timing">
-                    <span>{t(live ? "endsIn" : "nextEdition")}</span>
-                    <strong>{countdown}</strong>
-                  </div>
-                  <div className="yk-event-price">
-                    <span>{t(live ? "currentPrice" : "startingPrice")}</span>
-                    <Karas amount={live ? auction.amount : 50} />
+                  <div className="yk-event-stats">
+                    <div className="yk-event-timing">
+                      <span>{t(live ? "endsIn" : "nextEdition")}</span>
+                      <strong>{countdown}</strong>
+                    </div>
+                    <div className="yk-event-price">
+                      <span>{t(live ? "currentPrice" : "startingPrice")}</span>
+                      <Karas amount={live ? auction.amount : 50} />
+                    </div>
                   </div>
                   {live && (
                     <p className="yk-event-leader">
@@ -118,6 +129,7 @@ export function EventsHub() {
                       className="yk-button yk-button-secondary yk-event-action"
                     >
                       {t(live ? "join" : "result")}
+                      <span aria-hidden="true">↗</span>
                     </Link>
                   )}
                 </div>

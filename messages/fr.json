@@ -4537,7 +4537,11 @@
     "noPending": "Aucun ami en attente de validation.",
     "noEvent": "Aucun Referral Event n’est prévu pour le moment.",
     "refreshError": "La progression n’a pas pu être actualisée. Ta dernière progression confirmée reste affichée ; réessaie dans un instant.",
-    "viewEvent": "Accéder au Referral Event"
+    "viewEvent": "Accéder au Referral Event",
+    "backToEvents": "Tous les événements",
+    "badgeAt": "Badge exclusif · {count, number} filleuls valides",
+    "totalRewards": "Jusqu’à {amount, number} Karas de récompenses cumulées",
+    "rewardPool": "Récompenses cumulées"
   },
   "mysteryAuction": {
     "title": "Mystery Auction",

@@ -35,8 +35,16 @@ export default async function ReferralEventPage() {
         id="main-content"
         className="mx-auto w-full max-w-6xl min-w-0 px-3 py-6 sm:px-6 sm:py-10"
       >
-        <ReferralEventPanel initialEvent={event.data as ReferralEvent | null} />
-        <ReferralPanel initialStatus={referral} siteOrigin={origin} />
+        <ReferralEventPanel
+          initialEvent={event.data as ReferralEvent | null}
+          invite={
+            <ReferralPanel
+              compact
+              initialStatus={referral}
+              siteOrigin={origin}
+            />
+          }
+        />
       </main>
     </div>
   );
