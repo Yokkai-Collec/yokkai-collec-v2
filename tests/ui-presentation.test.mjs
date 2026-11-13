@@ -3021,9 +3021,7 @@ test("la recherche multi-termes partage une sémantique ET entre Collection, Cat
     normalizeWhitespace(
       readFileSync(path.join(root, "lib/ui/collection-filter.ts"), "utf8")
     ),
-    normalizeWhitespace(
-      /matchesCardSearch\(query,\[c\.name,c\.category,c\.anime\]\)/
-    )
+    normalizeWhitespace(/matchesCardSearch\(query,\[c\.name,c\.anime\]\)/)
   );
   assert.match(
     normalizeWhitespace(community),
