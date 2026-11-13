@@ -65,7 +65,9 @@ function load(file, state) {
 }
 
 test("event page exposes server progress, cumulative tiers, escaped pending pseudos and a countdown", () => {
-  const { ReferralEventPanel } = load("components/referral-event.tsx");
+  const { ReferralEventPanel, ReferralEventHubCard } = load(
+    "components/referral-event.tsx"
+  );
   const html = renderToStaticMarkup(
     React.createElement(ReferralEventPanel, { initialEvent: event })
   );
@@ -78,6 +80,15 @@ test("event page exposes server progress, cumulative tiers, escaped pending pseu
   assert.match(html, /13d 0h 0m 0s/);
   assert.match(html, /1 more valid referral to unlock 750 Karas/);
   assert.match(readFileSync("app/layout.tsx", "utf8"), /"referralEvent"/);
+  const card = renderToStaticMarkup(
+    React.createElement(ReferralEventHubCard, {
+      event,
+      now: Date.parse(event.serverNow)
+    })
+  );
+  assert.match(card, /href="\/referral-event"/);
+  assert.match(card, /View Referral Event/);
+  assert.match(card, /13d 0h 0m 0s/);
 });
 
 test("promotion is visible only during the event, with an accessible destination", () => {

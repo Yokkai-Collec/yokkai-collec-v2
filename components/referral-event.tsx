@@ -7,7 +7,7 @@ import { createClient } from "@/utils/supabase/client";
 import type { ReferralEvent } from "@/lib/referrals/event";
 import "@/styles/referral-event.css";
 
-function useEvent(initial?: ReferralEvent | null) {
+export function useReferralEvent(initial?: ReferralEvent | null) {
   const [event, setEvent] = useState(initial ?? null);
   const [now, setNow] = useState(initial ? Date.parse(initial.serverNow) : 0);
   const [failed, setFailed] = useState(false);
@@ -71,7 +71,7 @@ function Countdown({ end, now }: { end: string; now: number }) {
 
 export function ReferralEventPromotion() {
   const t = useTranslations("referralEvent");
-  const { event, now, failed } = useEvent();
+  const { event, now, failed } = useReferralEvent();
   if (
     !event ||
     failed ||
@@ -96,6 +96,48 @@ export function ReferralEventPromotion() {
   );
 }
 
+export function ReferralEventHubCard({
+  event,
+  now
+}: {
+  event: ReferralEvent;
+  now: number;
+}) {
+  const t = useTranslations("referralEvent");
+  const upcoming = now < Date.parse(event.startsAt);
+  const ended = now >= Date.parse(event.endsAt);
+  return (
+    <li className="yk-event-card">
+      <div className="yk-event-cover">
+        <span className="yk-event-referral-art" aria-hidden="true">
+          ✦
+        </span>
+        <span className="yk-event-frequency">{t("limited")}</span>
+      </div>
+      <div className="yk-event-body">
+        <div className="yk-event-kind">
+          <span>{t("badge")}</span>
+          <span className={!upcoming && !ended ? "is-live" : undefined}>
+            {t(upcoming ? "upcoming" : ended ? "ended" : "limited")}
+          </span>
+        </div>
+        <h3>{t("title")}</h3>
+        <p className="yk-event-description">{t("promotion")}</p>
+        <div className="yk-event-timing">
+          <span>{t(upcoming ? "startsIn" : "endsIn")}</span>
+          <Countdown end={upcoming ? event.startsAt : event.endsAt} now={now} />
+        </div>
+        <Link
+          href="/referral-event"
+          className="yk-button yk-button-secondary yk-event-action"
+        >
+          {t("viewEvent")}
+        </Link>
+      </div>
+    </li>
+  );
+}
+
 export function ReferralEventPanel({
   initialEvent
 }: {
@@ -103,7 +145,7 @@ export function ReferralEventPanel({
 }) {
   const t = useTranslations("referralEvent");
   const fmt = useFormatter();
-  const { event, now, failed } = useEvent(initialEvent);
+  const { event, now, failed } = useReferralEvent(initialEvent);
   if (!event)
     return (
       <section className="yk-referral-event">

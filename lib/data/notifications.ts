@@ -3,6 +3,8 @@ import { createClient } from "@/utils/supabase/client";
 
 export type KnownNotificationType =
   | "referral_event_tier"
+  | "mystery_auction_started"
+  | "mystery_auction_result"
   | "wishlist_card_on_auction"
   | "friend_request"
   | "friend_request_accepted"

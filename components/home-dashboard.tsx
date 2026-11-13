@@ -1,3 +1,4 @@
+import { MysteryAuctionBanner } from "@/components/mystery-auction";
 import { ProductUpdates } from "@/components/product-updates";
 import { ReferralEventPromotion } from "@/components/referral-event";
 import { useTranslations } from "next-intl";
@@ -170,7 +171,11 @@ async function market() {
     })
     .abortSignal(AbortSignal.timeout(12000));
   if (error) throw error;
-  return <HomeMarket initial={(data as MarketPage).items} />;
+  return (
+    <HomeMarket
+      initial={(data as MarketPage).items.filter(a => !a.isMystery)}
+    />
+  );
 }
 
 async function communityFeed(userId: string) {
@@ -254,6 +259,7 @@ export function HomeDashboard({
       <main id="main-content" className="yk-home-main">
         <HomeHero />
         <ReferralEventPromotion />
+        <MysteryAuctionBanner home />
         <HomePacks>
           <Suspense fallback={<HomeSkeleton />}>
             <PanelData load={() => packs()} />
