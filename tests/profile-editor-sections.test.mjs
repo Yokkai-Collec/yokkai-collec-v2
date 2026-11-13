@@ -82,11 +82,14 @@ test("Basic players can change the style draft but cannot save or publish it", (
   assert.match(save, /JSON\.stringify\(\{ style \}\)/);
 });
 
-test("the showcase editor contains only the existing bounded card picker", () => {
+test("the showcase editor contains a bounded, paginated card picker", () => {
   const showcase = guards.get("showcase");
   assert.ok(showcase);
   assert.match(showcase, /yk-featured-picker/);
-  assert.match(showcase, /featuredChoices\.map/);
+  assert.match(
+    showcase,
+    /featuredChoices\s*\.slice\(\s*\(activePage - 1\) \* pageSize,\s*activePage \* pageSize\s*\)\s*\.map/
+  );
   assert.match(showcase, /FEATURED_CARD_LIMIT/);
   assert.doesNotMatch(
     showcase,

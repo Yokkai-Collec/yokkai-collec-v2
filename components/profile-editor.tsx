@@ -1187,12 +1187,12 @@ export function Editor({
                         {pages > 1 && (
                           <nav
                             className="yk-showcase-pagination"
-                            aria-label={t("collectionUi.pagination")}
+                            aria-label={t("collectionShared.pagination")}
                           >
                             <button
                               type="button"
                               disabled={activePage === 1}
-                              aria-label={t("collectionUi.previousPage")}
+                              aria-label={t("collectionShared.previousPage")}
                               onClick={() => {
                                 setPage(activePage - 1);
                                 resultsHeading.current?.focus();
@@ -1209,7 +1209,7 @@ export function Editor({
                             <button
                               type="button"
                               disabled={activePage === pages}
-                              aria-label={t("collectionUi.nextPage")}
+                              aria-label={t("collectionShared.nextPage")}
                               onClick={() => {
                                 setPage(activePage + 1);
                                 resultsHeading.current?.focus();
