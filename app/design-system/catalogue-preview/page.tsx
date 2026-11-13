@@ -53,7 +53,7 @@ export default async function CataloguePreview({
   return (
     <>
       <Topbar view="search" name="Kitsune" karas={4920} notifications={[]} />
-      <main className="mx-auto w-full max-w-[var(--layout-collection-max)] px-6 py-10">
+      <main className="yk-card-browse-page mx-auto py-10">
         <section className="yk-catalogue">
           <div className="yk-collection-layout">
             <header className="yk-catalogue-title">

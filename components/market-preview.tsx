@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import type { ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { MessengerSession } from "@/components/floating-messenger";
 import {
   AuctionView,
   MarketView,
@@ -10,6 +12,32 @@ import {
 } from "@/components/community-views";
 import type { AuctionDetail } from "@/lib/data/market";
 import { animation } from "@/lib/ui/animations";
+
+export function MarketPreviewMessenger() {
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+  return mounted
+    ? createPortal(
+        <MessengerSession
+          unread={{
+            viewerId: "market-preview",
+            messages: [],
+            messageCount: 3,
+            requestCount: 0
+          }}
+          loadConversations={async () => ({
+            viewerId: "market-preview",
+            items: [],
+            next: null
+          })}
+        />,
+        document.body
+      )
+    : null;
+}
 
 // Local-only simulations for the design-system routes: no RPC is called.
 const rarities = ["LR", "SSR", "SR", "R", "C"] as const;

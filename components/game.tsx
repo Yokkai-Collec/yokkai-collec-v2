@@ -592,7 +592,7 @@ export function Game({
       )}
       <main
         id="main-content"
-        className={`yk-game-main mx-auto px-6 ${view === "collection" ? "max-w-[var(--layout-collection-max)] py-6" : "w-full max-w-6xl flex-1 py-10"}`}
+        className={`yk-game-main mx-auto ${view === "collection" ? "yk-card-browse-page py-6" : "w-full max-w-6xl flex-1 px-6 py-10"}`}
       >
         {view === "packs" && (
           <header className="yk-pack-page-heading">

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { CollectionPreviewClient } from "@/components/collection-preview";
+import { MarketPreviewMessenger } from "@/components/market-preview";
 import { Topbar } from "@/components/topbar";
 import type { CollectedCard, Rarity } from "@/lib/data/cards";
 
@@ -65,7 +66,12 @@ cards.push(
   }))
 );
 
-export default function CollectionPreview() {
+export default async function CollectionPreview({
+  searchParams
+}: {
+  searchParams: Promise<{ messenger?: string }>;
+}) {
+  const { messenger } = await searchParams;
   return (
     <>
       <Topbar
@@ -74,10 +80,7 @@ export default function CollectionPreview() {
         karas={4920}
         notifications={[]}
       />
-      <main
-        id="main-content"
-        className="mx-auto w-full max-w-[var(--layout-collection-max)] px-6 py-6"
-      >
+      <main id="main-content" className="yk-card-browse-page mx-auto py-6">
         <CollectionPreviewClient
           cards={cards}
           pageHeading={
@@ -88,6 +91,7 @@ export default function CollectionPreview() {
           }
         />
       </main>
+      {messenger !== undefined && <MarketPreviewMessenger />}
     </>
   );
 }

@@ -3140,6 +3140,15 @@ export function CommunityView({
                 ]
               : headings[screen];
   const notificationItems = useNotificationItems(feed.notifications ?? []);
+  const isSocialPage =
+    screen === "friends" || screen === "feed" || screen === "trades";
+  const isCardBrowse =
+    screen === "search" || screen === "market" || screen === "wishlist";
+  const pageWidth = isCardBrowse
+    ? "yk-card-browse-page"
+    : isSocialPage || screen === "auction"
+      ? "max-w-[var(--layout-collection-max)]"
+      : "max-w-6xl";
   return (
     <>
       <Topbar
@@ -3167,17 +3176,7 @@ export function CommunityView({
       />
       <main
         id="main-content"
-        className={`${screen === "friends" || screen === "feed" || screen === "trades" ? "yk-social-page" : ""} mx-auto w-full ${
-          screen === "search" ||
-          screen === "market" ||
-          screen === "auction" ||
-          screen === "wishlist" ||
-          screen === "friends" ||
-          screen === "feed" ||
-          screen === "trades"
-            ? "max-w-[var(--layout-collection-max)]"
-            : "max-w-6xl"
-        } px-6 py-10`}
+        className={`${isSocialPage ? "yk-social-page" : ""} mx-auto w-full ${pageWidth} px-6 py-10`}
       >
         {screen !== "market" && screen !== "search" && (
           <div>
