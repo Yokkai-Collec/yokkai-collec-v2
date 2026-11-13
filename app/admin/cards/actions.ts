@@ -341,6 +341,7 @@ export async function importCardsAction(
       bucket: "card-images",
       batchSize: 25,
       concurrency: 2,
+      announcements: true,
       log: () => {},
       onWritten: async (records: number[]) => {
         writtenRecords.push(...records);

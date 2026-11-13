@@ -439,6 +439,7 @@ export async function applyNameCategoryImport({
   client,
   bucket = "card-images",
   concurrency = 5,
+  announcements = false,
   fetchImage = publicImageFetch,
   log = console.log,
   onFailure = async () => {},
@@ -458,6 +459,7 @@ export async function applyNameCategoryImport({
     }))
   ];
   const stats = { updated: 0, inserted: 0, skipped: 0 };
+  const importBatchId = randomUUID();
   let cursor = 0;
   let fatal;
   await Promise.all(
@@ -501,33 +503,66 @@ export async function applyNameCategoryImport({
           const imageUrl = client.storage.from(bucket).getPublicUrl(path)
             .data.publicUrl;
           if (item.kind === "update") {
-            await retry(
-              () =>
-                checked(
-                  client
-                    .from("cards")
-                    .update({
-                      rarete_base: item.card.rarete_base,
-                      image_url: imageUrl,
-                      franchise: item.card.franchise
+            if (announcements) {
+              await retry(
+                () =>
+                  checked(
+                    client.rpc("update_catalogue_card_announced", {
+                      p_card_id: item.current.id,
+                      p_patch: {
+                        rarete_base: item.card.rarete_base,
+                        image_url: imageUrl,
+                        franchise: item.card.franchise
+                      },
+                      p_import_id: importBatchId
                     })
-                    .eq("id", item.current.id)
-                ),
-              3,
-              sleep
-            );
+                  ),
+                3,
+                sleep
+              );
+            } else {
+              await retry(
+                () =>
+                  checked(
+                    client
+                      .from("cards")
+                      .update({
+                        rarete_base: item.card.rarete_base,
+                        image_url: imageUrl,
+                        franchise: item.card.franchise
+                      })
+                      .eq("id", item.current.id)
+                  ),
+                3,
+                sleep
+              );
+            }
             stats.updated++;
           } else {
-            await retry(
-              () =>
-                checked(
-                  client
-                    .from("cards")
-                    .insert({ ...item.card, image_url: imageUrl })
-                ),
-              3,
-              sleep
-            );
+            if (announcements) {
+              await retry(
+                () =>
+                  checked(
+                    client.rpc("import_catalogue_cards_announced", {
+                      p_rows: [{ ...item.card, image_url: imageUrl }],
+                      p_import_id: importBatchId
+                    })
+                  ),
+                3,
+                sleep
+              );
+            } else {
+              await retry(
+                () =>
+                  checked(
+                    client
+                      .from("cards")
+                      .insert({ ...item.card, image_url: imageUrl })
+                  ),
+                3,
+                sleep
+              );
+            }
             stats.inserted++;
           }
         }
@@ -536,6 +571,23 @@ export async function applyNameCategoryImport({
       }
     })
   );
+  if (announcements) {
+    try {
+      await retry(
+        () =>
+          checked(
+            client.rpc("finish_catalogue_discord_import", {
+              p_import_id: importBatchId
+            })
+          ),
+        3,
+        sleep
+      );
+    } catch (error) {
+      if (!fatal) throw error;
+      log("Discord import summary deferred to scheduled recovery.");
+    }
+  }
   if (fatal) throw fatal;
   return stats;
 }
@@ -579,6 +631,7 @@ export async function importCards({
   limit = Infinity,
   dryRun = false,
   stableBinders = false,
+  announcements = false,
   fetchImage = publicImageFetch,
   log = console.log,
   onFailure = async () => {},
@@ -729,12 +782,19 @@ export async function importCards({
           const result = await retry(
             () =>
               checked(
-                client.rpc("import_anilist_cards", {
-                  p_rows: batch.map(({ card, importInput }) =>
-                    anilistImportRow(card, importInput)
-                  ),
-                  p_batch_id: importBatchId
-                })
+                client.rpc(
+                  announcements
+                    ? "import_catalogue_cards_announced"
+                    : "import_anilist_cards",
+                  {
+                    p_rows: batch.map(({ card, importInput }) =>
+                      anilistImportRow(card, importInput)
+                    ),
+                    ...(announcements
+                      ? { p_import_id: importBatchId, p_anilist: true }
+                      : { p_batch_id: importBatchId })
+                  }
+                )
               ),
             3,
             sleep
@@ -752,20 +812,38 @@ export async function importCards({
         }
       }
       if (ordinary.length) {
-        await retry(
-          () =>
-            checked(
-              client.from("cards").upsert(
-                ordinary.map(({ card }) => card),
-                {
-                  onConflict: "source,source_id",
-                  defaultToNull: false
-                }
-              )
-            ),
-          3,
-          sleep
-        );
+        if (announcements) {
+          for (let offset = 0; offset < ordinary.length; offset += 200) {
+            await retry(
+              () =>
+                checked(
+                  client.rpc("import_catalogue_cards_announced", {
+                    p_rows: ordinary
+                      .slice(offset, offset + 200)
+                      .map(({ card }) => card),
+                    p_import_id: importBatchId
+                  })
+                ),
+              3,
+              sleep
+            );
+          }
+        } else {
+          await retry(
+            () =>
+              checked(
+                client.from("cards").upsert(
+                  ordinary.map(({ card }) => card),
+                  {
+                    onConflict: "source,source_id",
+                    defaultToNull: false
+                  }
+                )
+              ),
+            3,
+            sleep
+          );
+        }
         written.push(...ordinary.map(row => row.index));
       }
       stats.imported += written.length;
@@ -778,13 +856,37 @@ export async function importCards({
     );
     batch = [];
   }
-  for await (const row of rows) {
-    if (stats.read >= limit) break;
-    batch.push({ row, index: ++stats.read });
-    if (batch.length >= batchSize) await flush();
+  let importError;
+  try {
+    for await (const row of rows) {
+      if (stats.read >= limit) break;
+      batch.push({ row, index: ++stats.read });
+      if (batch.length >= batchSize) await flush();
+    }
+    if (batch.length) await flush();
+    return stats;
+  } catch (error) {
+    importError = error;
+    throw error;
+  } finally {
+    if (announcements && !dryRun) {
+      try {
+        await retry(
+          () =>
+            checked(
+              client.rpc("finish_catalogue_discord_import", {
+                p_import_id: importBatchId
+              })
+            ),
+          3,
+          sleep
+        );
+      } catch (error) {
+        if (!importError) throw error;
+        log("Discord import summary deferred to scheduled recovery.");
+      }
+    }
   }
-  if (batch.length) await flush();
-  return stats;
 }
 
 async function main() {
@@ -888,6 +990,7 @@ async function main() {
       client,
       bucket: values.bucket,
       concurrency,
+      announcements: true,
       onFailure
     });
     console.log(`TerminÃ© : ${JSON.stringify(matchStats)}`);
@@ -903,6 +1006,7 @@ async function main() {
     limit,
     dryRun: values["dry-run"],
     stableBinders: true,
+    announcements: true,
     onFailure
   });
   console.log(`Terminé : ${JSON.stringify(stats)}`);

@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
 import {
+  applyNameCategoryImport,
   cardNameCategoryKey,
   createImageRequestLimiter,
   downloadImage,
@@ -187,6 +188,72 @@ function fakeClient({ uploadError, dbError, buckets = [], schemaError } = {}) {
     }
   };
 }
+
+test("announced imports share one identity across chunks and finalise even after partial failure", async () => {
+  for (const failure of [false, true]) {
+    const client = fakeClient();
+    const calls = [];
+    client.rpc = async (name, args) => {
+      calls.push({ name, ...args });
+      if (name === "finish_catalogue_discord_import")
+        return { data: 1, error: null };
+      assert.equal(name, "import_catalogue_cards_announced");
+      if (failure && client.batches.length)
+        return {
+          error: { message: "Second batch unavailable", statusCode: 400 }
+        };
+      await client.from("cards").upsert(args.p_rows, {
+        onConflict: "source,source_id",
+        defaultToNull: false
+      });
+      return { data: [], error: null };
+    };
+    const run = importCards({
+      rows: [row("a"), row("b"), row("c"), row("d")],
+      client,
+      batchSize: 2,
+      announcements: true,
+      fetchImage: async () => image(),
+      log: silent,
+      sleep: async () => {}
+    });
+    if (failure) await assert.rejects(run, /Second batch unavailable/);
+    else assert.equal((await run).imported, 4);
+    assert.equal(new Set(calls.map(c => c.p_import_id)).size, 1);
+    assert.equal(calls.at(-1).name, "finish_catalogue_discord_import");
+    assert.equal(client.batches.length, failure ? 1 : 2);
+  }
+});
+
+test("name/category imports group updates and additions under the same announcement", async () => {
+  const client = fakeClient();
+  const calls = [];
+  client.rpc = async (name, args) => {
+    calls.push({ name, ...args });
+    return { data: [], error: null };
+  };
+  const stats = await applyNameCategoryImport({
+    client,
+    plan: {
+      updates: [
+        { current: { id: "existing-card" }, card: validateCard(row("a")) }
+      ],
+      inserts: [validateCard(row("b"))]
+    },
+    announcements: true,
+    fetchImage: async () => image(),
+    log: silent,
+    sleep: async () => {}
+  });
+  assert.deepEqual(stats, { updated: 1, inserted: 1, skipped: 0 });
+  assert.equal(new Set(calls.map(c => c.p_import_id)).size, 1);
+  assert.deepEqual(calls.map(c => c.name).sort(), [
+    "finish_catalogue_discord_import",
+    "import_catalogue_cards_announced",
+    "update_catalogue_card_announced"
+  ]);
+  assert.equal(calls.at(-1).name, "finish_catalogue_discord_import");
+});
 
 test("CSV streaming : BOM, accents, virgules, guillemets, multiligne et en-tête invalide", async () => {
   const dir = await mkdtemp(join(tmpdir(), "yokkai-csv-"));

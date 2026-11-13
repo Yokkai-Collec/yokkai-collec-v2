@@ -1,5 +1,7 @@
 // Exact overloads and roles only. Every addition requires an access justification.
 export const ownerOnly = [
+  "public.queue_card_rarity_announcement()", // Trigger-only catalogue snapshots; never an API entry point.
+  "public.dispatch_card_rarity_announcements()", // Operator cron only, private player-server Discord destination.
   "public.build_data_export_without_twitter_reward(uuid, uuid)", // Existing reservation-gated export; only the owning wrapper adds the caller's Twitter visit receipt.
   "public.build_data_export_without_discord_reward(uuid, uuid)", // Existing reservation-gated export builder; only the owning wrapper adds the caller's Discord receipt.
   "public.anticheat_deleted_account_snapshot_trigger()", // Trigger-only identity/transfer snapshot, private 90-day identity retention. Walid approved.
@@ -91,6 +93,14 @@ export const serverOnly = {
 };
 
 const allowlist = {
+  "public.update_catalogue_card_announced(uuid, jsonb, uuid)": [
+    "authenticated"
+  ], // Admin-only name/category import update with the same existing-card field whitelist and grouped announcement.
+  "public.get_catalogue_import_summary(uuid)": ["anon", "authenticated"], // Public catalogue licence/count summary of a completed announcement only; no source CSV, author, private config or player data.
+  "public.import_catalogue_cards_announced(jsonb, uuid, boolean)": [
+    "authenticated"
+  ], // Existing catalogue import restricted to admins or trusted operators; protected AniList imports remain service-only.
+  "public.finish_catalogue_discord_import(uuid)": ["authenticated"], // Admin/operator-only finalisation of catalogue announcements, no webhook access or player data.
   "public.claim_catalogue_achievement(text)": ["authenticated"], // Own completed extended tier; delegates legacy claims without changing their locks.
   "public.get_achievement_catalogue()": ["authenticated"], // New own catalogue reader; the legacy eleven-achievement reader remains unchanged.
   "public.get_missions()": ["authenticated"], // Own fixed missions; settles only the caller's earned historical milestones.

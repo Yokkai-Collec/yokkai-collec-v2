@@ -1,4 +1,13 @@
 {
+  "public.catalogue_discord_imports": {
+    "excluded": "Global catalogue import grouping identifiers and completion dates; no player records."
+  },
+  "public.card_rarity_discord_config": {
+    "excluded": "Private global Discord webhook configuration; no player records."
+  },
+  "public.card_rarity_discord_outbox": {
+    "excluded": "Global catalogue rarity announcements and delivery state; no player records."
+  },
   "public.twitter_reward_claims": {
     "sections": ["twitter_reward"],
     "note": "Own one-time profile visit reward date only. No Twitter account identifier, OAuth token or follow information is collected."
