@@ -2534,7 +2534,7 @@
     "collectionRank": "Rang n° {position, number} parmi {count, number} collectionneurs",
     "referralRank": "Rang n° {position, number} parmi {count, number} parrains publics",
     "rank": "Rang {position, number}",
-    "collectionResults": "{scope, select, search {{count, plural, one {# joueur trouvé} other {# joueurs trouvés}} pour « {query} »} friends {{count, plural, one {# collectionneur} other {# collectionneurs}} parmi tes amis} other {{count, plural, one {# collectionneur} other {# collectionneurs}} dans le top 100}}",
+    "collectionResults": "{scope, select, search {{count, plural, one {# joueur trouvé} other {# joueurs trouvés}} pour « {query} »} friends {{count, plural, one {# collectionneur} other {# collectionneurs}} parmi tes amis} other {{count, plural, one {# joueur classé} other {# joueurs classés}}}}",
     "referralResults": "{count, plural, one {# parrain} other {# parrains}}{scope, select, search { pour « {query} »} friends { parmi tes amis} other { dans le top 100}}",
     "page": "Page {page, number} sur {total, number}",
     "variants": "{count, plural, one {# variante} other {# variantes}}",
