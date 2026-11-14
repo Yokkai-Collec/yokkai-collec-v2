@@ -13,7 +13,7 @@ import { cardRarityLabel } from "@/lib/ui/card-rarity-label";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useProAccess, ProFeatureNotice } from "@/components/pro-access";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type {
   Card,
   CardFilter,
@@ -42,7 +42,8 @@ import { CatalogueCardModal } from "@/components/catalogue-card-modal";
 import {
   BINDER_CARD_PAGE_SIZES,
   CARD_PAGE_SIZES,
-  DEFAULT_CARD_PAGE_SIZE
+  DEFAULT_CARD_PAGE_SIZE,
+  pageSizeForCollectionHeight
 } from "@/lib/ui/pagination";
 import {
   COLLECTION_SORTS,
@@ -352,7 +353,15 @@ export function CollectionView({
   const [duplicatesOnly, setDuplicatesOnly] = useState(false);
   const [page, setPage] = useState(1);
   const [sort, setSort] = useCollectionSort();
+  // The Collection grows its page in complete rows so the cards fill the
+  // height of the visible filter panel on each screen.
   const [pageSize, setPageSize] = useState<number>(DEFAULT_CARD_PAGE_SIZE);
+  const [laptopPagination, setLaptopPagination] = useState(false);
+  const [manualPageSize, setManualPageSize] = useState<number>(
+    DEFAULT_CARD_PAGE_SIZE
+  );
+  const sidebarRef = useRef<HTMLElement>(null);
+  const cardsGridRef = useRef<HTMLUListElement>(null);
   const [folderName, setFolderName] = useState("");
   const [showFolderCreator, setShowFolderCreator] = useState(false);
   const [folderBusy, setFolderBusy] = useState(false);
@@ -551,6 +560,55 @@ export function CollectionView({
   const shownGroups = remote ? remoteGroups : groups;
   const matchingGroups = remote ? (remote.page?.total ?? 0) : groups.length;
   const ownedCopies = remote ? (remote.counts?.copies ?? 0) : cards.length;
+
+  // Measure actual rendered cards instead of guessing from a breakpoint. It
+  // keeps six columns, but adds complete rows until the grid reaches the end
+  // of the filter panel. This only applies to the laptop layout; wider
+  // desktops retain their existing page density. ResizeObserver also reacts
+  // to Windows display scaling.
+  useEffect(() => {
+    if (viewMode === "panini") return;
+    const laptopLayout = window.matchMedia(
+      "(min-width: 1024px) and (max-width: 1600px) and (hover: hover) and (pointer: fine)"
+    );
+    const sidebar = sidebarRef.current;
+    const grid = cardsGridRef.current;
+
+    const updatePageSize = () => {
+      setLaptopPagination(laptopLayout.matches);
+      if (!laptopLayout.matches) {
+        setPageSize(manualPageSize);
+        return;
+      }
+      const firstCard = grid?.querySelector<HTMLElement>(":scope > li");
+      if (!sidebar || !grid || !firstCard) return;
+      const styles = window.getComputedStyle(grid);
+      const columnCount = styles.gridTemplateColumns
+        .split(" ")
+        .filter(Boolean).length;
+      const rowGap = Number.parseFloat(styles.rowGap) || 0;
+      const rowHeight = firstCard.offsetHeight + rowGap;
+      const nextPageSize = pageSizeForCollectionHeight(
+        sidebar.offsetHeight,
+        rowHeight,
+        columnCount
+      );
+      setPageSize(current =>
+        current === nextPageSize ? current : nextPageSize
+      );
+    };
+
+    const observer = new ResizeObserver(updatePageSize);
+    if (sidebar) observer.observe(sidebar);
+    if (grid) observer.observe(grid);
+    const frame = window.requestAnimationFrame(updatePageSize);
+    laptopLayout.addEventListener("change", updatePageSize);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      observer.disconnect();
+      laptopLayout.removeEventListener("change", updatePageSize);
+    };
+  }, [matchingGroups, viewMode, manualPageSize]);
   // A new server-side search must not briefly render the preceding result set.
   // For the client fallback, retain its previous behaviour: cards already
   // available remain visible while a refresh is in progress.
@@ -745,7 +803,7 @@ export function CollectionView({
   const pageCount = Math.max(1, Math.ceil(matchingGroups / pageSize));
   const activePage = Math.min(page, pageCount);
   const visibleGroups = remote
-    ? shownGroups
+    ? shownGroups.slice(0, pageSize)
     : groups.slice((activePage - 1) * pageSize, activePage * pageSize);
   const selectedCards = sourceCards.filter(
     c =>
@@ -1589,6 +1647,7 @@ export function CollectionView({
           <div className="yk-collection-layout">
             <aside
               id="collection-filters"
+              ref={sidebarRef}
               className={`yk-collection-sidebar ${filtersOpen ? "yk-sidebar-open" : ""}`}
               aria-label={tc("collectionFilters")}
             >
@@ -2161,6 +2220,7 @@ export function CollectionView({
                 <ul
                   id="collection-cards-list"
                   tabIndex={0}
+                  ref={cardsGridRef}
                   className={`yk-card-grid yk-collection-grid`}
                   aria-label={tc("ownedCardGroups")}
                 >
@@ -2273,22 +2333,31 @@ export function CollectionView({
                     onPageChange={setPage}
                     scrollTargetId="collection-cards-list"
                   />
-                  <label>
-                    {tc("cardsPerPage")}
-                    <select
-                      value={pageSize}
-                      onChange={event => {
-                        setPageSize(Number(event.target.value));
-                        setPage(1);
-                      }}
-                    >
-                      {CARD_PAGE_SIZES.map(size => (
-                        <option key={size} value={size}>
-                          {size}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                  {laptopPagination ? (
+                    <span className="yk-collection-page-size">
+                      {tc("cardsPerPage")}
+                      <output>{Math.min(pageSize, matchingGroups)}</output>
+                    </span>
+                  ) : (
+                    <label>
+                      {tc("cardsPerPage")}
+                      <select
+                        value={manualPageSize}
+                        onChange={event => {
+                          const size = Number(event.target.value);
+                          setManualPageSize(size);
+                          setPageSize(size);
+                          setPage(1);
+                        }}
+                      >
+                        {CARD_PAGE_SIZES.map(size => (
+                          <option key={size} value={size}>
+                            {size}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
                 </div>
               )}
               {selecting && (

@@ -35,6 +35,8 @@ export type AppNotification = {
   missionMetric?: string;
   missionTarget?: number;
   missionPeriod?: "daily" | "weekly";
+  missionPoints?: number;
+  missionReward?: number;
   postOwnerId?: string;
   postId?: string;
   replyId?: string;

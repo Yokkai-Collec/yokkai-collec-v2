@@ -125,9 +125,12 @@ export function useNotificationFeed(
   const markAllRead = useCallback(() => {
     const now = new Date().toISOString();
     setNotifications(current =>
-      current?.map(item => ({ ...item, readAt: item.readAt ?? now }))
+      current?.map(item =>
+        item.type === "mission_completed" || item.readAt
+          ? item
+          : { ...item, readAt: now }
+      )
     );
-    setProgressUnread(0);
     if (inFlight.current) eventRefreshPending.current = true;
     else void refresh();
   }, [refresh]);

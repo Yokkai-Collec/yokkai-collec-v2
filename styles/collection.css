@@ -713,7 +713,7 @@
   min-height: calc(var(--spacing) * 14);
   margin-top: calc(var(--spacing) * 5);
 }
-.yk-collection-pagination > label {
+.yk-collection-pagination > :is(label, .yk-collection-page-size) {
   position: static;
   display: flex;
   align-items: center;
@@ -722,13 +722,17 @@
   font-size: var(--text-xs);
   white-space: nowrap;
 }
-.yk-collection-pagination select {
+.yk-collection-pagination :is(select, output) {
   border: 1px solid var(--color-veil);
   border-radius: var(--radius-input);
   background: var(--color-night);
   padding: calc(var(--spacing) * 2);
   color: var(--color-ink-2);
   opacity: 1;
+}
+.yk-collection-pagination output {
+  min-width: calc(var(--spacing) * 11);
+  text-align: center;
 }
 .yk-selection-bar {
   position: sticky;
@@ -1577,7 +1581,7 @@
     flex-direction: column;
     gap: calc(var(--spacing) * 3);
   }
-  .yk-collection-pagination > label {
+  .yk-collection-pagination > :is(label, .yk-collection-page-size) {
     position: static;
   }
   .yk-detail-grid {
