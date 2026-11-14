@@ -1,4 +1,5 @@
 import { intl, gameMessages, loadLocaleModule } from "./helpers/i18n.mjs";
+import { wallMentions } from "./helpers/wall-mentions.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -11,6 +12,7 @@ import ts from "typescript";
 const require = createRequire(import.meta.url);
 const testModule = { exports: {} };
 const mocks = {
+  "@/components/wall-mentions": wallMentions,
   "@/components/player-moderation": { PlayerModeration: () => null },
   "@/components/wall-post-interactions": { WallPostInteractions: () => null },
   "@/components/ui": {

@@ -42,6 +42,12 @@ test("license folders validate membership, preserve copies, export own data and 
       [owner, cards[0]]
     )
   ).rows[0].id;
+  const catalogueArt = "https://example.test/card.png";
+  const customGif = "https://i.imgur.com/folder-newest.gif";
+  await db.query(
+    "insert into public.user_cards(user_id,card_id,rarity,date_obtention,custom_image_url) values ($1,$3,'SR','2026-11-02T12:00:00Z',$5), ($1,$3,'SR','2026-11-01T12:00:00Z','https://i.imgur.com/folder-older.png'), ($2,$3,'SR','2026-11-03T12:00:00Z','https://i.imgur.com/viewer-copy.png'), ($2,$4,'SR','2026-11-03T12:00:00Z','https://i.imgur.com/viewer-only.png')",
+    [owner, visitor, cards[0], cards[1], customGif]
+  );
   const as = async (user, sql, args = []) => {
     await db.exec("set role authenticated");
     await db.query("select set_config('request.jwt.claim.sub',$1,false)", [
@@ -78,6 +84,7 @@ test("license folders validate membership, preserve copies, export own data and 
   assert.equal((await read(owner, id)).items.length, 24);
   assert.equal((await read(owner, id, 24)).items.length, 3);
   assert.equal((await read(owner, id, 0, true)).items.length, 1);
+  assert.equal((await read(owner, id, 0, true)).items[0].image, customGif);
   const mixed = await save(owner, null, "Other", [cards[0], other]);
   assert.equal(
     (await read(owner, mixed)).total,
@@ -113,6 +120,16 @@ test("license folders validate membership, preserve copies, export own data and 
   assert.equal((await list(visitor))[0].name, "Akatsuki");
   assert.deepEqual((await list(visitor))[0].cardIds, []);
   assert.equal((await read(visitor, id)).total, 27);
+  const visitorPage = await read(visitor, id);
+  const [personalised, unowned] = cards
+    .slice(0, 2)
+    .map(cardId => visitorPage.items.find(item => item.id === cardId));
+  assert.equal(personalised.image, customGif);
+  assert.equal(personalised.customImageUrl, customGif);
+  assert.equal(personalised.catalogueImage, catalogueArt);
+  assert.equal(unowned.owned, false);
+  assert.equal(unowned.image, catalogueArt);
+  assert.equal(unowned.customImageUrl, null);
   await save(owner, id, "Akatsuki", cards, false);
   assert.deepEqual(await list(visitor), []);
   await assert.rejects(read(visitor, id), /LICENSE_FOLDER_NOT_FOUND/);
