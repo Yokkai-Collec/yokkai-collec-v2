@@ -1924,7 +1924,7 @@ test("le Decision Pack confirmé affiche une carte gardée et quatre perdues", (
   assert.doesNotMatch(html, />SSR ×(?:<!-- -->)?5</);
 });
 
-test("la collection pagine par multiples de 6 pour remplir la grille", () => {
+test("la collection commence avec six rangées et ajuste ensuite sa page à la hauteur des filtres", () => {
   const { CollectionView } = load("components/collection.tsx");
   const cards = Array.from({ length: 42 }, (_, i) => ({
     ...card,

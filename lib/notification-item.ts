@@ -8,6 +8,7 @@ export type NotificationItem = {
   time: string;
   read: boolean;
   progressCompletion?: boolean;
+  profileOnly?: boolean;
   href?: string;
   kind:
     | "wishlist"
@@ -187,9 +188,29 @@ export function notificationItem(
     };
   if (notification.type === "mission_completed") {
     const objectiveKey = `objectives.${notification.missionMetric}`;
+    if (
+      notification.missionReward != null &&
+      notification.missionPoints != null
+    )
+      return {
+        ...common,
+        profileOnly: true,
+        progressCompletion: true,
+        title: t(
+          notification.missionPeriod === "weekly"
+            ? "notificationWeeklyMissionRewardTitle"
+            : "notificationDailyMissionRewardTitle"
+        ),
+        text: t("notificationMissionRewardText", {
+          karaAmount: notification.missionReward,
+          points: notification.missionPoints
+        }),
+        href: "/achievements#missions",
+        kind: "mission"
+      };
     return {
       ...common,
-      progressCompletion: true,
+      profileOnly: true,
       title: t(
         notification.missionPeriod === "weekly"
           ? "notificationWeeklyMissionTitle"

@@ -51,11 +51,14 @@ export function MessengerSession({
     let previous = -1;
     const update = () => {
       frame = 0;
+      const layoutScale =
+        Number(getComputedStyle(document.documentElement).zoom) || 1;
       const clearance = Math.max(
         0,
         Math.ceil(
-          window.innerHeight -
-            (footer?.getBoundingClientRect().top ?? window.innerHeight)
+          (window.innerHeight -
+            (footer?.getBoundingClientRect().top ?? window.innerHeight)) /
+            layoutScale
         )
       );
       if (clearance !== previous) {

@@ -148,13 +148,14 @@ export function Topbar({
     secondaryReady && (!!socialUnread || !notifications)
   );
   const loaded = useNotificationItems(feed.notifications);
-  const shown = notifications ?? loaded;
+  const allNotifications = notifications ?? loaded;
+  const shown = allNotifications?.filter(n => !n.profileOnly);
   const visibleNotificationError = externalNotificationError ?? feed.error;
   const unread = shown?.filter(n => !n.read).length;
   const unreadProgress =
     progressUnread ??
     feed.progressUnread ??
-    shown?.filter(n => !n.read && n.progressCompletion).length ??
+    allNotifications?.filter(n => !n.read && n.progressCompletion).length ??
     0;
   const progressBadge = unreadProgress > 0 && (
     <span className="yk-progress-badge" aria-hidden="true">

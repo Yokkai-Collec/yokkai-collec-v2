@@ -15,18 +15,20 @@ export default async function MarketPreviewPage({
 }: {
   searchParams: Promise<{
     empty?: string;
+    full?: string;
     long?: string;
     history?: string;
     messenger?: string;
   }>;
 }) {
-  const { empty, long, history, messenger } = await searchParams;
+  const { empty, full, long, history, messenger } = await searchParams;
   return (
     <>
       <Topbar view="market" name="Kitsune" karas={4920} notifications={[]} />
       <main className="yk-card-browse-page mx-auto py-10">
         <MarketPreview
           empty={empty !== undefined}
+          full={full !== undefined}
           long={long !== undefined}
           history={history !== undefined}
           pageHeading={
