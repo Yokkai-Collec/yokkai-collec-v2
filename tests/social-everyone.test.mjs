@@ -375,41 +375,53 @@ test("private composer explains privacy and never inserts a private publication 
     }
     let stateSlot = 0;
     const composerWalls = [];
-    const { SocialComposer } = load("components/social-composer.tsx", {
-      react: {
-        ...React,
-        useEffect: () => {},
-        useState: initial => [
-          stateSlot++ === 0
-            ? true
-            : stateSlot === 2
-              ? { id: "me", pseudo: "Me", isPublic }
-              : initial,
-          () => {}
-        ]
-      },
-      "@/components/social-feed-provider": {
-        useSocialFeeds: () => ({
-          friends: { published: () => {} },
-          public: { published: p => view.published.push(p) }
-        })
-      },
-      "@/lib/data/profile": {},
-      "@/components/ui": {
-        Button: ({ children }) => React.createElement("button", null, children),
-        Modal: ({ children, keepMounted }) => {
-          assert.equal(keepMounted, true);
-          return children;
+    const body = {};
+    const { SocialComposer } = load(
+      "components/social-composer.tsx",
+      {
+        "react-dom": {
+          createPortal: (child, target) => {
+            assert.equal(target, body);
+            return child;
+          }
         },
-        Skeleton: () => null
-      },
-      "@/components/profile-wall": {
-        ProfileWall: props => {
-          composerWalls.push(props);
-          return null;
+        react: {
+          ...React,
+          useEffect: () => {},
+          useState: initial => [
+            stateSlot++ === 0
+              ? true
+              : stateSlot === 2
+                ? { id: "me", pseudo: "Me", isPublic }
+                : initial,
+            () => {}
+          ]
+        },
+        "@/components/social-feed-provider": {
+          useSocialFeeds: () => ({
+            friends: { published: () => {} },
+            public: { published: p => view.published.push(p) }
+          })
+        },
+        "@/lib/data/profile": {},
+        "@/components/ui": {
+          Button: ({ children }) =>
+            React.createElement("button", null, children),
+          Modal: ({ children, keepMounted }) => {
+            assert.equal(keepMounted, true);
+            return children;
+          },
+          Skeleton: () => null
+        },
+        "@/components/profile-wall": {
+          ProfileWall: props => {
+            composerWalls.push(props);
+            return null;
+          }
         }
-      }
-    });
+      },
+      { document: { body } }
+    );
     const composerHtml = renderToStaticMarkup(
       React.createElement(SocialComposer)
     );
