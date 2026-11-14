@@ -27,6 +27,8 @@ const codes = new Map<string, string>(
     CARD_NOT_OWNED: "cardErrors.cardNotOwned",
     CARD_FROZEN: "cardErrors.cardFrozen",
     CARD_LOCKED: "cardErrors.cardLocked",
+    LOCK_SELECTION_CARD_AT_AUCTION:
+      "collectionUi.couldntLockSelectionAtAuction",
     INVALID_CARD_SELECTION: "cardErrors.invalidCardSelection",
     LICENSE_FOLDER_NAME_TAKEN: "licenseFolders.nameTaken",
     LICENSE_FOLDER_NAME_INVALID: "licenseFolders.invalidName",
@@ -71,6 +73,7 @@ Choose up to 12 licenses per category.	profileUi.licenseLimitHint
 Collection unavailable.	profileUi.collectionUnavailable
 Couldn't cancel this listing.	profileUi.couldntCancelThisListing
 Couldn't change this card's lock.	collectionUi.couldntChangeThisCardsLock
+Couldn't lock the selected cards. Please try again.	collectionUi.couldntLockSelectedCards
 Couldn't complete this action.	catalogueUi.couldntCompleteThisAction
 Couldn't confirm this choice.	packs.couldntConfirmThisChoice
 Couldn't create this auction.	collectionUi.couldntCreateThisAuction
@@ -105,6 +108,7 @@ Couldn't move the selected cards.	collectionUi.couldntMoveTheSelectedCards
 Couldn't open this pack.	gameUi.couldntOpenThisPack
 Couldn't place this bid.	profileUi.couldntPlaceThisBid
 Couldn't publish your post. Your draft has been kept.	profileUi.publishFailedDraftKept
+Couldn't confirm publication. Your draft has been kept. Try again.	profileUi.publishUnconfirmedDraftKept
 Couldn't reach game data. Please try again in a moment.	cardErrors.couldntReachGameDataPleaseTryAgainIn
 Couldn't reach the market. Please try again.	profileUi.marketUnreachable
 Couldn't reach the server. Check your connection and try again.	profileUi.serverUnreachable

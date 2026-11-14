@@ -7,7 +7,7 @@ const other = "e180de97-1832-4d2e-8a65-5b8ba1455a02";
 const launch = "2026-11-09T19:00:00Z";
 const tomorrow = "2026-11-10T19:00:00Z";
 
-test("mission and achievement completions notify their player once and clear independently", async t => {
+test("missions notify only when a Kara milestone can be claimed and clear independently", async t => {
   const { db } = await replayMigrations();
   t.after(() => db.close());
   const value = async (sql, params = []) =>
@@ -26,6 +26,14 @@ test("mission and achievement completions notify their player once and clear ind
   const notes = () => as(player, "select public.list_notifications(50) value");
   const feed = () =>
     as(player, "select public.list_notifications(1,true) value");
+  const missionNotesFor = user =>
+    value(
+      `select coalesce(jsonb_agg(jsonb_build_object(
+         'id', n.id, 'referenceId', n.reference_id, 'createdAt', n.created_at
+       ) || public.progress_notification_details(n)), '[]') value
+       from public.notifications n where n.user_id=$1 and n.type='mission_completed'`,
+      [user]
+    );
   const advance = (amount, stamp) =>
     db.query(
       "select public.advance_player_progress($1,'regular_packs_opened',$2,$3)",
@@ -39,26 +47,32 @@ test("mission and achievement completions notify their player once and clear ind
   );
   await advance(4, launch);
   assert.equal((await notes()).length, 0);
+  await advance(1, launch);
+  assert.equal((await missionNotesFor(player)).length, 0);
   await advance(12, launch);
   await advance(1, launch);
   await advance(5, tomorrow);
-  const missionNotes = (await notes()).filter(
-    n => n.type === "mission_completed"
-  );
+  const missionNotes = await missionNotesFor(player);
   assert.deepEqual(
-    missionNotes.map(n => n.missionTarget).sort((a, b) => a - b),
-    [5, 5, 15]
+    missionNotes.map(n => [n.missionPoints, n.missionReward]),
+    [[20, 15]]
   );
-  assert.equal(new Set(missionNotes.map(n => n.referenceId)).size, 3);
+  assert.equal(new Set(missionNotes.map(n => n.referenceId)).size, 1);
   assert.ok(missionNotes.every(n => n.missionPeriod === "daily"));
   await db.query(
-    "select public.advance_player_progress($1,'regular_packs_opened',100,$2)",
+    "select public.advance_player_progress($1,'regular_packs_opened',250,$2)",
     [other, launch]
   );
-  assert.ok(
-    (await as(other, "select public.list_notifications(50) value")).some(
-      n => n.missionPeriod === "weekly" && n.missionTarget === 100
-    )
+  const otherMissionNotes = await missionNotesFor(other);
+  assert.deepEqual(
+    otherMissionNotes
+      .map(n => [n.missionPeriod, n.missionPoints, n.missionReward])
+      .sort((a, b) => a[0].localeCompare(b[0]) || a[1] - b[1]),
+    [
+      ["daily", 20, 15],
+      ["daily", 50, 25],
+      ["weekly", 20, 50]
+    ]
   );
 
   // The legacy and extended rules see the same pack stats.
@@ -89,7 +103,8 @@ test("mission and achievement completions notify their player once and clear ind
     all.filter(n => n.type === "achievement_completed").length,
     legacy.length
   );
-  assert.equal(latest.progressUnread, all.length);
+  assert.equal(latest.progressUnread, all.length + missionNotes.length);
+  assert.ok(all.every(n => n.type !== "mission_completed"));
   assert.equal((await feed()).progressUnread, latest.progressUnread);
   assert.equal(
     await value(
@@ -99,16 +114,33 @@ test("mission and achievement completions notify their player once and clear ind
     0
   );
 
-  for (const note of [achievement, missionNotes[0]]) {
-    const delivered = await as(
+  const delivered = await as(
+    "",
+    "select public.get_push_notification($1,$2) value",
+    "service_role",
+    [achievement.id, achievement.createdAt]
+  );
+  assert.equal(delivered.userId, player);
+  assert.deepEqual(delivered.notification, achievement);
+
+  assert.equal(
+    await as(
       "",
       "select public.get_push_notification($1,$2) value",
       "service_role",
-      [note.id, note.createdAt]
-    );
-    assert.equal(delivered.userId, player);
-    assert.deepEqual(delivered.notification, note);
-  }
+      [missionNotes[0].id, missionNotes[0].createdAt]
+    ),
+    null
+  );
+  await as(player, "select public.mark_notification_read() value");
+  assert.equal((await feed()).progressUnread, 1);
+  await as(
+    player,
+    "select public.claim_mission_milestone('daily',$1,20) value",
+    "authenticated",
+    [launch]
+  );
+  assert.equal((await feed()).progressUnread, 0);
 
   await db.query(
     "insert into public.notifications(user_id,type,reference_id) values($1,'friend_request',$2)",
@@ -123,8 +155,7 @@ test("mission and achievement completions notify their player once and clear ind
     ["friend_request"]
   );
   assert.ok(
-    (await as(other, "select public.list_notifications(50) value")).some(
-      n => !n.readAt
-    )
+    (await as(other, "select public.list_notifications(50,true) value"))
+      .progressUnread >= 3
   );
 });

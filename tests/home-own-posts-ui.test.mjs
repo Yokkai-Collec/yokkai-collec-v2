@@ -1,3 +1,4 @@
+import { wallMentions } from "./helpers/wall-mentions.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -126,6 +127,7 @@ test("the shared composer notifies Home only after confirmed publication, keepin
       return runtime[name](type, props, key);
     };
     const { ProfileWall } = load("components/profile-wall.tsx", {
+      "@/components/wall-mentions": wallMentions,
       "@/components/player-moderation": { PlayerModeration: () => null },
       react: {
         ...React,
@@ -149,7 +151,10 @@ test("the shared composer notifies Home only after confirmed publication, keepin
         WallPostInteractions: () => null
       },
       "@/components/styled-player-name": { StyledPlayerName: () => null },
-      "@/lib/data/profile-wall": { liveWall: {} }
+      "@/lib/data/profile-wall": {
+        liveWall: {},
+        wallRequestId: () => "00000000-0000-4000-8000-000000000001"
+      }
     });
     renderToStaticMarkup(
       React.createElement(ProfileWall, {

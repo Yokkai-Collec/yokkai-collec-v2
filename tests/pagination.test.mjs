@@ -12,7 +12,14 @@ vm.runInNewContext(
   }).outputText,
   { exports }
 );
-const { resolvePage, changePage } = exports;
+const { pageSizeForCollectionHeight, resolvePage, changePage } = exports;
+
+test("collection pages add whole six-card rows to reach the filter height", () => {
+  assert.equal(pageSizeForCollectionHeight(700, 200, 6), 36);
+  assert.equal(pageSizeForCollectionHeight(1_210, 200, 6), 42);
+  assert.equal(pageSizeForCollectionHeight(1_600, 200, 6), 48);
+  assert.equal(pageSizeForCollectionHeight(1_210, 200, 5), 40);
+});
 
 test("page entry accepts integers, clamps bounds and restores invalid entries", () => {
   for (const value of ["", "  ", "abc", "2.5", "1e2", "NaN", "Infinity", "50x"])

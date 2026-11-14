@@ -2,7 +2,6 @@
 export const ownerOnly = [
   "public.queue_card_rarity_announcement()", // Trigger-only catalogue snapshots; never an API entry point.
   "public.dispatch_card_rarity_announcements()", // Operator cron only, private player-server Discord destination.
-  "public.build_data_export_without_player_titles(uuid, uuid)", // Internal reservation-gated export; only its owning wrapper can add the player's titles.
   "public.build_data_export_without_twitter_reward(uuid, uuid)", // Existing reservation-gated export; only the owning wrapper adds the caller's Twitter visit receipt.
   "public.build_data_export_without_discord_reward(uuid, uuid)", // Existing reservation-gated export builder; only the owning wrapper adds the caller's Discord receipt.
   "public.anticheat_deleted_account_snapshot_trigger()", // Trigger-only identity/transfer snapshot, private 90-day identity retention. Walid approved.
@@ -68,6 +67,7 @@ export const ownerOnly = [
   "public.guard_wall_media_binding()",
   "public.build_data_export_without_reply_media(uuid, uuid)",
   "public.notify_wall_post_reply()",
+  "public.notify_wall_mentions()", // Wall write trigger; checks recipient access before emitting notification.
   "public.cleanup_wall_reply_notifications()",
   "public.prepare_account_deletion_without_billing(uuid)",
   "public.build_data_export_without_wall_interactions(uuid, uuid)",
@@ -263,6 +263,7 @@ const allowlist = {
     "authenticated"
   ], // Active caller, same visible parent post/comment, own media, bounded rate and idempotent UUID. Walid approved.
   "public.publish_wall_post_reply(uuid, uuid, text)": ["authenticated"], // Own bounded text reply, idempotent UUID, serialized rate limit, same post ACL.
+  "public.find_wall_mention_players(text[], boolean)": ["authenticated"], // Bounded pseudonym search and resolution, active accounts and bilateral blocks.
   "public.delete_wall_post_reply(uuid, uuid)": ["authenticated"], // Only auth.uid()'s own reply on an accessible post.
   "public.get_friend_wall_feed(timestamp with time zone, uuid, integer)": [
     "authenticated"
@@ -398,6 +399,7 @@ const allowlist = {
   "public.mark_notification_read(uuid)": ["authenticated"], // Player marks only their own notification.
   "public.mark_offline()": ["authenticated"], // Updates the current player's presence.
   "public.move_card_to_folder(uuid, uuid)": ["authenticated"], // Moves an owned card to an owned folder.
+  "public.lock_collection_cards(uuid[])": ["authenticated"], // Atomically locks the current player's selected cards that are not at auction.
   "public.move_cards_to_folder(uuid[], uuid)": ["authenticated"], // Atomically moves the current player's selected cards to an owned folder.
   "public.open_decision_pack()": ["authenticated"], // Opens the current player's available decision pack.
   "public.open_regular_pack()": ["authenticated"], // Opens the current player's available regular pack.

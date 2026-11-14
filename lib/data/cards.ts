@@ -688,6 +688,14 @@ export async function setCollectionCardLocked(instanceId: string, locked: boolea
   invalidatePlayerSnapshots(["collection"]);
 }
 
+export async function lockCollectionCards(instanceIds: string[]): Promise<void> {
+  const { error } = await db().rpc("lock_collection_cards", { p_card_instance_ids: instanceIds });
+  if (error?.message === "LOCK_SELECTION_CARD_AT_AUCTION")
+    throw new Error(error.message);
+  if (error) throw failure(error);
+  invalidatePlayerSnapshots(["collection"]);
+}
+
 // Custom art is saved by the server route only: it checks the file weight
 // (8 MB max) before saving, and players cannot call the SQL function directly.
 async function saveCustomImage(instanceId: string, imageUrl: string | null) {

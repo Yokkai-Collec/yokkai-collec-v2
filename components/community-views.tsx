@@ -65,6 +65,7 @@ import {
   type AuctionData,
   type AuctionDetail
 } from "@/lib/data/market";
+import { localMarketFixture } from "@/lib/data/local-market-fixture";
 import { subscribePlayerSnapshotInvalidation } from "@/lib/data/player-state";
 import { TradesPanel } from "@/components/trades";
 import { type ModerationAdapter } from "@/lib/data/moderation";
@@ -1734,8 +1735,18 @@ export function AuctionView({
               {auction.status && <AuctionStatus status={auction.status} />}
             </div>
             <h2 className="mt-2 font-display">{auction.card.name}</h2>
-            <p className="yk-auction-seller mt-2 text-sm text-ink-2">
-              {franchise ? `${franchise} · ` : ""}
+            <p className="yk-auction-seller mt-2 flex-wrap text-sm text-ink-2">
+              {franchise && (
+                <>
+                  <Link
+                    href={`/catalog?q=${encodeURIComponent(franchise)}`}
+                    className="min-w-0 break-words underline underline-offset-4 hover:text-accent-gold"
+                  >
+                    {franchise}
+                  </Link>
+                  <span aria-hidden="true">·</span>
+                </>
+              )}
               {t("profileUi.listedBy")}{" "}
               <Avatar
                 name={auction.seller}
@@ -2078,18 +2089,26 @@ export function SearchView(
 function SearchViewFromUrl(props: Parameters<typeof SearchView>[0]) {
   const params = useSearchParams();
   const category = params.get("category") ?? "";
+  const query = params.get("q") ?? "";
   return (
-    <SearchViewContent key={category} {...props} initialCategory={category} />
+    <SearchViewContent
+      key={JSON.stringify([category, query])}
+      {...props}
+      initialCategory={category}
+      initialQuery={query}
+    />
   );
 }
 
 function SearchViewContent({
   loadPage = getCataloguePage,
   initialCategory = "",
+  initialQuery = "",
   previewCategories,
   pageHeading
 }: {
   initialCategory?: string;
+  initialQuery?: string;
   loadPage?: typeof getCataloguePage;
   previewCategories?: string[];
   pageHeading?: ReactNode;
@@ -2109,7 +2128,7 @@ function SearchViewContent({
   const [categories, setCategories] = useState<string[]>(
     previewCategories ?? []
   );
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
   const [category, setCategory] = useState<string[]>(
     initialCategory ? [initialCategory] : []
   );
@@ -2547,12 +2566,10 @@ export function WishlistView({
         ),
     [cards, query, rarity, category, sort]
   );
-  const filtered = !!(
-    query ||
-    rarity.length ||
-    category.length ||
-    sort !== "recent"
+  const hasCardFilters = Boolean(
+    query.trim() || rarity.length || category.length
   );
+  const filtered = Boolean(query) || hasCardFilters || sort !== "recent";
   async function remove(id: string) {
     try {
       await (onRemove ? onRemove(id) : liveToggleWishlist(id));
@@ -2699,24 +2716,35 @@ export function WishlistView({
         </div>
       ) : (
         <section className="yk-catalogue">
-          <div className="yk-catalogue-heading">
-            <div>
-              <p role="status" className="font-display text-xl">
-                {format.number(filteredCards.length)}{" "}
-                {filteredCards.length === 1
-                  ? tv("countPluralOneCardOtherCards", {
-                      count: filteredCards.length
-                    })
-                  : tv("countPluralOneCardOtherCards", {
-                      count: filteredCards.length
-                    })}
-              </p>
-              <p className="mt-1 text-xs text-ink-3">
-                {filtered
-                  ? tv("resultsMatchingYourFilters")
-                  : tv("allCardsOnYourWishlist")}
-              </p>
-            </div>
+          <div className="yk-catalogue-heading yk-wishlist-results-heading">
+            {hasCardFilters && (
+              <div role="status">
+                <p className="font-display text-xl">
+                  {format.number(filteredCards.length)}{" "}
+                  {tv("countPluralOneCardOtherCards", {
+                    count: filteredCards.length
+                  })}
+                </p>
+                <p className="mt-1 text-xs text-ink-3">
+                  {tv("resultsMatchingYourFilters")}
+                </p>
+              </div>
+            )}
+            {!hasCardFilters && (
+              <div className="yk-wishlist-default-results">
+                <p role="status" className="font-display text-xl">
+                  {format.number(filteredCards.length)}{" "}
+                  {tv("countPluralOneCardOtherCards", {
+                    count: filteredCards.length
+                  })}
+                </p>
+                <p className="mt-1 text-xs text-ink-3">
+                  {filtered
+                    ? tv("resultsMatchingYourFilters")
+                    : tv("allCardsOnYourWishlist")}
+                </p>
+              </div>
+            )}
             <button
               type="button"
               className="yk-mobile-filter-trigger"
@@ -2747,7 +2775,7 @@ export function WishlistView({
               onClick={() => setFiltersOpen(false)}
             />
           )}
-          <div className="yk-collection-layout">
+          <div className="yk-collection-layout yk-wishlist-layout">
             <aside
               id="wishlist-filters"
               className={`yk-collection-sidebar ${filtersOpen ? "yk-sidebar-open" : ""}`}
@@ -2763,7 +2791,7 @@ export function WishlistView({
                   ×
                 </button>
               </div>
-              {filters}
+              <div className="yk-catalogue-filter-content">{filters}</div>
             </aside>
             <div className="yk-collection-main">
               {filteredCards.length ? (
@@ -3067,7 +3095,34 @@ export function CommunityView({
       try {
         const page = await browseAuctions(marketQuery, marketLimit);
         if (!active) return;
-        const next = page.items;
+        // A fresh local database is normally empty. Populate only the local
+        // development view so the real Market route remains reviewable; live
+        // environments always preserve the server response and empty state.
+        const useLocalFixture =
+          process.env.NODE_ENV !== "production" &&
+          marketQuery.section === "active" &&
+          page.items.length === 0;
+        const next = useLocalFixture
+          ? localMarketFixture(marketQuery)
+          : page.items;
+        const resolvedPage = useLocalFixture
+          ? {
+              ...page,
+              items: next,
+              hasMore: false,
+              counts: {
+                mine: 0,
+                won: 0,
+                sold: 0,
+                ...page.counts,
+                active: next.length,
+                activeSales: 0
+              },
+              categories: [
+                ...new Set(next.map(auction => auction.card.category))
+              ].sort()
+            }
+          : page;
         const scopes = auctionReconciliationScopes(
           marketRef.current ?? [],
           next,
@@ -3076,7 +3131,7 @@ export function CommunityView({
         marketRef.current = next;
         if (scopes.length) invalidatePlayerSnapshots(scopes);
         setMarket(next);
-        setMarketPage(page);
+        setMarketPage(resolvedPage);
         setError("");
       } catch (e) {
         if (active)
@@ -3171,6 +3226,17 @@ export function CommunityView({
     receiveAuction(await getAuction(auctionId));
   }
   async function watchFromMarket(id: string) {
+    if (
+      process.env.NODE_ENV !== "production" &&
+      id.startsWith("local-market-demo-")
+    ) {
+      setMarket(current =>
+        current?.map(item =>
+          item.id === id ? { ...item, watched: !item.watched } : item
+        )
+      );
+      return;
+    }
     try {
       const watched = await toggleWatch(id);
       setMarket(current =>

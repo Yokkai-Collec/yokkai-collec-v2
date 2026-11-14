@@ -796,7 +796,14 @@ test("la destruction multiple est active et transmet tous les exemplaires sélec
   );
   assert.match(
     normalizeWhitespace(controls),
-    normalizeWhitespace(/busy\?tu\("destroying"\):tu\("destroySelected"\)/)
+    normalizeWhitespace(
+      /destroying\?tu\("destroying"\):tu\("destroySelected"\)/
+    )
+  );
+  assert.match(normalizeWhitespace(controls), /destroying=busy/);
+  assert.match(
+    normalizeWhitespace(collection),
+    normalizeWhitespace(/busy=\{bulkBusy\}destroying=\{bulkDiscardBusy\}/)
   );
   assert.doesNotMatch(
     normalizeWhitespace(collection),
@@ -1924,7 +1931,7 @@ test("le Decision Pack confirmé affiche une carte gardée et quatre perdues", (
   assert.doesNotMatch(html, />SSR ×(?:<!-- -->)?5</);
 });
 
-test("la collection pagine par multiples de 6 pour remplir la grille", () => {
+test("la collection commence avec six rangées et ajuste ensuite sa page à la hauteur des filtres", () => {
   const { CollectionView } = load("components/collection.tsx");
   const cards = Array.from({ length: 42 }, (_, i) => ({
     ...card,

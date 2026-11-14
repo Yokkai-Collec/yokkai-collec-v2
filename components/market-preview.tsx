@@ -83,18 +83,23 @@ const endedAt = (index: number) =>
 export function MarketPreview({
   empty = false,
   long = false,
+  full = false,
   history = false,
   pageHeading
 }: {
   pageHeading?: ReactNode;
   empty?: boolean;
   long?: boolean;
+  /** Local design preview: render enough auctions to inspect a filled grid. */
+  full?: boolean;
   // No live auction left: My auctions must open on the history.
   history?: boolean;
 }) {
   const previewActive = long
     ? [{ ...active[0], amount: 2_147_483_647 }, ...active.slice(1)]
-    : active.slice(0, 12);
+    : full
+      ? active
+      : active.slice(0, 12);
   const [watched, setWatched] = useState(
     () => new Set(active.filter(a => a.wishlist).map(a => a.id))
   );

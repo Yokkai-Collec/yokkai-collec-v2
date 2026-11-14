@@ -1591,6 +1591,17 @@
     margin-top: 0;
   }
 }
+@media (1024px <= width <= 1600px) and (hover: hover) and (pointer: fine) {
+  .yk-wishlist-results-heading:has(.yk-wishlist-default-results) {
+    display: none;
+  }
+  .yk-wishlist-layout .yk-catalogue-filter-content {
+    display: flow-root;
+  }
+  .yk-wishlist-layout .yk-catalogue-filter-content .yk-filter-section-content {
+    row-gap: calc(var(--spacing) * 1.25);
+  }
+}
 @media (max-width: 760px) {
   .yk-catalogue-title {
     margin-bottom: calc(var(--spacing) * 4);
@@ -1715,6 +1726,16 @@
   padding: 0;
   background: transparent;
   box-shadow: none;
+}
+@media (pointer: coarse) {
+  .yk-modal.yk-social-compose-modal,
+  .yk-modal.yk-social-compose-modal::backdrop {
+    animation: none;
+  }
+
+  .yk-modal.yk-social-compose-modal::backdrop {
+    backdrop-filter: none;
+  }
 }
 @media (min-width: 1024px) {
   .yk-social-shell {
