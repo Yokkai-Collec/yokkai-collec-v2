@@ -5,7 +5,7 @@ import { replayMigrations } from "../scripts/replay-migrations.mjs";
 
 test("launch titles are granted to profiles created before the migration", async t => {
   const directory = new URL("../supabase/migrations/", import.meta.url);
-  const titleMigration = "20261113120000_player_titles.sql";
+  const titleMigration = "20261115102000_player_titles.sql";
   const migrations = readdirSync(directory)
     .filter(name => name.endsWith(".sql") && name < titleMigration)
     .sort();
