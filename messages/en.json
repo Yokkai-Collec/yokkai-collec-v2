@@ -1,4 +1,19 @@
 {
+  "playerTitles": {
+    "names": {
+      "collector": "Collector",
+      "reseller": "Reseller",
+      "explorer": "Explorer"
+    },
+    "label": "Player title",
+    "newTitles": "{count, plural, one {# new title} other {# new titles}}",
+    "viewNewTitles": "View new titles",
+    "seenFailed": "Couldn't mark your new titles as seen. Please try again.",
+    "saving": "Saving title…",
+    "saved": "Title updated.",
+    "notUnlocked": "You have not unlocked this title.",
+    "saveFailed": "Couldn't update your title. Please try again."
+  },
   "discordReward": {
     "discordLabel": "Discord",
     "twitterLabel": "Twitter",

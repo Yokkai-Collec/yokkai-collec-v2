@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ProfileExperience, type ProfileAdapter } from "@/components/profile";
 import { Topbar } from "@/components/topbar";
 import { getPaniniAlbumsPage, type CollectedCard } from "@/lib/data/cards";
-import type { ProfileDetails, ProfileInterests } from "@/lib/data/profile";
+import type {
+  Profile,
+  ProfileDetails,
+  ProfileInterests
+} from "@/lib/data/profile";
 import { PROFILE_IMAGE_MAX_BYTES } from "@/lib/data/profile";
 import type { ProfileEngagement } from "@/lib/data/profile";
 import { showcaseSelection, type ProfileStyle } from "@/lib/ui/profile-style";
@@ -112,6 +116,12 @@ const licenses: Record<string, string[]> = {
 
 export function ProfilePreview() {
   const params = useSearchParams();
+  const [titleNoticeSeen, setTitleNoticeSeen] = useState(false);
+  const [equippedTitleId, setEquippedTitleId] = useState("collector");
+  const savedAppearance = useRef<Pick<
+    Profile,
+    "bio" | "avatarUrl" | "bannerCard" | "featuredCards"
+  > | null>(null);
   const visitor = params.get("visitor") === "1";
   const privateProfile = params.get("private") === "1";
   const hiddenCollection =
@@ -162,6 +172,14 @@ export function ProfilePreview() {
       { id: "friend-3", pseudo: "Rin" }
     ];
     const profile = () => ({
+      titleId: equippedTitleId,
+      unlockedTitleIds: visitor
+        ? undefined
+        : ["collector", "reseller", "explorer"],
+      unseenTitleIds:
+        !visitor && params.get("newTitle") === "1" && !titleNoticeSeen
+          ? ["reseller", "explorer"]
+          : [],
       id: "preview",
       pseudo: "Toba",
       avatarUrl: "/assets/landing/gojou.webp",
@@ -181,7 +199,8 @@ export function ProfilePreview() {
       friendsVisible: !hiddenCollection,
       friends: hiddenCollection ? [] : friends,
       cardCount: hiddenCollection ? null : 2578,
-      distinctCardCount: hiddenCollection ? null : 1342
+      distinctCardCount: hiddenCollection ? null : 1342,
+      ...savedAppearance.current
     });
     const upload = async (file: File) => {
       if (
@@ -196,6 +215,9 @@ export function ProfilePreview() {
       return url;
     };
     return {
+      markTitlesSeen: async () => {
+        setTitleNoticeSeen(true);
+      },
       previewWidgets,
       discovery: {
         get: async (id, offset = 0, limit = 12) => {
@@ -497,16 +519,27 @@ export function ProfilePreview() {
         ids,
         bannerCardId,
         bannerUrl,
-        bannerFrame
-      ) => ({
-        ...profile(),
-        bio,
-        avatarUrl,
-        bannerUrl,
         bannerFrame,
-        bannerCard: collection.find(card => card.id === bannerCardId) ?? null,
-        featuredCards: showcaseSelection(owned, new Set(ids))
-      }),
+        titleId
+      ) => {
+        savedAppearance.current = {
+          bio,
+          avatarUrl,
+          bannerCard: collection.find(card => card.id === bannerCardId) ?? null,
+          featuredCards: showcaseSelection(owned, new Set(ids))
+        };
+        if (titleId !== undefined) setEquippedTitleId(titleId);
+        return {
+          ...profile(),
+          titleId: titleId ?? equippedTitleId,
+          bio,
+          avatarUrl,
+          bannerUrl,
+          bannerFrame,
+          bannerCard: collection.find(card => card.id === bannerCardId) ?? null,
+          featuredCards: showcaseSelection(owned, new Set(ids))
+        };
+      },
       details: async () =>
         ({
           joinedAt: "2025-11-21T10:00:00Z",
@@ -569,11 +602,24 @@ export function ProfilePreview() {
     emptyFavorites,
     showcaseDemo,
     owned,
-    params
+    params,
+    titleNoticeSeen,
+    equippedTitleId
   ]);
   return (
     <>
-      <Topbar view="profile" name="Toba" karas={2578} notifications={[]} />
+      <Topbar
+        view="profile"
+        name="Toba"
+        karas={2578}
+        notifications={[]}
+        unseenTitleCount={
+          !visitor && params.get("newTitle") === "1" && !titleNoticeSeen ? 2 : 0
+        }
+        progressUnread={params.get("progress") === "1" ? 2 : 0}
+        playerTitleId={equippedTitleId}
+        profileHref="/design-system/profile-preview?newTitle=1"
+      />
       <main className="mx-auto w-full max-w-6xl px-6 py-10">
         <p className="eyebrow">Aperçu local · données de démonstration</p>
         <h1 className="yk-title mt-3">Profil du collectionneur</h1>

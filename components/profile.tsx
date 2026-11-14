@@ -29,6 +29,7 @@ import { BannerImage } from "@/components/banner-image";
 import { ProfileStyleFields } from "@/components/profile-style-fields";
 import { AvatarDecoration } from "@/components/avatar-decoration";
 import { StyledPlayerName } from "@/components/styled-player-name";
+import { PlayerTitle, NewTitlesBadge } from "@/components/player-title";
 import {
   DEFAULT_PROFILE_STYLE,
   PROFILE_CARD_IMAGE_SIZES,
@@ -533,6 +534,7 @@ function FriendWishlist({
 }
 
 export type ProfileAdapter = {
+  markTitlesSeen?: typeof import("@/lib/data/profile").markPlayerTitlesSeen;
   messages?: import("@/lib/data/private-messages").PrivateMessagesAdapter;
   trades?: import("@/components/trades").TradesPanelAdapter;
   discovery?: CatalogueCardAdapter;
@@ -1054,7 +1056,7 @@ export function ProfileExperience({
                 <AvatarDecoration frame={activeStyle?.avatarFrame ?? "none"} />
               </div>
               <span className="yk-profile-identity-label">
-                {t("profileUi.collectorLabel")}
+                <PlayerTitle titleId={profile.titleId} />
               </span>
               <div className="yk-profile-name-row">
                 <h2>
@@ -1094,6 +1096,9 @@ export function ProfileExperience({
                       }}
                     >
                       {t("profileUi.editProfile")}{" "}
+                      <NewTitlesBadge
+                        count={profile.unseenTitleIds?.length ?? 0}
+                      />
                     </Button>
                     <Button
                       variant="secondary"
@@ -1637,6 +1642,18 @@ export function ProfileExperience({
           />
         ) : isMe && collection && details ? (
           <Editor
+            onTitlesSeen={titleIds =>
+              setProfile(current =>
+                current
+                  ? {
+                      ...current,
+                      unseenTitleIds: current.unseenTitleIds?.filter(
+                        id => !titleIds.includes(id)
+                      )
+                    }
+                  : current
+              )
+            }
             key={editingMode}
             mode={editingMode === "showcase" ? "showcase" : "profile"}
             profile={profile}
@@ -1653,7 +1670,7 @@ export function ProfileExperience({
             adapter={adapter}
             onClose={() => setEditing(false)}
             onSaved={p => {
-              setProfile(p);
+              setProfile(current => ({ ...current, ...p }));
               setSavedBannerUrl(p.bannerUrl);
               setSavedBannerFrame(p.bannerFrame ?? null);
               setToast(

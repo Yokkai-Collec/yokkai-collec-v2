@@ -626,6 +626,21 @@
   color: var(--color-ink);
   font-weight: 700;
 }
+.yk-auction-chat-list .yk-auction-player-title {
+  display: block;
+  margin-top: 2px;
+  color: var(--color-accent-gold);
+  font-size: 10px;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+.yk-auction-chat-list p > a {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.yk-auction-chat-list time {
+  flex-shrink: 0;
+}
 .yk-auction-chat-list time {
   color: var(--color-ink-3);
   font-size: 10px;

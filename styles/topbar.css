@@ -389,6 +389,11 @@
   font-size: 12px;
   font-weight: 600;
 }
+.yk-account-summary .yk-account-title-line {
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: anywhere;
+}
 .yk-account-karas {
   display: none;
 }
@@ -416,6 +421,10 @@
 .yk-account-action svg {
   flex: 0 0 auto;
   transition: filter 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.yk-account-title-notice {
+  margin-inline-start: auto;
+  flex: none;
 }
 .yk-account-action:hover,
 .yk-account-action:focus-visible {

@@ -33,6 +33,7 @@ import { useBoostersLoadPriority } from "@/components/boosters-load-priority";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import { ProPromotion } from "@/components/pro-promotion";
 import { getProfile } from "@/lib/data/profile";
+import { PlayerTitle, NewTitlesBadge } from "@/components/player-title";
 import { subscribePlayerSnapshotInvalidation } from "@/lib/data/player-state";
 
 const notificationStyle = {
@@ -96,6 +97,9 @@ export function Topbar({
   onRetryInfo,
   notifications,
   progressUnread,
+  unseenTitleCount: providedUnseenTitleCount,
+  playerTitleId,
+  profileHref = "/profile",
   socialUnread,
   notificationError: externalNotificationError,
   onRetryNotifications,
@@ -127,6 +131,9 @@ export function Topbar({
   onRetryInfo?: () => void;
   notifications?: NotificationItem[];
   progressUnread?: number | null;
+  unseenTitleCount?: number;
+  playerTitleId?: string;
+  profileHref?: string;
   socialUnread?: SocialUnreadAdapter;
   notificationError?: string;
   onRetryNotifications?: () => void;
@@ -135,6 +142,7 @@ export function Topbar({
   onOpenNotification?: (id: string, href: string) => Promise<void>;
 }) {
   const t = useTranslations("topbar");
+  const tTitles = useTranslations("playerTitles");
   const sound = useSfx();
   const secondaryReady = useBoostersLoadPriority() >= 2;
   const isAdmin = useIsAdmin(secondaryReady);
@@ -142,6 +150,9 @@ export function Topbar({
   const [mobileMenu, setMobileMenu] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string>();
   const [profileName, setProfileName] = useState<string>();
+  const [titleId, setTitleId] = useState("collector");
+  const [unseenTitleCount, setUnseenTitleCount] = useState(0);
+  const newTitleCount = providedUnseenTitleCount ?? unseenTitleCount;
   const feed = useNotificationFeed(!notifications && secondaryReady);
   const social = useSocialUnread(
     socialUnread,
@@ -164,6 +175,9 @@ export function Topbar({
   );
   const progressDescriptionId =
     unreadProgress > 0 ? "account-progress" : undefined;
+  const titleDescriptionId =
+    newTitleCount > 0 ? "account-new-titles" : undefined;
+  const accountUnread = unreadProgress + newTitleCount;
   const name = providedName || profileName;
   useEffect(() => {
     let active = true;
@@ -174,6 +188,8 @@ export function Topbar({
           if (active) {
             setAvatarUrl(profile.avatarUrl ?? undefined);
             setProfileName(profile.pseudo);
+            setTitleId(profile.titleId ?? "collector");
+            setUnseenTitleCount(profile.unseenTitleIds?.length ?? 0);
           }
         },
         () => undefined
@@ -540,7 +556,11 @@ export function Topbar({
             <button
               type="button"
               aria-label={t("openMyAccount")}
-              aria-describedby={progressDescriptionId}
+              aria-describedby={
+                [progressDescriptionId, titleDescriptionId]
+                  .filter(Boolean)
+                  .join(" ") || undefined
+              }
               title={t("myAccount")}
               aria-expanded={panel === "account"}
               aria-controls="account-panel"
@@ -551,7 +571,11 @@ export function Topbar({
             >
               <span className="yk-account-avatar">
                 <Avatar name={name || "Account"} image={avatarUrl} />
-                {progressBadge}
+                {accountUnread > 0 && (
+                  <span className="yk-progress-badge" aria-hidden="true">
+                    {accountUnread > 99 ? "99+" : accountUnread}
+                  </span>
+                )}
               </span>
               <svg
                 aria-hidden="true"
@@ -568,6 +592,11 @@ export function Topbar({
             {progressDescriptionId && (
               <span id={progressDescriptionId} className="sr-only">
                 {t("unreadProgress", { count: unreadProgress })}
+              </span>
+            )}
+            {titleDescriptionId && (
+              <span id={titleDescriptionId} className="sr-only">
+                {tTitles("newTitles", { count: newTitleCount })}
               </span>
             )}
             {panel === "account" && (
@@ -596,8 +625,9 @@ export function Topbar({
                     />
                     <div>
                       <strong>{name || "Account"}</strong>
-                      <span>
-                        @{name || "account"} {t("collector")}
+                      <span className="yk-account-title-line">
+                        @{name || "account"} ·{" "}
+                        <PlayerTitle titleId={playerTitleId ?? titleId} />
                       </span>
                       {karas != null && (
                         <small className="yk-account-karas">
@@ -612,7 +642,7 @@ export function Topbar({
                     className="yk-account-actions"
                   >
                     <Link
-                      href="/profile"
+                      href={profileHref}
                       className="yk-account-action"
                       onClick={() => setPanel(null)}
                     >
@@ -629,6 +659,9 @@ export function Topbar({
                         <path d="M4 21a8 8 0 0 1 16 0" />
                       </svg>
                       {t("viewMyProfile")}
+                      <span className="yk-account-title-notice">
+                        <NewTitlesBadge count={newTitleCount} />
+                      </span>
                     </Link>
                     <Link
                       href="/settings"
