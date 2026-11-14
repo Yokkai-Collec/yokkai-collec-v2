@@ -565,6 +565,76 @@ test("collection card links preselect exactly the friend's instance and polling 
   );
 });
 
+test("inline removal edits both counteroffer lots without restoring removed copies on polling or changing Karas", async () => {
+  const card = instanceId => ({
+    id: "same-card",
+    instanceId,
+    name: "Same card",
+    rarity: "SSR",
+    obtainedAt: "2026-11-01T00:00:00Z"
+  });
+  const ownCards = [card("own-one"), card("own-two"), card("own-keep")];
+  const friendCards = [card("friend-one"), card("friend-keep")];
+  const incoming = {
+    ...offer(),
+    requestedCards: ownCards,
+    offeredCards: friendCards,
+    requestedKaras: 15,
+    offeredKaras: 40
+  };
+  let submitted;
+  const h = componentHarness(
+    adapter({
+      listOffers: async () => [incoming],
+      context: async () => ({
+        friend: { id: friend, pseudo: "Alias" },
+        balance: 100,
+        ownCards,
+        friendCards
+      }),
+      create: async input => {
+        submitted = input;
+        return "created";
+      }
+    }),
+    { fixedFriendId: friend, initialOfferId: "offer", pollIntervalMs: 100 }
+  );
+  await h.settle();
+  h.find("TradeReview").props.onCounter();
+  await h.settle();
+  const lots = () => h.all().filter(n => n.type?.name === "OfferCards");
+  lots()[0].props.onRemove(["own-one", "own-two"]);
+  lots()[1].props.onRemove(["friend-one"]);
+  await h.settle();
+  h.poll();
+  await h.settle();
+  assert.deepEqual(
+    Array.from(lots()[0].props.cards, c => c.instanceId),
+    ["own-keep"]
+  );
+  assert.deepEqual(
+    Array.from(lots()[1].props.cards, c => c.instanceId),
+    ["friend-keep"]
+  );
+  const send = h
+    .all()
+    .find(
+      n => n.type?.name === "Button" && n.props.children === "Send counteroffer"
+    );
+  await send.props.onClick();
+  await h.settle();
+  assert.deepEqual(Array.from(submitted.offeredCardIds), ["own-keep"]);
+  assert.deepEqual(Array.from(submitted.requestedCardIds), ["friend-keep"]);
+  assert.equal(submitted.offeredKaras, 15);
+  assert.equal(submitted.requestedKaras, 40);
+  assert.equal(submitted.parentOfferId, "offer");
+  assert.equal(
+    incoming.requestedCards.length,
+    3,
+    "the received offer snapshot stays intact"
+  );
+});
+
 test("prepared trade contexts are reused only for the selected friend and stale requests stay fenced", async () => {
   const { api } = apiHarness();
   const prepared = {

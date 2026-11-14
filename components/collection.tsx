@@ -2558,6 +2558,19 @@ export function CollectionView({
                 </div>
               )}
               <dl className="yk-detail-facts">
+                {selected.anime?.trim() && (
+                  <div>
+                    <dt>{tc("license")}</dt>
+                    <dd>
+                      <Link
+                        className="underline underline-offset-4 hover:text-ink"
+                        href={`/catalog?q=${encodeURIComponent(selected.anime.trim())}`}
+                      >
+                        {selected.anime.trim()}
+                      </Link>
+                    </dd>
+                  </div>
+                )}
                 <div>
                   <dt>{tc("category")}</dt>
                   <dd>

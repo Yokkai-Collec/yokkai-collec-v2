@@ -1731,8 +1731,18 @@ export function AuctionView({
               {auction.status && <AuctionStatus status={auction.status} />}
             </div>
             <h2 className="mt-2 font-display">{auction.card.name}</h2>
-            <p className="yk-auction-seller mt-2 text-sm text-ink-2">
-              {franchise ? `${franchise} · ` : ""}
+            <p className="yk-auction-seller mt-2 flex-wrap text-sm text-ink-2">
+              {franchise && (
+                <>
+                  <Link
+                    href={`/catalog?q=${encodeURIComponent(franchise)}`}
+                    className="min-w-0 break-words underline underline-offset-4 hover:text-accent-gold"
+                  >
+                    {franchise}
+                  </Link>
+                  <span aria-hidden="true">·</span>
+                </>
+              )}
               {t("profileUi.listedBy")}{" "}
               <Avatar
                 name={auction.seller}
@@ -2075,18 +2085,26 @@ export function SearchView(
 function SearchViewFromUrl(props: Parameters<typeof SearchView>[0]) {
   const params = useSearchParams();
   const category = params.get("category") ?? "";
+  const query = params.get("q") ?? "";
   return (
-    <SearchViewContent key={category} {...props} initialCategory={category} />
+    <SearchViewContent
+      key={JSON.stringify([category, query])}
+      {...props}
+      initialCategory={category}
+      initialQuery={query}
+    />
   );
 }
 
 function SearchViewContent({
   loadPage = getCataloguePage,
   initialCategory = "",
+  initialQuery = "",
   previewCategories,
   pageHeading
 }: {
   initialCategory?: string;
+  initialQuery?: string;
   loadPage?: typeof getCataloguePage;
   previewCategories?: string[];
   pageHeading?: ReactNode;
@@ -2106,7 +2124,7 @@ function SearchViewContent({
   const [categories, setCategories] = useState<string[]>(
     previewCategories ?? []
   );
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
   const [category, setCategory] = useState<string[]>(
     initialCategory ? [initialCategory] : []
   );

@@ -202,10 +202,15 @@ function CardPicker({
   );
 }
 
-function OfferCards({ cards }: { cards: CollectedCard[] }) {
+type OfferCardsProps = {
+  cards: CollectedCard[];
+  onRemove?: (instanceIds: string[]) => void;
+};
+function OfferCards({ cards, onRemove }: OfferCardsProps) {
+  if (onRemove) return <ReviewCards cards={cards} onRemove={onRemove} />;
   return <ReviewCards cards={cards} />;
 }
-function ReviewCards({ cards }: { cards: CollectedCard[] }) {
+function ReviewCards({ cards, onRemove }: OfferCardsProps) {
   const tPr4 = useTranslations();
   return cards.length ? (
     <div className="yk-trade-lot-grid">
@@ -220,7 +225,7 @@ function ReviewCards({ cards }: { cards: CollectedCard[] }) {
               className="yk-trade-card-row"
               data-rarity={card.rarity}
             >
-              <div className="yk-trade-card-art">
+              <div className="yk-trade-card-art" data-editable={!!onRemove}>
                 <YokaiCard
                   {...card}
                   image={card.customImageUrl ?? card.image}
@@ -229,6 +234,32 @@ function ReviewCards({ cards }: { cards: CollectedCard[] }) {
                   imageSizes="100vw"
                 />
                 {group.cards.length > 1 && <span>×{group.cards.length}</span>}
+                {onRemove && (
+                  <button
+                    type="button"
+                    className="yk-trade-remove-card"
+                    aria-label={tPr4("socialUi.removeTradeCard", {
+                      name: card.name,
+                      count: group.cards.length
+                    })}
+                    title={tPr4("socialUi.removeTradeCard", {
+                      name: card.name,
+                      count: group.cards.length
+                    })}
+                    onClick={() =>
+                      onRemove(group.cards.map(copy => copy.instanceId))
+                    }
+                  >
+                    <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                      <path
+                        d="m6 6 8 8M14 6l-8 8"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </button>
+                )}
               </div>
               <div className="yk-trade-card-info">
                 <span className={`yk-trade-rarity ${rarityText[card.rarity]}`}>
@@ -1519,6 +1550,11 @@ export function TradesPanel({
                         cards={context.ownCards.filter(card =>
                           offered.has(card.instanceId)
                         )}
+                        onRemove={instanceIds => {
+                          const next = new Set(offeredRef.current);
+                          instanceIds.forEach(id => next.delete(id));
+                          updateOffered(next);
+                        }}
                       />
                     </div>
                     <Button
@@ -1571,6 +1607,11 @@ export function TradesPanel({
                         cards={context.friendCards.filter(card =>
                           requested.has(card.instanceId)
                         )}
+                        onRemove={instanceIds => {
+                          const next = new Set(requestedRef.current);
+                          instanceIds.forEach(id => next.delete(id));
+                          updateRequested(next);
+                        }}
                       />
                     </div>
                     <Button
