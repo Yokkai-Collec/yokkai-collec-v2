@@ -19,7 +19,9 @@ export type KnownNotificationType =
   | "mission_completed"
   | "private_message_received"
   | "wall_post_reply"
-  | "wall_reply_received";
+  | "wall_reply_received"
+  | "wall_post_mention"
+  | "wall_reply_mention";
 export type AppNotification = {
   id: string;
   type: KnownNotificationType | (string & {});

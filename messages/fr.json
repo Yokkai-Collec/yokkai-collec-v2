@@ -1000,7 +1000,10 @@
     "notificationAchievementFallback": "un succès",
     "friends": "Amis",
     "notificationCommentReplyTitle": "Nouvelle réponse à ton commentaire",
-    "notificationCommentReplyText": "{actorPseudo} a répondu à ton commentaire."
+    "notificationCommentReplyText": "{actorPseudo} a répondu à ton commentaire.",
+    "notificationWallMentionTitle": "Nouvelle mention",
+    "notificationWallPostMentionText": "{actorPseudo} t’a mentionné dans une publication.",
+    "notificationWallReplyMentionText": "{actorPseudo} t’a mentionné dans une réponse."
   },
   "accountMenu": {
     "signIn": "Se connecter",
@@ -1639,6 +1642,7 @@
     "yourReply": "Ta réponse",
     "replyVisibilityHint": "Ta réponse sera visible par toutes les personnes qui peuvent voir cette publication.",
     "writeAReply": "Écris une réponse…",
+    "mentionSuggestions": "Joueurs à mentionner",
     "replyAttachmentPreview": "Aperçu de la pièce jointe à la réponse",
     "replyImage": "Image de la réponse",
     "oneImageOrGIFPerReplyUpTo": "Une image ou un GIF par réponse · Jusqu’à 6 Mo. La visibilité suit celle de la publication.",
@@ -2534,7 +2538,7 @@
     "collectionRank": "Rang n° {position, number} parmi {count, number} collectionneurs",
     "referralRank": "Rang n° {position, number} parmi {count, number} parrains publics",
     "rank": "Rang {position, number}",
-    "collectionResults": "{scope, select, search {{count, plural, one {# joueur trouvé} other {# joueurs trouvés}} pour « {query} »} friends {{count, plural, one {# collectionneur} other {# collectionneurs}} parmi tes amis} other {{count, plural, one {# collectionneur} other {# collectionneurs}} dans le top 100}}",
+    "collectionResults": "{scope, select, search {{count, plural, one {# joueur trouvé} other {# joueurs trouvés}} pour « {query} »} friends {{count, plural, one {# collectionneur} other {# collectionneurs}} parmi tes amis} other {{count, plural, one {# joueur classé} other {# joueurs classés}}}}",
     "referralResults": "{count, plural, one {# parrain} other {# parrains}}{scope, select, search { pour « {query} »} friends { parmi tes amis} other { dans le top 100}}",
     "page": "Page {page, number} sur {total, number}",
     "variants": "{count, plural, one {# variante} other {# variantes}}",

@@ -1000,7 +1000,10 @@
     "notificationAchievementFallback": "an achievement",
     "friends": "Friends",
     "notificationCommentReplyTitle": "New reply to your comment",
-    "notificationCommentReplyText": "{actorPseudo} replied to your comment."
+    "notificationCommentReplyText": "{actorPseudo} replied to your comment.",
+    "notificationWallMentionTitle": "New mention",
+    "notificationWallPostMentionText": "{actorPseudo} mentioned you in a post.",
+    "notificationWallReplyMentionText": "{actorPseudo} mentioned you in a reply."
   },
   "accountMenu": {
     "signIn": "Sign in",
@@ -1639,6 +1642,7 @@
     "yourReply": "Your reply",
     "replyVisibilityHint": "Your reply will be visible to anyone who can see this post.",
     "writeAReply": "Write a reply…",
+    "mentionSuggestions": "Players to mention",
     "replyAttachmentPreview": "Reply attachment preview",
     "replyImage": "Reply image",
     "oneImageOrGIFPerReplyUpTo": "One image or GIF per reply · Up to 6 MB. Visibility follows the post.",
@@ -2534,7 +2538,7 @@
     "collectionRank": "Rank #{position, number} among {count, number} collectors",
     "referralRank": "Rank #{position, number} among {count, number} public referrers",
     "rank": "Rank {position, number}",
-    "collectionResults": "{scope, select, search {{count, plural, one {# player} other {# players}} found for “{query}”} friends {{count, plural, one {# collector} other {# collectors}} in your friends view} other {{count, plural, one {# collector} other {# collectors}} in the top 100}}",
+    "collectionResults": "{scope, select, search {{count, plural, one {# player} other {# players}} found for “{query}”} friends {{count, plural, one {# collector} other {# collectors}} in your friends view} other {{count, plural, one {# ranked player} other {# ranked players}}}}",
     "referralResults": "{count, plural, one {# referrer} other {# referrers}}{scope, select, search { found for “{query}”} friends { in your friends view} other { in the top 100}}",
     "page": "Page {page, number} of {total, number}",
     "variants": "{count, plural, one {# variant} other {# variants}}",

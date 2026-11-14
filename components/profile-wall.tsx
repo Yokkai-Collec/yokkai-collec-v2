@@ -10,6 +10,10 @@ import Link from "next/link";
 import { Avatar, Button, Modal, Toast } from "@/components/ui";
 import { GifPicker } from "@/components/gif-picker";
 import { WallPostInteractions } from "@/components/wall-post-interactions";
+import {
+  WallMentionText,
+  WallMentionTextarea
+} from "@/components/wall-mentions";
 import { PlayerModeration } from "@/components/player-moderation";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import {
@@ -85,6 +89,8 @@ export function ProfileWall({
   const uploaded = useRef<{ file: File; path: string } | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const deletedPost = useRef<string | null>(null);
+  const wall = useRef<HTMLElement>(null);
+  const focusedPost = useRef<string | null>(null);
   function finishDeletion() {
     if (deletedPost.current) {
       onDeleted?.(deletedPost.current);
@@ -137,6 +143,18 @@ export function ProfileWall({
       current = false;
     };
   }, [active, canRead, composerOnly, feedPost, ownerId, adapter, retry]);
+  useEffect(() => {
+    if (!active || loading || !posts.length || !wall.current) return;
+    const params = new URLSearchParams(window.location.search);
+    const target = params.get("post");
+    if (!target || target === focusedPost.current || params.has("reply"))
+      return;
+    const post = document.getElementById(`wall-post-${target}`);
+    if (!post || !wall.current.contains(post)) return;
+    focusedPost.current = target;
+    post.scrollIntoView({ block: "center" });
+    post.focus({ preventScroll: true });
+  }, [active, loading, posts]);
   async function discard(path: string) {
     try {
       await adapter.discard(path);
@@ -271,7 +289,7 @@ export function ProfileWall({
       </section>
     );
   return (
-    <section className="yk-profile-wall">
+    <section className="yk-profile-wall" ref={wall}>
       {!composerOnly && !feedPost && (
         <div className="yk-profile-section-heading">
           <div>
@@ -300,15 +318,15 @@ export function ProfileWall({
           <label htmlFor="wall-text" className="sr-only">
             {t("profileUi.yourPost")}{" "}
           </label>
-          <textarea
+          <WallMentionTextarea
             id="wall-text"
             className="auth-input"
             value={text}
             maxLength={3000}
             disabled={busy}
             placeholder={t("profileUi.postPlaceholder")}
-            onChange={event => {
-              setText(event.target.value);
+            onChange={value => {
+              setText(value);
               requestId.current = null;
             }}
           />
@@ -418,6 +436,8 @@ export function ProfileWall({
               className="yk-profile-surface yk-wall-post"
               key={post.id}
               data-wall-post={post.id}
+              id={`wall-post-${post.id}`}
+              tabIndex={-1}
             >
               <header>
                 <div className="yk-wall-author">
@@ -510,7 +530,11 @@ export function ProfileWall({
                   )}
                 </div>
               </header>
-              {post.text && <p className="yk-wall-text">{post.text}</p>}
+              {post.text && (
+                <p className="yk-wall-text">
+                  <WallMentionText text={post.text} />
+                </p>
+              )}
               {(post.mediaPath || post.hasMedia || post.gifUrl) && (
                 <button
                   type="button"

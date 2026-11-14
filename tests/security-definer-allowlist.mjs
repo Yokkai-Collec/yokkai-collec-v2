@@ -67,6 +67,7 @@ export const ownerOnly = [
   "public.guard_wall_media_binding()",
   "public.build_data_export_without_reply_media(uuid, uuid)",
   "public.notify_wall_post_reply()",
+  "public.notify_wall_mentions()", // Wall write trigger; checks recipient access before emitting notification.
   "public.cleanup_wall_reply_notifications()",
   "public.prepare_account_deletion_without_billing(uuid)",
   "public.build_data_export_without_wall_interactions(uuid, uuid)",
@@ -262,6 +263,7 @@ const allowlist = {
     "authenticated"
   ], // Active caller, same visible parent post/comment, own media, bounded rate and idempotent UUID. Walid approved.
   "public.publish_wall_post_reply(uuid, uuid, text)": ["authenticated"], // Own bounded text reply, idempotent UUID, serialized rate limit, same post ACL.
+  "public.find_wall_mention_players(text[], boolean)": ["authenticated"], // Bounded pseudonym search and resolution, active accounts and bilateral blocks.
   "public.delete_wall_post_reply(uuid, uuid)": ["authenticated"], // Only auth.uid()'s own reply on an accessible post.
   "public.get_friend_wall_feed(timestamp with time zone, uuid, integer)": [
     "authenticated"

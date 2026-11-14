@@ -40,6 +40,35 @@ export function notificationItem(
     time: time ?? new Date(notification.createdAt).toLocaleString("en-US"),
     read: !!notification.readAt
   };
+  if (
+    notification.type === "wall_post_mention" ||
+    notification.type === "wall_reply_mention"
+  ) {
+    const isReply = notification.type === "wall_reply_mention";
+    const query = new URLSearchParams({
+      tab: "wall",
+      post: notification.postId ?? ""
+    });
+    if (isReply && notification.replyId)
+      query.set("reply", notification.replyId);
+    return {
+      ...common,
+      title: t("notificationWallMentionTitle"),
+      text: t(
+        isReply
+          ? "notificationWallReplyMentionText"
+          : "notificationWallPostMentionText",
+        {
+          actorPseudo:
+            notification.actorPseudo ?? t("notificationFriendFallback")
+        }
+      ),
+      href: notification.postOwnerId
+        ? `/profile/${encodeURIComponent(notification.postOwnerId)}?${query}`
+        : "/social",
+      kind: "mention"
+    };
+  }
   if (notification.type === "wall_reply_received")
     return {
       ...common,

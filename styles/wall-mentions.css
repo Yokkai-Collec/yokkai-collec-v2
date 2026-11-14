@@ -1,0 +1,49 @@
+.yk-wall-mention {
+  color: #d8b4fe;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.yk-wall-mention:hover,
+.yk-wall-mention:focus-visible {
+  text-decoration: underline;
+}
+
+.yk-wall-mention-field {
+  position: relative;
+  min-width: 0;
+  width: 100%;
+}
+
+.yk-wall-mention-field textarea {
+  display: block;
+  width: 100%;
+}
+
+.yk-wall-mention-suggestions {
+  position: absolute;
+  z-index: 3;
+  inset-block-start: calc(100% + 0.25rem);
+  inset-inline-start: 0;
+  width: min(20rem, 100%);
+  max-height: 15rem;
+  overflow-y: auto;
+  border: 1px solid #364265;
+  border-radius: 0.75rem;
+  background: #0d1220;
+  box-shadow: 0 0.75rem 1.5rem #0008;
+  padding: 0.25rem;
+}
+
+.yk-wall-mention-suggestions [role="option"] {
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.45rem;
+  color: #d8b4fe;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.yk-wall-mention-suggestions
+  [role="option"]:is(:hover, [aria-selected="true"]) {
+  background: #24213b;
+}
