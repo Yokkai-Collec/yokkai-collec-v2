@@ -111,10 +111,12 @@ const spots = [
 function FirstLrCopyBadge({
   instanceId,
   copyInstanceIds,
+  shiny,
   source: override
 }: {
   instanceId?: string;
   copyInstanceIds?: readonly string[];
+  shiny: boolean;
   source?: FirstLrCopySource | null;
 }) {
   const t = useTranslations("collectionShared");
@@ -150,15 +152,31 @@ function FirstLrCopyBadge({
         : undefined
       : override;
   if (!source) return null;
+  const badgeImage = "/images/first-copy-shiny-pearl";
   return (
     <span
-      className="yk-card-copy-status yk-card-first-lr yk-card-badge"
+      className={`yk-card-copy-status yk-card-first-lr${shiny ? " yk-first-copy-shiny" : ""}`}
       title={t("firstLrBadge")}
       role="note"
       aria-label={t(source === "legacy" ? "firstLrLegacy" : "firstLrMint")}
       data-first-lr-copy={source}
     >
-      #1
+      <picture className="yk-first-copy-picture" aria-hidden="true">
+        <source
+          media="(prefers-reduced-motion: reduce)"
+          srcSet={`${badgeImage}-still.png`}
+        />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`${badgeImage}.webp`}
+          width={295}
+          height={225}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          draggable={false}
+        />
+      </picture>
     </span>
   );
 }
@@ -407,6 +425,7 @@ export function YokaiCard({
           <FirstLrCopyBadge
             instanceId={instanceId}
             copyInstanceIds={copyInstanceIds}
+            shiny={holo && !evolvedStyle}
             source={firstLrCopy}
           />
         )}
