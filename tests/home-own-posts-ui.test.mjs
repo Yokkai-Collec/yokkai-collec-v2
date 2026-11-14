@@ -1,3 +1,4 @@
+import { wallMentions } from "./helpers/wall-mentions.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -126,6 +127,7 @@ test("the shared composer notifies Home only after confirmed publication, keepin
       return runtime[name](type, props, key);
     };
     const { ProfileWall } = load("components/profile-wall.tsx", {
+      "@/components/wall-mentions": wallMentions,
       "@/components/player-moderation": { PlayerModeration: () => null },
       react: {
         ...React,

@@ -1,4 +1,5 @@
 import { intl, gameMessages, loadLocaleModule } from "./helpers/i18n.mjs";
+import { wallMentions } from "./helpers/wall-mentions.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -47,6 +48,7 @@ function render({
   let stateIndex = 0;
   const testModule = { exports: {} };
   const mocks = {
+    "@/components/wall-mentions": wallMentions,
     "@/components/player-moderation": {
       PlayerModeration: ({ contextId }) =>
         React.createElement("button", { "data-report-id": contextId }, "Report")

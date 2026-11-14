@@ -1,5 +1,6 @@
 import * as wallMediaCleanup from "../lib/server/wall-media-cleanup.mjs";
 import { intl, gameMessages, loadLocaleModule } from "./helpers/i18n.mjs";
+import { wallMentions } from "./helpers/wall-mentions.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -90,6 +91,7 @@ function interactions(read) {
   const { WallPostInteractions } = load(
     "components/wall-post-interactions.tsx",
     {
+      "@/components/wall-mentions": wallMentions,
       react: mockReact,
       "next/link": {
         __esModule: true,
@@ -207,6 +209,7 @@ test("API metadata controls owner moderation and stranger notice, with old paylo
     assert.doesNotMatch(html, /Your reply will be visible/);
   }
   const { ProfileWall } = load("components/profile-wall.tsx", {
+    "@/components/wall-mentions": wallMentions,
     "next/link": {
       __esModule: true,
       default: ({ children, ...props }) =>
