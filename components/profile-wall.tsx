@@ -18,6 +18,7 @@ import { PlayerModeration } from "@/components/player-moderation";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import {
   liveWall,
+  wallRequestId,
   type WallAdapter,
   type WallPage,
   type WallPost
@@ -200,8 +201,8 @@ export function ProfileWall({
     lock.current = true;
     setBusy(true);
     setError("");
-    requestId.current ??= crypto.randomUUID();
     try {
+      requestId.current ??= wallRequestId();
       if (file && uploaded.current?.file !== file)
         uploaded.current = { file, path: await adapter.upload(file, ownerId) };
       const post = await adapter.publish({

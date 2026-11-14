@@ -1532,6 +1532,7 @@
     "jpgpngwebPOrGIFUpTo6": "JPG, PNG, WebP ou GIF, jusqu’à 6 Mo.",
     "postAddedToYourWall": "Publication ajoutée à ton mur",
     "publishFailedDraftKept": "Impossible de publier. Ton brouillon a été conservé.",
+    "publishUnconfirmedDraftKept": "Impossible de confirmer la publication. Ton brouillon est conservé. Réessaie.",
     "postDeleted": "Publication supprimée",
     "couldntDeleteThisPost": "Impossible de supprimer cette publication.",
     "wallAccessChanged": "Le mur est indisponible ou ses droits d’accès ont changé. Réessaie.",
