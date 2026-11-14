@@ -63,6 +63,13 @@ test("LR evolution consumes only three identical owned copies and preserves vari
   };
   const evolve = ids =>
     db.query("select public.evolve_lr_card($1::uuid[]) value", [ids]);
+  const badges = async ids =>
+    (
+      await db.query(
+        "select public.get_first_lr_copy_badges($1::uuid[]) value",
+        [ids]
+      )
+    ).rows[0].value;
   const snapshot = async () =>
     JSON.stringify(
       (
@@ -132,6 +139,14 @@ test("LR evolution consumes only three identical owned copies and preserves vari
   assert.equal(result.isFirstOwner, false);
   assert.equal(result.customImageUrl, null);
   assert.equal(result.folderId, null);
+  assert.deepEqual(await badges([result.instanceId]), [
+    { instanceId: result.instanceId, source: "mint" }
+  ]);
+  assert.deepEqual(await badges([normal[0]]), [
+    { instanceId: normal[0], source: "mint" }
+  ]);
+  const unnumbered = (await evolve(normal.slice(9, 12))).rows[0].value;
+  assert.deepEqual(await badges([unnumbered.instanceId]), []);
   await assert.rejects(evolve(normal.slice(0, 3)), /INVALID_LR_COPIES/);
   await assert.rejects(
     evolve([result.instanceId, ...normal.slice(3, 5)]),
@@ -241,6 +256,41 @@ test("LR evolution consumes only three identical owned copies and preserves vari
       await db.exec("rollback");
     }
   }
+  const bothVariants = await card("lr-both-first-copies", "LR");
+  const classicFirst = (await copies(1, { cardId: bothVariants }))[0];
+  const shinyFirst = (
+    await copies(1, { cardId: bothVariants, shiny: true })
+  )[0];
+  const spare = await copies(2, { cardId: bothVariants });
+  await login(alice);
+  await db.exec("begin");
+  const shinyInfinity = (await evolve([spare[0], shinyFirst, spare[1]])).rows[0]
+    .value;
+  assert.equal(shinyInfinity.shiny, true);
+  assert.deepEqual(await badges([shinyInfinity.instanceId]), [
+    { instanceId: shinyInfinity.instanceId, source: "mint" }
+  ]);
+  assert.deepEqual(await badges([classicFirst]), [
+    { instanceId: classicFirst, source: "mint" }
+  ]);
+  await db.exec("rollback");
+  const joined = (await evolve([spare[0], shinyFirst, classicFirst])).rows[0]
+    .value;
+  assert.equal(joined.shiny, true);
+  assert.deepEqual(await badges([joined.instanceId]), [
+    { instanceId: joined.instanceId, source: "mint" }
+  ]);
+  await db.exec("reset role");
+  assert.equal(
+    (
+      await db.query(
+        "select count(*)::int n from public.first_lr_copies where evolved_instance_id=$1",
+        [joined.instanceId]
+      )
+    ).rows[0].n,
+    2,
+    "Both variant lineages point to the same Infinity"
+  );
   // A failure after consumption must roll back the three deletions as well.
   await db.exec(
     "create function public.reject_test_evolution() returns trigger language plpgsql as $$begin if new.is_evolved and new.rarity='LR' then raise exception 'TEST_INSERT_FAILURE'; end if; return new; end$$; create trigger reject_test_evolution before insert on public.user_cards for each row execute function public.reject_test_evolution()"

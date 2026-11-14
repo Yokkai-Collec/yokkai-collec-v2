@@ -300,6 +300,7 @@ export function BigPulls({ pulls }: { pulls: BigPull[] }) {
                     >
                       <YokaiCard
                         {...pull.card}
+                        instanceId={pull.instanceId}
                         animated={false}
                         imageSizes={GRID_CARD_IMAGE_SIZES}
                       />
