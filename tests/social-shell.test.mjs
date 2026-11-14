@@ -14,7 +14,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 const require = createRequire(import.meta.url);
-function load(file, mocks = {}) {
+function load(file, mocks = {}, globals = {}) {
   const exports = {};
   const code = ts.transpileModule(readFileSync(file, "utf8"), {
     compilerOptions: {
@@ -24,6 +24,7 @@ function load(file, mocks = {}) {
     }
   }).outputText;
   vm.runInNewContext(code, {
+    ...globals,
     exports,
     URLSearchParams,
     require: name =>
@@ -41,6 +42,55 @@ function load(file, mocks = {}) {
   });
   return exports;
 }
+
+test("Social composer stays outside the scroll-hiding sidebar and keeps a loaded draft mounted", () => {
+  const body = {};
+  const portals = [];
+  let open = false;
+  let viewer;
+  let stateIndex = 0;
+  const { SocialComposer } = load(
+    "components/social-composer.tsx",
+    {
+      react: {
+        useEffect: () => {},
+        useState: () => [[open], [viewer], [false]][stateIndex++]
+      },
+      "react-dom": {
+        createPortal: (child, target) => {
+          portals.push({ child, target });
+          return child;
+        }
+      },
+      "@/components/ui": {
+        Button: "button",
+        Modal: "dialog",
+        Skeleton: "div"
+      },
+      "@/components/profile-wall": { ProfileWall: "section" },
+      "@/components/social-feed-provider": { useSocialFeeds: () => ({}) },
+      "@/lib/data/profile": {}
+    },
+    { document: { body } }
+  );
+  const render = () => {
+    stateIndex = 0;
+    SocialComposer();
+  };
+
+  render();
+  assert.equal(portals.length, 0);
+  open = true;
+  render();
+  assert.equal(portals[0].target, body);
+  assert.equal(portals[0].child.props.open, true);
+  viewer = { id: "viewer", pseudo: "Raven" };
+  open = false;
+  render();
+  assert.equal(portals[1].target, body);
+  assert.equal(portals[1].child.props.open, false);
+  assert.equal(portals[1].child.props.keepMounted, true);
+});
 
 test("Social tab navigation preserves the shared tree while boosters and standalone pages keep their reset boundaries", () => {
   let pathname = "/social";

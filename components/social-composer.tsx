@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { Button, Modal, Skeleton } from "@/components/ui";
 import { ProfileWall } from "@/components/profile-wall";
@@ -45,45 +46,50 @@ export function SocialComposer() {
           +
         </span>
       </Button>
-      <Modal
-        open={open}
-        onClose={() => setOpen(false)}
-        title={t("profileUi.yourPost")}
-        keepMounted
-        className="yk-social-compose-modal"
-      >
-        {error && <p role="alert">{t("socialUi.feedProfileFailed")}</p>}
-        {!viewer && !error && (
-          <Skeleton label={t("packs.loading")} className="h-48 w-full" />
+      {/* Keep the dialog outside the sidebar's mobile transform and pointer rules. */}
+      {(open || viewer) &&
+        createPortal(
+          <Modal
+            open={open}
+            onClose={() => setOpen(false)}
+            title={t("profileUi.yourPost")}
+            keepMounted
+            className="yk-social-compose-modal"
+          >
+            {error && <p role="alert">{t("socialUi.feedProfileFailed")}</p>}
+            {!viewer && !error && (
+              <Skeleton label={t("packs.loading")} className="h-48 w-full" />
+            )}
+            {viewer && (
+              <ProfileWall
+                ownerId={viewer.id}
+                pseudo={viewer.pseudo}
+                avatarUrl={viewer.avatarUrl}
+                isMe
+                isPublic={viewer.isPublic}
+                canRead
+                active={open}
+                composerOnly
+                onPublished={post => {
+                  const item = {
+                    ...post,
+                    hasMedia: !!post.mediaPath,
+                    author: {
+                      id: viewer.id,
+                      name: viewer.pseudo,
+                      avatarUrl: viewer.avatarUrl,
+                      profileStyle: viewer.profileStyle
+                    }
+                  };
+                  feeds.friends.published(item);
+                  if (viewer.isPublic) feeds.public.published(item);
+                  setOpen(false);
+                }}
+              />
+            )}
+          </Modal>,
+          document.body
         )}
-        {viewer && (
-          <ProfileWall
-            ownerId={viewer.id}
-            pseudo={viewer.pseudo}
-            avatarUrl={viewer.avatarUrl}
-            isMe
-            isPublic={viewer.isPublic}
-            canRead
-            active={open}
-            composerOnly
-            onPublished={post => {
-              const item = {
-                ...post,
-                hasMedia: !!post.mediaPath,
-                author: {
-                  id: viewer.id,
-                  name: viewer.pseudo,
-                  avatarUrl: viewer.avatarUrl,
-                  profileStyle: viewer.profileStyle
-                }
-              };
-              feeds.friends.published(item);
-              if (viewer.isPublic) feeds.public.published(item);
-              setOpen(false);
-            }}
-          />
-        )}
-      </Modal>
     </>
   );
 }
