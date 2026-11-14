@@ -15,6 +15,10 @@ import {
 import { Avatar, Button, Modal } from "@/components/ui";
 import { EmojiReactionPicker } from "@/components/emoji-reaction-picker";
 import { GifPicker } from "@/components/gif-picker";
+import {
+  WallMentionText,
+  WallMentionTextarea
+} from "@/components/wall-mentions";
 import { PlayerModeration } from "@/components/player-moderation";
 import { reactionEmoji } from "@/lib/ui/reaction-emojis";
 import {
@@ -345,15 +349,15 @@ export function WallPostInteractions({
       {activity?.publicReplyNotice && (
         <p className="yk-post-status">{t("profileUi.replyVisibilityHint")} </p>
       )}
-      <textarea
+      <WallMentionTextarea
         id={fieldId}
         className="auth-input"
         placeholder={t("profileUi.writeAReply")}
         maxLength={1000}
         value={text}
         disabled={busy}
-        onChange={event => {
-          setText(event.target.value);
+        onChange={value => {
+          setText(value);
           replyId.current = null;
         }}
       />
@@ -552,7 +556,11 @@ export function WallPostInteractions({
                         : t("profileUi.replyParentUnavailable")}
                     </p>
                   )}
-                  {reply.text && <p>{reply.text}</p>}
+                  {reply.text && (
+                    <p>
+                      <WallMentionText text={reply.text} />
+                    </p>
+                  )}
                   {(reply.hasMedia || reply.gifUrl) && (
                     <img
                       className="yk-reply-media"

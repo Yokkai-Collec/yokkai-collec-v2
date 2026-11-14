@@ -1000,7 +1000,10 @@
     "notificationAchievementFallback": "an achievement",
     "friends": "Friends",
     "notificationCommentReplyTitle": "New reply to your comment",
-    "notificationCommentReplyText": "{actorPseudo} replied to your comment."
+    "notificationCommentReplyText": "{actorPseudo} replied to your comment.",
+    "notificationWallMentionTitle": "New mention",
+    "notificationWallPostMentionText": "{actorPseudo} mentioned you in a post.",
+    "notificationWallReplyMentionText": "{actorPseudo} mentioned you in a reply."
   },
   "accountMenu": {
     "signIn": "Sign in",
@@ -1639,6 +1642,7 @@
     "yourReply": "Your reply",
     "replyVisibilityHint": "Your reply will be visible to anyone who can see this post.",
     "writeAReply": "Write a reply…",
+    "mentionSuggestions": "Players to mention",
     "replyAttachmentPreview": "Reply attachment preview",
     "replyImage": "Reply image",
     "oneImageOrGIFPerReplyUpTo": "One image or GIF per reply · Up to 6 MB. Visibility follows the post.",

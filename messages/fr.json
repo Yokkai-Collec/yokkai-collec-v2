@@ -1000,7 +1000,10 @@
     "notificationAchievementFallback": "un succès",
     "friends": "Amis",
     "notificationCommentReplyTitle": "Nouvelle réponse à ton commentaire",
-    "notificationCommentReplyText": "{actorPseudo} a répondu à ton commentaire."
+    "notificationCommentReplyText": "{actorPseudo} a répondu à ton commentaire.",
+    "notificationWallMentionTitle": "Nouvelle mention",
+    "notificationWallPostMentionText": "{actorPseudo} t’a mentionné dans une publication.",
+    "notificationWallReplyMentionText": "{actorPseudo} t’a mentionné dans une réponse."
   },
   "accountMenu": {
     "signIn": "Se connecter",
@@ -1639,6 +1642,7 @@
     "yourReply": "Ta réponse",
     "replyVisibilityHint": "Ta réponse sera visible par toutes les personnes qui peuvent voir cette publication.",
     "writeAReply": "Écris une réponse…",
+    "mentionSuggestions": "Joueurs à mentionner",
     "replyAttachmentPreview": "Aperçu de la pièce jointe à la réponse",
     "replyImage": "Image de la réponse",
     "oneImageOrGIFPerReplyUpTo": "Une image ou un GIF par réponse · Jusqu’à 6 Mo. La visibilité suit celle de la publication.",
