@@ -3089,6 +3089,9 @@ export function CommunityView({
               items: next,
               hasMore: false,
               counts: {
+                mine: 0,
+                won: 0,
+                sold: 0,
                 ...page.counts,
                 active: next.length,
                 activeSales: 0

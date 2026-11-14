@@ -29,7 +29,7 @@ export function localMarketFixture(
   query: Pick<MarketQuery, "query" | "rarity" | "category" | "sort">
 ): AuctionData[] {
   const now = Date.now();
-  const auctions = Array.from({ length: 36 }, (_, index) => {
+  const auctions = Array.from({ length: 36 }, (_, index): AuctionData => {
     const [name, anime, category, rarity, image] = cards[index % cards.length];
     return {
       id: `local-market-demo-${index + 1}`,
@@ -62,7 +62,9 @@ export function localMarketFixture(
     .split(/\s+/)
     .filter(Boolean);
   const rarities =
-    typeof query.rarity === "string" ? [query.rarity] : [...query.rarity];
+    typeof query.rarity === "string"
+      ? query.rarity ? [query.rarity] : []
+      : [...query.rarity];
   const filtered = auctions.filter(auction => {
     const searchable = [
       auction.card.name,
