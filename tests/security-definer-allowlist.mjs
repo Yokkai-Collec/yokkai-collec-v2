@@ -2,6 +2,7 @@
 export const ownerOnly = [
   "public.queue_card_rarity_announcement()", // Trigger-only catalogue snapshots; never an API entry point.
   "public.dispatch_card_rarity_announcements()", // Operator cron only, private player-server Discord destination.
+  "public.build_data_export_without_player_titles(uuid, uuid)", // Internal reservation-gated export; only its owning wrapper can add the player's titles.
   "public.build_data_export_without_twitter_reward(uuid, uuid)", // Existing reservation-gated export; only the owning wrapper adds the caller's Twitter visit receipt.
   "public.build_data_export_without_discord_reward(uuid, uuid)", // Existing reservation-gated export builder; only the owning wrapper adds the caller's Discord receipt.
   "public.anticheat_deleted_account_snapshot_trigger()", // Trigger-only identity/transfer snapshot, private 90-day identity retention. Walid approved.

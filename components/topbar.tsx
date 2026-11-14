@@ -640,28 +640,31 @@ export function Topbar({
                     aria-label={t("profileActions")}
                     className="yk-account-actions"
                   >
-                    <Link
-                      href={profileHref}
-                      className="yk-account-action"
-                      onClick={() => setPanel(null)}
-                    >
-                      <svg
-                        aria-hidden="true"
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
+                    <div className="yk-account-profile">
+                      <Link
+                        href={profileHref}
+                        className="yk-account-action"
+                        onClick={() => setPanel(null)}
+                        aria-describedby={titleDescriptionId}
                       >
-                        <circle cx="12" cy="8" r="4" />
-                        <path d="M4 21a8 8 0 0 1 16 0" />
-                      </svg>
-                      {t("viewMyProfile")}
+                        <svg
+                          aria-hidden="true"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                        >
+                          <circle cx="12" cy="8" r="4" />
+                          <path d="M4 21a8 8 0 0 1 16 0" />
+                        </svg>
+                        {t("viewMyProfile")}
+                      </Link>
                       <span className="yk-account-title-notice">
                         <NewTitlesBadge count={newTitleCount} />
                       </span>
-                    </Link>
+                    </div>
                     <Link
                       href="/settings"
                       className="yk-account-action"

@@ -1,4 +1,5 @@
 import { auctionMentionParts } from "./helpers/auction-mentions.mjs";
+import { playerTitles } from "./helpers/player-titles.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
@@ -115,6 +116,7 @@ function panel(adapter, componentSource = component) {
     StyledPlayerAvatar: "avatar",
     Avatar: "avatar",
     StyledPlayerName: ({ name, fallbackLabel }) => fallbackLabel ?? name,
+    PlayerTitle: playerTitles.PlayerTitle,
     PlayerModeration: "moderation",
     EmojiReactionPicker: "emoji-picker",
     GifPicker: "gif-picker",
