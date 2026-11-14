@@ -27,6 +27,8 @@ const codes = new Map<string, string>(
     CARD_NOT_OWNED: "cardErrors.cardNotOwned",
     CARD_FROZEN: "cardErrors.cardFrozen",
     CARD_LOCKED: "cardErrors.cardLocked",
+    LOCK_SELECTION_CARD_AT_AUCTION:
+      "collectionUi.couldntLockSelectionAtAuction",
     INVALID_CARD_SELECTION: "cardErrors.invalidCardSelection",
     LICENSE_FOLDER_NAME_TAKEN: "licenseFolders.nameTaken",
     LICENSE_FOLDER_NAME_INVALID: "licenseFolders.invalidName",
@@ -71,6 +73,7 @@ Choose up to 12 licenses per category.	profileUi.licenseLimitHint
 Collection unavailable.	profileUi.collectionUnavailable
 Couldn't cancel this listing.	profileUi.couldntCancelThisListing
 Couldn't change this card's lock.	collectionUi.couldntChangeThisCardsLock
+Couldn't lock the selected cards. Please try again.	collectionUi.couldntLockSelectedCards
 Couldn't complete this action.	catalogueUi.couldntCompleteThisAction
 Couldn't confirm this choice.	packs.couldntConfirmThisChoice
 Couldn't create this auction.	collectionUi.couldntCreateThisAuction
