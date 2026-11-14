@@ -1723,6 +1723,16 @@
   background: transparent;
   box-shadow: none;
 }
+@media (pointer: coarse) {
+  .yk-modal.yk-social-compose-modal,
+  .yk-modal.yk-social-compose-modal::backdrop {
+    animation: none;
+  }
+
+  .yk-modal.yk-social-compose-modal::backdrop {
+    backdrop-filter: none;
+  }
+}
 @media (min-width: 1024px) {
   .yk-social-shell {
     grid-template-columns: 216px minmax(0, 1fr);
