@@ -396,6 +396,7 @@ const allowlist = {
   "public.mark_notification_read(uuid)": ["authenticated"], // Player marks only their own notification.
   "public.mark_offline()": ["authenticated"], // Updates the current player's presence.
   "public.move_card_to_folder(uuid, uuid)": ["authenticated"], // Moves an owned card to an owned folder.
+  "public.lock_collection_cards(uuid[])": ["authenticated"], // Atomically locks the current player's selected cards that are not at auction.
   "public.move_cards_to_folder(uuid[], uuid)": ["authenticated"], // Atomically moves the current player's selected cards to an owned folder.
   "public.open_decision_pack()": ["authenticated"], // Opens the current player's available decision pack.
   "public.open_regular_pack()": ["authenticated"], // Opens the current player's available regular pack.

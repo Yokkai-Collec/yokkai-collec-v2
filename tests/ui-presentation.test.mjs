@@ -796,7 +796,14 @@ test("la destruction multiple est active et transmet tous les exemplaires sélec
   );
   assert.match(
     normalizeWhitespace(controls),
-    normalizeWhitespace(/busy\?tu\("destroying"\):tu\("destroySelected"\)/)
+    normalizeWhitespace(
+      /destroying\?tu\("destroying"\):tu\("destroySelected"\)/
+    )
+  );
+  assert.match(normalizeWhitespace(controls), /destroying=busy/);
+  assert.match(
+    normalizeWhitespace(collection),
+    normalizeWhitespace(/busy=\{bulkBusy\}destroying=\{bulkDiscardBusy\}/)
   );
   assert.doesNotMatch(
     normalizeWhitespace(collection),

@@ -205,6 +205,7 @@ export function CollectionView({
   onMoveCard,
   onMoveCards,
   onSetLocked,
+  onLockCards,
   onCreateAuction,
   onEvolve,
   onSetCustomImage,
@@ -247,6 +248,7 @@ export function CollectionView({
     folderId: string | null
   ) => Promise<void>;
   onSetLocked?: (instanceId: string, locked: boolean) => Promise<void>;
+  onLockCards?: (instanceIds: string[]) => Promise<void>;
   onCreateAuction?: (
     instanceId: string,
     startingPrice: number,
@@ -407,6 +409,9 @@ export function CollectionView({
   const [bulkFolderTarget, setBulkFolderTarget] = useState("");
   const [bulkFolderBusy, setBulkFolderBusy] = useState(false);
   const [bulkFolderError, setBulkFolderError] = useState("");
+  const [bulkLockBusy, setBulkLockBusy] = useState(false);
+  const [bulkLockError, setBulkLockError] = useState("");
+  const bulkBusy = bulkLockBusy || bulkFolderBusy || bulkDiscardBusy;
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "panini">("grid");
   const [selectedLicense, setSelectedLicense] = useState<string | null>(null);
@@ -1081,7 +1086,7 @@ export function CollectionView({
     }
   }
   async function discardSelection() {
-    if (!onDiscardMany || !selectedCards.length || bulkDiscardBusy) return;
+    if (!onDiscardMany || !selectedCards.length || bulkBusy) return;
     setBulkDiscardBusy(true);
     setBulkDiscardError("");
     try {
@@ -1099,16 +1104,33 @@ export function CollectionView({
       setBulkDiscardBusy(false);
     }
   }
+  async function lockSelection() {
+    if (!onLockCards || !selectedCards.length || bulkBusy) return;
+    setBulkLockBusy(true);
+    setBulkLockError("");
+    setBulkFolderError("");
+    setBulkDiscardError("");
+    try {
+      await onLockCards(selectedCards.map(card => card.instanceId));
+      setSelection(new Set());
+      setSelecting(false);
+      setBulkFolderTarget("");
+    } catch (error) {
+      setBulkLockError(
+        error instanceof Error
+          ? gameErrorKey(error)
+          : "collectionUi.couldntLockSelectedCards"
+      );
+    } finally {
+      setBulkLockBusy(false);
+    }
+  }
   async function moveSelection() {
-    if (
-      !onMoveCards ||
-      !selectedCards.length ||
-      !bulkFolderTarget ||
-      bulkFolderBusy
-    )
+    if (!onMoveCards || !selectedCards.length || !bulkFolderTarget || bulkBusy)
       return;
     setBulkFolderBusy(true);
     setBulkFolderError("");
+    setBulkLockError("");
     try {
       await onMoveCards(
         selectedCards.map(card => card.instanceId),
@@ -1565,7 +1587,9 @@ export function CollectionView({
         {!readOnly && (
           <SelectionModeButton
             active={selecting}
+            disabled={bulkBusy}
             onClick={() => {
+              setBulkLockError("");
               setSelecting(!selecting);
               setSelection(new Set());
             }}
@@ -2247,7 +2271,9 @@ export function CollectionView({
                       <li key={group.key} className="min-w-0">
                         <button
                           type="button"
-                          disabled={selecting && eligible.length === 0}
+                          disabled={
+                            selecting && (bulkBusy || eligible.length === 0)
+                          }
                           className={`yk-collection-card ${selecting && (checked || partial) ? "yk-selected-card" : ""}`}
                           aria-label={tc("groupAria", {
                             action: selecting ? "select" : "view",
@@ -2365,45 +2391,59 @@ export function CollectionView({
                   itemLabel="exemplaire"
                   count={selectedCards.length}
                   value={selectedValue}
-                  busy={bulkDiscardBusy || bulkFolderBusy}
-                  error={bulkFolderError || bulkDiscardError}
+                  busy={bulkBusy}
+                  destroying={bulkDiscardBusy}
+                  error={bulkLockError || bulkFolderError || bulkDiscardError}
                   actions={
-                    onMoveCards ? (
-                      <div className="yk-selection-folder">
-                        <label htmlFor="selection-folder" className="sr-only">
-                          {tc("destinationFolder")}
-                        </label>
-                        <select
-                          id="selection-folder"
-                          value={bulkFolderTarget}
-                          disabled={bulkFolderBusy || bulkDiscardBusy}
-                          onChange={event => {
-                            setBulkFolderTarget(event.target.value);
-                            setBulkFolderError("");
-                          }}
-                        >
-                          <option value="">{tc("chooseAFolder")}</option>
-                          <option value="unfiled">{tc("noFolder")}</option>
-                          {folders.map(item => (
-                            <option key={item.id} value={item.id}>
-                              {item.name}
-                            </option>
-                          ))}
-                        </select>
+                    <>
+                      {onLockCards && (
                         <Button
                           variant="secondary"
-                          disabled={
-                            !selectedCards.length ||
-                            !bulkFolderTarget ||
-                            bulkFolderBusy ||
-                            bulkDiscardBusy
-                          }
-                          onClick={() => void moveSelection()}
+                          disabled={!selectedCards.length || bulkBusy}
+                          onClick={() => void lockSelection()}
                         >
-                          {bulkFolderBusy ? tc("moving") : tc("move")}
+                          <ProtectedIcon />
+                          {tc(
+                            bulkLockBusy ? "lockingCards" : "lockSelectedCards"
+                          )}
                         </Button>
-                      </div>
-                    ) : undefined
+                      )}
+                      {onMoveCards && (
+                        <div className="yk-selection-folder">
+                          <label htmlFor="selection-folder" className="sr-only">
+                            {tc("destinationFolder")}
+                          </label>
+                          <select
+                            id="selection-folder"
+                            value={bulkFolderTarget}
+                            disabled={bulkBusy}
+                            onChange={event => {
+                              setBulkFolderTarget(event.target.value);
+                              setBulkFolderError("");
+                            }}
+                          >
+                            <option value="">{tc("chooseAFolder")}</option>
+                            <option value="unfiled">{tc("noFolder")}</option>
+                            {folders.map(item => (
+                              <option key={item.id} value={item.id}>
+                                {item.name}
+                              </option>
+                            ))}
+                          </select>
+                          <Button
+                            variant="secondary"
+                            disabled={
+                              !selectedCards.length ||
+                              !bulkFolderTarget ||
+                              bulkBusy
+                            }
+                            onClick={() => void moveSelection()}
+                          >
+                            {bulkFolderBusy ? tc("moving") : tc("move")}
+                          </Button>
+                        </div>
+                      )}
+                    </>
                   }
                   onAll={() =>
                     // Adds the current page only; other pages keep their picks.
@@ -2423,11 +2463,13 @@ export function CollectionView({
                   }
                   onNone={() => setSelection(new Set())}
                   onDestroy={() => {
+                    setBulkLockError("");
                     setBulkDiscardError("");
                     setBulkFolderError("");
                     setBulkDiscardConfirm(true);
                   }}
                   onClose={() => {
+                    setBulkLockError("");
                     setSelecting(false);
                     setSelection(new Set());
                     setBulkFolderTarget("");
