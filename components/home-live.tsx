@@ -254,7 +254,9 @@ export function LatestPulls({ cards }: { cards: HomeCard[] }) {
 export function BigPulls({ pulls }: { pulls: BigPull[] }) {
   const t = useTranslations("homeLive");
   const scrollRef = useHorizontalWheel(pulls.length > 0);
-  const [selected, setSelected] = useState<BigPull["card"] | null>(null);
+  const [selected, setSelected] = useState<
+    (BigPull["card"] & { instanceId: string }) | null
+  >(null);
   useEffect(() => {
     if (scrollRef.current && !selected)
       return enableAutomaticScroll(scrollRef.current);
@@ -295,7 +297,10 @@ export function BigPulls({ pulls }: { pulls: BigPull[] }) {
                               "[data-scroll-period] button"
                             )
                             [index]?.focus({ preventScroll: true });
-                        setSelected(pull.card);
+                        setSelected({
+                          ...pull.card,
+                          instanceId: pull.instanceId
+                        });
                       }}
                     >
                       <YokaiCard
