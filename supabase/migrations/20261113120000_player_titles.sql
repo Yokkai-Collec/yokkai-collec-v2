@@ -12,6 +12,7 @@ create table public.player_title_unlocks (
   user_id uuid not null references public.user_profiles(user_id) on delete cascade,
   title_id text not null references public.player_title_catalog(id),
   unlocked_at timestamptz not null default now(),
+  seen_at timestamptz,
   primary key (user_id, title_id)
 );
 create table public.player_equipped_titles (
@@ -57,6 +58,10 @@ begin
         union select title_id from public.player_title_unlocks where user_id = owner_id
       ) available
     ));
+    result := result || jsonb_build_object('unseenTitleIds', coalesce((
+      select jsonb_agg(title_id order by title_id) from public.player_title_unlocks
+      where user_id = owner_id and seen_at is null and title_id <> 'collector'
+    ), '[]'::jsonb));
   end if;
   return result;
 end;
@@ -89,6 +94,23 @@ end;
 $$;
 revoke all on function public.equip_player_title(text) from public, anon, authenticated;
 grant execute on function public.equip_player_title(text) to authenticated;
+
+create function public.mark_player_titles_seen(p_title_ids text[]) returns void
+language plpgsql volatile security definer set search_path = '' as $$
+declare player uuid := auth.uid();
+begin
+  perform public.assert_player_not_banned();
+  if player is null then raise exception 'AUTH_REQUIRED'; end if;
+  perform pg_advisory_xact_lock_shared(hashtextextended('account-deletion:' || player::text, 0));
+  if exists(select 1 from public.account_deletion_log where user_id = player) then
+    raise exception 'ACCOUNT_DELETED';
+  end if;
+  update public.player_title_unlocks set seen_at = now()
+  where user_id = player and title_id = any(p_title_ids) and seen_at is null;
+end;
+$$;
+revoke all on function public.mark_player_titles_seen(text[]) from public, anon, authenticated;
+grant execute on function public.mark_player_titles_seen(text[]) to authenticated;
 
 notify pgrst, 'reload schema';
 commit;

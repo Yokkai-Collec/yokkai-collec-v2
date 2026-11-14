@@ -2,7 +2,9 @@
   "playerTitles": {
     "names": { "collector": "Collector" },
     "label": "Player title",
-    "unlockedOnly": "Only unlocked titles can be equipped. Your selection is saved automatically.",
+    "newTitles": "{count, plural, one {# new title} other {# new titles}}",
+    "viewNewTitles": "View new titles",
+    "seenFailed": "Couldn't mark your new titles as seen. Please try again.",
     "saving": "Saving title…",
     "saved": "Title updated.",
     "notUnlocked": "You have not unlocked this title.",

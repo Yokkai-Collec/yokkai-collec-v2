@@ -164,6 +164,8 @@ export function ProfilePreview() {
     const profile = () => ({
       titleId: "collector",
       unlockedTitleIds: visitor ? undefined : ["collector"],
+      unseenTitleIds:
+        !visitor && params.get("newTitle") === "1" ? ["collector"] : [],
       id: "preview",
       pseudo: "Toba",
       avatarUrl: "/assets/landing/gojou.webp",
@@ -198,6 +200,7 @@ export function ProfilePreview() {
       return url;
     };
     return {
+      markTitlesSeen: async () => {},
       previewWidgets,
       discovery: {
         get: async (id, offset = 0, limit = 12) => {

@@ -29,7 +29,11 @@ import { BannerImage } from "@/components/banner-image";
 import { ProfileStyleFields } from "@/components/profile-style-fields";
 import { AvatarDecoration } from "@/components/avatar-decoration";
 import { StyledPlayerName } from "@/components/styled-player-name";
-import { PlayerTitle, PlayerTitlePicker } from "@/components/player-title";
+import {
+  PlayerTitle,
+  PlayerTitlePicker,
+  NewTitlesBadge
+} from "@/components/player-title";
 import {
   DEFAULT_PROFILE_STYLE,
   PROFILE_CARD_IMAGE_SIZES,
@@ -534,6 +538,7 @@ function FriendWishlist({
 }
 
 export type ProfileAdapter = {
+  markTitlesSeen?: typeof import("@/lib/data/profile").markPlayerTitlesSeen;
   equipTitle?: typeof import("@/lib/data/profile").equipPlayerTitle;
   messages?: import("@/lib/data/private-messages").PrivateMessagesAdapter;
   trades?: import("@/components/trades").TradesPanelAdapter;
@@ -1096,6 +1101,9 @@ export function ProfileExperience({
                       }}
                     >
                       {t("profileUi.editProfile")}{" "}
+                      <NewTitlesBadge
+                        count={profile.unseenTitleIds?.length ?? 0}
+                      />
                     </Button>
                     <Button
                       variant="secondary"
@@ -1643,6 +1651,20 @@ export function ProfileExperience({
               <PlayerTitlePicker
                 titleId={profile.titleId}
                 unlockedTitleIds={profile.unlockedTitleIds}
+                unseenTitleIds={profile.unseenTitleIds}
+                markSeen={adapter.markTitlesSeen}
+                onSeen={titleIds =>
+                  setProfile(current =>
+                    current
+                      ? {
+                          ...current,
+                          unseenTitleIds: current.unseenTitleIds?.filter(
+                            id => !titleIds.includes(id)
+                          )
+                        }
+                      : current
+                  )
+                }
                 save={adapter.equipTitle}
                 onSaved={titleId =>
                   setProfile(current =>

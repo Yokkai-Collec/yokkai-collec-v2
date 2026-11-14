@@ -25,6 +25,7 @@ function friendFilterParam(value: CardFilter = ""): string {
 export type Profile = {
   titleId?: string;
   unlockedTitleIds?: string[];
+  unseenTitleIds?: string[];
   profileStyle?: PlayerCosmetics;
   id: string;
   pseudo: string;
@@ -146,6 +147,11 @@ export async function getProfile(identifier?: string) {
   );
   if (error) throw fail(error);
   return hydrateProfile(data as Profile, true);
+}
+export async function markPlayerTitlesSeen(titleIds: string[]): Promise<void> {
+  const { error } = await db().rpc("mark_player_titles_seen", { p_title_ids: titleIds });
+  if (error) throw new Error("TITLE_SEEN_FAILED");
+  publishPlayerSnapshotInvalidation(["profile"]);
 }
 export async function equipPlayerTitle(titleId: string): Promise<string> {
   const { data, error } = await db().rpc("equip_player_title", { p_title_id: titleId });
