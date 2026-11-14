@@ -151,7 +151,10 @@ test("the shared composer notifies Home only after confirmed publication, keepin
         WallPostInteractions: () => null
       },
       "@/components/styled-player-name": { StyledPlayerName: () => null },
-      "@/lib/data/profile-wall": { liveWall: {} }
+      "@/lib/data/profile-wall": {
+        liveWall: {},
+        wallRequestId: () => "00000000-0000-4000-8000-000000000001"
+      }
     });
     renderToStaticMarkup(
       React.createElement(ProfileWall, {

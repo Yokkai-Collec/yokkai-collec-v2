@@ -105,6 +105,7 @@ Couldn't move the selected cards.	collectionUi.couldntMoveTheSelectedCards
 Couldn't open this pack.	gameUi.couldntOpenThisPack
 Couldn't place this bid.	profileUi.couldntPlaceThisBid
 Couldn't publish your post. Your draft has been kept.	profileUi.publishFailedDraftKept
+Couldn't confirm publication. Your draft has been kept. Try again.	profileUi.publishUnconfirmedDraftKept
 Couldn't reach game data. Please try again in a moment.	cardErrors.couldntReachGameDataPleaseTryAgainIn
 Couldn't reach the market. Please try again.	profileUi.marketUnreachable
 Couldn't reach the server. Check your connection and try again.	profileUi.serverUnreachable

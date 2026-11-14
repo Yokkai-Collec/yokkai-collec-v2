@@ -1532,6 +1532,7 @@
     "jpgpngwebPOrGIFUpTo6": "JPG, PNG, WebP, or GIF, up to 6 MB.",
     "postAddedToYourWall": "Post added to your wall",
     "publishFailedDraftKept": "Couldn't publish your post. Your draft has been kept.",
+    "publishUnconfirmedDraftKept": "Couldn't confirm publication. Your draft has been kept. Try again.",
     "postDeleted": "Post deleted",
     "couldntDeleteThisPost": "Couldn't delete this post.",
     "wallAccessChanged": "The wall is unavailable or its access has changed. Please try again.",
