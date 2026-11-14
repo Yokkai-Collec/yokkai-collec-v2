@@ -71,6 +71,9 @@ export function WallMentionTextarea({
 }: MentionTextareaProps) {
   const t = useTranslations("profileUi");
   const field = useRef<HTMLTextAreaElement>(null);
+  const suggestions = useRef<HTMLDivElement>(null);
+  const composing = useRef(false);
+  const lastSelection = useRef<{ start: number; end: number } | null>(null);
   const listId = useId();
   const [cursor, setCursor] = useState<number | null>(null);
   const [result, setResult] = useState<{
@@ -90,14 +93,6 @@ export function WallMentionTextarea({
     : undefined;
 
   useEffect(() => {
-    if (activeOption) {
-      document
-        .getElementById(activeOption)
-        ?.scrollIntoView({ block: "nearest" });
-    }
-  }, [activeOption]);
-
-  useEffect(() => {
     if ([...query].length < 2) return;
     const controller = new AbortController();
     const timeout = window.setTimeout(() => {
@@ -114,10 +109,14 @@ export function WallMentionTextarea({
   }, [query]);
 
   function trackCaret(input: HTMLTextAreaElement) {
-    setCursor(
-      input.selectionStart === input.selectionEnd ? input.selectionStart : null
-    );
-    setSelected(0);
+    if (composing.current) return;
+    const start = input.selectionStart;
+    const end = input.selectionEnd;
+    lastSelection.current = { start, end };
+    const nextCursor =
+      start === end && wallMentionAtCursor(input.value, start) ? start : null;
+    if (nextCursor !== cursor) setCursor(nextCursor);
+    if (nextCursor !== null && selected !== 0) setSelected(0);
   }
 
   function choose(player: WallMentionPlayer) {
@@ -130,15 +129,24 @@ export function WallMentionTextarea({
     if (props.maxLength !== undefined && next.length > props.maxLength) return;
     onChange(next);
     setCursor(null);
-    field.current?.focus();
+    const input = field.current;
+    if (!input) return;
+    if (document.activeElement !== input) input.focus({ preventScroll: true });
     const position =
       before.length +
       token.length +
       spacer.length +
       (after.startsWith(" ") ? 1 : 0);
-    requestAnimationFrame(() =>
-      field.current?.setSelectionRange(position, position)
-    );
+    requestAnimationFrame(() => {
+      if (
+        field.current !== input ||
+        document.activeElement !== input ||
+        input.value !== next
+      )
+        return;
+      lastSelection.current = { start: position, end: position };
+      input.setSelectionRange(position, position);
+    });
   }
 
   return (
@@ -156,12 +164,25 @@ export function WallMentionTextarea({
         }}
         onClick={event => trackCaret(event.currentTarget)}
         onSelect={event => {
-          if (event.currentTarget.selectionStart !== cursor)
-            trackCaret(event.currentTarget);
+          const input = event.currentTarget;
+          if (
+            input.selectionStart !== lastSelection.current?.start ||
+            input.selectionEnd !== lastSelection.current?.end
+          )
+            trackCaret(input);
+        }}
+        onCompositionStart={() => {
+          composing.current = true;
+          setCursor(null);
+        }}
+        onCompositionEnd={event => {
+          composing.current = false;
+          trackCaret(event.currentTarget);
         }}
         onBlur={() => setCursor(null)}
         onKeyDown={event => {
-          if (!active || event.nativeEvent.isComposing) return;
+          if (!active || composing.current || event.nativeEvent.isComposing)
+            return;
           if (event.key === "Escape") {
             event.preventDefault();
             event.stopPropagation();
@@ -169,9 +190,17 @@ export function WallMentionTextarea({
           } else if (event.key === "ArrowDown" || event.key === "ArrowUp") {
             event.preventDefault();
             const offset = event.key === "ArrowDown" ? 1 : -1;
-            setSelected(
-              index => (index + offset + players.length) % players.length
-            );
+            const index = (selected + offset + players.length) % players.length;
+            setSelected(index);
+            const list = suggestions.current;
+            const option = list?.children.item(index);
+            if (list && option) {
+              const bounds = list.getBoundingClientRect();
+              const row = option.getBoundingClientRect();
+              if (row.top < bounds.top) list.scrollTop += row.top - bounds.top;
+              if (row.bottom > bounds.bottom)
+                list.scrollTop += row.bottom - bounds.bottom;
+            }
           } else if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
             choose(players[selected] ?? players[0]);
@@ -180,6 +209,7 @@ export function WallMentionTextarea({
       />
       {active && (
         <div
+          ref={suggestions}
           id={listId}
           className="yk-wall-mention-suggestions"
           role="listbox"

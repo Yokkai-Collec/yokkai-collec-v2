@@ -20,6 +20,12 @@
   width: 100%;
 }
 
+@media (pointer: coarse) {
+  .yk-wall-mention-field textarea {
+    font-size: 16px;
+  }
+}
+
 .yk-wall-mention-suggestions {
   position: absolute;
   z-index: 3;
