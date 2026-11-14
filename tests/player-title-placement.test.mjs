@@ -5,7 +5,7 @@ import ts from "typescript";
 
 test("the title picker is restricted to the edit-profile dialog", () => {
   const source = readFileSync(
-    new URL("../components/profile.tsx", import.meta.url),
+    new URL("../components/profile-editor.tsx", import.meta.url),
     "utf8"
   );
   const ast = ts.createSourceFile(
@@ -32,17 +32,15 @@ test("the title picker is restricted to the edit-profile dialog", () => {
   assert.ok(
     ancestors.some(
       node =>
-        ts.isJsxElement(node) &&
-        node.openingElement.tagName.getText(ast) === "Modal"
+        ts.isBinaryExpression(node) &&
+        /mode === "profile"/.test(node.getText(ast))
     )
   );
   assert.ok(
     ancestors.some(
       node =>
         ts.isBinaryExpression(node) &&
-        /editingMode === "profile" && profile\.unlockedTitleIds/.test(
-          node.getText(ast)
-        )
+        /profile\.unlockedTitleIds/.test(node.getText(ast).replace(/\s+/g, " "))
     )
   );
   const topbar = readFileSync(
@@ -50,4 +48,20 @@ test("the title picker is restricted to the edit-profile dialog", () => {
     "utf8"
   );
   assert.ok(!topbar.includes("PlayerTitlePicker"));
+  const editor = readFileSync(
+    new URL("../components/profile-editor.tsx", import.meta.url),
+    "utf8"
+  );
+  assert.ok(
+    editor.indexOf("<PlayerTitlePicker") > editor.indexOf('type="file"')
+  );
+  assert.ok(
+    editor.indexOf("<PlayerTitlePicker") < editor.indexOf('t("profileUi.bio")')
+  );
+  assert.match(editor, /onChange=\{setTitleId\}/);
+  const picker = readFileSync(
+    new URL("../components/player-title.tsx", import.meta.url),
+    "utf8"
+  );
+  assert.doesNotMatch(picker, /equipPlayerTitle|onSaved|await save/);
 });

@@ -29,11 +29,7 @@ import { BannerImage } from "@/components/banner-image";
 import { ProfileStyleFields } from "@/components/profile-style-fields";
 import { AvatarDecoration } from "@/components/avatar-decoration";
 import { StyledPlayerName } from "@/components/styled-player-name";
-import {
-  PlayerTitle,
-  PlayerTitlePicker,
-  NewTitlesBadge
-} from "@/components/player-title";
+import { PlayerTitle, NewTitlesBadge } from "@/components/player-title";
 import {
   DEFAULT_PROFILE_STYLE,
   PROFILE_CARD_IMAGE_SIZES,
@@ -539,7 +535,6 @@ function FriendWishlist({
 
 export type ProfileAdapter = {
   markTitlesSeen?: typeof import("@/lib/data/profile").markPlayerTitlesSeen;
-  equipTitle?: typeof import("@/lib/data/profile").equipPlayerTitle;
   messages?: import("@/lib/data/private-messages").PrivateMessagesAdapter;
   trades?: import("@/components/trades").TradesPanelAdapter;
   discovery?: CatalogueCardAdapter;
@@ -1646,61 +1641,45 @@ export function ProfileExperience({
             }}
           />
         ) : isMe && collection && details ? (
-          <>
-            {editingMode === "profile" && profile.unlockedTitleIds && (
-              <PlayerTitlePicker
-                titleId={profile.titleId}
-                unlockedTitleIds={profile.unlockedTitleIds}
-                unseenTitleIds={profile.unseenTitleIds}
-                markSeen={adapter.markTitlesSeen}
-                onSeen={titleIds =>
-                  setProfile(current =>
-                    current
-                      ? {
-                          ...current,
-                          unseenTitleIds: current.unseenTitleIds?.filter(
-                            id => !titleIds.includes(id)
-                          )
-                        }
-                      : current
-                  )
-                }
-                save={adapter.equipTitle}
-                onSaved={titleId =>
-                  setProfile(current =>
-                    current ? { ...current, titleId } : current
-                  )
-                }
-              />
-            )}
-            <Editor
-              key={editingMode}
-              mode={editingMode === "showcase" ? "showcase" : "profile"}
-              profile={profile}
-              collection={collection}
-              initialBannerUrl={
-                (savedBannerUrl === undefined
-                  ? details?.bannerUrl
-                  : savedBannerUrl) ?? null
-              }
-              initialBannerFrame={bannerFrame ?? null}
-              framingAvailable={
-                !!adapter.saveAppearance || details.bannerFrame !== undefined
-              }
-              adapter={adapter}
-              onClose={() => setEditing(false)}
-              onSaved={p => {
-                setProfile(current => ({ ...current, ...p }));
-                setSavedBannerUrl(p.bannerUrl);
-                setSavedBannerFrame(p.bannerFrame ?? null);
-                setToast(
-                  editingMode === "showcase"
-                    ? "Showcase updated"
-                    : "Profile updated"
-                );
-              }}
-            />
-          </>
+          <Editor
+            onTitlesSeen={titleIds =>
+              setProfile(current =>
+                current
+                  ? {
+                      ...current,
+                      unseenTitleIds: current.unseenTitleIds?.filter(
+                        id => !titleIds.includes(id)
+                      )
+                    }
+                  : current
+              )
+            }
+            key={editingMode}
+            mode={editingMode === "showcase" ? "showcase" : "profile"}
+            profile={profile}
+            collection={collection}
+            initialBannerUrl={
+              (savedBannerUrl === undefined
+                ? details?.bannerUrl
+                : savedBannerUrl) ?? null
+            }
+            initialBannerFrame={bannerFrame ?? null}
+            framingAvailable={
+              !!adapter.saveAppearance || details.bannerFrame !== undefined
+            }
+            adapter={adapter}
+            onClose={() => setEditing(false)}
+            onSaved={p => {
+              setProfile(current => ({ ...current, ...p }));
+              setSavedBannerUrl(p.bannerUrl);
+              setSavedBannerFrame(p.bannerFrame ?? null);
+              setToast(
+                editingMode === "showcase"
+                  ? "Showcase updated"
+                  : "Profile updated"
+              );
+            }}
+          />
         ) : (
           <p className="yk-profile-empty">
             {detailsError || t("profileUi.loadingProfileEditor")}

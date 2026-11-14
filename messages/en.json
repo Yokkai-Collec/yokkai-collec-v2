@@ -1,6 +1,10 @@
 {
   "playerTitles": {
-    "names": { "collector": "Collector" },
+    "names": {
+      "collector": "Collector",
+      "reseller": "Reseller",
+      "explorer": "Explorer"
+    },
     "label": "Player title",
     "newTitles": "{count, plural, one {# new title} other {# new titles}}",
     "viewNewTitles": "View new titles",

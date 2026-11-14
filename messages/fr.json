@@ -1,6 +1,10 @@
 {
   "playerTitles": {
-    "names": { "collector": "Collectionneur" },
+    "names": {
+      "collector": "Collectionneur",
+      "reseller": "Revendeur",
+      "explorer": "Explorateur"
+    },
     "label": "Titre du joueur",
     "newTitles": "{count, plural, one {# nouveau titre} other {# nouveaux titres}}",
     "viewNewTitles": "Voir les nouveaux titres",
