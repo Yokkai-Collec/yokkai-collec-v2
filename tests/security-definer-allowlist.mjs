@@ -68,6 +68,7 @@ export const ownerOnly = [
   "public.build_data_export_without_reply_media(uuid, uuid)",
   "public.notify_wall_post_reply()",
   "public.notify_wall_mentions()", // Wall write trigger; checks recipient access before emitting notification.
+  "public.send_private_message_content(uuid, text, uuid, text, bytea)", // Shared authorization, rate limits and insert path for private messages.
   "public.cleanup_wall_reply_notifications()",
   "public.prepare_account_deletion_without_billing(uuid)",
   "public.build_data_export_without_wall_interactions(uuid, uuid)",
@@ -351,6 +352,10 @@ const allowlist = {
   "public.mark_private_messages_read(uuid, uuid)": ["authenticated"], // Only auth.uid(); verifies incoming message ownership, social/deletion locks and monotonic read watermark.
   "public.send_private_message(uuid, text, uuid)": ["authenticated"], // Sender is auth.uid(); accepted friendship, blocks, deletion fence, rate limit and idempotency checked server-side.
   "public.send_private_message_gif(uuid, text, uuid, text)": ["authenticated"], // Same conversation authorization, shared sender limits and idempotency; only allowlisted HTTPS GIPHY media URLs, no uploads.
+  "public.send_private_message_image(uuid, text, uuid, text)": [
+    "authenticated"
+  ], // Authenticated image send through the same conversation rules and rate limits.
+  "public.get_private_message_image(uuid)": ["authenticated"], // Scoped to the sender and recipient in a currently permitted conversation.
   "public.publish_profile_wall_post(uuid, text, text, text)": ["authenticated"], // Idempotent own posts only, bounded text/rate/count and owner-scoped private media.
   "public.delete_profile_wall_post(uuid)": ["authenticated"], // Author deletes only their own post; private attachment cleanup stays owner-scoped.
   "public.get_profile_details(text)": ["authenticated"], // Calls get_profile first; inventory, activity and favorites obey its collection privacy; mutual friends obey friendsVisible.

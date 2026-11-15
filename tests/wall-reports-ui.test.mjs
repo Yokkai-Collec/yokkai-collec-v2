@@ -55,6 +55,7 @@ test("shared profile/feed posts expose Report only for another known player's po
   let admin = false;
   const { ProfileWall } = load("components/profile-wall.tsx", {
     "@/components/wall-mentions": wallMentions,
+    "@/lib/ui/paste-image": { pasteImage: () => {} },
     "@/components/player-moderation": {
       PlayerModeration: ({ contextId, contextType }) =>
         React.createElement(

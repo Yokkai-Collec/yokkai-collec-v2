@@ -128,6 +128,7 @@ test("the shared composer notifies Home only after confirmed publication, keepin
     };
     const { ProfileWall } = load("components/profile-wall.tsx", {
       "@/components/wall-mentions": wallMentions,
+      "@/lib/ui/paste-image": { pasteImage: () => {} },
       "@/components/player-moderation": { PlayerModeration: () => null },
       react: {
         ...React,

@@ -1295,6 +1295,8 @@
     }
   },
   "privateMessages": {
+    "imageAlt": "Image attachment",
+    "removeImage": "Remove image",
     "removedByModeration": "Message removed by moderation.",
     "title": "Messages with {name}",
     "friend": "Friend",
@@ -1568,7 +1570,7 @@
     "wallImage": "Wall image",
     "publishing": "Publishing…",
     "publish": "Publish",
-    "oneImageOrGIFPerPostUpTo": "One image or GIF per post · Up to 6 MB. Visibility follows your profile settings.",
+    "oneImageOrGIFPerPostUpTo": "Paste or add one image or GIF per post · Up to 6 MB. Visibility follows your profile settings.",
     "reloadWall": "Reload wall",
     "unusedFileNotice": "An unused file is waiting to be removed.",
     "retryCleanup": "Retry cleanup",
@@ -2230,6 +2232,7 @@
     "openConversation": "Open conversation with {name}",
     "removed": "Message removed",
     "gif": "GIF",
+    "image": "Image",
     "youPreview": "You: {text}",
     "chooseFriend": "New message",
     "chooseFriendHint": "Choose a friend to start chatting here.",

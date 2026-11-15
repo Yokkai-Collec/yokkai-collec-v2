@@ -377,7 +377,8 @@
   align-items: center;
   gap: 6px;
 }
-.yk-private-messages-tools :is(.yk-gif-trigger, .yk-message-emoji-trigger) {
+.yk-private-messages-tools
+  :is(.yk-gif-trigger, .yk-message-emoji-trigger, .yk-message-image-trigger) {
   display: grid;
   place-items: center;
   width: 44px;
@@ -387,16 +388,21 @@
   border-radius: 10px;
   color: var(--color-accent-gold);
 }
-.yk-private-messages-tools .yk-message-emoji-trigger {
+.yk-private-messages-tools
+  :is(.yk-message-emoji-trigger, .yk-message-image-trigger) {
   color: #fff;
 }
 .yk-message-emoji-trigger:hover,
+.yk-message-image-trigger:hover:not(:disabled),
 .yk-message-emoji-trigger[aria-expanded="true"] {
   background: var(--color-veil);
 }
-.yk-message-emoji-trigger:focus-visible {
+:is(.yk-message-emoji-trigger, .yk-message-image-trigger):focus-visible {
   outline: 2px solid #9abcff;
   outline-offset: 2px;
+}
+.yk-message-image-trigger:disabled {
+  opacity: 0.5;
 }
 .yk-private-messages-toolbar > span {
   text-align: right;

@@ -148,6 +148,7 @@ test("seeded post UI never issues an initial unit read; profile still does", asy
       "components/wall-post-interactions.tsx",
       {
         "@/components/wall-mentions": wallMentions,
+        "@/lib/ui/paste-image": { pasteImage: () => {} },
         react: { ...React, useEffect: effect => effects.push(effect) },
         "next/link": {
           __esModule: true,
