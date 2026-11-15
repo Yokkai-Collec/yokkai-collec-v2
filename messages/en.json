@@ -1377,6 +1377,7 @@
     "missing": "This card is no longer in the catalogue. It may have been deleted."
   },
   "profileUi": {
+    "officialAccount": "Official Yokkai account",
     "zoomInImage": "Zoom in on image",
     "zoomOutImage": "Zoom out of image",
     "enlargeImage": "Enlarge image",

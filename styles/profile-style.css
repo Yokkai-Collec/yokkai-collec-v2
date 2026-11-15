@@ -383,6 +383,12 @@
   max-width: 100%;
   vertical-align: middle;
 }
+.yk-official-account-badge {
+  width: clamp(30px, 2em, 44px);
+  height: clamp(18px, 1.2em, 26px);
+  flex: none;
+  object-fit: cover;
+}
 .yk-styled-player-name > .yk-style-name {
   min-width: 0;
   line-height: 1.5;

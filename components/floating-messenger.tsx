@@ -247,6 +247,7 @@ export function MessengerSession({
                 >
                   <StyledPlayerName
                     name={friend.pseudo}
+                    playerId={friend.id}
                     cosmetics={friend.profileStyle}
                   />
                 </Link>
@@ -319,6 +320,7 @@ export function MessengerSession({
                           <strong>
                             <StyledPlayerName
                               name={item.friend.pseudo}
+                              playerId={item.friend.id}
                               cosmetics={item.friend.profileStyle}
                             />
                           </strong>

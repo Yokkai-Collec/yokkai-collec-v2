@@ -324,6 +324,7 @@ export function BigPulls({ pulls }: { pulls: BigPull[] }) {
                         <span className="yk-home-pull-name">
                           <StyledPlayerName
                             name={pull.playerName}
+                            playerId={pull.playerId}
                             cosmetics={pull.profileStyle ?? undefined}
                           />
                         </span>

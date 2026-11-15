@@ -295,6 +295,7 @@ function Person({
         <strong>
           <StyledPlayerName
             name={person.pseudo}
+            playerId={person.id}
             cosmetics={person.profileStyle}
           />
         </strong>

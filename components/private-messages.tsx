@@ -433,6 +433,7 @@ export function PrivateMessages({
               >
                 <StyledPlayerName
                   name={friend.pseudo}
+                  playerId={friend.id}
                   cosmetics={friend.profileStyle}
                 />
               </Link>

@@ -302,6 +302,7 @@ export function HomeFriendFeed({
                   <Link href={wall} className="yk-feed-author">
                     <StyledPlayerName
                       name={post.author.name}
+                      playerId={post.author.id}
                       cosmetics={post.author.profileStyle ?? undefined}
                     />
                   </Link>

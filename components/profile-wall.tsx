@@ -455,12 +455,14 @@ export function ProfileWall({
                         >
                           <StyledPlayerName
                             name={pseudo}
+                            playerId={ownerId}
                             cosmetics={post.profileStyle}
                           />
                         </Link>
                       ) : (
                         <StyledPlayerName
                           name={pseudo}
+                          playerId={ownerId}
                           cosmetics={post.profileStyle}
                         />
                       )}

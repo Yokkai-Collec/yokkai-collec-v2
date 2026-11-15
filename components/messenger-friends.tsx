@@ -140,6 +140,7 @@ export function MessengerFriends({
                 <strong>
                   <StyledPlayerName
                     name={friend.pseudo}
+                    playerId={friend.id}
                     cosmetics={friend.profileStyle}
                   />
                 </strong>

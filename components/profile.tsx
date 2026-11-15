@@ -1062,6 +1062,7 @@ export function ProfileExperience({
                 <h2>
                   <StyledPlayerName
                     name={profile.pseudo}
+                    playerId={profile.id}
                     cosmetics={profile.profileStyle}
                   />
                 </h2>
