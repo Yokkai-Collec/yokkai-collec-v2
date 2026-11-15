@@ -101,6 +101,11 @@ Toutes les autres sont des tableaux, vides quand aucune donnée n’est conserv�
 | avatar_files           | bucket avatars, propriétaire ou chemin UUID : type/taille/création/mise à jour/dernier accès ; **aucun contenu, chemin ou lien**                                                           |
 | catalogue_cards        | seules références de sa collection/wishlist/packs/bannière : ID, nom, catégorie, rareté/licences ; aucune donnée d’un autre joueur                                                         |
 
+La section `karas_gifts_received` couvre les cadeaux Karas activés par le joueur.
+Elle contient le montant, le message affiché au destinataire et la date
+d’activation. Les empreintes des codes, les données d’émission et les autres
+destinataires restent exclus.
+
 Exclusions intégrales : `card_share_creations`, `admin_audit_logs`,
 `account_deletion_log`, colonnes `admin_users.granted_by/created_at`, sessions,
 jetons et leurs empreintes, mots de passe et empreintes, MFA/WebAuthn, OAuth,

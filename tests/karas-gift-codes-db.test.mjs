@@ -158,6 +158,36 @@ test("only admins issue codes and each redemption follows the selected usage mod
   assert.equal(await balance(recipient), beforeShared + 80);
   assert.equal(await balance(other), 330);
 
+  await db.exec(
+    "create table auth.identities(user_id uuid,provider text,created_at timestamptz,updated_at timestamptz)"
+  );
+  await db.exec("set role service_role");
+  const request = "14100000-0000-4000-8000-000000000004";
+  await db.query("select public.reserve_data_export($1,$2)", [
+    recipient,
+    request
+  ]);
+  const exported = await value("select public.build_data_export($1,$2) value", [
+    recipient,
+    request
+  ]);
+  assert.deepEqual(
+    exported.karas_gifts_received
+      .map(gift => gift.amount)
+      .sort((a, b) => a - b),
+    [80, 375]
+  );
+  for (const gift of exported.karas_gifts_received) {
+    assert.deepEqual(Object.keys(gift).sort(), [
+      "amount",
+      "message",
+      "redeemed_at"
+    ]);
+    assert.equal(gift.message, message);
+    assert.ok(gift.redeemed_at);
+  }
+
+  await db.exec("reset role");
   await db.query("delete from auth.users where id=$1", [recipient]);
   await login(other);
   await assert.rejects(redeem(code), /GIFT_CODE_UNAVAILABLE/);
