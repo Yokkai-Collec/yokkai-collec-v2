@@ -1,5 +1,5 @@
 import type { Rarity } from "@/lib/data/cards";
-import type { MarketQuery } from "@/lib/data/market";
+import type { AuctionData, MarketPage, MarketQuery } from "@/lib/data/market";
 
 export type MarketReturn = {
   section: "browse" | "mine";
@@ -18,6 +18,28 @@ export type MarketReturn = {
 const storageKey = "yokkai:market:return:v1";
 let memory: MarketReturn | null = null;
 let encoded: string | null = null;
+export type MarketReturnContent = {
+  viewerId: string;
+  items: AuctionData[];
+  page: MarketPage;
+};
+let contentMemory: { savedAt: number; content: MarketReturnContent } | null =
+  null;
+
+export function readMarketReturnContent(
+  value: MarketReturn | null | undefined,
+  viewerId?: string
+) {
+  if (
+    !value ||
+    !viewerId ||
+    contentMemory?.savedAt !== value.savedAt ||
+    contentMemory.content.viewerId !== viewerId ||
+    Date.now() - value.savedAt > 30 * 60_000
+  )
+    return null;
+  return contentMemory.content;
+}
 
 /** Capture only on entry/reactivation, never while navigating away from the list. */
 export function createMarketReturnStore() {
@@ -81,8 +103,12 @@ export function readMarketReturn(): MarketReturn | null {
   return value;
 }
 
-export function rememberMarketReturn(value: MarketReturn) {
+export function rememberMarketReturn(
+  value: MarketReturn,
+  content?: MarketReturnContent
+) {
   memory = value;
+  contentMemory = content ? { savedAt: value.savedAt, content } : null;
   encoded = JSON.stringify(value);
   try {
     window.sessionStorage.setItem(storageKey, encoded);
@@ -107,6 +133,10 @@ export function restoreMarketScroll(
   root: HTMLElement,
   done: () => void
 ) {
+  // A return is not a new page entrance. The template's scale/fade would move
+  // every anchor while we measure it and make the restored list visibly drift.
+  const transition = root.closest?.<HTMLElement>(".yk-page-transition");
+  if (transition) transition.style.animation = "none";
   let frame = 0;
   let settleTimer: number | undefined;
   let stopped = false;
@@ -144,7 +174,9 @@ export function restoreMarketScroll(
     // beyond the scroll limit: clamp immediately rather than waiting at zero.
     if (!anchor && max + 1 < target && !final) return;
     const top = Math.min(target, max);
-    window.scrollTo({ top, behavior: "instant" });
+    if (Math.abs(window.scrollY - top) > 1) {
+      window.scrollTo({ top, behavior: "instant" });
+    }
     window.clearTimeout(settleTimer);
     if (final) {
       done();
@@ -170,7 +202,9 @@ export function restoreMarketScroll(
   for (const event of ["wheel", "touchstart", "pointerdown", "keydown"]) {
     window.addEventListener(event, cancel, { capture: true, passive: true });
   }
-  // Let both React and the router finish committing their layout first.
-  frame = window.requestAnimationFrame(schedule);
+  // The caller runs in a layout effect: restore before the first paint, then
+  // repeat before the next paint if the router's own layout effects moved it.
+  restore();
+  if (!stopped) frame = window.requestAnimationFrame(() => restore());
   return cleanup;
 }

@@ -195,6 +195,32 @@ test("expired and invalid stored navigation is ignored", () => {
   );
 });
 
+test("instant return content is memory-only, bound to the authenticated viewer and exact departure", () => {
+  const f = fixture();
+  const state = saved();
+  const content = {
+    viewerId: "player-a",
+    items: [{ id: state.anchorId }],
+    page: { items: [], hasMore: false }
+  };
+  f.exports.rememberMarketReturn(state, content);
+  assert.equal(f.exports.readMarketReturnContent(state, "player-a"), content);
+  assert.equal(f.exports.readMarketReturnContent(state, "player-b"), null);
+  assert.equal(f.exports.readMarketReturnContent(state), null);
+  assert.equal(
+    f.exports.readMarketReturnContent(
+      { ...state, savedAt: state.savedAt - 1 },
+      "player-a"
+    ),
+    null
+  );
+  const reloaded = fixture({ stored: JSON.stringify(state) });
+  assert.equal(
+    reloaded.exports.readMarketReturnContent(state, "player-a"),
+    null
+  );
+});
+
 test("restoration waits for grid height and uses the opened auction as an anchor", () => {
   const f = fixture();
   let finished = 0;
@@ -227,6 +253,30 @@ test("restoration waits for grid height and uses the opened auction as an anchor
   assert.equal(f.listeners.size, 0);
 });
 
+test("return skips the page entrance scale before measuring and restoring the anchor", () => {
+  const f = fixture();
+  f.document.documentElement.scrollHeight = 6000;
+  const transition = { style: { animation: "page-enter" } };
+  const value = { ...saved(), anchorTop: 170 };
+  const root = {
+    closest: () => transition,
+    querySelectorAll: () => [
+      {
+        dataset: { marketAuction: value.anchorId },
+        getBoundingClientRect: () => ({
+          top:
+            (transition.style.animation === "none" ? 2570 : 2640) -
+            f.window.scrollY
+        })
+      }
+    ]
+  };
+  f.exports.restoreMarketScroll(value, root, () => {});
+  assert.equal(f.window.scrollY, 2400);
+  assert.equal(transition.style.animation, "none");
+  f.settle();
+});
+
 test("a bottom-row hover offset clamps immediately instead of leaving the page at the top", () => {
   const f = fixture();
   f.document.documentElement.scrollHeight = 2147;
@@ -240,8 +290,6 @@ test("a bottom-row hover offset clamps immediately instead of leaving the page a
     ]
   };
   f.exports.restoreMarketScroll(value, root, () => {});
-  f.tick();
-  f.tick();
   assert.deepEqual(
     f.scrolls,
     [1347],

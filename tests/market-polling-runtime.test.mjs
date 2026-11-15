@@ -132,6 +132,7 @@ test("market Load more retains its prefix size on polling and ignores a stale fi
         getSnapshot: () => null,
         getServerSnapshot: () => undefined
       }),
+      readMarketReturnContent: () => null,
       useEffect,
       startVisiblePolling: polling.exports.startVisiblePolling,
       window,

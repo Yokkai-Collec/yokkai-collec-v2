@@ -13,6 +13,7 @@ import {
   Suspense,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -51,6 +52,7 @@ import {
 import { useMarketSort } from "@/lib/ui/market-sort";
 import {
   createMarketReturnStore,
+  readMarketReturnContent,
   rememberMarketReturn,
   marketReturnQuery,
   restoreMarketScroll,
@@ -682,6 +684,7 @@ export function MarketView({
   marketPage,
   marketLimit = MARKET_PAGE_SIZE,
   initialNavigation,
+  onRememberNavigation,
   loadingMore = false,
   onQueryChange,
   onLoadMore
@@ -693,6 +696,7 @@ export function MarketView({
   marketPage?: MarketPage;
   marketLimit?: number;
   initialNavigation?: MarketReturn | null;
+  onRememberNavigation?: (navigation: MarketReturn) => void;
   loadingMore?: boolean;
   onQueryChange?: (query: MarketQuery) => void;
   onLoadMore?: () => void;
@@ -717,7 +721,7 @@ export function MarketView({
   const marketRoot = useRef<HTMLElement>(null);
   const scrollRestored = useRef(false);
   const navigationChanged = useRef(false);
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Next's Activity cache keeps refs/state but restarts effects on re-entry.
     // Each return must be eligible for a fresh scroll restoration.
     scrollRestored.current = false;
@@ -780,8 +784,8 @@ export function MarketView({
   };
   const mineCount = mineCounts?.all;
   const shown = section === "browse" ? browse : mine;
-  const scrollReady = shown !== undefined && !loadingMore;
-  useEffect(() => {
+  const scrollReady = shown !== undefined;
+  useLayoutEffect(() => {
     if (
       !initialNavigation ||
       scrollRestored.current ||
@@ -1024,7 +1028,7 @@ export function MarketView({
         );
         const tile = link?.closest<HTMLElement>("[data-market-auction]");
         if (!tile || link?.target === "_blank") return;
-        rememberMarketReturn({
+        const navigation: MarketReturn = {
           section,
           mineTab,
           query,
@@ -1036,7 +1040,9 @@ export function MarketView({
           anchorId: tile.dataset.marketAuction!,
           anchorTop: tile.getBoundingClientRect().top,
           savedAt: Date.now()
-        });
+        };
+        if (onRememberNavigation) onRememberNavigation(navigation);
+        else rememberMarketReturn(navigation);
       }}
     >
       {pageHeading ? (
@@ -3027,6 +3033,7 @@ export function buildAuctionLists(market: AuctionData[], viewer: string) {
 
 export function CommunityView({
   screen,
+  viewerId,
   account,
   name,
   joined,
@@ -3039,6 +3046,7 @@ export function CommunityView({
   children?: ReactNode;
   pageHeading?: ReactNode;
   screen: CommunityScreen;
+  viewerId?: string;
   account: ReactNode;
   name?: string;
   joined?: string;
@@ -3066,6 +3074,15 @@ export function CommunityView({
     marketLimitOverride ?? marketNavigation?.limit ?? MARKET_PAGE_SIZE;
   const [marketLoading, setMarketLoading] = useState(false);
   const [marketQueryOverride, setMarketQuery] = useState<MarketQuery>();
+  const cachedReturnContent = useMemo(
+    () =>
+      screen === "market" &&
+      !marketQueryOverride &&
+      marketLimit === marketNavigation?.limit
+        ? readMarketReturnContent(marketNavigation, viewerId)
+        : null,
+    [screen, marketQueryOverride, marketLimit, marketNavigation, viewerId]
+  );
   const marketQuery = useMemo<MarketQuery>(
     () =>
       marketQueryOverride ??
@@ -3300,14 +3317,20 @@ export function CommunityView({
     };
   }, [screen, isMe]);
   const feed = useNotificationFeed();
+  const displayedMarket = market ?? cachedReturnContent?.items;
+  const displayedViewer = viewer ?? cachedReturnContent?.viewerId;
+  const displayedMarketPage = marketPage ?? cachedReturnContent?.page;
   const lists =
-    market && viewer ? buildAuctionLists(market, viewer) : undefined;
-  const activeSales = marketPage?.counts
-    ? String(marketPage.counts.activeSales)
-    : market && viewer
+    displayedMarket && displayedViewer
+      ? buildAuctionLists(displayedMarket, displayedViewer)
+      : undefined;
+  const activeSales = displayedMarketPage?.counts
+    ? String(displayedMarketPage.counts.activeSales)
+    : displayedMarket && displayedViewer
       ? String(
-          market.filter(a => a.status === "active" && a.sellerId === viewer)
-            .length
+          displayedMarket.filter(
+            a => a.status === "active" && a.sellerId === displayedViewer
+          ).length
         )
       : undefined;
   async function refreshAuction() {
@@ -3406,7 +3429,11 @@ export function CommunityView({
         {screen !== "market" && screen !== "search" && (
           <div>
             {screen === "auction" && (
-              <Link href="/market" className="yk-back-link">
+              <Link
+                href="/market"
+                scroll={!marketNavigation}
+                className="yk-back-link"
+              >
                 {tError("market.back")}
               </Link>
             )}
@@ -3454,7 +3481,19 @@ export function CommunityView({
               pageHeading={pageHeading}
               lists={lists}
               activeSales={activeSales}
-              marketPage={marketPage}
+              marketPage={displayedMarketPage}
+              onRememberNavigation={navigation =>
+                rememberMarketReturn(
+                  navigation,
+                  displayedMarket && displayedMarketPage && viewerId
+                    ? {
+                        viewerId,
+                        items: displayedMarket,
+                        page: displayedMarketPage
+                      }
+                    : undefined
+                )
+              }
               marketLimit={marketLimit}
               loadingMore={marketLoading}
               onQueryChange={changeMarketQuery}
