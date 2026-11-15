@@ -92,6 +92,7 @@ function interactions(read) {
     "components/wall-post-interactions.tsx",
     {
       "@/components/wall-mentions": wallMentions,
+      "@/lib/ui/paste-image": { pasteImage: () => {} },
       react: mockReact,
       "next/link": {
         __esModule: true,
@@ -210,6 +211,7 @@ test("API metadata controls owner moderation and stranger notice, with old paylo
   }
   const { ProfileWall } = load("components/profile-wall.tsx", {
     "@/components/wall-mentions": wallMentions,
+    "@/lib/ui/paste-image": { pasteImage: () => {} },
     "next/link": {
       __esModule: true,
       default: ({ children, ...props }) =>

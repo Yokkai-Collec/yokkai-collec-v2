@@ -37,6 +37,11 @@ import {
   type PrivateMessagesAdapter
 } from "@/lib/data/private-messages";
 import { startVisiblePolling } from "@/lib/ui/visible-polling";
+import {
+  PrivateMessageMedia,
+  MessageImageDraft,
+  useMessageImage
+} from "@/components/private-message-media";
 
 function mergeMessages(first: PrivateMessage[], second: PrivateMessage[]) {
   return [
@@ -111,11 +116,21 @@ export function PrivateMessages({
   const pending = useRef<{
     text: string;
     gifUrl: string | null;
+    image?: File;
     id: string;
   } | null>(null);
   const sendingRef = useRef(false);
   const mounted = useRef(true);
   const scrollRestore = useRef<{ height: number; top: number } | null>(null);
+  const { image, clearImage, onPaste } = useMessageImage(
+    setSendError,
+    () => sendingRef.current || loading || unavailable || !page,
+    () => setGif(null)
+  );
+  function keepLatestVisible() {
+    if (stickToBottom.current && scroll.current)
+      scroll.current.scrollTop = scroll.current.scrollHeight;
+  }
 
   useEffect(() => {
     mounted.current = true;
@@ -288,7 +303,7 @@ export function PrivateMessages({
     event?.preventDefault();
     const text = draft.trim();
     if (
-      (!text && !gif) ||
+      (!text && !gif && !image) ||
       Array.from(text).length > 2000 ||
       !page ||
       unavailable ||
@@ -302,15 +317,22 @@ export function PrivateMessages({
     if (
       !pending.current ||
       pending.current.text !== text ||
-      pending.current.gifUrl !== gifUrl
+      pending.current.gifUrl !== gifUrl ||
+      pending.current.image !== image?.file
     )
-      pending.current = { text, gifUrl, id: crypto.randomUUID() };
+      pending.current = {
+        text,
+        gifUrl,
+        image: image?.file,
+        id: crypto.randomUUID()
+      };
     try {
       const message = await adapter.send(
         friend.id,
         text,
         pending.current.id,
-        gifUrl
+        gifUrl,
+        image?.file
       );
       if (!mounted.current) return;
       stickToBottom.current = true;
@@ -323,6 +345,7 @@ export function PrivateMessages({
       );
       setDraft("");
       setGif(null);
+      clearImage();
       pending.current = null;
     } catch (reason) {
       if (!mounted.current) return;
@@ -526,20 +549,10 @@ export function PrivateMessages({
                     </p>
                   )}
                   {message.text && <p>{message.text}</p>}
-                  {message.gifUrl && isPrivateMessageGif(message.gifUrl) && (
-                    <img
-                      className="yk-private-message-gif"
-                      src={message.gifUrl}
-                      alt={t("gifAlt")}
-                      loading="lazy"
-                      referrerPolicy="no-referrer"
-                      onLoad={() => {
-                        if (stickToBottom.current && scroll.current)
-                          scroll.current.scrollTop =
-                            scroll.current.scrollHeight;
-                      }}
-                    />
-                  )}
+                  <PrivateMessageMedia
+                    message={message}
+                    onLoad={keepLatestVisible}
+                  />
                   <time
                     dateTime={message.createdAt}
                     title={format.dateTime(new Date(message.createdAt), {
@@ -617,7 +630,15 @@ export function PrivateMessages({
         <form
           className="yk-private-messages-compose"
           onSubmit={event => void send(event)}
+          onPaste={onPaste}
         >
+          {image && (
+            <MessageImageDraft
+              url={image.url}
+              disabled={sending}
+              onRemove={clearImage}
+            />
+          )}
           {gif && (
             <div className="yk-private-messages-gif-draft">
               <img
@@ -660,6 +681,7 @@ export function PrivateMessages({
                     return;
                   }
                   setGif(choice);
+                  clearImage();
                   setSendError("");
                 }}
               />
@@ -680,7 +702,7 @@ export function PrivateMessages({
                 loading ||
                 unavailable ||
                 !page ||
-                (!draft.trim() && !gif)
+                (!draft.trim() && !gif && !image)
               }
             >
               {sending ? t("sending") : t("send")}

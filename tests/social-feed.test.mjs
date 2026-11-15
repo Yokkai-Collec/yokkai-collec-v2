@@ -182,6 +182,7 @@ test("Feed uses the actual profile post UI, private media route and interaction 
   const liveWall = {};
   const { ProfileWall } = load("components/profile-wall.tsx", {
     "@/components/wall-mentions": wallMentions,
+    "@/lib/ui/paste-image": { pasteImage: () => {} },
     "@/components/player-moderation": { PlayerModeration: () => null },
     "next/link": {
       __esModule: true,

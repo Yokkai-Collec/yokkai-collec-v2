@@ -16,6 +16,7 @@ import {
 } from "@/components/wall-mentions";
 import { PlayerModeration } from "@/components/player-moderation";
 import { useIsAdmin } from "@/hooks/use-is-admin";
+import { pasteImage } from "@/lib/ui/paste-image";
 import {
   liveWall,
   wallRequestId,
@@ -167,11 +168,6 @@ export function ProfileWall({
   }
   function changeAttachment(next: File | null, nextGif = "") {
     if (lock.current) return;
-    if (uploaded.current) {
-      void discard(uploaded.current.path);
-      uploaded.current = null;
-    }
-    requestId.current = null;
     setError("");
     if (
       next &&
@@ -184,6 +180,11 @@ export function ProfileWall({
       setError("JPG, PNG, WebP, or GIF, up to 6 MB.");
       return;
     }
+    if (uploaded.current) {
+      void discard(uploaded.current.path);
+      uploaded.current = null;
+    }
+    requestId.current = null;
     setFile(next);
     setPreview(next ? URL.createObjectURL(next) : "");
     setGif(nextGif);
@@ -307,6 +308,7 @@ export function ProfileWall({
       {isMe && !feedPost && (
         <form
           className="yk-profile-surface yk-wall-composer"
+          onPaste={event => pasteImage(event, changeAttachment)}
           onSubmit={event => {
             event.preventDefault();
             void publish();

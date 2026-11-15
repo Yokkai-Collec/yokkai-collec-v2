@@ -1295,6 +1295,8 @@
     }
   },
   "privateMessages": {
+    "imageAlt": "Image jointe",
+    "removeImage": "Retirer l’image",
     "removedByModeration": "Message retiré par la modération.",
     "title": "Messages avec {name}",
     "friend": "Ami",
@@ -1568,7 +1570,7 @@
     "wallImage": "Image du mur",
     "publishing": "Publication…",
     "publish": "Publier",
-    "oneImageOrGIFPerPostUpTo": "Une image ou un GIF par publication · Jusqu’à 6 Mo. La visibilité suit les paramètres de ton profil.",
+    "oneImageOrGIFPerPostUpTo": "Colle ou ajoute une image ou un GIF par publication · Jusqu’à 6 Mo. La visibilité suit les paramètres de ton profil.",
     "reloadWall": "Recharger le mur",
     "unusedFileNotice": "Un fichier inutilisé attend d’être supprimé.",
     "retryCleanup": "Réessayer le nettoyage",
@@ -2230,6 +2232,7 @@
     "openConversation": "Ouvrir la conversation avec {name}",
     "removed": "Message supprimé",
     "gif": "GIF",
+    "image": "Image",
     "youPreview": "Toi : {text}",
     "chooseFriend": "Nouveau message",
     "chooseFriendHint": "Choisis un ami pour discuter ici.",

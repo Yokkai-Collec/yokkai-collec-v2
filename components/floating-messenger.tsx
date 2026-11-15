@@ -195,7 +195,9 @@ export function MessengerSession({
         ? t("removed")
         : item.kind === "gif"
           ? t("gif")
-          : item.preview;
+          : item.kind === "image"
+            ? t("image")
+            : item.preview;
     return item.own ? t("youPreview", { text }) : text;
   }
   const counts = new Map(

@@ -8,7 +8,7 @@ export type ConversationSummary = {
   lastAt: string;
   own: boolean;
   preview: string;
-  kind: "text" | "gif" | "moderated";
+  kind: "text" | "gif" | "image" | "moderated";
 };
 export type ConversationPage = {
   viewerId: string;
