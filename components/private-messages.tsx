@@ -21,6 +21,7 @@ import { GifPicker, type GifChoice } from "@/components/gif-picker";
 import { EmojiReactionPicker } from "@/components/emoji-reaction-picker";
 import { reactionEmoji } from "@/lib/ui/reaction-emojis";
 import { insertMessageEmoji } from "@/lib/ui/message-emoji";
+import { allowFileDrop, dropImage } from "@/lib/ui/paste-image";
 import { TradesPanel, type TradesPanelAdapter } from "@/components/trades";
 import { ConversationTrade } from "@/components/conversation-trade";
 import { useConversationTrades } from "@/hooks/use-conversation-trades";
@@ -632,6 +633,8 @@ export function PrivateMessages({
           className="yk-private-messages-compose"
           onSubmit={event => void send(event)}
           onPaste={onPaste}
+          onDragOver={allowFileDrop}
+          onDrop={event => dropImage(event, attachImage)}
         >
           {image && (
             <MessageImageDraft
