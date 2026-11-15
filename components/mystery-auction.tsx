@@ -51,7 +51,9 @@ export function MysteryEventHeader({
             {t("weeklyEvent")}
           </p>
           <h1>{t("title")}</h1>
-          <p className="yk-mystery-event-subtitle">{t("eventIntro")}</p>
+          <p className="yk-mystery-event-subtitle">
+            {t(finished ? "endedIntro" : "eventIntro")}
+          </p>
         </div>
         <div className="yk-mystery-event-clock">
           <span className="yk-mystery-event-state">

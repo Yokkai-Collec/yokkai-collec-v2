@@ -1773,12 +1773,20 @@ export function AuctionView({
             </div>
             <h2 className="mt-2 font-display">
               {auction.mysteryHidden
-                ? t("mysteryAuction.enterAuction")
+                ? t(
+                    auction.finished
+                      ? "mysteryAuction.resultTitle"
+                      : "mysteryAuction.enterAuction"
+                  )
                 : auction.card.name}
             </h2>
             {auction.isMystery ? (
               <p className="mt-2 text-sm text-ink-2">
-                {t("mysteryAuction.description")}
+                {t(
+                  auction.finished
+                    ? "mysteryAuction.resultDescription"
+                    : "mysteryAuction.description"
+                )}
               </p>
             ) : (
               <p className="yk-auction-seller mt-2 text-sm text-ink-2">
