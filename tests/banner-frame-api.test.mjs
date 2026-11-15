@@ -83,6 +83,24 @@ test("legacy appearance saves keep their exact RPC contract", async () => {
   assert.equal("p_banner_frame" in calls[0].args, false);
 });
 
+test("the title and profile draft are sent in one save request", async () => {
+  const { api, calls } = setup();
+  await api.saveProfileAppearance(
+    "New bio",
+    null,
+    [],
+    null,
+    null,
+    undefined,
+    "reseller"
+  );
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].name, "update_profile_appearance_titled");
+  assert.equal(calls[0].args.p_bio, "New bio");
+  assert.equal(calls[0].args.p_title_id, "reseller");
+  assert.equal(calls[0].args.p_banner_frame, null);
+});
+
 test("missing migration or invalid framing never silently discards the requested crop", async () => {
   for (const [error, message] of [
     [{ code: "PGRST202" }, /not available yet/],

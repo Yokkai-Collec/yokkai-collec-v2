@@ -79,10 +79,15 @@ test("friends, searches and inbox project current paid and lifetime Pro cosmetic
     for (const n of [2, 3])
       assert.deepEqual(players.find(p => p.id === id(n)).profileStyle, {
         active: true,
-        style
+        style,
+        titleId: "collector"
       });
     for (const p of players.filter(p => p.id === id(4)))
-      assert.deepEqual(p.profileStyle, { active: false, style: {} });
+      assert.deepEqual(p.profileStyle, {
+        active: false,
+        style: {},
+        titleId: "collector"
+      });
   }
   await db.query(
     "update public.pro_access_grants set expires_at=now()-interval '1 second'where user_id=$1",
@@ -91,7 +96,7 @@ test("friends, searches and inbox project current paid and lifetime Pro cosmetic
   for (const [sql, rows] of endpoints)
     assert.deepEqual(
       rows(await read(sql)).find(p => p.id === id(3)).profileStyle,
-      { active: false, style: {} }
+      { active: false, style: {}, titleId: "collector" }
     );
   await db.query(
     "insert into public.user_blocks(blocker_id,blocked_id)values($1,$2)",

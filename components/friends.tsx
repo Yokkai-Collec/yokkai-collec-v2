@@ -1,6 +1,7 @@
 "use client";
 import { StyledPlayerAvatar } from "@/components/styled-player-avatar";
 import { StyledPlayerName } from "@/components/styled-player-name";
+import { PlayerTitle } from "@/components/player-title";
 
 import { gameErrorKey } from "@/i18n/game-messages";
 import { useFormatter, useTranslations } from "next-intl";
@@ -297,6 +298,9 @@ function Person({
             cosmetics={person.profileStyle}
           />
         </strong>
+        <small className="yk-social-player-title">
+          <PlayerTitle titleId={person.profileStyle?.titleId} />
+        </small>
         <small
           className={
             showPresence && person.isOnline ? "yk-presence-online" : undefined

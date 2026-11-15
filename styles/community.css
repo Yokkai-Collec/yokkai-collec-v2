@@ -820,6 +820,10 @@
   color: var(--color-success);
   font-weight: 600;
 }
+.yk-social-person small.yk-social-player-title {
+  color: var(--color-accent-gold);
+  overflow-wrap: anywhere;
+}
 .yk-friend-action-buttons {
   display: flex;
   flex-wrap: wrap;

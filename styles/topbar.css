@@ -317,7 +317,8 @@
   inset-inline-end: -3px;
   box-shadow: 0 0 0 2px var(--color-surface);
 }
-.yk-account-achievements {
+.yk-account-achievements,
+.yk-account-profile {
   position: relative;
 }
 .yk-account-achievements > .yk-progress-badge {
@@ -389,6 +390,11 @@
   font-size: 12px;
   font-weight: 600;
 }
+.yk-account-summary .yk-account-title-line {
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: anywhere;
+}
 .yk-account-karas {
   display: none;
 }
@@ -416,6 +422,13 @@
 .yk-account-action svg {
   flex: 0 0 auto;
   transition: filter 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.yk-account-title-notice {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: calc(var(--spacing) * 3);
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 .yk-account-action:hover,
 .yk-account-action:focus-visible {

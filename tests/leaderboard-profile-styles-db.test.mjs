@@ -106,11 +106,16 @@ test("leaderboard styles follow current paid and manual Pro access without chang
       result.entries.map(e => e.userId).sort()
     );
     for (const n of [1, 2])
-      assert.deepEqual(result.profileStyles[id(n)], { active: true, style });
+      assert.deepEqual(result.profileStyles[id(n)], {
+        active: true,
+        style,
+        titleId: "collector"
+      });
     for (const n of [3, 4])
       assert.deepEqual(result.profileStyles[id(n)], {
         active: false,
-        style: {}
+        style: {},
+        titleId: "collector"
       });
     assert.equal(result.profileStyles[id(5)], undefined);
     assert.equal(result.profileStyles[id(6)], undefined);
@@ -159,7 +164,8 @@ test("leaderboard styles follow current paid and manual Pro access without chang
     for (const n of [1, 2])
       assert.deepEqual(result.profileStyles[id(n)], {
         active: false,
-        style: {}
+        style: {},
+        titleId: "collector"
       });
     assert.deepEqual(
       result.entries.map(e => e.position),

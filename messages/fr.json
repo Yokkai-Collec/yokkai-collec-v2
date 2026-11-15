@@ -1,4 +1,19 @@
 {
+  "playerTitles": {
+    "names": {
+      "collector": "Collectionneur",
+      "reseller": "Revendeur",
+      "explorer": "Explorateur"
+    },
+    "label": "Titre du joueur",
+    "newTitles": "{count, plural, one {# nouveau titre} other {# nouveaux titres}}",
+    "viewNewTitles": "Voir les nouveaux titres",
+    "seenFailed": "Impossible de marquer tes nouveaux titres comme vus. Réessaie.",
+    "saving": "Enregistrement du titre…",
+    "saved": "Titre mis à jour.",
+    "notUnlocked": "Tu n’as pas débloqué ce titre.",
+    "saveFailed": "Impossible de modifier ton titre. Réessaie."
+  },
   "discordReward": {
     "discordLabel": "Discord",
     "twitterLabel": "Twitter",

@@ -135,6 +135,7 @@ export default async function RootLayout({
       "authTurnstile",
       "signOutButton",
       "topbar",
+      "playerTitles",
       "authCardCustomization",
       "authCardCarousel",
       "authBinderShowcase",

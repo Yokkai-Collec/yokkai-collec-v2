@@ -1,4 +1,5 @@
 import { intl, gameMessages, loadLocaleModule } from "./helpers/i18n.mjs";
+import { playerTitles } from "./helpers/player-titles.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -30,9 +31,11 @@ function load(file, mocks) {
             ? gameMessages
             : name === "@/i18n/locale"
               ? loadLocaleModule()
-              : name in mocks
-                ? mocks[name]
-                : require(name)
+              : name === "@/components/player-title"
+                ? playerTitles
+                : name in mocks
+                  ? mocks[name]
+                  : require(name)
     }
   );
   return exports;
