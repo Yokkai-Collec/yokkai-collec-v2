@@ -16,7 +16,7 @@ import {
 } from "@/components/wall-mentions";
 import { PlayerModeration } from "@/components/player-moderation";
 import { useIsAdmin } from "@/hooks/use-is-admin";
-import { pasteImage } from "@/lib/ui/paste-image";
+import { allowFileDrop, dropImage, pasteImage } from "@/lib/ui/paste-image";
 import {
   liveWall,
   wallRequestId,
@@ -309,6 +309,8 @@ export function ProfileWall({
         <form
           className="yk-profile-surface yk-wall-composer"
           onPaste={event => pasteImage(event, changeAttachment)}
+          onDragOver={allowFileDrop}
+          onDrop={event => dropImage(event, changeAttachment)}
           onSubmit={event => {
             event.preventDefault();
             void publish();
