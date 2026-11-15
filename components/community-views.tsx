@@ -14,9 +14,11 @@ import {
   Suspense,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type ReactNode
 } from "react";
 import { animation } from "@/lib/ui/animations";
@@ -50,13 +52,18 @@ import {
 } from "@/lib/ui/market-labels";
 import { useMarketSort } from "@/lib/ui/market-sort";
 import {
+  readMarketReturn,
+  rememberMarketReturn,
+  restoreMarketScroll,
+  type MarketReturn
+} from "@/lib/ui/market-return";
+import {
   auctionReconciliationScopes,
   cancelAuction,
   getAuction,
   getAuctionChat,
-  browseAuctions,
-  MARKET_PAGE_SIZE,
   MARKET_MAX_ITEMS,
+  MARKET_PAGE_SIZE,
   type MarketQuery,
   type MarketPage,
   placeBid,
@@ -65,7 +72,6 @@ import {
   type AuctionData,
   type AuctionDetail
 } from "@/lib/data/market";
-import { localMarketFixture } from "@/lib/data/local-market-fixture";
 import { subscribePlayerSnapshotInvalidation } from "@/lib/data/player-state";
 import { TradesPanel } from "@/components/trades";
 import { type ModerationAdapter } from "@/lib/data/moderation";
@@ -88,6 +94,8 @@ import {
   FilterSection as CatalogueFilterSection,
   RarityChips
 } from "@/components/collection-filters";
+
+const MarketListings = dynamic(() => import("@/components/market-listings"));
 
 const ProfileExperience = dynamic(
   () => import("@/components/profile").then(module => module.ProfileExperience),
@@ -553,6 +561,7 @@ function AuctionTile({ auction: a }: { auction: AuctionPresentation }) {
   });
   return (
     <li
+      data-market-auction={a.id}
       className={
         outcome ? "yk-market-tile yk-market-tile-ended" : "yk-market-tile"
       }
@@ -673,6 +682,8 @@ export function MarketView({
   activeSales,
   marketPage,
   marketLimit = MARKET_PAGE_SIZE,
+  initialNavigation,
+  onRememberNavigation,
   loadingMore = false,
   onQueryChange,
   onLoadMore
@@ -683,6 +694,8 @@ export function MarketView({
   activeSales?: string;
   marketPage?: MarketPage;
   marketLimit?: number;
+  initialNavigation?: MarketReturn | null;
+  onRememberNavigation?: (navigation: MarketReturn) => void;
   loadingMore?: boolean;
   onQueryChange?: (query: MarketQuery) => void;
   onLoadMore?: () => void;
@@ -692,12 +705,27 @@ export function MarketView({
   const format = useFormatter();
   const formatKaras = (amount: number) => format.number(amount) + " Karas";
 
-  const [section, setSection] = useState(initialSection);
-  const [mineTab, setMineTab] = useState<MineTab>("all");
-  const [query, setQuery] = useState("");
-  const [rarity, setRarity] = useState<Rarity[]>([]);
+  const [section, setSection] = useState(
+    initialNavigation?.section ?? initialSection
+  );
+  const [mineTab, setMineTab] = useState<MineTab>(
+    initialNavigation?.mineTab ?? "all"
+  );
+  const [query, setQuery] = useState(initialNavigation?.query ?? "");
+  const [rarity, setRarity] = useState<Rarity[]>(
+    initialNavigation?.rarity ?? []
+  );
   const [sort, setSort] = useMarketSort();
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState(initialNavigation?.category ?? "");
+  const marketRoot = useRef<HTMLElement>(null);
+  const scrollRestored = useRef(false);
+  const navigationChanged = useRef(false);
+  useLayoutEffect(() => {
+    // Next's Activity cache keeps refs/state but restarts effects on re-entry.
+    // Each return must be eligible for a fresh scroll restoration.
+    scrollRestored.current = false;
+    navigationChanged.current = false;
+  }, []);
   const [filtersOpen, setFiltersOpen] = useState(false);
   useEffect(() => {
     if (!onQueryChange) return;
@@ -755,6 +783,20 @@ export function MarketView({
   };
   const mineCount = mineCounts?.all;
   const shown = section === "browse" ? browse : mine;
+  const scrollReady = shown !== undefined;
+  useLayoutEffect(() => {
+    if (
+      !initialNavigation ||
+      scrollRestored.current ||
+      !scrollReady ||
+      !marketRoot.current
+    )
+      return;
+    if (navigationChanged.current) return;
+    return restoreMarketScroll(initialNavigation, marketRoot.current, () => {
+      scrollRestored.current = true;
+    });
+  }, [initialNavigation, scrollReady]);
   const heading = !shown
     ? tm("loading")
     : section === "browse"
@@ -963,7 +1005,45 @@ export function MarketView({
     </div>
   );
   return (
-    <section aria-label={tm("region")} className="yk-market">
+    <section
+      ref={marketRoot}
+      aria-label={tm("region")}
+      className="yk-market"
+      onChangeCapture={() => {
+        navigationChanged.current = true;
+      }}
+      onClickCapture={event => {
+        if (
+          initialNavigation === undefined ||
+          event.button !== 0 ||
+          event.ctrlKey ||
+          event.metaKey ||
+          event.shiftKey ||
+          event.altKey
+        )
+          return;
+        const link = (event.target as HTMLElement).closest<HTMLAnchorElement>(
+          'a[href^="/market/"]'
+        );
+        const tile = link?.closest<HTMLElement>("[data-market-auction]");
+        if (!tile || link?.target === "_blank") return;
+        const navigation: MarketReturn = {
+          section,
+          mineTab,
+          query,
+          rarity,
+          category,
+          sort,
+          limit: marketLimit,
+          scrollY: window.scrollY,
+          anchorId: tile.dataset.marketAuction!,
+          anchorTop: tile.getBoundingClientRect().top,
+          savedAt: Date.now()
+        };
+        if (onRememberNavigation) onRememberNavigation(navigation);
+        else rememberMarketReturn(navigation);
+      }}
+    >
       {pageHeading ? (
         <header className="yk-market-heading">
           {pageHeading}
@@ -2953,8 +3033,11 @@ export function buildAuctionLists(market: AuctionData[], viewer: string) {
   };
 }
 
+const subscribeToStaticSnapshot = () => () => {};
+
 export function CommunityView({
   screen,
+  viewerId,
   account,
   name,
   joined,
@@ -2967,6 +3050,7 @@ export function CommunityView({
   children?: ReactNode;
   pageHeading?: ReactNode;
   screen: CommunityScreen;
+  viewerId?: string;
   account: ReactNode;
   name?: string;
   joined?: string;
@@ -2977,30 +3061,15 @@ export function CommunityView({
   const tError = useTranslations();
   const tv = useTranslations("catalogueUi");
   const router = useRouter();
+  const returningToMarket = useSyncExternalStore(
+    subscribeToStaticSnapshot,
+    () => screen === "auction" && Boolean(readMarketReturn()),
+    () => false
+  );
   const [collection, setCollection] = useState<CollectedCard[]>();
   const [error, setError] = useState("");
   const [karas, setKaras] = useState<number>();
   const [viewer, setViewer] = useState<string>();
-  const [market, setMarket] = useState<AuctionData[]>();
-  const [marketPage, setMarketPage] = useState<MarketPage>();
-  const [marketLimit, setMarketLimit] = useState(MARKET_PAGE_SIZE);
-  const [marketLoading, setMarketLoading] = useState(false);
-  const [marketQuery, setMarketQuery] = useState<MarketQuery>({
-    query: "",
-    rarity: "",
-    category: "",
-    sort: "end",
-    section: "active"
-  });
-  const marketQueryRef = useRef(marketQuery);
-  const changeMarketQuery = useCallback((next: MarketQuery) => {
-    if (JSON.stringify(next) === JSON.stringify(marketQueryRef.current)) return;
-    marketQueryRef.current = next;
-    setMarketQuery(next);
-    setMarketLimit(MARKET_PAGE_SIZE);
-    setMarket(undefined);
-    setMarketPage(undefined);
-  }, []);
   const [auction, setAuction] = useState<AuctionDetail>();
   const [, setClock] = useState(0);
   const [extended, setExtended] = useState(false);
@@ -3009,7 +3078,6 @@ export function CommunityView({
   );
   const extensionTimer = useRef<number | undefined>(undefined);
   const viewerRef = useRef<string | undefined>(undefined);
-  const marketRef = useRef<AuctionData[] | undefined>(undefined);
   const auctionRef = useRef<AuctionDetail | undefined>(undefined);
   // Presentation only: flags the notice when the server-provided endsAt moves later (anti-snipe already applied by place_bid).
   const receiveAuction = useCallback((next: AuctionDetail) => {
@@ -3085,78 +3153,6 @@ export function CommunityView({
     };
   }, [screen, isMe, playerId, auctionId, receiveAuction]);
   useEffect(() => {
-    if (screen !== "market") return;
-    let active = true,
-      loading = false;
-    const refresh = async () => {
-      if (loading || document.visibilityState === "hidden") return;
-      loading = true;
-      setMarketLoading(true);
-      try {
-        const page = await browseAuctions(marketQuery, marketLimit);
-        if (!active) return;
-        // A fresh local database is normally empty. Populate only the local
-        // development view so the real Market route remains reviewable; live
-        // environments always preserve the server response and empty state.
-        const useLocalFixture =
-          process.env.NODE_ENV !== "production" &&
-          marketQuery.section === "active" &&
-          page.items.length === 0;
-        const next = useLocalFixture
-          ? localMarketFixture(marketQuery)
-          : page.items;
-        const resolvedPage = useLocalFixture
-          ? {
-              ...page,
-              items: next,
-              hasMore: false,
-              counts: {
-                mine: 0,
-                won: 0,
-                sold: 0,
-                ...page.counts,
-                active: next.length,
-                activeSales: 0
-              },
-              categories: [
-                ...new Set(next.map(auction => auction.card.category))
-              ].sort()
-            }
-          : page;
-        const scopes = auctionReconciliationScopes(
-          marketRef.current ?? [],
-          next,
-          viewerRef.current
-        );
-        marketRef.current = next;
-        if (scopes.length) invalidatePlayerSnapshots(scopes);
-        setMarket(next);
-        setMarketPage(resolvedPage);
-        setError("");
-      } catch (e) {
-        if (active)
-          setError(
-            e instanceof Error
-              ? e.message
-              : "Couldn't load the market. Please try again."
-          );
-      } finally {
-        loading = false;
-        if (active) setMarketLoading(false);
-      }
-    };
-    // #388: the list is not live; actions and invalidations refresh it sooner.
-    const stop = startVisiblePolling(() => void refresh(), 30_000);
-    const unsubscribe = subscribePlayerSnapshotInvalidation(scopes => {
-      if (scopes.includes("collection")) void refresh();
-    });
-    return () => {
-      active = false;
-      stop();
-      unsubscribe();
-    };
-  }, [screen, marketQuery, marketLimit]);
-  useEffect(() => {
     if (screen !== "auction") return;
     let active = true;
     let loading = false;
@@ -3211,42 +3207,9 @@ export function CommunityView({
     };
   }, [screen, isMe]);
   const feed = useNotificationFeed();
-  const lists =
-    market && viewer ? buildAuctionLists(market, viewer) : undefined;
-  const activeSales = marketPage?.counts
-    ? String(marketPage.counts.activeSales)
-    : market && viewer
-      ? String(
-          market.filter(a => a.status === "active" && a.sellerId === viewer)
-            .length
-        )
-      : undefined;
   async function refreshAuction() {
     if (!auctionId) return;
     receiveAuction(await getAuction(auctionId));
-  }
-  async function watchFromMarket(id: string) {
-    if (
-      process.env.NODE_ENV !== "production" &&
-      id.startsWith("local-market-demo-")
-    ) {
-      setMarket(current =>
-        current?.map(item =>
-          item.id === id ? { ...item, watched: !item.watched } : item
-        )
-      );
-      return;
-    }
-    try {
-      const watched = await toggleWatch(id);
-      setMarket(current =>
-        current?.map(item => (item.id === id ? { ...item, watched } : item))
-      );
-    } catch (e) {
-      setError(
-        e instanceof Error ? e.message : "Couldn't update your watchlist."
-      );
-    }
   }
   async function watchAuction() {
     if (!auction) return;
@@ -3317,7 +3280,11 @@ export function CommunityView({
         {screen !== "market" && screen !== "search" && (
           <div>
             {screen === "auction" && (
-              <Link href="/market" className="yk-back-link">
+              <Link
+                href="/market"
+                scroll={!returningToMarket}
+                className="yk-back-link"
+              >
                 {tError("market.back")}
               </Link>
             )}
@@ -3360,22 +3327,14 @@ export function CommunityView({
           {screen === "friends" && (children ?? <FriendsView />)}
           {screen === "feed" && children}
           {screen === "market" && (
-            <MarketView
+            <MarketListings
+              view={MarketView}
+              buildAuctionLists={buildAuctionLists}
+              viewerId={viewerId ?? viewer}
               pageHeading={pageHeading}
-              lists={lists}
-              activeSales={activeSales}
-              marketPage={marketPage}
-              marketLimit={marketLimit}
-              loadingMore={marketLoading}
-              onQueryChange={changeMarketQuery}
-              onLoadMore={() =>
-                setMarketLimit(limit =>
-                  Math.min(MARKET_MAX_ITEMS, limit + MARKET_PAGE_SIZE)
-                )
-              }
-              onToggleWatch={watchFromMarket}
+              onError={setError}
             />
-          )}{" "}
+          )}
           {screen === "auction" && (
             <AuctionView
               auction={

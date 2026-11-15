@@ -77,13 +77,17 @@ test("un ancien meneur remboursé reste détecté si l'enchère disparaît entre
 });
 
 test("le polling Marché : liste à 30 s, enchère ouverte à 3 s, onglet caché en pause, anti-snipe conservé", () => {
+  const listSource = readFileSync(
+    new URL("../components/market-listings.tsx", import.meta.url),
+    "utf8"
+  );
   const source = readFileSync(
     new URL("../components/community-views.tsx", import.meta.url),
     "utf8"
   );
   // #388: list at 30 s; the open auction stays at 3 s; both pause when hidden.
   assert.match(
-    normalizeWhitespace(source),
+    normalizeWhitespace(listSource),
     normalizeWhitespace(/startVisiblePolling\(\(\)=>void refresh\(\),30_000\)/)
   );
   assert.match(
@@ -93,9 +97,9 @@ test("le polling Marché : liste à 30 s, enchère ouverte à 3 s, onglet caché
     )
   );
   assert.match(
-    normalizeWhitespace(source),
+    normalizeWhitespace(listSource),
     normalizeWhitespace(
-      /auctionReconciliationScopes\(marketRef\.current\?\?\[\],next,viewerRef\.current\)/
+      /auctionReconciliationScopes\(marketRef\.current\?\?\[\],next,viewerId\)/
     )
   );
   assert.match(

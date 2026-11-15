@@ -31,6 +31,7 @@ export async function CommunityPage({
       <CommunityView
         key={`${screen}:${playerId ?? auctionId ?? user.id}`}
         screen={screen}
+        viewerId={user.id}
         pageHeading={pageHeading}
         account={<AccountMenu />}
         name={name ?? undefined}
