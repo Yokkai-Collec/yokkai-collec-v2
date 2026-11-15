@@ -40,6 +40,7 @@ import { startVisiblePolling } from "@/lib/ui/visible-polling";
 import {
   PrivateMessageMedia,
   MessageImageDraft,
+  MessageImagePicker,
   useMessageImage
 } from "@/components/private-message-media";
 
@@ -122,7 +123,7 @@ export function PrivateMessages({
   const sendingRef = useRef(false);
   const mounted = useRef(true);
   const scrollRestore = useRef<{ height: number; top: number } | null>(null);
-  const { image, clearImage, onPaste } = useMessageImage(
+  const { image, attachImage, clearImage, onPaste } = useMessageImage(
     setSendError,
     () => sendingRef.current || loading || unavailable || !page,
     () => setGif(null)
@@ -673,6 +674,10 @@ export function PrivateMessages({
           />
           <div className="yk-private-messages-toolbar">
             <div className="yk-private-messages-tools">
+              <MessageImagePicker
+                disabled={sending || loading || unavailable || !page}
+                onSelect={attachImage}
+              />
               <GifPicker
                 disabled={sending || loading || unavailable || !page}
                 onSelect={choice => {

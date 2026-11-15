@@ -2,12 +2,14 @@
 
 /* eslint-disable @next/next/no-img-element -- Private URLs and animated GIFs use the browser directly. */
 import { useTranslations } from "next-intl";
-import { useEffect, useState, type ClipboardEvent } from "react";
+import { useEffect, useRef, useState, type ClipboardEvent } from "react";
 import {
   isPrivateMessageGif,
   type PrivateMessage
 } from "@/lib/data/private-messages";
 import { pasteImage } from "@/lib/ui/paste-image";
+
+const imageTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
 export function useMessageImage(
   showError: (error: string) => void,
@@ -21,27 +23,78 @@ export function useMessageImage(
     },
     [image]
   );
+  function attachImage(file: File) {
+    if (disabled()) return;
+    if (
+      !imageTypes.includes(file.type) ||
+      !file.size ||
+      file.size > 6 * 1024 * 1024
+    ) {
+      showError("JPG, PNG, WebP, or GIF, up to 6 MB.");
+      return;
+    }
+    setImage({ file, url: URL.createObjectURL(file) });
+    onAttach();
+    showError("");
+  }
   return {
     image,
+    attachImage,
     clearImage: () => setImage(undefined),
-    onPaste: (event: ClipboardEvent) =>
-      pasteImage(event, file => {
-        if (disabled()) return;
-        if (
-          !["image/jpeg", "image/png", "image/webp", "image/gif"].includes(
-            file.type
-          ) ||
-          !file.size ||
-          file.size > 6 * 1024 * 1024
-        ) {
-          showError("JPG, PNG, WebP, or GIF, up to 6 MB.");
-          return;
-        }
-        setImage({ file, url: URL.createObjectURL(file) });
-        onAttach();
-        showError("");
-      })
+    onPaste: (event: ClipboardEvent) => pasteImage(event, attachImage)
   };
+}
+
+export function MessageImagePicker({
+  disabled,
+  onSelect
+}: {
+  disabled: boolean;
+  onSelect: (file: File) => void;
+}) {
+  const t = useTranslations("profileUi");
+  const input = useRef<HTMLInputElement>(null);
+  const label = t("addImage");
+  return (
+    <>
+      <button
+        type="button"
+        className="yk-message-image-trigger"
+        aria-label={label}
+        title={label}
+        disabled={disabled}
+        onClick={() => input.current?.click()}
+      >
+        <svg
+          aria-hidden="true"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.7"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <rect x="3" y="3" width="18" height="18" rx="3" />
+          <circle cx="8.5" cy="8.5" r="1.5" />
+          <path d="m21 16-5-5L6 21" />
+        </svg>
+      </button>
+      <input
+        ref={input}
+        type="file"
+        accept={imageTypes.join(",")}
+        disabled={disabled}
+        hidden
+        onChange={event => {
+          const file = event.currentTarget.files?.[0];
+          event.currentTarget.value = "";
+          if (file) onSelect(file);
+        }}
+      />
+    </>
+  );
 }
 
 export function MessageImageDraft({
