@@ -1549,6 +1549,7 @@ export function AuctionChatPanel({
                   <Link href={`/profile/${encodeURIComponent(item.pseudo)}`}>
                     <StyledPlayerName
                       name={item.pseudo}
+                      playerId={item.userId}
                       cosmetics={item.profileStyle}
                       fallbackLabel={item.mine ? t("profileUi.you") : undefined}
                     />
@@ -1675,6 +1676,7 @@ export function AuctionChatPanel({
                         @
                         <StyledPlayerName
                           name={participant.pseudo}
+                          playerId={participant.userId}
                           cosmetics={participant.profileStyle}
                         />
                       </span>

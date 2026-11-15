@@ -1377,6 +1377,7 @@
     "missing": "Cette carte n?est plus dans le catalogue. Elle a peut-?tre ?t? supprim?e."
   },
   "profileUi": {
+    "officialAccount": "Compte officiel de Yokkai",
     "zoomInImage": "Zoomer sur l’image",
     "zoomOutImage": "Dézoomer l’image",
     "enlargeImage": "Agrandir l’image",

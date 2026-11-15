@@ -114,6 +114,7 @@ export function HomeCommunityRanking({
         <strong>
           <StyledPlayerName
             name={entry.pseudo}
+            playerId={entry.userId}
             cosmetics={data.profileStyles[entry.userId]}
           />
         </strong>

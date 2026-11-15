@@ -395,6 +395,7 @@ export function CommunityLeaderboardView({
                           <strong>
                             <StyledPlayerName
                               name={entry.pseudo}
+                              playerId={entry.userId}
                               cosmetics={data.profileStyles[entry.userId]}
                             />
                             {entry.userId === userId && (

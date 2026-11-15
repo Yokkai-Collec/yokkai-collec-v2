@@ -101,6 +101,7 @@ export function PrivateMessages({
   const [unavailable, setUnavailable] = useState(false);
   const [retry, setRetry] = useState(0);
   const [visibleTrades, setVisibleTrades] = useState(20);
+  const composerDisabled = sending || loading || unavailable || !page;
   const trades = useConversationTrades(
     page?.viewerId,
     friend.id,
@@ -189,7 +190,7 @@ export function PrivateMessages({
         if (active) setLoading(false);
       }
     };
-    const stop = startVisiblePolling(() => void refresh(), 5_000);
+    const stop = startVisiblePolling(refresh, 5_000);
     const onFocus = () => {
       if (!document.hidden) void refresh();
     };
@@ -238,7 +239,7 @@ export function PrivateMessages({
         busy = false;
       }
     };
-    const stop = startVisiblePolling(() => void acknowledge(), 5_000);
+    const stop = startVisiblePolling(acknowledge, 5_000);
     return () => {
       active = false;
       stop();
@@ -374,7 +375,7 @@ export function PrivateMessages({
   function insertEmoji(id: string) {
     const emoji = reactionEmoji(id)?.emoji;
     const input = composer.current;
-    if (!emoji || !input || sending || loading || unavailable || !page) return;
+    if (!emoji || !input || composerDisabled) return;
     const next = insertMessageEmoji(
       draft,
       emoji,
@@ -433,6 +434,7 @@ export function PrivateMessages({
               >
                 <StyledPlayerName
                   name={friend.pseudo}
+                  playerId={friend.id}
                   cosmetics={friend.profileStyle}
                 />
               </Link>
@@ -476,7 +478,7 @@ export function PrivateMessages({
               <Button
                 variant="secondary"
                 disabled={loadingOlder}
-                onClick={() => void older()}
+                onClick={older}
               >
                 {loadingOlder ? t("loading") : t("older")}
               </Button>
@@ -603,7 +605,7 @@ export function PrivateMessages({
             <button
               type="button"
               disabled={!!trades.busyId}
-              onClick={() => void trades.retry()}
+              onClick={trades.retry}
             >
               {t("retryTrades")}
             </button>
@@ -631,7 +633,7 @@ export function PrivateMessages({
         )}
         <form
           className="yk-private-messages-compose"
-          onSubmit={event => void send(event)}
+          onSubmit={send}
           onPaste={onPaste}
           onDragOver={allowFileDrop}
           onDrop={event => dropImage(event, attachImage)}
@@ -670,7 +672,7 @@ export function PrivateMessages({
             value={draft}
             maxLength={2000}
             rows={3}
-            disabled={sending || loading || unavailable || !page}
+            disabled={composerDisabled}
             onChange={event => setDraft(event.target.value)}
             onKeyDown={onKeyDown}
             aria-describedby="private-message-length"
@@ -678,11 +680,11 @@ export function PrivateMessages({
           <div className="yk-private-messages-toolbar">
             <div className="yk-private-messages-tools">
               <MessageImagePicker
-                disabled={sending || loading || unavailable || !page}
+                disabled={composerDisabled}
                 onSelect={attachImage}
               />
               <GifPicker
-                disabled={sending || loading || unavailable || !page}
+                disabled={composerDisabled}
                 onSelect={choice => {
                   if (!isPrivateMessageGif(choice.url)) {
                     setSendError("Choose a GIF from the GIPHY picker.");
@@ -695,7 +697,7 @@ export function PrivateMessages({
               />
               <EmojiReactionPicker
                 mode="message"
-                disabled={sending || loading || unavailable || !page}
+                disabled={composerDisabled}
                 selected={[]}
                 onSelect={insertEmoji}
               />
@@ -705,13 +707,7 @@ export function PrivateMessages({
             </span>
             <Button
               type="submit"
-              disabled={
-                sending ||
-                loading ||
-                unavailable ||
-                !page ||
-                (!draft.trim() && !gif && !image)
-              }
+              disabled={composerDisabled || (!draft.trim() && !gif && !image)}
             >
               {sending ? t("sending") : t("send")}
             </Button>
