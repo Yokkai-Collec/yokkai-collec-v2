@@ -8,6 +8,7 @@ import {
   type PrivateMessage
 } from "@/lib/data/private-messages";
 import { pasteImage } from "@/lib/ui/paste-image";
+import { ExpandableImage } from "@/components/expandable-image";
 
 const imageTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
@@ -133,12 +134,10 @@ export function PrivateMessageMedia({
       : null;
   if (!src) return null;
   return (
-    <img
+    <ExpandableImage
       className="yk-private-message-gif"
       src={src}
       alt={message.hasImage ? t("imageAlt") : t("gifAlt")}
-      loading="lazy"
-      referrerPolicy="no-referrer"
       onLoad={onLoad}
     />
   );

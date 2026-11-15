@@ -54,6 +54,7 @@ const ui = {
 test("shared profile/feed posts expose Report only for another known player's post", () => {
   let admin = false;
   const { ProfileWall } = load("components/profile-wall.tsx", {
+    "@/components/expandable-image": { ExpandableImage: () => null },
     "@/components/wall-mentions": wallMentions,
     "@/lib/ui/paste-image": { pasteImage: () => {} },
     "@/components/player-moderation": {

@@ -9,6 +9,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { Avatar, Button, Modal, Toast } from "@/components/ui";
 import { GifPicker } from "@/components/gif-picker";
+import { ExpandableImage } from "@/components/expandable-image";
 import { WallPostInteractions } from "@/components/wall-post-interactions";
 import {
   WallMentionText,
@@ -72,11 +73,6 @@ export function ProfileWall({
   const [cursor, setCursor] = useState<WallPage["next"]>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [mediaZoomed, setMediaZoomed] = useState(false);
-  const [expandedMedia, setExpandedMedia] = useState<{
-    src: string;
-    alt: string;
-  } | null>(null);
   const [text, setText] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState("");
@@ -541,38 +537,19 @@ export function ProfileWall({
                 </p>
               )}
               {(post.mediaPath || post.hasMedia || post.gifUrl) && (
-                <button
-                  type="button"
-                  className="yk-wall-media-button"
-                  aria-label={t("profileUi.enlargeImage")}
-                  onClick={() =>
-                    setExpandedMedia({
-                      src:
-                        post.previewUrl ??
-                        post.gifUrl ??
-                        `/api/profile-wall/media/${post.id}`,
-                      alt: post.gifUrl
-                        ? t("profileUi.gifpostedOnTheWall")
-                        : t("profileUi.imagePostedOnTheWall")
-                    })
+                <ExpandableImage
+                  className="yk-wall-media"
+                  src={
+                    post.previewUrl ??
+                    post.gifUrl ??
+                    `/api/profile-wall/media/${post.id}`
                   }
-                >
-                  <img
-                    className="yk-wall-media"
-                    src={
-                      post.previewUrl ??
-                      post.gifUrl ??
-                      `/api/profile-wall/media/${post.id}`
-                    }
-                    alt={
-                      post.gifUrl
-                        ? t("profileUi.gifpostedOnTheWall")
-                        : t("profileUi.imagePostedOnTheWall")
-                    }
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </button>
+                  alt={
+                    post.gifUrl
+                      ? t("profileUi.gifpostedOnTheWall")
+                      : t("profileUi.imagePostedOnTheWall")
+                  }
+                />
               )}
               {(canInteract || isPublic) && adapter === liveWall && (
                 <WallPostInteractions
@@ -594,46 +571,6 @@ export function ProfileWall({
           {loading ? t("packs.loading") : t("profileUi.seeOlderPosts")}
         </Button>
       )}
-      <Modal
-        open={!!expandedMedia}
-        onClose={() => {
-          setExpandedMedia(null);
-          setMediaZoomed(false);
-        }}
-        title={t("profileUi.enlargeImage")}
-        hideTitle
-        className="yk-wall-media-modal"
-      >
-        {expandedMedia && (
-          <button
-            type="button"
-            className="yk-wall-media-zoom"
-            aria-label={t(
-              mediaZoomed ? "profileUi.zoomOutImage" : "profileUi.zoomInImage"
-            )}
-            aria-pressed={mediaZoomed}
-            onClick={() => setMediaZoomed(value => !value)}
-            onPointerMove={event => {
-              const bounds = event.currentTarget.getBoundingClientRect();
-              event.currentTarget.style.setProperty(
-                "--zoom-x",
-                `${Math.max(0, Math.min(100, ((event.clientX - bounds.left) / bounds.width) * 100))}%`
-              );
-              event.currentTarget.style.setProperty(
-                "--zoom-y",
-                `${Math.max(0, Math.min(100, ((event.clientY - bounds.top) / bounds.height) * 100))}%`
-              );
-            }}
-          >
-            <img
-              src={expandedMedia.src}
-              alt={expandedMedia.alt}
-              draggable={false}
-              className="yk-wall-media-expanded"
-            />
-          </button>
-        )}
-      </Modal>
       <Modal
         open={!!removing}
         onClose={() => {

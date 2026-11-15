@@ -12,6 +12,7 @@ import ts from "typescript";
 const require = createRequire(import.meta.url);
 const testModule = { exports: {} };
 const mocks = {
+  "@/components/expandable-image": { ExpandableImage: () => null },
   "@/components/wall-mentions": wallMentions,
   "@/lib/ui/paste-image": { pasteImage: () => {} },
   "@/components/player-moderation": { PlayerModeration: () => null },
