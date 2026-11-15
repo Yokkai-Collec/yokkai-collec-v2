@@ -416,6 +416,14 @@
   "public.panini_album_favorites": {
     "sections": ["album_favorites"]
   },
+  "public.karas_gift_codes": {
+    "sections": ["karas_gifts_received"],
+    "note": "Only amount and the message shown on a code the requesting player redeemed. Excludes secret hashes, issuer identity and issuance records."
+  },
+  "public.karas_gift_redemptions": {
+    "sections": ["karas_gifts_received"],
+    "note": "Only the requesting player's redemption dates. Excludes code hashes and other recipients."
+  },
   "public.private_message_reads": {
     "excluded": "Private read receipts contain counterpart identifiers; manual privacy review, no received correspondence export."
   },

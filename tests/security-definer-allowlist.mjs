@@ -110,6 +110,10 @@ const allowlist = {
   "public.get_achievement_catalogue()": ["authenticated"], // New own catalogue reader; the legacy eleven-achievement reader remains unchanged.
   "public.list_notifications(integer, boolean)": ["authenticated"], // Evaluates and reads only the caller's progress and notifications.
   "public.mark_progress_notifications_read()": ["authenticated"], // Clears only the caller's mission and achievement notifications.
+  "public.admin_create_karas_gift_code(integer, text, boolean)": [
+    "authenticated"
+  ], // Admin authorization, server-generated gift code with an admin-selected usage mode.
+  "public.redeem_karas_gift_code(text)": ["authenticated"], // Own balance, one-time credit under the gift row lock.
   "public.get_missions()": ["authenticated"], // Own fixed missions; settles only the caller's earned historical milestones.
   "public.claim_mission_milestone(text, timestamp with time zone, integer)": [
     "authenticated"

@@ -176,6 +176,7 @@ export default async function RootLayout({
       "error",
       "adminReportedCard",
       "adminNavigation",
+      "giftCodes",
       "profileUi",
       "socialUi",
       "premiumUi",

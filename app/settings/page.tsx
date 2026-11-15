@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LocaleSelector } from "@/components/locale-controls";
+import { KarasGiftRedeemer } from "@/components/karas-gift-redeemer";
 import { redirect } from "next/navigation";
 import { Topbar } from "@/components/topbar";
 import { AccountMenu } from "@/components/account-menu";
@@ -63,6 +64,7 @@ export default async function SettingsPage({
         <div className="mt-8">
           <LocaleSelector full />
           <SubscriptionSettings billing={billing} />
+          <KarasGiftRedeemer />
           <ReferralPanel initialStatus={referral} siteOrigin={siteOrigin} />
           {getDiscordInviteUrl() && (
             <Link
