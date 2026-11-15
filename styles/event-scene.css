@@ -226,13 +226,18 @@
 }
 .yk-mystery-back-image {
   position: absolute;
-  top: 0;
-  left: -25%;
-  width: 150%;
+  top: 50%;
+  left: -40%;
+  width: 180%;
   max-width: none;
-  height: 100%;
+  height: auto;
   object-fit: contain;
+  transform: translateY(-50%);
+  mask-image: radial-gradient(ellipse at center, #000 48%, transparent 72%);
   user-select: none;
+}
+.yk-card-shell:has(.yk-mystery-back) {
+  mix-blend-mode: screen;
 }
 .yk-event-banner-art[data-kind="mystery"] .yk-event-banner-portrait {
   transform: none;
