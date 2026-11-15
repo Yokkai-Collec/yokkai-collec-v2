@@ -4541,7 +4541,9 @@
     "backToEvents": "All events",
     "badgeAt": "Exclusive badge · {count, number} valid referrals",
     "totalRewards": "Up to {amount, number} Karas in cumulative rewards",
-    "rewardPool": "Cumulative rewards"
+    "rewardPool": "Cumulative rewards",
+    "campaignLabel": "Recruitment campaign",
+    "milestones": "Cumulative milestones"
   },
   "mysteryAuction": {
     "title": "Mystery Auction",

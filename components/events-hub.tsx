@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -7,14 +6,15 @@ import {
   MysteryCardBack,
   useMysteryAuctionEvent
 } from "@/components/mystery-auction";
+import { EclipseScene } from "@/components/event-scene";
 import { YokaiCard } from "@/components/yokai-card";
 import { Karas } from "@/components/ui";
 import { packCountdown } from "@/lib/ui/pack-countdown";
-import "@/styles/events.css";
 import {
   ReferralEventHubCard,
   useReferralEvent
 } from "@/components/referral-event";
+import "@/styles/events.css";
 
 export function EventsHub() {
   const t = useTranslations("events");
@@ -42,52 +42,59 @@ export function EventsHub() {
       : "—";
   return (
     <div className="yk-events-hub">
-      <div className="yk-events-intro">
-        <p>{t("description")}</p>
-        {(live || referralStatus === "live") && (
-          <span className="yk-events-live-label">
-            <i aria-hidden="true" />
-            {t("live")}
-          </span>
-        )}
-      </div>
-      <nav className="yk-events-filters" aria-label={t("filters")}>
-        {(["all", "live", "upcoming"] as const).map(value => (
-          <button
-            key={value}
-            type="button"
-            aria-pressed={filter === value}
-            onClick={() => setFilter(value)}
-          >
-            {t(value)}
-          </button>
-        ))}
-      </nav>
-      <section aria-labelledby="events-list-title">
-        <div className="yk-events-section-head">
-          <h2 id="events-list-title">{t("explore")}</h2>
-          <span>
-            {t("count", { count: Number(visible) + Number(referralVisible) })}
-          </span>
+      <header className="yk-events-header">
+        <div>
+          <p className="yk-events-overline">{t("overline")}</p>
+          <h1>
+            {t("title")}
+            <span aria-hidden="true">/</span>
+          </h1>
         </div>
+        <p className="yk-events-intro">{t("description")}</p>
+      </header>
+      <div className="yk-events-toolbar">
+        <nav className="yk-events-filters" aria-label={t("filters")}>
+          {(["all", "live", "upcoming"] as const).map(value => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={filter === value}
+              onClick={() => setFilter(value)}
+            >
+              {t(value)}
+              {value === "live" && (live || referralStatus === "live") && (
+                <i aria-hidden="true" />
+              )}
+            </button>
+          ))}
+        </nav>
+        <span className="yk-events-count">
+          {t("count", { count: Number(visible) + Number(referralVisible) })}
+        </span>
+      </div>
+      <section aria-labelledby="events-list-title">
+        <h2 id="events-list-title" className="sr-only">
+          {t("explore")}
+        </h2>
         {visible || referralVisible ? (
           <ul className="yk-events-grid">
             {visible && (
               <li className="yk-event-card" data-event="mystery">
                 <div className="yk-event-cover">
-                  <span className="yk-event-orbit" aria-hidden="true" />
-                  <div className="yk-event-art">
+                  <EclipseScene revealed={!!auction?.card}>
                     {auction?.card ? (
                       <YokaiCard {...auction.card} />
                     ) : (
                       <MysteryCardBack />
                     )}
-                  </div>
-                  <span className="yk-event-frequency">{t("weekly")}</span>
+                  </EclipseScene>
+                  <span className="yk-event-art-label" aria-hidden="true">
+                    {auction?.card ? auction.card.rarity : tm("hiddenCard")}
+                  </span>
                 </div>
                 <div className="yk-event-body">
                   <div className="yk-event-kind">
-                    <span>{t("auction")}</span>
+                    <span>{t("weekly")}</span>
                     {status && (
                       <span className={live ? "is-live" : undefined}>
                         {t(status)}
@@ -103,15 +110,29 @@ export function EventsHub() {
                       {t("lastReveal", { name: auction.card.name })}
                     </p>
                   )}
-                  <div className="yk-event-stats">
-                    <div className="yk-event-timing">
-                      <span>{t(live ? "endsIn" : "nextEdition")}</span>
-                      <strong>{countdown}</strong>
-                    </div>
-                    <div className="yk-event-price">
-                      <span>{t(live ? "currentPrice" : "startingPrice")}</span>
-                      <Karas amount={live ? auction.amount : 50} />
-                    </div>
+                  <div className="yk-event-timing">
+                    <span>{t(live ? "endsIn" : "nextEdition")}</span>
+                    <strong
+                      role="timer"
+                      aria-live="off"
+                      aria-label={countdown}
+                      className="yk-event-clock"
+                    >
+                      {countdown === "—"
+                        ? countdown
+                        : countdown.split(":").map((value, index) => (
+                            <span key={index}>
+                              <b>{value}</b>
+                              <small>
+                                {tm(
+                                  (["hours", "minutes", "seconds"] as const)[
+                                    index
+                                  ] ?? "seconds"
+                                )}
+                              </small>
+                            </span>
+                          ))}
+                    </strong>
                   </div>
                   {live && (
                     <p className="yk-event-leader">
@@ -123,15 +144,21 @@ export function EventsHub() {
                       {tm(failed ? "unavailable" : "loading")}
                     </p>
                   )}
-                  {auction && (
-                    <Link
-                      href={`/market/${auction.id}`}
-                      className="yk-button yk-button-secondary yk-event-action"
-                    >
-                      {t(live ? "join" : "result")}
-                      <span aria-hidden="true">↗</span>
-                    </Link>
-                  )}
+                  <div className="yk-event-footer">
+                    <div className="yk-event-price">
+                      <span>{t(live ? "currentPrice" : "startingPrice")}</span>
+                      <Karas amount={live ? auction.amount : 50} />
+                    </div>
+                    {auction && (
+                      <Link
+                        href={`/market/${auction.id}`}
+                        className="yk-button yk-event-action"
+                      >
+                        {t(live ? "join" : "result")}
+                        <span aria-hidden="true">↗</span>
+                      </Link>
+                    )}
+                  </div>
                 </div>
               </li>
             )}

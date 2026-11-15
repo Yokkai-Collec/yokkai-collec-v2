@@ -12,6 +12,7 @@ import { Karas } from "@/components/ui";
 import { CardShell } from "@/components/card-shell";
 import { packCountdown } from "@/lib/ui/pack-countdown";
 import "@/styles/mystery-auction.css";
+export { EclipseScene } from "@/components/event-scene";
 
 export function MysteryCardBack() {
   const t = useTranslations("mysteryAuction");

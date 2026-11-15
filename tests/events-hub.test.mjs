@@ -36,6 +36,8 @@ test("the events hub lists the real event, filters its status, and keeps results
               createTranslator({ locale, messages, namespace })
           };
         if (name === "next/link") return { default: "a" };
+        if (name.endsWith("/event-scene"))
+          return { EclipseScene: ({ children }) => children };
         if (name.endsWith("/referral-event"))
           return {
             useReferralEvent: () => referral,

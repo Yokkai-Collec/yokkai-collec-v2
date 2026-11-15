@@ -222,51 +222,9 @@
   padding: 2.5rem 1rem 1.25rem;
   isolation: isolate;
 }
-.yk-mystery-detail .yk-auction-art::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  top: 43%;
-  left: 50%;
-  width: min(105%, 27rem);
-  aspect-ratio: 1;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    #070a11 43%,
-    #f0d49680 44%,
-    #b38b4320 45%,
-    transparent 56%
-  );
-  filter: drop-shadow(0 0 28px #dfb36628);
-}
-.yk-mystery-detail .yk-auction-art::after {
-  content: "";
-  position: absolute;
-  z-index: -2;
-  top: 43%;
-  left: 50%;
-  width: min(96%, 24rem);
-  aspect-ratio: 1;
-  transform: translate(-50%, -50%) rotate(-25deg);
-  border: 1px solid #c6a36318;
-  border-radius: 50%;
-  box-shadow:
-    0 0 0 24px #c6a36306,
-    0 0 0 56px #c6a36303;
-}
-.yk-mystery-detail .yk-auction-art > .yk-mystery-back,
-.yk-mystery-detail .yk-auction-art > .yk-card {
-  width: min(76%, 14rem);
-  box-shadow:
-    0 35px 65px #000a,
-    0 0 40px #d8b56e15;
-}
-.yk-mystery-detail .yk-auction-art > .yk-mystery-back {
-  transform: rotate(-5deg);
-  border-color: #c8ad7280;
-  border-radius: 0.875rem;
+.yk-mystery-detail .yk-auction-art > .yk-eclipse-scene {
+  width: 100%;
+  min-height: 430px;
 }
 .yk-mystery-stage-caption {
   max-width: 16rem;

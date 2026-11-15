@@ -231,6 +231,10 @@ export function ReferralEventHubCard({
             {t(upcoming ? "upcoming" : ended ? "ended" : "limited")}
           </span>
         </div>
+        <div className="yk-event-campaign-title">
+          <span aria-hidden="true">02</span>
+          <p>{t("campaignLabel")}</p>
+        </div>
         <h3>{t("title")}</h3>
         <p className="yk-event-description">{t("promotion")}</p>
         <div className="yk-event-stats">
@@ -258,6 +262,22 @@ export function ReferralEventHubCard({
           <span aria-hidden="true">↗</span>
         </Link>
       </div>
+      <ol className="yk-event-campaign-tiers" aria-label={t("milestones")}>
+        {event.tiers.map(tier => (
+          <li key={tier.threshold} data-earned={tier.awarded}>
+            <span>{String(tier.threshold).padStart(2, "0")}</span>
+            <div>
+              <strong>{t("karas", { amount: tier.karas })}</strong>
+              <small>{t(tier.awarded ? "awarded" : "locked")}</small>
+            </div>
+            {tier.badge && (
+              <span className="yk-campaign-badge" title={t("badge")}>
+                ✦
+              </span>
+            )}
+          </li>
+        ))}
+      </ol>
     </li>
   );
 }
@@ -306,7 +326,10 @@ export function ReferralEventPanel({
             />
           </div>
         </div>
-        <div className="yk-referral-event-trophy">
+        <div
+          className="yk-referral-event-trophy"
+          data-goal={event.tiers.find(tier => tier.badge)?.threshold}
+        >
           <span className="yk-referral-event-trophy-orbit" aria-hidden="true" />
           <RecruiterConstellation />
           <strong>{t("badge")}</strong>

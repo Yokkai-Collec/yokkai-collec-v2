@@ -4541,7 +4541,9 @@
     "backToEvents": "Tous les événements",
     "badgeAt": "Badge exclusif · {count, number} filleuls valides",
     "totalRewards": "Jusqu’à {amount, number} Karas de récompenses cumulées",
-    "rewardPool": "Récompenses cumulées"
+    "rewardPool": "Récompenses cumulées",
+    "campaignLabel": "Campagne de recrutement",
+    "milestones": "Paliers cumulés"
   },
   "mysteryAuction": {
     "title": "Mystery Auction",

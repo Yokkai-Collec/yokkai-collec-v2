@@ -3,6 +3,7 @@ import { EventsHub } from "@/components/events-hub";
 import {
   MysteryAuctionBanner,
   MysteryCardBack,
+  EclipseScene,
   MysteryEventHeader,
   MysteryAuctionTile
 } from "@/components/mystery-auction";
@@ -1722,6 +1723,11 @@ export function AuctionView({
     offerValue > auction.balance;
   const biddable = !!onBid && !auction.finished && auction.nextBid != null;
   const franchise = auction.card.anime?.trim();
+  const cardArt = auction.mysteryHidden ? (
+    <MysteryCardBack />
+  ) : (
+    <YokaiCard {...auction.card} />
+  );
   return (
     <div
       className={`yk-auction-page${auction.isMystery ? " yk-mystery-detail" : ""}`}
@@ -1735,10 +1741,12 @@ export function AuctionView({
         />
       )}
       <div className="yk-auction-art">
-        {auction.mysteryHidden ? (
-          <MysteryCardBack />
+        {auction.isMystery ? (
+          <EclipseScene revealed={!auction.mysteryHidden}>
+            {cardArt}
+          </EclipseScene>
         ) : (
-          <YokaiCard {...auction.card} />
+          cardArt
         )}
         {auction.isMystery && (
           <p className="yk-mystery-stage-caption">
@@ -3258,6 +3266,7 @@ export function CommunityView({
       >
         {screen !== "market" &&
           screen !== "search" &&
+          screen !== "events" &&
           !(screen === "auction" && auction?.isMystery) && (
             <div>
               {screen === "auction" && (
@@ -3289,7 +3298,9 @@ export function CommunityView({
               ? undefined
               : screen === "friends" || screen === "feed" || screen === "trades"
                 ? "yk-social-page-content mt-4"
-                : "mt-8"
+                : screen === "events"
+                  ? undefined
+                  : "mt-8"
           }
         >
           {screen === "profile" && (
