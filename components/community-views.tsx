@@ -16,6 +16,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type ReactNode
 } from "react";
 import { animation } from "@/lib/ui/animations";
@@ -48,6 +49,14 @@ import {
   marketEmptyStates as marketEmptyStateKeys
 } from "@/lib/ui/market-labels";
 import { useMarketSort } from "@/lib/ui/market-sort";
+import {
+  readMarketReturn,
+  subscribeMarketReturn,
+  rememberMarketReturn,
+  marketReturnQuery,
+  restoreMarketScroll,
+  type MarketReturn
+} from "@/lib/ui/market-return";
 import {
   auctionReconciliationScopes,
   cancelAuction,
@@ -552,6 +561,7 @@ function AuctionTile({ auction: a }: { auction: AuctionPresentation }) {
   });
   return (
     <li
+      data-market-auction={a.id}
       className={
         outcome ? "yk-market-tile yk-market-tile-ended" : "yk-market-tile"
       }
@@ -672,6 +682,7 @@ export function MarketView({
   activeSales,
   marketPage,
   marketLimit = MARKET_PAGE_SIZE,
+  initialNavigation,
   loadingMore = false,
   onQueryChange,
   onLoadMore
@@ -682,6 +693,7 @@ export function MarketView({
   activeSales?: string;
   marketPage?: MarketPage;
   marketLimit?: number;
+  initialNavigation?: MarketReturn | null;
   loadingMore?: boolean;
   onQueryChange?: (query: MarketQuery) => void;
   onLoadMore?: () => void;
@@ -691,12 +703,21 @@ export function MarketView({
   const format = useFormatter();
   const formatKaras = (amount: number) => format.number(amount) + " Karas";
 
-  const [section, setSection] = useState(initialSection);
-  const [mineTab, setMineTab] = useState<MineTab>("all");
-  const [query, setQuery] = useState("");
-  const [rarity, setRarity] = useState<Rarity[]>([]);
+  const [section, setSection] = useState(
+    initialNavigation?.section ?? initialSection
+  );
+  const [mineTab, setMineTab] = useState<MineTab>(
+    initialNavigation?.mineTab ?? "all"
+  );
+  const [query, setQuery] = useState(initialNavigation?.query ?? "");
+  const [rarity, setRarity] = useState<Rarity[]>(
+    initialNavigation?.rarity ?? []
+  );
   const [sort, setSort] = useMarketSort();
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState(initialNavigation?.category ?? "");
+  const marketRoot = useRef<HTMLElement>(null);
+  const scrollRestored = useRef(false);
+  const navigationChanged = useRef(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   useEffect(() => {
     if (!onQueryChange) return;
@@ -754,6 +775,20 @@ export function MarketView({
   };
   const mineCount = mineCounts?.all;
   const shown = section === "browse" ? browse : mine;
+  const scrollReady = shown !== undefined && !loadingMore;
+  useEffect(() => {
+    if (
+      !initialNavigation ||
+      scrollRestored.current ||
+      !scrollReady ||
+      !marketRoot.current
+    )
+      return;
+    if (navigationChanged.current) return;
+    return restoreMarketScroll(initialNavigation, marketRoot.current, () => {
+      scrollRestored.current = true;
+    });
+  }, [initialNavigation, scrollReady]);
   const heading = !shown
     ? tm("loading")
     : section === "browse"
@@ -962,7 +997,43 @@ export function MarketView({
     </div>
   );
   return (
-    <section aria-label={tm("region")} className="yk-market">
+    <section
+      ref={marketRoot}
+      aria-label={tm("region")}
+      className="yk-market"
+      onChangeCapture={() => {
+        navigationChanged.current = true;
+      }}
+      onClickCapture={event => {
+        if (
+          initialNavigation === undefined ||
+          event.button !== 0 ||
+          event.ctrlKey ||
+          event.metaKey ||
+          event.shiftKey ||
+          event.altKey
+        )
+          return;
+        const link = (event.target as HTMLElement).closest<HTMLAnchorElement>(
+          'a[href^="/market/"]'
+        );
+        const tile = link?.closest<HTMLElement>("[data-market-auction]");
+        if (!tile || link?.target === "_blank") return;
+        rememberMarketReturn({
+          section,
+          mineTab,
+          query,
+          rarity,
+          category,
+          sort,
+          limit: marketLimit,
+          scrollY: window.scrollY,
+          anchorId: tile.dataset.marketAuction!,
+          anchorTop: tile.getBoundingClientRect().top,
+          savedAt: Date.now()
+        });
+      }}
+    >
       {pageHeading ? (
         <header className="yk-market-heading">
           {pageHeading}
@@ -2979,24 +3050,38 @@ export function CommunityView({
   const [viewer, setViewer] = useState<string>();
   const [market, setMarket] = useState<AuctionData[]>();
   const [marketPage, setMarketPage] = useState<MarketPage>();
-  const [marketLimit, setMarketLimit] = useState(MARKET_PAGE_SIZE);
+  const marketNavigation = useSyncExternalStore<
+    MarketReturn | null | undefined
+  >(subscribeMarketReturn, readMarketReturn, () => undefined);
+  const [marketLimitOverride, setMarketLimit] = useState<number>();
+  const marketLimit =
+    marketLimitOverride ?? marketNavigation?.limit ?? MARKET_PAGE_SIZE;
   const [marketLoading, setMarketLoading] = useState(false);
-  const [marketQuery, setMarketQuery] = useState<MarketQuery>({
-    query: "",
-    rarity: "",
-    category: "",
-    sort: "end",
-    section: "active"
-  });
-  const marketQueryRef = useRef(marketQuery);
-  const changeMarketQuery = useCallback((next: MarketQuery) => {
-    if (JSON.stringify(next) === JSON.stringify(marketQueryRef.current)) return;
-    marketQueryRef.current = next;
-    setMarketQuery(next);
-    setMarketLimit(MARKET_PAGE_SIZE);
-    setMarket(undefined);
-    setMarketPage(undefined);
-  }, []);
+  const [marketQueryOverride, setMarketQuery] = useState<MarketQuery>();
+  const marketQuery = useMemo<MarketQuery>(
+    () =>
+      marketQueryOverride ??
+      (marketNavigation
+        ? marketReturnQuery(marketNavigation)
+        : {
+            query: "",
+            rarity: "",
+            category: "",
+            sort: "end",
+            section: "active"
+          }),
+    [marketQueryOverride, marketNavigation]
+  );
+  const changeMarketQuery = useCallback(
+    (next: MarketQuery) => {
+      if (JSON.stringify(next) === JSON.stringify(marketQuery)) return;
+      setMarketQuery(next);
+      setMarketLimit(MARKET_PAGE_SIZE);
+      setMarket(undefined);
+      setMarketPage(undefined);
+    },
+    [marketQuery]
+  );
   const [auction, setAuction] = useState<AuctionDetail>();
   const [, setClock] = useState(0);
   const [extended, setExtended] = useState(false);
@@ -3081,7 +3166,7 @@ export function CommunityView({
     };
   }, [screen, isMe, playerId, auctionId, receiveAuction]);
   useEffect(() => {
-    if (screen !== "market") return;
+    if (screen !== "market" || marketNavigation === undefined) return;
     let active = true,
       loading = false;
     const refresh = async () => {
@@ -3151,7 +3236,7 @@ export function CommunityView({
       stop();
       unsubscribe();
     };
-  }, [screen, marketQuery, marketLimit]);
+  }, [screen, marketQuery, marketLimit, marketNavigation]);
   useEffect(() => {
     if (screen !== "auction") return;
     let active = true;
@@ -3355,8 +3440,9 @@ export function CommunityView({
           )}
           {screen === "friends" && (children ?? <FriendsView />)}
           {screen === "feed" && children}
-          {screen === "market" && (
+          {screen === "market" && marketNavigation !== undefined && (
             <MarketView
+              initialNavigation={marketNavigation}
               pageHeading={pageHeading}
               lists={lists}
               activeSales={activeSales}
@@ -3366,7 +3452,10 @@ export function CommunityView({
               onQueryChange={changeMarketQuery}
               onLoadMore={() =>
                 setMarketLimit(limit =>
-                  Math.min(MARKET_MAX_ITEMS, limit + MARKET_PAGE_SIZE)
+                  Math.min(
+                    MARKET_MAX_ITEMS,
+                    (limit ?? marketLimit) + MARKET_PAGE_SIZE
+                  )
                 )
               }
               onToggleWatch={watchFromMarket}

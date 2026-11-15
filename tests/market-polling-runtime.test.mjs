@@ -62,6 +62,11 @@ test("market Load more retains its prefix size on polling and ignores a stale fi
     if (!same(slots[key]?.deps, deps)) slots[key] = { value: callback, deps };
     return slots[key].value;
   };
+  const useMemo = (factory, deps) => {
+    const key = index++;
+    if (!same(slots[key]?.deps, deps)) slots[key] = { value: factory(), deps };
+    return slots[key].value;
+  };
   const useEffect = (callback, deps) => {
     const key = index++;
     if (!same(slots[key]?.deps, deps)) {
@@ -120,6 +125,10 @@ test("market Load more retains its prefix size on polling and ignores a stale fi
       useState,
       useRef,
       useCallback,
+      useMemo,
+      useSyncExternalStore: (_subscribe, snapshot) => snapshot(),
+      subscribeMarketReturn: () => () => {},
+      readMarketReturn: () => null,
       useEffect,
       startVisiblePolling: polling.exports.startVisiblePolling,
       window,
