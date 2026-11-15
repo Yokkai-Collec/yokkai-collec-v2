@@ -1,4 +1,3 @@
-import { intl } from "./helpers/i18n.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -7,11 +6,11 @@ import ts from "typescript";
 
 test("market Load more retains its prefix size on polling and ignores a stale filter response", async () => {
   const source = readFileSync(
-    new URL("../components/community-views.tsx", import.meta.url),
+    new URL("../components/market-listings.tsx", import.meta.url),
     "utf8"
   );
   const ast = ts.createSourceFile(
-    "community-views.tsx",
+    "market-listings.tsx",
     source,
     ts.ScriptTarget.Latest,
     true,
@@ -19,7 +18,7 @@ test("market Load more retains its prefix size on polling and ignores a stale fi
   );
   const component = ast.statements.find(
     node =>
-      ts.isFunctionDeclaration(node) && node.name?.text === "CommunityView"
+      ts.isFunctionDeclaration(node) && node.name?.text === "MarketListings"
   );
   assert.ok(component);
   const slots = [],
@@ -121,7 +120,6 @@ test("market Load more retains its prefix size on polling and ignores a stale fi
     {
       exports,
       require: () => ({ jsx, jsxs: jsx }),
-      useTranslations: intl.useTranslations,
       useState,
       useRef,
       useCallback,
@@ -143,7 +141,6 @@ test("market Load more retains its prefix size on polling and ignores a stale fi
       Error,
       console,
       process: { env: { NODE_ENV: "test" } },
-      useRouter: () => ({}),
       MARKET_PAGE_SIZE: 100,
       MARKET_MAX_ITEMS: 1000,
       browseAuctions(query, limit) {
@@ -154,23 +151,24 @@ test("market Load more retains its prefix size on polling and ignores a stale fi
         calls.push({ query, limit, resolve });
         return promise;
       },
-      getGameInfo: async () => ({ user: { id: "viewer" }, karasBalance: 10 }),
       subscribePlayerSnapshotInvalidation: () => () => {},
-      useNotificationFeed: () => ({ notifications: [] }),
       auctionReconciliationScopes: () => [],
-      invalidatePlayerSnapshots() {},
-      buildAuctionLists: items => ({ active: items }),
-      headings: { market: ["Market", "Market"] },
-      useNotificationItems: values => values,
-      Topbar: Marker,
-      MarketView: Marker
+      invalidatePlayerSnapshots() {}
     }
   );
   function render() {
     index = 0;
     dirty = false;
-    tree = exports.CommunityView({ screen: "market", account: null });
+    tree = exports.default({
+      view: Marker,
+      viewerId: "viewer",
+      onError: setError,
+      buildAuctionLists: items => ({ active: items })
+    });
     while (pendingEffects.length) pendingEffects.shift()();
+  }
+  function setError(error) {
+    assert.equal(error, "");
   }
   async function flush() {
     for (let n = 0; n < 30; n++) {
