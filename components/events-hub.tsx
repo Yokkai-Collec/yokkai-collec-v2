@@ -1,28 +1,30 @@
 "use client";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
-import {
-  MysteryCardBack,
-  useMysteryAuctionEvent
-} from "@/components/mystery-auction";
-import { EclipseScene } from "@/components/event-scene";
+import { useMysteryAuctionEvent } from "@/components/mystery-auction";
 import { YokaiCard } from "@/components/yokai-card";
 import { Karas } from "@/components/ui";
-import { packCountdown } from "@/lib/ui/pack-countdown";
 import {
   ReferralEventHubCard,
   useReferralEvent
 } from "@/components/referral-event";
+import {
+  EventBannerFrame,
+  EventBannerArt,
+  EventBannerCountdown,
+  EventBannerClockIcon,
+  EventBannerArrow,
+  EventsEmptyArt
+} from "@/components/event-banner";
 import "@/styles/events.css";
 
 export function EventsHub() {
-  const t = useTranslations("events");
-  const tm = useTranslations("mysteryAuction");
+  const t = useTranslations("events"),
+    tm = useTranslations("mysteryAuction");
   const { event, now, failed } = useMysteryAuctionEvent();
   const [filter, setFilter] = useState<"all" | "live" | "upcoming">("all");
-  const auction = event?.auction;
-  const live = auction?.status === "active";
+  const auction = event?.auction,
+    live = auction?.status === "active";
   const status = event ? (live ? "live" : "upcoming") : undefined;
   const visible = filter === "all" || filter === status;
   const referral = useReferralEvent();
@@ -36,21 +38,36 @@ export function EventsHub() {
   const referralVisible =
     !!referral.event && (filter === "all" || filter === referralStatus);
   const deadline = live ? auction.endsAt : event?.nextStartsAt;
-  const countdown =
-    deadline && now != null
-      ? packCountdown(Date.parse(deadline), now, true)
-      : "—";
   return (
     <div className="yk-events-hub">
+      <svg
+        className="yk-events-page-light"
+        viewBox="0 0 1200 500"
+        preserveAspectRatio="none"
+        fill="none"
+        aria-hidden="true"
+      >
+        <path
+          d="M350 260C730 0 960 180 1250 20M450 320C880 270 1060 190 1260 125"
+          stroke="#438eff"
+          strokeWidth="20"
+          strokeOpacity=".1"
+        />
+        <path
+          d="M350 260C730 0 960 180 1250 20M450 320C880 270 1060 190 1260 125"
+          stroke="#529bff"
+          strokeWidth="1.2"
+        />
+        <path
+          d="M600 180C850 80 1150 180 1290 70"
+          stroke="#d9edff"
+          strokeWidth="1.8"
+        />
+      </svg>
       <header className="yk-events-header">
-        <div>
-          <p className="yk-events-overline">{t("overline")}</p>
-          <h1>
-            {t("title")}
-            <span aria-hidden="true">/</span>
-          </h1>
-        </div>
-        <p className="yk-events-intro">{t("description")}</p>
+        <p className="yk-events-overline">{t("title")}</p>
+        <h1>{t("title")}</h1>
+        <p className="yk-events-intro">{t("lead")}</p>
       </header>
       <div className="yk-events-toolbar">
         <nav className="yk-events-filters" aria-label={t("filters")}>
@@ -62,9 +79,6 @@ export function EventsHub() {
               onClick={() => setFilter(value)}
             >
               {t(value)}
-              {value === "live" && (live || referralStatus === "live") && (
-                <i aria-hidden="true" />
-              )}
             </button>
           ))}
         </nav>
@@ -80,86 +94,60 @@ export function EventsHub() {
           <ul className="yk-events-grid">
             {visible && (
               <li className="yk-event-card" data-event="mystery">
-                <div className="yk-event-cover">
-                  <EclipseScene revealed={!!auction?.card}>
+                <EventBannerFrame
+                  href={auction ? `/market/${auction.id}` : undefined}
+                  label={t(live ? "join" : "result")}
+                >
+                  <div className="yk-event-banner-content">
+                    <span className="yk-event-frequency">
+                      {t("weeklyLabel")}
+                    </span>
+                    <h3>{tm("title")}</h3>
+                    <p className="yk-event-description">
+                      {t("bannerMysteryDescription")}
+                    </p>
+                    {auction?.card ? (
+                      <p className="yk-event-reveal">
+                        {t("lastReveal", { name: auction.card.name })}
+                      </p>
+                    ) : (
+                      live && (
+                        <p className="yk-event-leader">
+                          {tm("leader", {
+                            name: auction.winner ?? tm("noBids")
+                          })}
+                        </p>
+                      )
+                    )}
+                    {!event && (
+                      <p role="status" className="yk-event-notice">
+                        {tm(failed ? "unavailable" : "loading")}
+                      </p>
+                    )}
+                  </div>
+                  <span className="yk-event-banner-price">
+                    <Karas amount={live ? auction.amount : 50} />
+                  </span>
+                  <EventBannerArt kind="mystery">
                     {auction?.card ? (
                       <YokaiCard {...auction.card} />
-                    ) : (
-                      <MysteryCardBack />
-                    )}
-                  </EclipseScene>
-                  <span className="yk-event-art-label" aria-hidden="true">
-                    {auction?.card ? auction.card.rarity : tm("hiddenCard")}
-                  </span>
-                </div>
-                <div className="yk-event-body">
-                  <div className="yk-event-kind">
-                    <span>{t("weekly")}</span>
-                    {status && (
-                      <span className={live ? "is-live" : undefined}>
-                        {t(status)}
-                      </span>
-                    )}
+                    ) : undefined}
+                  </EventBannerArt>
+                  <div className="yk-event-banner-footer">
+                    <span className="yk-event-status" data-status={status}>
+                      {t(status ?? "loadingShort")}
+                    </span>
+                    <span
+                      className="yk-event-banner-separator"
+                      aria-hidden="true"
+                    />
+                    <span className="yk-event-banner-time">
+                      <EventBannerClockIcon />
+                      <EventBannerCountdown end={deadline} now={now} />
+                    </span>
+                    <EventBannerArrow />
                   </div>
-                  <h3>{tm("title")}</h3>
-                  <p className="yk-event-description">
-                    {t("mysteryDescription")}
-                  </p>
-                  {auction?.card && (
-                    <p className="yk-event-reveal">
-                      {t("lastReveal", { name: auction.card.name })}
-                    </p>
-                  )}
-                  <div className="yk-event-timing">
-                    <span>{t(live ? "endsIn" : "nextEdition")}</span>
-                    <strong
-                      role="timer"
-                      aria-live="off"
-                      aria-label={countdown}
-                      className="yk-event-clock"
-                    >
-                      {countdown === "—"
-                        ? countdown
-                        : countdown.split(":").map((value, index) => (
-                            <span key={index}>
-                              <b>{value}</b>
-                              <small>
-                                {tm(
-                                  (["hours", "minutes", "seconds"] as const)[
-                                    index
-                                  ] ?? "seconds"
-                                )}
-                              </small>
-                            </span>
-                          ))}
-                    </strong>
-                  </div>
-                  {live && (
-                    <p className="yk-event-leader">
-                      {tm("leader", { name: auction.winner ?? tm("noBids") })}
-                    </p>
-                  )}
-                  {!event && (
-                    <p role="status" className="yk-event-notice">
-                      {tm(failed ? "unavailable" : "loading")}
-                    </p>
-                  )}
-                  <div className="yk-event-footer">
-                    <div className="yk-event-price">
-                      <span>{t(live ? "currentPrice" : "startingPrice")}</span>
-                      <Karas amount={live ? auction.amount : 50} />
-                    </div>
-                    {auction && (
-                      <Link
-                        href={`/market/${auction.id}`}
-                        className="yk-button yk-event-action"
-                      >
-                        {t(live ? "join" : "result")}
-                        <span aria-hidden="true">↗</span>
-                      </Link>
-                    )}
-                  </div>
-                </div>
+                </EventBannerFrame>
               </li>
             )}
             {referralVisible && referral.event && (
@@ -167,20 +155,30 @@ export function EventsHub() {
             )}
           </ul>
         ) : (
-          <p role="status" className="yk-events-empty">
-            {t(
-              event
-                ? filter === "live"
-                  ? "noLive"
-                  : "noUpcoming"
-                : failed
-                  ? "unavailable"
-                  : "loading"
-            )}
-          </p>
+          <div role="status" className="yk-events-empty">
+            <EventsEmptyArt />
+            <h3>
+              {t(
+                event
+                  ? filter === "live"
+                    ? "noLive"
+                    : "noUpcoming"
+                  : failed
+                    ? "unavailable"
+                    : "loading"
+              )}
+            </h3>
+            <p>{t("emptyHint")}</p>
+          </div>
         )}
       </section>
-      <p className="yk-events-footnote">{t("hubNote")}</p>
+      {filter === "all" && (visible || referralVisible) && (
+        <aside className="yk-events-empty yk-events-coming-soon">
+          <EventsEmptyArt />
+          <h3>{t("moreEventsTitle")}</h3>
+          <p>{t("emptyHint")}</p>
+        </aside>
+      )}
     </div>
   );
 }

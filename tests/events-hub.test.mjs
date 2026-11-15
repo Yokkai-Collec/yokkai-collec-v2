@@ -36,8 +36,24 @@ test("the events hub lists the real event, filters its status, and keeps results
               createTranslator({ locale, messages, namespace })
           };
         if (name === "next/link") return { default: "a" };
+        if (name.endsWith("/event-banner"))
+          return {
+            EventBannerFrame: ({ href, label, children }) =>
+              jsx.jsx(href ? "a" : "div", {
+                href,
+                "aria-label": label,
+                children
+              }),
+            EventBannerArt: ({ children }) =>
+              children ?? jsx.jsx("div", { "data-event-art": true }),
+            EventBannerCountdown: () =>
+              jsx.jsx("span", { children: "01:00:00" }),
+            EventBannerClockIcon: () => null,
+            EventBannerArrow: () => null,
+            EventsEmptyArt: () => null
+          };
         if (name.endsWith("/event-scene"))
-          return { EclipseScene: ({ children }) => children };
+          return { EventCardShowcase: ({ children }) => children };
         if (name.endsWith("/referral-event"))
           return {
             useReferralEvent: () => referral,

@@ -2,7 +2,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { CardShell } from "@/components/card-shell";
 import "@/styles/event-scene.css";
 
-export function EclipseScene({
+export function EventCardShowcase({
   children,
   revealed = false
 }: {
@@ -10,28 +10,23 @@ export function EclipseScene({
   revealed?: boolean;
 }) {
   return (
-    <div className="yk-eclipse-scene" data-revealed={revealed}>
-      <div className="yk-eclipse-space" aria-hidden="true">
-        <span className="yk-eclipse-aura" />
-        <span className="yk-eclipse-rays" />
-        <span className="yk-eclipse-sun" />
-        <span className="yk-eclipse-ring yk-eclipse-ring-outer" />
-        <span className="yk-eclipse-ring yk-eclipse-ring-inner" />
-        <span className="yk-eclipse-meridian" />
-        <span className="yk-eclipse-horizon" />
-        {Array.from({ length: 18 }, (_, index) => (
-          <i
-            className="yk-eclipse-particle"
-            key={index}
-            style={{ "--particle": index } as CSSProperties}
-          />
+    <div className="yk-event-card-scene" data-revealed={revealed}>
+      <span className="yk-event-card-aura" aria-hidden="true" />
+      <div className="yk-event-card-foil" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+      </div>
+      <div className="yk-event-card-streaks" aria-hidden="true">
+        {Array.from({ length: 5 }, (_, index) => (
+          <i key={index} style={{ "--streak": index } as CSSProperties} />
         ))}
       </div>
-      <div className="yk-eclipse-artifact">
+      <div className="yk-event-card-object">
         <CardShell>{children}</CardShell>
-        <span className="yk-eclipse-artifact-glint" aria-hidden="true" />
+        <span className="yk-event-card-glint" aria-hidden="true" />
       </div>
-      <span className="yk-eclipse-shadow" aria-hidden="true" />
+      <span className="yk-event-card-floor" aria-hidden="true" />
     </div>
   );
 }

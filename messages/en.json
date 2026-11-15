@@ -4543,7 +4543,8 @@
     "totalRewards": "Up to {amount, number} Karas in cumulative rewards",
     "rewardPool": "Cumulative rewards",
     "campaignLabel": "Recruitment campaign",
-    "milestones": "Cumulative milestones"
+    "milestones": "Cumulative milestones",
+    "bannerDescription": "Invite your friends, grow your team and earn bonus rewards!"
   },
   "mysteryAuction": {
     "title": "Mystery Auction",
@@ -4602,6 +4603,15 @@
     "noUpcoming": "No upcoming events right now.",
     "loading": "Loading the event schedule…",
     "unavailable": "The schedule is temporarily unavailable. Retrying…",
-    "hubNote": "New events will be added to this hub as they arrive."
+    "hubNote": "New events will be added to this hub as they arrive.",
+    "lead": "Take part in limited-time events and earn exclusive rewards.",
+    "bannerMysteryDescription": "A mystery card. A 24h auction. Will you be the winning bidder?",
+    "ended": "Ended",
+    "loadingShort": "Loading",
+    "emptyHint": "Check back soon for new events and exclusive rewards.",
+    "countdownDays": "{days}d {hours}h {minutes}m",
+    "countdownHours": "{hours}h {minutes}m {seconds}s",
+    "weeklyLabel": "Weekly event",
+    "moreEventsTitle": "More events to come"
   }
 }

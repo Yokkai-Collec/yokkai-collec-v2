@@ -4543,7 +4543,8 @@
     "totalRewards": "Jusqu’à {amount, number} Karas de récompenses cumulées",
     "rewardPool": "Récompenses cumulées",
     "campaignLabel": "Campagne de recrutement",
-    "milestones": "Paliers cumulés"
+    "milestones": "Paliers cumulés",
+    "bannerDescription": "Invite tes amis, agrandis ton équipe et gagne des récompenses bonus !"
   },
   "mysteryAuction": {
     "title": "Mystery Auction",
@@ -4602,6 +4603,15 @@
     "noUpcoming": "Aucun événement à venir pour le moment.",
     "loading": "Chargement du programme des événements…",
     "unavailable": "Le programme est momentanément indisponible. Nouvelle tentative en cours…",
-    "hubNote": "Les prochains événements seront ajoutés à ce hub dès leur arrivée."
+    "hubNote": "Les prochains événements seront ajoutés à ce hub dès leur arrivée.",
+    "lead": "Participe aux événements temporaires et gagne des récompenses exclusives.",
+    "bannerMysteryDescription": "Une carte mystère. Une enchère de 24 h. Seras-tu le meilleur enchérisseur ?",
+    "ended": "Terminé",
+    "loadingShort": "Chargement",
+    "emptyHint": "Reviens bientôt pour découvrir les prochains événements et leurs récompenses exclusives.",
+    "countdownDays": "{days}j {hours}h {minutes}m",
+    "countdownHours": "{hours}h {minutes}m {seconds}s",
+    "weeklyLabel": "Événement hebdomadaire",
+    "moreEventsTitle": "D’autres événements à venir"
   }
 }

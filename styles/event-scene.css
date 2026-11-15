@@ -1,4 +1,4 @@
-.yk-eclipse-scene {
+.yk-event-card-scene {
   position: relative;
   display: grid;
   place-items: center;
@@ -9,227 +9,81 @@
   isolation: isolate;
   perspective: 1000px;
 }
-.yk-eclipse-space {
+.yk-event-card-aura {
+  position: absolute;
+  inset: 3% -12%;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    color-mix(in srgb, var(--color-accent-neon) 20%, transparent),
+    transparent 65%
+  );
+  filter: blur(20px);
+  animation: yk-event-card-breathe 8s ease-in-out infinite;
+}
+.yk-event-card-foil {
+  position: absolute;
+  inset: 12% 8%;
+  pointer-events: none;
+  overflow: hidden;
+  transform: skewY(-14deg);
+  opacity: 0.65;
+  mask-image: linear-gradient(0deg, transparent, #000 20% 80%, transparent);
+}
+.yk-event-card-foil i {
   position: absolute;
   inset: 0;
+  border-top: 1px solid #bccdff22;
+  background: linear-gradient(
+    115deg,
+    transparent 15%,
+    #8dadff0a 40%,
+    #d8e6ff1a 42%,
+    #8dadff05 46%,
+    transparent 70%
+  );
+}
+.yk-event-card-foil i:nth-child(2) {
+  translate: 0 26%;
+}
+.yk-event-card-foil i:nth-child(3) {
+  translate: 0 52%;
+}
+.yk-event-card-streaks {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
   pointer-events: none;
 }
-.yk-eclipse-aura {
+.yk-event-card-streaks i {
   position: absolute;
-  width: 105%;
-  aspect-ratio: 1;
-  top: 50%;
-  left: 50%;
-  translate: -50% -50%;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    #c5923d0b 20%,
-    #9f752f17 40%,
-    #536ca123 50%,
-    transparent 68%
-  );
-  animation: yk-eclipse-breathe 9s ease-in-out infinite;
-}
-.yk-eclipse-rays {
-  position: absolute;
-  width: 120%;
-  aspect-ratio: 1;
-  left: 50%;
-  top: 50%;
-  translate: -50% -50%;
-  border-radius: 50%;
-  background: repeating-conic-gradient(
-    from 30deg,
-    transparent 0deg 13deg,
-    #b48e4c70 13.2deg 13.5deg,
-    transparent 13.8deg 20deg
-  );
-  mask-image: radial-gradient(
-    circle,
-    transparent 34%,
-    #000 40%,
-    transparent 66%
-  );
-  animation: yk-eclipse-revolve 80s linear infinite;
-  opacity: 0.45;
-}
-.yk-eclipse-sun {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 62%;
-  aspect-ratio: 1;
-  translate: -50% -50%;
-  border-radius: 50%;
-  background: radial-gradient(circle at 62% 20%, #17202b, #05090f 55%);
-  box-shadow:
-    0 -2px 1px #fbe3a9,
-    1px 0 2px #e7ba6870,
-    -3px 1px 8px #e4ac4e30,
-    0 0 42px #d6a04918,
-    inset 0 1px 20px #617e9e18;
-}
-.yk-eclipse-sun::before {
-  content: "";
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  border: 1px solid #d8b36c33;
-  mask-image: linear-gradient(40deg, transparent 20%, #000 75%);
-}
-.yk-eclipse-sun::after {
-  content: "";
-  position: absolute;
-  inset: -10px;
-  border-radius: 50%;
-  background: conic-gradient(
-    transparent 0deg 230deg,
-    #ead5a122 260deg,
-    #fff0cc99 310deg,
-    transparent 355deg
-  );
-  mask-image: radial-gradient(
-    farthest-side,
-    transparent calc(100% - 10px),
-    #000 calc(100% - 6px),
-    transparent 100%
-  );
-  animation: yk-eclipse-revolve 18s linear infinite;
-}
-.yk-eclipse-ring {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 83%;
-  aspect-ratio: 1;
-  margin: -41.5% 0 0 -41.5%;
-  border: 1px solid #ad92623b;
-  border-radius: 50%;
-}
-.yk-eclipse-ring-outer {
-  transform: rotateX(68deg) rotateY(-15deg) rotateZ(-25deg);
-  box-shadow:
-    0 0 0 11px #ac986608,
-    0 0 0 12px #ac986616;
-}
-.yk-eclipse-ring-outer::after {
-  content: "";
-  position: absolute;
-  width: 7px;
-  height: 7px;
-  top: 50%;
-  left: -4px;
-  border-radius: 50%;
-  background: #e9cf96;
-  box-shadow: 0 0 12px #e5b44c;
-}
-.yk-eclipse-ring-inner {
-  width: 69%;
-  margin: -34.5% 0 0 -34.5%;
-  border-color: #8194bd2e;
-  transform: rotateY(63deg) rotateX(22deg) rotateZ(20deg);
-}
-.yk-eclipse-meridian {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 93%;
-  aspect-ratio: 1;
-  translate: -50% -50%;
-  border: 1px dashed #9aafcf25;
-  border-radius: 50%;
-  animation: yk-eclipse-revolve 110s linear reverse infinite;
-}
-.yk-eclipse-horizon {
-  position: absolute;
-  inset: 50% -15% auto;
+  top: calc(17% + var(--streak) * 14%);
+  left: -30%;
+  width: 140%;
   height: 1px;
   background: linear-gradient(
     90deg,
     transparent,
-    #b8c9e12b 20%,
-    #f2d8a970 50%,
-    #b8c9e12b 80%,
+    #bccdff1a 30%,
+    #e9f5ff88 50%,
+    #8dadff1a 70%,
     transparent
   );
-  transform: rotate(-24deg);
-  opacity: 0.5;
-}
-.yk-eclipse-particle {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 2px;
-  height: 2px;
-  border-radius: 50%;
-  background: #e9d4ab;
   opacity: 0;
-  --angle: calc(var(--particle) * 137.5deg);
-  animation: yk-eclipse-drift calc(6s + var(--particle) * 0.13s) linear
-    calc(var(--particle) * -0.71s) infinite;
+  animation: yk-event-card-streak 8s cubic-bezier(0.2, 0.8, 0.2, 1)
+    calc(var(--streak) * -0.9s) infinite;
 }
-.yk-eclipse-artifact {
+.yk-event-card-object {
   position: relative;
   z-index: 2;
-  width: clamp(145px, 18vw, 205px);
-  transform: rotate(-11deg) rotateY(-14deg);
+  width: clamp(155px, 19vw, 225px);
+  transform: rotate(-9deg) rotateY(-10deg);
+  filter: drop-shadow(15px 25px 22px #03081180);
   animation:
-    yk-eclipse-arrive 1.4s cubic-bezier(0.16, 1, 0.3, 1) both,
-    yk-eclipse-suspend 9s cubic-bezier(0.45, 0, 0.55, 1) 1.4s infinite;
-  filter: drop-shadow(22px 30px 24px #0008);
+    yk-event-card-arrive 1.2s cubic-bezier(0.16, 1, 0.3, 1) both,
+    yk-event-card-float 8s ease-in-out 1.2s infinite;
 }
-.yk-eclipse-artifact .yk-mystery-back {
-  position: relative;
-  border-radius: 14px;
-  border-color: #d3b47b8c;
-  background:
-    radial-gradient(
-      circle at 50% 44%,
-      #080c13 16%,
-      #e5c18a 16.5%,
-      #ac843b55 17.2%,
-      transparent 22%
-    ),
-    repeating-linear-gradient(
-      45deg,
-      transparent 0 14px,
-      #b89c6610 14px 15px,
-      transparent 15px 28px
-    ),
-    linear-gradient(150deg, #202b39, #070b12 65%);
-  box-shadow:
-    inset 0 0 0 6px #080c14,
-    inset 0 0 0 7px #b89c6640,
-    0 0 1px #d8bd89;
-}
-.yk-eclipse-artifact .yk-mystery-back::before,
-.yk-eclipse-artifact .yk-mystery-back::after {
-  content: "";
-  position: absolute;
-  width: 21%;
-  height: 16%;
-  border: 1px solid #e1c89888;
-}
-.yk-eclipse-artifact .yk-mystery-back::before {
-  top: 14px;
-  left: 14px;
-  border-right: 0;
-  border-bottom: 0;
-}
-.yk-eclipse-artifact .yk-mystery-back::after {
-  right: 14px;
-  bottom: 14px;
-  border-left: 0;
-  border-top: 0;
-}
-.yk-eclipse-artifact .yk-mystery-back > span {
-  margin-top: -17%;
-  font-size: 30px;
-  color: #f0d7a1;
-  text-shadow: 0 0 20px #ddbb6650;
-}
-.yk-eclipse-artifact-glint {
+.yk-event-card-glint {
   position: absolute;
   z-index: 4;
   inset: 0;
@@ -237,7 +91,7 @@
   pointer-events: none;
   overflow: hidden;
 }
-.yk-eclipse-artifact-glint::after {
+.yk-event-card-glint::after {
   content: "";
   position: absolute;
   inset: -40%;
@@ -246,45 +100,58 @@
     transparent 35%,
     #dbe9ff00 42%,
     #dbe9ff25 48%,
-    #fff4c345 50%,
+    #f0eaff55 50%,
     #dbe9ff00 55%,
     transparent 65%
   );
   transform: translateX(-70%);
-  animation: yk-eclipse-glint 9s ease-in-out infinite;
+  animation: yk-event-card-glint 8s ease-in-out infinite;
 }
-.yk-eclipse-shadow {
+.yk-event-card-floor {
   position: absolute;
-  bottom: 7%;
+  bottom: 8%;
   left: 50%;
-  width: 37%;
-  height: 14px;
+  width: 50%;
+  height: 26px;
   translate: -50% 0;
   border-radius: 50%;
-  background: #0008;
+  background: radial-gradient(ellipse, #8dadff24, transparent 70%);
   filter: blur(8px);
-  animation: yk-eclipse-shadow 9s ease-in-out infinite;
 }
-@keyframes yk-eclipse-suspend {
+.yk-event-card-scene[data-revealed="true"] .yk-event-card-object {
+  animation:
+    yk-event-card-reveal 1.4s cubic-bezier(0.16, 1, 0.3, 1) both,
+    yk-event-card-float 8s ease-in-out 1.4s infinite;
+}
+.yk-event-card-scene[data-revealed="true"]::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse, #c6d6ff40, transparent 60%);
+  animation: yk-event-card-reveal-light 1.4s ease-out both;
+}
+@keyframes yk-event-card-float {
   0%,
   100% {
-    transform: translateY(0) rotate(-11deg) rotateY(-14deg);
+    transform: translateY(0) rotate(-9deg) rotateY(-10deg);
   }
   50% {
-    transform: translateY(-18px) rotate(-5deg) rotateY(8deg);
+    transform: translateY(-12px) rotate(-4deg) rotateY(7deg);
   }
 }
-@keyframes yk-eclipse-arrive {
+@keyframes yk-event-card-arrive {
   from {
     opacity: 0;
-    transform: translateY(40px) rotate(-20deg) rotateY(-45deg) scale(0.86);
+    transform: translateY(30px) rotate(-15deg) rotateY(-30deg) scale(0.9);
   }
   to {
     opacity: 1;
-    transform: translateY(0) rotate(-11deg) rotateY(-14deg) scale(1);
+    transform: translateY(0) rotate(-9deg) rotateY(-10deg);
   }
 }
-@keyframes yk-eclipse-glint {
+@keyframes yk-event-card-glint {
   0%,
   55% {
     transform: translateX(-75%);
@@ -294,72 +161,41 @@
     transform: translateX(75%);
   }
 }
-@keyframes yk-eclipse-revolve {
-  to {
-    rotate: 360deg;
-  }
-}
-@keyframes yk-eclipse-breathe {
+@keyframes yk-event-card-breathe {
   50% {
     opacity: 0.55;
     scale: 0.95;
   }
 }
-@keyframes yk-eclipse-shadow {
-  50% {
-    scale: 0.8;
-    opacity: 0.6;
-  }
-}
-@keyframes yk-eclipse-drift {
-  0% {
+@keyframes yk-event-card-streak {
+  0%,
+  25% {
     opacity: 0;
-    transform: rotate(var(--angle)) translateY(-90px) scale(0.3);
+    transform: rotate(-22deg) translateX(-85%);
   }
-  30% {
-    opacity: 0.65;
+  45% {
+    opacity: 0.55;
   }
+  70%,
   100% {
     opacity: 0;
-    transform: rotate(var(--angle)) translateY(-260px) scale(0.7);
+    transform: rotate(-22deg) translateX(85%);
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .yk-eclipse-scene *,
-  .yk-eclipse-scene *::before,
-  .yk-eclipse-scene *::after {
-    animation: none !important;
-    transition: none !important;
-  }
-}
-.yk-eclipse-scene[data-revealed="true"] .yk-eclipse-artifact {
-  animation:
-    yk-eclipse-unseal 1.6s cubic-bezier(0.16, 1, 0.3, 1) both,
-    yk-eclipse-suspend 9s cubic-bezier(0.45, 0, 0.55, 1) 1.6s infinite;
-}
-.yk-eclipse-scene[data-revealed="true"]::after {
-  content: "";
-  position: absolute;
-  z-index: 3;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(ellipse, #f9df9b36, transparent 60%);
-  animation: yk-eclipse-unseal-light 1.6s ease-out both;
-}
-@keyframes yk-eclipse-unseal {
+@keyframes yk-event-card-reveal {
   0% {
     opacity: 0;
-    transform: rotateY(90deg) scale(0.8);
+    transform: rotateY(90deg) scale(0.85);
   }
   40% {
     opacity: 1;
   }
   100% {
     opacity: 1;
-    transform: translateY(0) rotate(-11deg) rotateY(-14deg) scale(1);
+    transform: translateY(0) rotate(-9deg) rotateY(-10deg);
   }
 }
-@keyframes yk-eclipse-unseal-light {
+@keyframes yk-event-card-reveal-light {
   0%,
   100% {
     opacity: 0;
@@ -369,7 +205,13 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .yk-eclipse-scene[data-revealed="true"]::after {
+  .yk-event-card-scene *,
+  .yk-event-card-scene *::before,
+  .yk-event-card-scene *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .yk-event-card-scene[data-revealed="true"]::after {
     animation: none !important;
     opacity: 0;
   }

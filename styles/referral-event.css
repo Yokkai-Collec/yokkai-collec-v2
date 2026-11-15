@@ -3,15 +3,17 @@
   display: block;
   width: 100%;
   aspect-ratio: 1;
-  color: #e1c78f;
-  filter: drop-shadow(0 0 25px #c19a4933);
+  color: var(--color-pack-accent);
+  filter: drop-shadow(
+    0 0 25px color-mix(in srgb, var(--color-accent-neon) 20%, transparent)
+  );
 }
 .yk-recruiter-emblem::before {
   content: "";
   position: absolute;
   inset: 17%;
   border-radius: 50%;
-  background: #c79a4b20;
+  background: color-mix(in srgb, var(--color-accent-neon) 13%, transparent);
   filter: blur(18px);
 }
 .yk-recruiter-emblem svg {
@@ -21,16 +23,16 @@
   overflow: visible;
 }
 .yk-recruiter-emblem-rim {
-  stroke: #ceb27b;
+  stroke: var(--color-pack-accent);
   stroke-width: 1.2;
 }
 .yk-recruiter-emblem-shield {
-  fill: #ac874c14;
-  stroke: #e1c78f;
+  fill: color-mix(in srgb, var(--color-accent-neon) 8%, transparent);
+  stroke: var(--color-pack-accent);
   stroke-width: 1.3;
 }
 .yk-referral-event {
-  --event-accent: #dfc38c;
+  --event-accent: var(--color-pack-accent);
   position: relative;
   isolation: isolate;
   min-width: 0;
@@ -48,7 +50,11 @@
   height: 560px;
   pointer-events: none;
   background:
-    radial-gradient(ellipse at 85% 35%, #a88a4318, transparent 52%),
+    radial-gradient(
+      ellipse at 85% 35%,
+      color-mix(in srgb, var(--color-accent-neon) 9%, transparent),
+      transparent 52%
+    ),
     radial-gradient(ellipse at 10% 0%, #657fab15, transparent 55%);
 }
 .yk-referral-event-back {
@@ -108,7 +114,8 @@
   flex: none;
   border-radius: 50%;
   background: currentColor;
-  box-shadow: 0 0 14px #e1c99870;
+  box-shadow: 0 0 14px
+    color-mix(in srgb, var(--color-accent-neon) 44%, transparent);
 }
 .yk-referral-event-intro > p:last-of-type {
   max-width: 30rem;
@@ -121,7 +128,8 @@
   max-width: 100%;
   margin-top: 28px;
   padding: 16px 20px;
-  border: 1px solid #c8b17e25;
+  border: 1px solid
+    color-mix(in srgb, var(--color-accent-neon) 15%, transparent);
   border-radius: 14px;
   background: #080c1480;
   box-shadow: inset 0 1px #ffffff04;
@@ -133,7 +141,7 @@
   text-transform: uppercase;
 }
 .yk-referral-event-clock {
-  color: var(--event-accent, #e1c998);
+  color: var(--event-accent, var(--color-pack-accent));
   font-size: 1.15rem;
   font-weight: 500;
   font-variant-numeric: tabular-nums;
@@ -154,13 +162,13 @@
   gap: 6px;
   isolation: isolate;
 }
-.yk-referral-event-trophy > .yk-recruiter-constellation {
+.yk-referral-event-trophy > .yk-recruiter-artwork {
   width: clamp(160px, 20vw, 220px);
   margin-bottom: 18px;
   animation: yk-recruiter-float 9s ease-in-out infinite;
 }
 .yk-referral-event-trophy > strong {
-  color: #ead8af;
+  color: var(--color-ink);
   font-size: 1.3rem;
   font-weight: 500;
   letter-spacing: 0.02em;
@@ -169,32 +177,14 @@
   color: var(--color-ink-3);
   font-size: 0.65rem;
 }
-.yk-referral-event-trophy-orbit {
-  position: absolute;
-  z-index: -1;
-  top: 50%;
-  left: 50%;
-  width: min(90%, 320px);
-  aspect-ratio: 1;
-  translate: -50% -60%;
-  border: 1px solid #d8b87315;
-  border-radius: 50%;
-}
-.yk-referral-event-trophy-orbit::after {
-  content: "";
-  position: absolute;
-  inset: 18px;
-  border: 1px dashed #d8b87325;
-  border-radius: 50%;
-  animation: yk-recruiter-orbit 60s linear infinite;
-}
 .yk-referral-event-reward-total {
   width: fit-content;
   padding: 9px 14px;
-  border: 1px solid #d6ba7a25;
+  border: 1px solid
+    color-mix(in srgb, var(--color-accent-neon) 15%, transparent);
   border-radius: 999px;
-  color: #dcc89e !important;
-  background: #d6ba7a08;
+  color: var(--color-pack-accent) !important;
+  background: color-mix(in srgb, var(--color-accent-neon) 3%, transparent);
   font-size: 0.7rem;
 }
 .yk-referral-event-progress {
@@ -240,8 +230,13 @@
 }
 .yk-referral-event-progress progress::-webkit-progress-value {
   border-radius: 999px;
-  background: linear-gradient(90deg, #8e7952, #ead7a8);
-  box-shadow: 0 0 16px #dbb76f40;
+  background: linear-gradient(
+    90deg,
+    var(--color-ink-2),
+    var(--color-pack-accent)
+  );
+  box-shadow: 0 0 16px
+    color-mix(in srgb, var(--color-accent-neon) 25%, transparent);
   transition: width 800ms var(--ease-standard);
 }
 .yk-referral-event-tiers {
@@ -250,7 +245,8 @@
   gap: 0;
   padding: 0;
   list-style: none;
-  border-block: 1px solid #b5a47d30;
+  border-block: 1px solid
+    color-mix(in srgb, var(--color-accent-neon) 19%, transparent);
 }
 .yk-referral-event-tiers li {
   position: relative;
@@ -261,7 +257,8 @@
   min-width: 0;
   min-height: 110px;
   padding: 22px 12px;
-  border-bottom: 1px solid #b5a47d20;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--color-accent-neon) 13%, transparent);
 }
 .yk-referral-event-tiers li:last-child {
   border-bottom: 0;
@@ -304,15 +301,19 @@
   font-size: 0.6rem;
 }
 .yk-referral-event-tiers li[data-reached="true"] .yk-referral-event-tier-mark {
-  border-color: #d4b77c70;
-  color: #e0c58e;
-  background: #d4b77c10;
+  border-color: color-mix(in srgb, var(--color-accent-neon) 44%, transparent);
+  color: var(--color-pack-accent);
+  background: color-mix(in srgb, var(--color-accent-neon) 6%, transparent);
 }
 .yk-referral-event-tiers li[data-reached="true"] strong {
-  color: #e0c58e;
+  color: var(--color-pack-accent);
 }
 .yk-referral-event-tiers li[data-next="true"] {
-  background: linear-gradient(105deg, #bd9b5114, transparent);
+  background: linear-gradient(
+    105deg,
+    color-mix(in srgb, var(--color-accent-neon) 8%, transparent),
+    transparent
+  );
 }
 .yk-referral-event-tiers li[data-next="true"]::before {
   content: "";
@@ -321,7 +322,12 @@
   bottom: 0;
   left: 0;
   width: 2px;
-  background: linear-gradient(0deg, transparent, #dfc38c, transparent);
+  background: linear-gradient(
+    0deg,
+    transparent,
+    var(--color-pack-accent),
+    transparent
+  );
 }
 .yk-referral-event-tiers li > .yk-recruiter-badge {
   grid-column: 2;
@@ -371,11 +377,6 @@
     transform: translateY(-8px) rotate(3deg);
   }
 }
-@keyframes yk-recruiter-orbit {
-  to {
-    rotate: 360deg;
-  }
-}
 @media (min-width: 600px) {
   .yk-referral-event-hero {
     grid-template-columns: minmax(0, 1fr) minmax(150px, 0.65fr);
@@ -415,9 +416,14 @@
   gap: 16px;
   width: 100%;
   padding: 20px;
-  border: 1px solid #d9b77c50;
+  border: 1px solid
+    color-mix(in srgb, var(--color-accent-neon) 31%, transparent);
   border-radius: 18px;
-  background: linear-gradient(110deg, #b3814325, #14131c);
+  background: linear-gradient(
+    110deg,
+    color-mix(in srgb, var(--color-accent-neon) 15%, transparent),
+    #14131c
+  );
   color: var(--ink, #f6f2eb);
   text-decoration: none;
 }
@@ -445,9 +451,10 @@
   place-items: center;
   width: 44px;
   height: 44px;
-  border: 1px solid #d9b77c70;
+  border: 1px solid
+    color-mix(in srgb, var(--color-accent-neon) 44%, transparent);
   border-radius: 50%;
-  color: #d9b77c;
+  color: var(--color-pack-accent);
   flex: none;
 }
 .yk-recruiter-badge {
@@ -459,41 +466,29 @@
   font-weight: 600;
   line-height: 1.5;
   padding: 5px 10px;
-  border: 1px solid #d9b77c70;
+  border: 1px solid
+    color-mix(in srgb, var(--color-accent-neon) 44%, transparent);
   border-radius: 999px;
-  color: #e9ce9e;
-  background: #b381431c;
+  color: var(--color-pack-accent);
+  background: color-mix(in srgb, var(--color-accent-neon) 11%, transparent);
   text-decoration: none;
 }
 .yk-referral-event-promotion:focus-visible,
 .yk-recruiter-badge:focus-visible {
-  outline: 2px solid #e9ce9e;
+  outline: 2px solid var(--color-pack-accent);
   outline-offset: 4px;
 }
 
-.yk-recruiter-constellation {
+.yk-recruiter-artwork {
   position: relative;
   display: grid;
   place-items: center;
   width: 100%;
   aspect-ratio: 1;
-  color: #e1c998;
+  color: var(--color-pack-accent);
 }
-.yk-recruiter-constellation > .yk-recruiter-emblem {
+.yk-recruiter-artwork > .yk-recruiter-emblem {
   width: 76%;
-}
-.yk-recruiter-stars {
-  position: absolute;
-  inset: -18%;
-  width: 136%;
-  height: 136%;
-  overflow: visible;
-}
-.yk-recruiter-stars circle {
-  animation: yk-recruiter-stars 6s ease-in-out infinite alternate;
-}
-.yk-recruiter-stars circle:nth-child(3n) {
-  animation-delay: -3s;
 }
 .yk-referral-event-invite {
   margin-top: 24px;
@@ -518,19 +513,6 @@
 .yk-referral-event-invite button {
   min-height: 48px;
 }
-@keyframes yk-recruiter-stars {
-  from {
-    opacity: 0.25;
-  }
-  to {
-    opacity: 0.85;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .yk-recruiter-stars circle {
-    animation: none !important;
-  }
-}
 
 .yk-referral-event-hero {
   padding: 36px 0;
@@ -545,13 +527,14 @@
   top: 44%;
   translate: -50% -50%;
   color: transparent;
-  -webkit-text-stroke: 1px #d6bb7f1c;
+  -webkit-text-stroke: 1px
+    color-mix(in srgb, var(--color-accent-neon) 11%, transparent);
   font-size: clamp(200px, 28vw, 330px);
   font-weight: 700;
   letter-spacing: -0.12em;
   line-height: 1;
 }
-.yk-referral-event-trophy > .yk-recruiter-constellation {
+.yk-referral-event-trophy > .yk-recruiter-artwork {
   width: clamp(180px, 23vw, 270px);
 }
 .yk-referral-event-progress strong {
@@ -565,7 +548,8 @@
     justify-content: flex-start;
     min-height: 205px;
     padding: 25px;
-    border-right: 1px solid #b5a47d20;
+    border-right: 1px solid
+      color-mix(in srgb, var(--color-accent-neon) 13%, transparent);
   }
   .yk-referral-event-tier-mark {
     margin-bottom: 10px;
@@ -594,7 +578,7 @@
     bottom: 0;
     width: auto;
     height: 2px;
-    background: linear-gradient(90deg, #dfc38c, transparent);
+    background: linear-gradient(90deg, var(--color-pack-accent), transparent);
   }
 }
 @media (min-width: 1024px) {
@@ -605,4 +589,57 @@
     gap: 60px;
     padding: 46px 0;
   }
+}
+.yk-recruiter-artwork > .yk-recruiter-emblem {
+  position: relative;
+  z-index: 2;
+  width: 70%;
+}
+.yk-recruiter-profile-card {
+  position: absolute;
+  z-index: 1;
+  top: 22%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 42%;
+  height: 59%;
+  padding: 10%;
+  border: 1px solid #a8c7f54d;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #263c60, #0b1425 65%);
+  box-shadow:
+    0 12px 30px #03070e70,
+    inset 0 1px #e4edff35;
+}
+.yk-recruiter-profile-card[data-side="0"] {
+  left: -5%;
+  rotate: -17deg;
+}
+.yk-recruiter-profile-card[data-side="1"] {
+  right: -5%;
+  rotate: 17deg;
+}
+.yk-recruiter-profile-card svg {
+  width: 100%;
+  max-width: 42px;
+  stroke: #a8c7f5;
+  stroke-width: 1.5;
+}
+.yk-recruiter-profile-card i {
+  width: 90%;
+  height: 2px;
+  flex: none;
+  border-radius: 2px;
+  background: #a8c7f53d;
+}
+.yk-recruiter-profile-card i:last-child {
+  width: 60%;
+  background: #a8c7f51a;
+}
+.yk-campaign-badge .yk-recruiter-emblem {
+  width: 24px;
+  height: 24px;
 }

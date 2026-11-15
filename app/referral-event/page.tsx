@@ -30,7 +30,7 @@ export default async function ReferralEventPage() {
   ).origin;
   return (
     <div className="flex min-h-dvh w-full flex-col">
-      <Topbar view="settings" account={<AccountMenu />} />
+      <Topbar view="events" account={<AccountMenu />} />
       <main
         id="main-content"
         className="mx-auto w-full max-w-6xl min-w-0 px-3 py-6 sm:px-6 sm:py-10"

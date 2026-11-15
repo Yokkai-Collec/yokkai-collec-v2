@@ -45,6 +45,13 @@ function load(file, state) {
             useEffect: () => {}
           };
         if (name === "next-intl") return intl;
+        if (name === "@/components/event-banner")
+          return load("components/event-banner.tsx");
+        if (name === "@/components/card-shell")
+          return {
+            CardShell: ({ children }) =>
+              React.createElement("div", null, children)
+          };
         if (name === "next/link")
           return {
             __esModule: true,
@@ -88,7 +95,7 @@ test("event page exposes server progress, cumulative tiers, escaped pending pseu
   );
   assert.match(card, /href="\/referral-event"/);
   assert.match(card, /View Referral Event/);
-  assert.match(card, /13d 0h 0m 0s/);
+  assert.match(card, /13d 00h 00m/);
 });
 
 test("promotion is visible only during the event, with an accessible destination", () => {
@@ -106,6 +113,25 @@ test("promotion is visible only during the event, with an accessible destination
       React.createElement(ReferralEventPromotion)
     );
     assert.equal(html.includes('href="/referral-event"'), visible);
+  }
+});
+
+test("reference banners keep an exact compact countdown across the day boundary and expiry", () => {
+  const { EventBannerCountdown } = load("components/event-banner.tsx");
+  const now = Date.parse(event.serverNow);
+  for (const [remaining, text] of [
+    [13 * 86400, "13d 00h 00m"],
+    [14 * 3600 + 5 * 60 + 32, "14h 05m 32s"],
+    [-1, "00h 00m 00s"]
+  ]) {
+    const html = renderToStaticMarkup(
+      React.createElement(EventBannerCountdown, {
+        end: new Date(now + remaining * 1000).toISOString(),
+        now
+      })
+    );
+    assert.ok(html.includes(text), html);
+    assert.match(html, /role="timer"/);
   }
 });
 

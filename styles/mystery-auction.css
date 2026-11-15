@@ -1,29 +1,30 @@
 .yk-mystery-back {
-  container-type: inline-size;
-  display: grid;
-  place-items: center;
+  position: relative;
+  display: block;
   width: 100%;
-  aspect-ratio: 2.5 / 3.5;
-  border: 1px solid #d9c59480;
-  border-radius: 1rem;
-  background:
-    radial-gradient(
-      circle at 50% 43%,
-      #080910 20%,
-      #edcc7b 21%,
-      #b38b4738 23%,
-      transparent 36%
-    ),
-    linear-gradient(145deg, #111421, #05060b);
-  color: #f3dfae;
+  aspect-ratio: 5/7;
+  border: 0;
+  border-radius: 14px;
+  background: url("/assets/bubble-card-back-v1.png") center/100% 100% no-repeat;
   box-shadow:
-    inset 0 0 0 7px #d9c59412,
-    0 0 28px #c2a05b18;
-  font-size: clamp(2rem, 9vw, 5rem);
-  font-family: serif;
+    0 12px 30px #06091380,
+    0 0 22px #8dadff14;
 }
 .yk-mystery-back > span {
-  font-size: clamp(1rem, 22cqi, 4rem);
+  position: absolute;
+  right: 10%;
+  bottom: 8%;
+  display: grid;
+  place-items: center;
+  width: 25%;
+  aspect-ratio: 1;
+  border: 1px solid #bccdff70;
+  border-radius: 9px;
+  color: var(--color-pack-ink);
+  background: #080f1ce8;
+  box-shadow: 0 0 15px #8dadff25;
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 4vw, 1.8rem);
 }
 .yk-mystery-banner {
   display: flex;
@@ -31,10 +32,16 @@
   gap: clamp(1rem, 3vw, 2rem);
   min-width: 0;
   padding: clamp(1rem, 3vw, 1.5rem);
-  border: 1px solid #d9c59440;
+  border: 1px solid
+    color-mix(in srgb, var(--color-accent-neon) 25%, transparent);
   border-radius: 1.25rem;
   background:
-    radial-gradient(ellipse at 0 50%, #bb91451a, transparent 65%), #080a11;
+    radial-gradient(
+      ellipse at 0 50%,
+      color-mix(in srgb, var(--color-accent-neon) 10%, transparent),
+      transparent 65%
+    ),
+    #080a11;
 }
 .yk-mystery-banner-art {
   flex: 0 0 clamp(64px, 20vw, 116px);
@@ -62,10 +69,15 @@
   max-width: 1240px;
   gap: clamp(1.5rem, 4vw, 3rem);
   padding: clamp(1rem, 3.2vw, 2.75rem);
-  border: 1px solid #baa77330;
+  border: 1px solid
+    color-mix(in srgb, var(--color-accent-neon) 19%, transparent);
   border-radius: 1.75rem;
   background:
-    radial-gradient(ellipse at 18% 43%, #9d793c18, transparent 45%),
+    radial-gradient(
+      ellipse at 18% 43%,
+      color-mix(in srgb, var(--color-accent-neon) 9%, transparent),
+      transparent 45%
+    ),
     radial-gradient(ellipse at 90% 0%, #3348771a, transparent 50%), #080b12;
   box-shadow:
     0 32px 100px #0005,
@@ -84,7 +96,7 @@
   font-size: 0.75rem;
 }
 .yk-mystery-event-back:hover {
-  color: #efdcb0;
+  color: var(--color-ink);
 }
 .yk-mystery-event-heading {
   display: flex;
@@ -102,7 +114,7 @@
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  color: #d2b477;
+  color: var(--color-pack-accent);
   font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.2em;
@@ -114,7 +126,7 @@
 .yk-mystery-event-intro h1 {
   max-width: 35rem;
   margin-top: 0.75rem;
-  color: #f6e9ca;
+  color: var(--color-ink);
   font-family: var(--font-display);
   font-size: clamp(2.1rem, 5.5vw, 4.75rem);
   line-height: 1.02;
@@ -140,7 +152,7 @@
   gap: 0.5rem;
   width: fit-content;
   max-width: 100%;
-  color: #d9c18c;
+  color: var(--color-pack-accent);
   font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -153,8 +165,9 @@
   height: 5px;
   flex-shrink: 0;
   border-radius: 50%;
-  background: #e4c47f;
-  box-shadow: 0 0 10px #e4c47f88;
+  background: var(--color-pack-accent);
+  box-shadow: 0 0 10px
+    color-mix(in srgb, var(--color-accent-neon) 53%, transparent);
 }
 .yk-mystery-event-clock-label {
   color: #a6b0c3;
@@ -170,12 +183,17 @@
   justify-items: center;
   gap: 0.35rem;
   padding: 0.85rem 0.4rem 0.65rem;
-  border: 1px solid #c5ab7330;
+  border: 1px solid
+    color-mix(in srgb, var(--color-accent-neon) 19%, transparent);
   border-radius: 0.65rem;
-  background: linear-gradient(160deg, #d0b47c0d, #ffffff02);
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--color-accent-neon) 5%, transparent),
+    #ffffff02
+  );
 }
 .yk-mystery-clock-digits > span > span {
-  color: #f6e9ca;
+  color: var(--color-ink);
   font-family: var(--font-display);
   font-size: clamp(1.5rem, 3.5vw, 2.75rem);
   font-weight: 600;
@@ -205,7 +223,7 @@
 .yk-mystery-event-facts li::before {
   content: "✦";
   margin-right: 0.5rem;
-  color: #bfa064;
+  color: var(--color-pack-accent);
 }
 .yk-mystery-detail .yk-auction-art {
   overflow: clip;
@@ -222,7 +240,7 @@
   padding: 2.5rem 1rem 1.25rem;
   isolation: isolate;
 }
-.yk-mystery-detail .yk-auction-art > .yk-eclipse-scene {
+.yk-mystery-detail .yk-auction-art > .yk-event-card-scene {
   width: 100%;
   min-height: 430px;
 }
@@ -246,7 +264,7 @@
   font-size: clamp(1.35rem, 2.5vw, 1.75rem);
 }
 .yk-mystery-detail .yk-auction-header > div > div > span:first-child {
-  color: #b79d68;
+  color: var(--color-pack-accent);
   font-size: 0.625rem;
   letter-spacing: 0.15em;
 }
@@ -258,7 +276,7 @@
 .yk-mystery-detail .yk-auction-panel {
   grid-template-columns: minmax(0, 1fr);
   padding: clamp(1rem, 2.5vw, 1.75rem);
-  border-color: #c5ab7338;
+  border-color: color-mix(in srgb, var(--color-accent-neon) 22%, transparent);
   border-radius: 1rem;
   background: linear-gradient(145deg, #ffffff04, transparent 65%), #0d111b;
   box-shadow: 0 16px 40px #0003;
@@ -270,21 +288,31 @@
   font-size: clamp(1.25rem, 2.5vw, 1.75rem);
 }
 .yk-mystery-detail .yk-bid-quick {
-  border-color: #d8b879;
-  background: linear-gradient(115deg, #f1ddb0, #be984f);
+  border-color: var(--color-pack-accent);
+  background: linear-gradient(
+    115deg,
+    var(--color-ink),
+    var(--color-pack-accent)
+  );
   color: #241b0b;
-  box-shadow: 0 4px 22px #c4a36118;
+  box-shadow: 0 4px 22px
+    color-mix(in srgb, var(--color-accent-neon) 9%, transparent);
 }
 .yk-mystery-detail .yk-bid-quick span {
   color: inherit;
 }
 .yk-mystery-detail .yk-bid-quick:hover:enabled {
-  border-color: #f7e4b5;
-  background: linear-gradient(115deg, #faeac4, #d6b56e);
-  box-shadow: 0 4px 28px #c4a36135;
+  border-color: var(--color-ink);
+  background: linear-gradient(
+    115deg,
+    var(--color-ink),
+    var(--color-pack-accent)
+  );
+  box-shadow: 0 4px 28px
+    color-mix(in srgb, var(--color-accent-neon) 21%, transparent);
 }
 .yk-mystery-detail .yk-bid-quick:focus-visible {
-  outline: 2px solid #f6dea5;
+  outline: 2px solid var(--color-ink);
   outline-offset: 4px;
 }
 .yk-mystery-detail .yk-auction-balance {

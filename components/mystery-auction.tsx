@@ -12,7 +12,7 @@ import { Karas } from "@/components/ui";
 import { CardShell } from "@/components/card-shell";
 import { packCountdown } from "@/lib/ui/pack-countdown";
 import "@/styles/mystery-auction.css";
-export { EclipseScene } from "@/components/event-scene";
+export { EventCardShowcase } from "@/components/event-scene";
 
 export function MysteryCardBack() {
   const t = useTranslations("mysteryAuction");
@@ -44,7 +44,18 @@ export function MysteryEventHeader({
       <div className="yk-mystery-event-heading">
         <div className="yk-mystery-event-intro">
           <p className="yk-mystery-event-eyebrow">
-            <span aria-hidden="true">◉</span>
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
+              <rect x="5" y="3" width="14" height="18" rx="3" />
+              <path d="M9 8h6M9 12h6M9 16h3" />
+            </svg>
             {t("weeklyEvent")}
           </p>
           <h1>{t("title")}</h1>
@@ -130,6 +141,7 @@ export function useMysteryAuctionEvent() {
         data => {
           if (active) {
             setEvent(data);
+            setNow(Date.now());
             setFailed(false);
           }
         },

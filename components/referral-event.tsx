@@ -5,6 +5,13 @@ import { useEffect, useId, useState, type ReactNode } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import type { ReferralEvent } from "@/lib/referrals/event";
+import {
+  EventBannerFrame,
+  EventBannerArt,
+  EventBannerCountdown,
+  EventBannerClockIcon,
+  EventBannerArrow
+} from "@/components/event-banner";
 import "@/styles/referral-event.css";
 
 export function useReferralEvent(initial?: ReferralEvent | null) {
@@ -82,7 +89,7 @@ export function ReferralEventPromotion() {
   return (
     <Link href="/referral-event" className="yk-referral-event-promotion">
       <span className="yk-referral-event-seal" aria-hidden="true">
-        ✦
+        <RecruiterEmblem />
       </span>
       <span>
         <strong>{t("title")}</strong>
@@ -97,54 +104,43 @@ export function ReferralEventPromotion() {
 }
 
 function RecruiterEmblem() {
-  const gold = useId();
+  const chrome = useId();
   return (
     <span className="yk-recruiter-emblem" aria-hidden="true">
       <svg viewBox="0 0 120 120" fill="none">
         <defs>
           <linearGradient
-            id={gold}
-            x1="15"
-            y1="8"
+            id={chrome}
+            x1="18"
+            y1="5"
             x2="100"
-            y2="115"
+            y2="112"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stopColor="#79603b" />
-            <stop offset=".25" stopColor="#f1dfb6" />
-            <stop offset=".48" stopColor="#9b7b47" />
-            <stop offset=".72" stopColor="#d9c08b" />
-            <stop offset="1" stopColor="#665033" />
+            <stop stopColor="#f3f8ff" />
+            <stop offset=".2" stopColor="#a8c7f5" />
+            <stop offset=".4" stopColor="#4a648b" />
+            <stop offset=".58" stopColor="#e3edff" />
+            <stop offset=".78" stopColor="#829fcd" />
+            <stop offset="1" stopColor="#d5e5ff" />
           </linearGradient>
         </defs>
         <path
           className="yk-recruiter-emblem-rim"
-          fill={`url(#${gold})`}
-          d="M60 3 75 10 92 13 103 28 113 43 112 60 113 77 103 92 88 103 72 108 60 117 44 110 28 106 17 92 7 77 8 60 7 43 17 28 32 17 48 12Z"
+          fill={`url(#${chrome})`}
+          d="M60 6 99 21v40c0 25-19 43-39 53C40 104 21 86 21 61V21Z"
         />
-        <circle
-          cx="60"
-          cy="60"
-          r="46"
-          fill="#10151f"
-          stroke="currentColor"
+        <path
+          d="m60 15 30 13v33c0 19-14 34-30 43-16-9-30-24-30-43V28Z"
+          fill="#0a1424"
+          stroke="#d2e2ff"
+          strokeOpacity=".55"
+        />
+        <path
+          d="m60 23 22 10v27c0 14-9 26-22 34-13-8-22-20-22-34V33Z"
+          fill="#8dadff08"
+          stroke="#8dadff"
           strokeOpacity=".3"
-        />
-        <circle
-          cx="60"
-          cy="60"
-          r="40"
-          stroke="currentColor"
-          strokeOpacity=".5"
-          strokeDasharray="1 6"
-        />
-        <path
-          className="yk-recruiter-emblem-shield"
-          d="m60 28 25 10-3 29c-2 12-12 21-22 27-10-6-20-15-22-27l-3-29Z"
-        />
-        <path
-          d="m60 15 2.5 5 5.5.8-4 3.8 1 5.4-5-2.5-5 2.5 1-5.4-4-3.8 5.5-.8Z"
-          fill="currentColor"
         />
         <g
           stroke="currentColor"
@@ -152,54 +148,30 @@ function RecruiterEmblem() {
           strokeLinecap="round"
           strokeLinejoin="round"
         >
-          <circle cx="60" cy="49" r="6" />
-          <path d="M49 71v-4a11 11 0 0 1 22 0v4" />
-          <path d="M45 49a4.5 4.5 0 1 0 0 9m-3 12v-3a8 8 0 0 1 6-8M75 49a4.5 4.5 0 1 1 0 9m3 12v-3a8 8 0 0 0-6-8" />
-          <path d="m55 81 4 4 7-8" />
+          <circle cx="60" cy="45" r="6" />
+          <path d="M49 67v-4a11 11 0 0 1 22 0v4M45 45a4.5 4.5 0 1 0 0 9m-3 12v-3a8 8 0 0 1 6-8M75 45a4.5 4.5 0 1 1 0 9m3 12v-3a8 8 0 0 0-6-8m-17 26 4 4 7-8" />
         </g>
-        <path
-          d="M25 76q-9-16-3-29M95 76q9-16 3-29"
-          stroke="currentColor"
-          strokeOpacity=".6"
-          strokeWidth="2"
-        />
       </svg>
     </span>
   );
 }
-
-function RecruiterConstellation() {
+function RecruiterArtwork() {
   return (
-    <span className="yk-recruiter-constellation" aria-hidden="true">
-      <svg className="yk-recruiter-stars" viewBox="0 0 320 260" fill="none">
-        <path
-          d="m15 76 49-32 44 18 67-44 58 27 52-15M40 240l34-45 52 21 64-29 59 23 51-42M64 44l10 151M233 45l16 165"
-          stroke="currentColor"
-          strokeOpacity=".18"
-        />
-        {[
-          [15, 76],
-          [64, 44],
-          [108, 62],
-          [175, 18],
-          [233, 45],
-          [285, 30],
-          [40, 240],
-          [74, 195],
-          [126, 216],
-          [190, 187],
-          [249, 210],
-          [300, 168]
-        ].map(([cx, cy], index) => (
-          <circle
-            key={index}
-            cx={cx}
-            cy={cy}
-            r={index % 3 === 0 ? 2.5 : 1.5}
-            fill="currentColor"
-          />
-        ))}
-      </svg>
+    <span className="yk-recruiter-artwork" aria-hidden="true">
+      {[0, 1].map(index => (
+        <span
+          className="yk-recruiter-profile-card"
+          data-side={index}
+          key={index}
+        >
+          <svg viewBox="0 0 40 40" fill="none">
+            <circle cx="20" cy="14" r="6" />
+            <path d="M9 34v-4a11 11 0 0 1 22 0v4" />
+          </svg>
+          <i />
+          <i />
+        </span>
+      ))}
       <RecruiterEmblem />
     </span>
   );
@@ -212,72 +184,38 @@ export function ReferralEventHubCard({
   event: ReferralEvent;
   now: number;
 }) {
-  const t = useTranslations("referralEvent");
-  const upcoming = now < Date.parse(event.startsAt);
-  const ended = now >= Date.parse(event.endsAt);
+  const t = useTranslations("referralEvent"),
+    te = useTranslations("events");
+  const status =
+    now < Date.parse(event.startsAt)
+      ? "upcoming"
+      : now < Date.parse(event.endsAt)
+        ? "live"
+        : "ended";
   return (
     <li className="yk-event-card" data-event="referral">
-      <div className="yk-event-cover">
-        <span className="yk-event-orbit" aria-hidden="true" />
-        <div className="yk-event-referral-art">
-          <RecruiterConstellation />
+      <EventBannerFrame href="/referral-event" label={t("viewEvent")}>
+        <div className="yk-event-banner-content">
+          <span className="yk-event-frequency">{t("limited")}</span>
+          <h3>{t("title")}</h3>
+          <p className="yk-event-description">{t("bannerDescription")}</p>
         </div>
-        <span className="yk-event-frequency">{t("limited")}</span>
-      </div>
-      <div className="yk-event-body">
-        <div className="yk-event-kind">
-          <span>{t("badge")}</span>
-          <span className={!upcoming && !ended ? "is-live" : undefined}>
-            {t(upcoming ? "upcoming" : ended ? "ended" : "limited")}
+        <EventBannerArt kind="referral" />
+        <div className="yk-event-banner-footer">
+          <span className="yk-event-status" data-status={status}>
+            {te(status)}
           </span>
-        </div>
-        <div className="yk-event-campaign-title">
-          <span aria-hidden="true">02</span>
-          <p>{t("campaignLabel")}</p>
-        </div>
-        <h3>{t("title")}</h3>
-        <p className="yk-event-description">{t("promotion")}</p>
-        <div className="yk-event-stats">
-          <div className="yk-event-timing">
-            <span>{t(upcoming ? "startsIn" : "endsIn")}</span>
-            <Countdown
-              end={upcoming ? event.startsAt : event.endsAt}
+          <span className="yk-event-banner-separator" aria-hidden="true" />
+          <span className="yk-event-banner-time">
+            <EventBannerClockIcon />
+            <EventBannerCountdown
+              end={status === "upcoming" ? event.startsAt : event.endsAt}
               now={now}
             />
-          </div>
-          <div className="yk-event-price">
-            <span>{t("rewardPool")}</span>
-            <strong>
-              {t("karas", {
-                amount: event.tiers.reduce((sum, tier) => sum + tier.karas, 0)
-              })}
-            </strong>
-          </div>
+          </span>
+          <EventBannerArrow />
         </div>
-        <Link
-          href="/referral-event"
-          className="yk-button yk-button-secondary yk-event-action"
-        >
-          {t("viewEvent")}
-          <span aria-hidden="true">↗</span>
-        </Link>
-      </div>
-      <ol className="yk-event-campaign-tiers" aria-label={t("milestones")}>
-        {event.tiers.map(tier => (
-          <li key={tier.threshold} data-earned={tier.awarded}>
-            <span>{String(tier.threshold).padStart(2, "0")}</span>
-            <div>
-              <strong>{t("karas", { amount: tier.karas })}</strong>
-              <small>{t(tier.awarded ? "awarded" : "locked")}</small>
-            </div>
-            {tier.badge && (
-              <span className="yk-campaign-badge" title={t("badge")}>
-                ✦
-              </span>
-            )}
-          </li>
-        ))}
-      </ol>
+      </EventBannerFrame>
     </li>
   );
 }
@@ -330,8 +268,7 @@ export function ReferralEventPanel({
           className="yk-referral-event-trophy"
           data-goal={event.tiers.find(tier => tier.badge)?.threshold}
         >
-          <span className="yk-referral-event-trophy-orbit" aria-hidden="true" />
-          <RecruiterConstellation />
+          <RecruiterArtwork />
           <strong>{t("badge")}</strong>
           <span>{t("badgeAt", { count: 20 })}</span>
         </div>

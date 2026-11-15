@@ -3,7 +3,7 @@ import { EventsHub } from "@/components/events-hub";
 import {
   MysteryAuctionBanner,
   MysteryCardBack,
-  EclipseScene,
+  EventCardShowcase,
   MysteryEventHeader,
   MysteryAuctionTile
 } from "@/components/mystery-auction";
@@ -1742,9 +1742,9 @@ export function AuctionView({
       )}
       <div className="yk-auction-art">
         {auction.isMystery ? (
-          <EclipseScene revealed={!auction.mysteryHidden}>
+          <EventCardShowcase revealed={!auction.mysteryHidden}>
             {cardArt}
-          </EclipseScene>
+          </EventCardShowcase>
         ) : (
           cardArt
         )}
