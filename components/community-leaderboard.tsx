@@ -7,6 +7,7 @@ import { RankingLicenseExplorer } from "@/components/ranking-license-explorer";
 import { RankingLicenseCover } from "@/components/ranking-license-cover";
 import type { PaniniAlbumProgress } from "@/lib/data/cards";
 import { binderIdentity } from "@/lib/ui/binder-identity";
+import { binderHref } from "@/lib/ui/binder-discovery";
 import { RankingIcon } from "@/components/ranking-icon";
 import { useEffect, useState, type ReactNode } from "react";
 import { useFormatter, useTranslations } from "next-intl";
@@ -242,6 +243,11 @@ export function CommunityLeaderboardView({
                 />
               )}
             </div>
+            {isGlobal && !loading && (mine?.completedLicenses ?? 0) > 0 && (
+              <Link href={binderHref(undefined, true)}>
+                {t("viewCompletedBinders")}
+              </Link>
+            )}
             {mine && !mine.isPublic && (
               <Link href="/settings">
                 {common("socialUi.manageProfilePrivacy")}

@@ -278,27 +278,28 @@ export async function getPaniniAlbumsPage({
   query = "",
   category = "",
   favoritesOnly = false,
+  completedOnly = false,
   page = 1,
   pageSize = 72
 }: {
   query?: string;
   category?: CardFilter;
   favoritesOnly?: boolean;
+  completedOnly?: boolean;
   page?: number;
   pageSize?: number;
 } = {}): Promise<PaniniAlbumPage> {
   const safePage = Math.max(1, Math.trunc(page));
   const safePageSize = Math.min(72, Math.max(1, Math.trunc(pageSize)));
   const stable = typeof process !== "undefined" && process.env.NEXT_PUBLIC_STABLE_BINDERS_ENABLED === "true";
-  const { data, error } = await db().rpc(stable ? "get_binder_albums_page" : "get_panini_albums_page", stable ? {
-    p_owner_id: null, p_query: query, p_category: cardFilterParam(category), p_favorites_only: favoritesOnly,
-    p_offset: (safePage - 1) * safePageSize, p_limit: safePageSize
-  } : {
+  const { data, error } = await db().rpc(stable ? "get_binder_albums_page" : "get_panini_albums_page", {
     p_query: query,
     p_category: cardFilterParam(category),
     p_favorites_only: favoritesOnly,
     p_offset: (safePage - 1) * safePageSize,
-    p_limit: safePageSize
+    p_limit: safePageSize,
+    ...(stable ? { p_owner_id: null } : {}),
+    ...(completedOnly ? { p_completed_only: true } : {})
   });
   if (error) throw failure(error);
   const result = data as PaniniAlbumPage | null;

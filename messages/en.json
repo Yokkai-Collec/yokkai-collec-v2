@@ -302,6 +302,8 @@
     "searchLicenses": "Search licenses",
     "searchLicensesLabel": "Search licenses…",
     "favoritesOnly": "★ Favorites only",
+    "completedBindersOnly": "Completed only",
+    "noCompletedBindersFound": "No completed licenses match these filters.",
     "loadingBinders": "Loading binders…",
     "noLicensesFound": "No licenses found",
     "tryAnotherNameInTheSearchBar": "Try another name in the search bar.",
@@ -2865,6 +2867,7 @@
   "communityRanking": {
     "likesTab": "Profile likes",
     "licensesTab": "Licenses",
+    "viewCompletedBinders": "View completed licenses",
     "likesTitle": "Most liked profiles",
     "licensesTitle": "License collectors",
     "likesIntro": "Discover the profiles that players love most.",
