@@ -13,6 +13,8 @@ import {
   EventBannerArrow
 } from "@/components/event-banner";
 import "@/styles/referral-event.css";
+import { CardShell } from "@/components/card-shell";
+import { ReferralEventArtwork } from "@/components/event-scene";
 
 export function useReferralEvent(initial?: ReferralEvent | null) {
   const [event, setEvent] = useState(initial ?? null);
@@ -158,21 +160,9 @@ function RecruiterEmblem() {
 function RecruiterArtwork() {
   return (
     <span className="yk-recruiter-artwork" aria-hidden="true">
-      {[0, 1].map(index => (
-        <span
-          className="yk-recruiter-profile-card"
-          data-side={index}
-          key={index}
-        >
-          <svg viewBox="0 0 40 40" fill="none">
-            <circle cx="20" cy="14" r="6" />
-            <path d="M9 34v-4a11 11 0 0 1 22 0v4" />
-          </svg>
-          <i />
-          <i />
-        </span>
-      ))}
-      <RecruiterEmblem />
+      <CardShell>
+        <ReferralEventArtwork />
+      </CardShell>
     </span>
   );
 }

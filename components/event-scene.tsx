@@ -23,6 +23,22 @@ export function MysteryCardBack() {
   );
 }
 
+export function ReferralEventArtwork() {
+  return (
+    <div className="yk-referral-art" aria-hidden="true">
+      <Image
+        src="/assets/events/referral-event.png"
+        width={1536}
+        height={1024}
+        alt=""
+        draggable={false}
+        unoptimized
+        className="yk-referral-art-image"
+      />
+    </div>
+  );
+}
+
 export function EventCardShowcase({
   children,
   revealed = false

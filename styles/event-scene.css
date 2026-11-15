@@ -239,6 +239,32 @@
 .yk-card-shell:has(.yk-mystery-back) {
   mix-blend-mode: screen;
 }
+.yk-referral-art {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 5/7;
+}
+.yk-referral-art-image {
+  position: absolute;
+  top: 50%;
+  left: -55%;
+  width: 210%;
+  max-width: none;
+  height: auto;
+  transform: translateY(-50%);
+  mask-image: radial-gradient(ellipse at center, #000 40%, transparent 72%);
+  user-select: none;
+}
+.yk-card-shell:has(.yk-referral-art) {
+  mix-blend-mode: screen;
+}
+.yk-recruiter-artwork > .yk-card-shell {
+  width: 70%;
+}
+.yk-event-banner-art[data-kind="referral"] .yk-event-banner-portrait {
+  transform: none;
+  animation: yk-mystery-png-float 7s ease-in-out infinite;
+}
 .yk-event-banner-art[data-kind="mystery"] .yk-event-banner-portrait {
   transform: none;
   animation: yk-mystery-png-float 7s ease-in-out infinite;
