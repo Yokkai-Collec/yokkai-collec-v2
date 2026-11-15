@@ -71,6 +71,7 @@ revoke all on function public.send_private_message_content(uuid,text,uuid,text,b
 
 create or replace function public.send_private_message_gif(p_friend_id uuid,p_body text,p_id uuid,p_gif_url text)
 returns jsonb language sql volatile security definer set search_path='' as $$
+  select public.assert_player_not_banned();
   select public.send_private_message_content(p_friend_id,p_body,p_id,p_gif_url,null)
 $$;
 
@@ -159,7 +160,8 @@ begin
   ), visible as materialized (select * from page order by created_at desc,friend_id desc limit page_size)
   select jsonb_build_object('viewerId',viewer,
     'items',coalesce((select jsonb_agg(jsonb_build_object(
-      'friend',jsonb_build_object('id',friend_id,'pseudo',pseudo,'avatarUrl',avatar_url),
+      'friend',jsonb_build_object('id',friend_id,'pseudo',pseudo,'avatarUrl',avatar_url,
+        'profileStyle',public.billing_profile_cosmetics(friend_id)),
       'lastAt',created_at,'own',sender_id=viewer,
       'preview',case when moderated_at is not null then '' else left(body,160) end,
       'kind',case when moderated_at is not null then 'moderated' when body='' and gif_url is not null then 'gif' when body='' and has_image then 'image' else 'text' end
