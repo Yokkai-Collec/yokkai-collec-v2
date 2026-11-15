@@ -3,6 +3,7 @@ import { useId, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { CardShell } from "@/components/card-shell";
+import { MysteryCardBack } from "@/components/event-scene";
 
 export function EventBannerFrame({
   href,
@@ -46,77 +47,78 @@ export function EventBannerArt({
       </svg>
       <div className="yk-event-banner-portrait">
         <CardShell>
-          {children ?? (
-            <div className="yk-event-banner-face">
-              <svg
-                className="yk-event-banner-frame"
-                viewBox="0 0 150 210"
-                preserveAspectRatio="none"
-                fill="none"
-              >
-                <defs>
-                  <linearGradient
-                    id={frame}
-                    x1="0"
-                    y1="0"
-                    x2="150"
-                    y2="210"
-                    gradientUnits="userSpaceOnUse"
-                  >
-                    <stop stopColor="#f2f6ff" />
-                    <stop offset=".22" stopColor="currentColor" />
-                    <stop offset=".48" stopColor="#f6f4ff" />
-                    <stop offset=".7" stopColor="currentColor" />
-                    <stop offset="1" stopColor="#f2f6ff" />
-                  </linearGradient>
-                </defs>
-                <rect
-                  x="2"
-                  y="2"
-                  width="146"
-                  height="206"
-                  rx="13"
-                  stroke={`url(#${frame})`}
-                  strokeWidth="2"
-                />
-                <path
-                  d="M12 28V20q0-8 8-8h28M102 12h28q8 0 8 8v18M138 172v18q0 8-8 8h-28M48 198H20q-8 0-8-8v-18"
-                  stroke={`url(#${frame})`}
-                  strokeWidth=".7"
-                />
-              </svg>
-              {kind === "mystery" ? (
-                <span className="yk-event-banner-question">?</span>
-              ) : (
+          {children ??
+            (kind === "mystery" ? (
+              <MysteryCardBack />
+            ) : (
+              <div className="yk-event-banner-face">
                 <svg
-                  className="yk-event-banner-people"
-                  viewBox="0 0 100 90"
+                  className="yk-event-banner-frame"
+                  viewBox="0 0 150 210"
+                  preserveAspectRatio="none"
                   fill="none"
                 >
-                  <circle cx="44" cy="24" r="13" fill="#ded8ff" />
-                  <circle cx="16" cy="29" r="9" fill="#aaa0f3" />
-                  <path d="M18 80V65a26 26 0 0 1 52 0v15Z" fill="#c5baff" />
-                  <path
-                    d="M1 77V62a17 17 0 0 1 19-17M19 45Q6 42 1 58v19"
-                    fill="#9482e6"
+                  <defs>
+                    <linearGradient
+                      id={frame}
+                      x1="0"
+                      y1="0"
+                      x2="150"
+                      y2="210"
+                      gradientUnits="userSpaceOnUse"
+                    >
+                      <stop stopColor="#f2f6ff" />
+                      <stop offset=".22" stopColor="currentColor" />
+                      <stop offset=".48" stopColor="#f6f4ff" />
+                      <stop offset=".7" stopColor="currentColor" />
+                      <stop offset="1" stopColor="#f2f6ff" />
+                    </linearGradient>
+                  </defs>
+                  <rect
+                    x="2"
+                    y="2"
+                    width="146"
+                    height="206"
+                    rx="13"
+                    stroke={`url(#${frame})`}
+                    strokeWidth="2"
                   />
                   <path
-                    d="M82 23v23M70.5 34.5h23"
-                    stroke="#e9dfff"
-                    strokeWidth="6"
-                  />
-                  <path
-                    d="M22 79V65a22 22 0 0 1 44 0"
-                    stroke="#f2eaff"
-                    strokeOpacity=".7"
-                    strokeWidth="1.2"
+                    d="M12 28V20q0-8 8-8h28M102 12h28q8 0 8 8v18M138 172v18q0 8-8 8h-28M48 198H20q-8 0-8-8v-18"
+                    stroke={`url(#${frame})`}
+                    strokeWidth=".7"
                   />
                 </svg>
-              )}
-              <span className="yk-event-banner-brand" />
-              <span className="yk-event-banner-card-shine" />
-            </div>
-          )}
+                {
+                  <svg
+                    className="yk-event-banner-people"
+                    viewBox="0 0 100 90"
+                    fill="none"
+                  >
+                    <circle cx="44" cy="24" r="13" fill="#ded8ff" />
+                    <circle cx="16" cy="29" r="9" fill="#aaa0f3" />
+                    <path d="M18 80V65a26 26 0 0 1 52 0v15Z" fill="#c5baff" />
+                    <path
+                      d="M1 77V62a17 17 0 0 1 19-17M19 45Q6 42 1 58v19"
+                      fill="#9482e6"
+                    />
+                    <path
+                      d="M82 23v23M70.5 34.5h23"
+                      stroke="#e9dfff"
+                      strokeWidth="6"
+                    />
+                    <path
+                      d="M22 79V65a22 22 0 0 1 44 0"
+                      stroke="#f2eaff"
+                      strokeOpacity=".7"
+                      strokeWidth="1.2"
+                    />
+                  </svg>
+                }
+                <span className="yk-event-banner-brand" />
+                <span className="yk-event-banner-card-shine" />
+              </div>
+            ))}
         </CardShell>
       </div>
       <i className="yk-event-banner-spark yk-event-banner-spark-one" />

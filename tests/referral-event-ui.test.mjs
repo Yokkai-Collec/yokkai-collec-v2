@@ -47,6 +47,8 @@ function load(file, state) {
         if (name === "next-intl") return intl;
         if (name === "@/components/event-banner")
           return load("components/event-banner.tsx");
+        if (name === "@/components/event-scene")
+          return load("components/event-scene.tsx");
         if (name === "@/components/card-shell")
           return {
             CardShell: ({ children }) =>

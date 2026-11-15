@@ -1,31 +1,3 @@
-.yk-mystery-back {
-  position: relative;
-  display: block;
-  width: 100%;
-  aspect-ratio: 5/7;
-  border: 0;
-  border-radius: 14px;
-  background: url("/assets/bubble-card-back-v1.png") center/100% 100% no-repeat;
-  box-shadow:
-    0 12px 30px #06091380,
-    0 0 22px #8dadff14;
-}
-.yk-mystery-back > span {
-  position: absolute;
-  right: 10%;
-  bottom: 8%;
-  display: grid;
-  place-items: center;
-  width: 25%;
-  aspect-ratio: 1;
-  border: 1px solid #bccdff70;
-  border-radius: 9px;
-  color: var(--color-pack-ink);
-  background: #080f1ce8;
-  box-shadow: 0 0 15px #8dadff25;
-  font-family: var(--font-display);
-  font-size: clamp(1rem, 4vw, 1.8rem);
-}
 .yk-mystery-banner {
   display: flex;
   align-items: center;

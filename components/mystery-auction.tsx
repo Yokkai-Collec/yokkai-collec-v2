@@ -12,16 +12,8 @@ import { Karas } from "@/components/ui";
 import { CardShell } from "@/components/card-shell";
 import { packCountdown } from "@/lib/ui/pack-countdown";
 import "@/styles/mystery-auction.css";
-export { EventCardShowcase } from "@/components/event-scene";
-
-export function MysteryCardBack() {
-  const t = useTranslations("mysteryAuction");
-  return (
-    <div role="img" aria-label={t("cardBack")} className="yk-mystery-back">
-      <span aria-hidden="true">?</span>
-    </div>
-  );
-}
+import { MysteryCardBack } from "@/components/event-scene";
+export { EventCardShowcase, MysteryCardBack } from "@/components/event-scene";
 
 export function MysteryEventHeader({
   remaining,
