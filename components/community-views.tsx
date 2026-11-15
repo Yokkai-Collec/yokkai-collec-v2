@@ -50,8 +50,7 @@ import {
 } from "@/lib/ui/market-labels";
 import { useMarketSort } from "@/lib/ui/market-sort";
 import {
-  readMarketReturn,
-  subscribeMarketReturn,
+  createMarketReturnStore,
   rememberMarketReturn,
   marketReturnQuery,
   restoreMarketScroll,
@@ -718,6 +717,12 @@ export function MarketView({
   const marketRoot = useRef<HTMLElement>(null);
   const scrollRestored = useRef(false);
   const navigationChanged = useRef(false);
+  useEffect(() => {
+    // Next's Activity cache keeps refs/state but restarts effects on re-entry.
+    // Each return must be eligible for a fresh scroll restoration.
+    scrollRestored.current = false;
+    navigationChanged.current = false;
+  }, []);
   const [filtersOpen, setFiltersOpen] = useState(false);
   useEffect(() => {
     if (!onQueryChange) return;
@@ -3050,9 +3055,12 @@ export function CommunityView({
   const [viewer, setViewer] = useState<string>();
   const [market, setMarket] = useState<AuctionData[]>();
   const [marketPage, setMarketPage] = useState<MarketPage>();
-  const marketNavigation = useSyncExternalStore<
-    MarketReturn | null | undefined
-  >(subscribeMarketReturn, readMarketReturn, () => undefined);
+  const marketReturnStore = useMemo(() => createMarketReturnStore(), []);
+  const marketNavigation = useSyncExternalStore(
+    marketReturnStore.subscribe,
+    marketReturnStore.getSnapshot,
+    marketReturnStore.getServerSnapshot
+  );
   const [marketLimitOverride, setMarketLimit] = useState<number>();
   const marketLimit =
     marketLimitOverride ?? marketNavigation?.limit ?? MARKET_PAGE_SIZE;

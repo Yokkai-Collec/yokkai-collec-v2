@@ -19,7 +19,29 @@ const storageKey = "yokkai:market:return:v1";
 let memory: MarketReturn | null = null;
 let encoded: string | null = null;
 
-export const subscribeMarketReturn = () => () => {};
+/** Capture only on entry/reactivation, never while navigating away from the list. */
+export function createMarketReturnStore() {
+  let snapshot: MarketReturn | null | undefined;
+  let initialized = false;
+  return {
+    getSnapshot: () => {
+      if (!initialized) {
+        snapshot = readMarketReturn();
+        initialized = true;
+      }
+      return snapshot;
+    },
+    getServerSnapshot: () => undefined,
+    subscribe: (listener: () => void) => {
+      snapshot = readMarketReturn();
+      initialized = true;
+      listener();
+      return () => {
+        initialized = false;
+      };
+    }
+  };
+}
 
 export function readMarketReturn(): MarketReturn | null {
   if (typeof window === "undefined") return null;
@@ -117,7 +139,10 @@ export function restoreMarketScroll(
       0,
       document.documentElement.scrollHeight - window.innerHeight
     );
-    if (max + 1 < target && !final) return;
+    // A found anchor proves the returned content is present. Near the bottom,
+    // its hover lift (or a shorter viewport/list) can put the saved offset just
+    // beyond the scroll limit: clamp immediately rather than waiting at zero.
+    if (!anchor && max + 1 < target && !final) return;
     const top = Math.min(target, max);
     window.scrollTo({ top, behavior: "instant" });
     window.clearTimeout(settleTimer);

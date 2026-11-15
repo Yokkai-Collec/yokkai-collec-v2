@@ -143,6 +143,33 @@ test("auction return preserves filters, history tab and loaded prefix; storage f
   assert.equal(f.exports.readMarketReturn().anchorId, "auction-150");
 });
 
+test("navigation snapshots change on return, not while leaving a still-visible cached list", () => {
+  const f = fixture();
+  const store = f.exports.createMarketReturnStore();
+  assert.equal(store.getServerSnapshot(), undefined);
+  assert.equal(store.getSnapshot(), null);
+  let notified = 0;
+  const unsubscribe = store.subscribe(() => notified++);
+  const state = saved();
+  f.exports.rememberMarketReturn(state);
+  assert.equal(
+    store.getSnapshot(),
+    null,
+    "departure cannot start restoration in the outgoing page"
+  );
+  unsubscribe();
+  const stop = store.subscribe(() => notified++);
+  assert.equal(store.getSnapshot().anchorId, state.anchorId);
+  const second = { ...state, anchorId: "auction-170", scrollY: 3200 };
+  f.exports.rememberMarketReturn(second);
+  assert.equal(store.getSnapshot().anchorId, state.anchorId);
+  stop();
+  store.subscribe(() => notified++);
+  assert.equal(store.getSnapshot().anchorId, second.anchorId);
+  assert.equal(store.getSnapshot().scrollY, 3200);
+  assert.equal(notified, 3);
+});
+
 test("expired and invalid stored navigation is ignored", () => {
   for (const patch of [
     { savedAt: Date.now() - 31 * 60_000 },
@@ -172,12 +199,15 @@ test("restoration waits for grid height and uses the opened auction as an anchor
   const f = fixture();
   let finished = 0;
   const root = {
-    querySelectorAll: () => [
-      {
-        dataset: { marketAuction: "auction-150" },
-        getBoundingClientRect: () => ({ top: 2570 - f.window.scrollY })
-      }
-    ]
+    querySelectorAll: () =>
+      f.document.documentElement.scrollHeight < 6000
+        ? []
+        : [
+            {
+              dataset: { marketAuction: "auction-150" },
+              getBoundingClientRect: () => ({ top: 2570 - f.window.scrollY })
+            }
+          ]
   };
   f.exports.restoreMarketScroll(saved(), root, () => finished++);
   f.tick();
@@ -194,6 +224,30 @@ test("restoration waits for grid height and uses the opened auction as an anchor
   f.settle();
   assert.equal(f.window.scrollY, 2400);
   assert.equal(finished, 1);
+  assert.equal(f.listeners.size, 0);
+});
+
+test("a bottom-row hover offset clamps immediately instead of leaving the page at the top", () => {
+  const f = fixture();
+  f.document.documentElement.scrollHeight = 2147;
+  const value = { ...saved(), scrollY: 1347, anchorTop: 378.6 };
+  const root = {
+    querySelectorAll: () => [
+      {
+        dataset: { marketAuction: value.anchorId },
+        getBoundingClientRect: () => ({ top: 1728.8 - f.window.scrollY })
+      }
+    ]
+  };
+  f.exports.restoreMarketScroll(value, root, () => {});
+  f.tick();
+  f.tick();
+  assert.deepEqual(
+    f.scrolls,
+    [1347],
+    "hover shift must not defer restoration to the timeout"
+  );
+  f.settle();
   assert.equal(f.listeners.size, 0);
 });
 
