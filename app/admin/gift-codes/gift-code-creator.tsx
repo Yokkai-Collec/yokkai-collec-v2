@@ -5,33 +5,41 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui";
 import { createClient } from "@/utils/supabase/client";
 
-type CreateState = { code?: string; error?: "detailsInvalid" | "createFailed" };
+type CreateState = {
+  code?: string;
+  shareable?: boolean;
+  error?: "detailsInvalid" | "createFailed";
+};
 
 export function GiftCodeCreator() {
   const t = useTranslations("giftCodes");
   const [amount, setAmount] = useState("");
   const [message, setMessage] = useState("");
+  const [shareable, setShareable] = useState(false);
   const [copyState, setCopyState] = useState<"copied" | "copyFailed">();
   const [state, submit, pending] = useActionState<CreateState, FormData>(
     async (previous, form) => {
       setCopyState(undefined);
+      const sharedCode = form.get("usage") === "shareable";
       try {
         const { data, error } = await createClient().rpc(
           "admin_create_karas_gift_code",
           {
             p_amount: Number(form.get("amount")),
-            p_message: String(form.get("message") ?? "")
+            p_message: String(form.get("message") ?? ""),
+            p_shareable: sharedCode
           }
         );
         if (error?.message === "GIFT_CODE_DETAILS_INVALID")
-          return { code: previous.code, error: "detailsInvalid" };
+          return { ...previous, error: "detailsInvalid" };
         if (error || typeof data !== "string")
-          return { code: previous.code, error: "createFailed" };
+          return { ...previous, error: "createFailed" };
         setAmount("");
         setMessage("");
-        return { code: data };
+        setShareable(false);
+        return { code: data, shareable: sharedCode };
       } catch {
-        return { code: previous.code, error: "createFailed" };
+        return { ...previous, error: "createFailed" };
       }
     },
     {}
@@ -49,8 +57,44 @@ export function GiftCodeCreator() {
 
   return (
     <section className="max-w-2xl space-y-5 rounded-panel border border-veil bg-surface p-4 sm:p-6">
-      <p className="text-sm text-ink-2">{t("singleUse")}</p>
       <form action={submit} className="space-y-4">
+        <fieldset disabled={pending}>
+          <legend className="yk-field-label">{t("usage")}</legend>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <label className="flex cursor-pointer items-start gap-3 rounded-panel border border-veil p-3 has-checked:border-accent-gold">
+              <input
+                type="radio"
+                name="usage"
+                value="single"
+                checked={!shareable}
+                onChange={() => setShareable(false)}
+                className="mt-1 shrink-0"
+              />
+              <span className="min-w-0">
+                <strong className="block text-sm">{t("singleMode")}</strong>
+                <span className="block text-sm text-ink-2">
+                  {t("singleUse")}
+                </span>
+              </span>
+            </label>
+            <label className="flex cursor-pointer items-start gap-3 rounded-panel border border-veil p-3 has-checked:border-accent-gold">
+              <input
+                type="radio"
+                name="usage"
+                value="shareable"
+                checked={shareable}
+                onChange={() => setShareable(true)}
+                className="mt-1 shrink-0"
+              />
+              <span className="min-w-0">
+                <strong className="block text-sm">{t("sharedMode")}</strong>
+                <span className="block text-sm text-ink-2">
+                  {t("sharedUse")}
+                </span>
+              </span>
+            </label>
+          </div>
+        </fieldset>
         <div>
           <label className="yk-field-label" htmlFor="gift-amount">
             {t("amount")}
@@ -97,7 +141,7 @@ export function GiftCodeCreator() {
       {state.code && (
         <div className="space-y-3 rounded-panel border border-veil p-3 sm:p-4">
           <p role="status" className="text-sm text-ink-2">
-            {t("keepCode")}
+            {t(state.shareable ? "sharedUse" : "singleUse")} {t("keepCode")}
           </p>
           <label htmlFor="generated-gift-code" className="yk-field-label">
             {t("code")}

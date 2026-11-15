@@ -3530,7 +3530,11 @@
   },
   "giftCodes": {
     "adminTitle": "Codes cadeaux Karas",
-    "singleUse": "Chaque code est utilisable une seule fois.",
+    "usage": "Qui peut activer ce code ?",
+    "singleMode": "Usage unique",
+    "singleUse": "Seul le premier joueur peut l’activer.",
+    "sharedMode": "Partageable",
+    "sharedUse": "Plusieurs joueurs peuvent l’activer une fois chacun.",
     "amount": "Montant en Karas",
     "message": "Message affiché au destinataire",
     "create": "Générer un code",

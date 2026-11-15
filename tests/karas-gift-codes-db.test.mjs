@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { replayMigrations } from "../scripts/replay-migrations.mjs";
 
-test("only admins issue secret codes and one valid redemption credits exactly once", async t => {
+test("only admins issue codes and each redemption follows the selected usage mode", async t => {
   const { db } = await replayMigrations();
   t.after(() => db.close());
 
@@ -37,6 +37,11 @@ test("only admins issue secret codes and one valid redemption credits exactly on
       amount,
       message
     ]);
+  const createShareable = (amount, message) =>
+    value("select public.admin_create_karas_gift_code($1,$2,true) value", [
+      amount,
+      message
+    ]);
   const redeem = code =>
     value("select public.redeem_karas_gift_code($1) value", [code]);
 
@@ -47,6 +52,11 @@ test("only admins issue secret codes and one valid redemption credits exactly on
   await assert.rejects(create(100, "Forged"), /GIFT_CODE_FORBIDDEN/);
   await assert.rejects(
     db.exec("select * from public.karas_gift_codes"),
+    /permission denied/
+  );
+
+  await assert.rejects(
+    db.exec("select * from public.karas_gift_redemptions"),
     /permission denied/
   );
 
@@ -116,6 +126,38 @@ test("only admins issue secret codes and one valid redemption credits exactly on
   assert.equal((await redeem(spareCode)).amount, 250);
 
   await db.exec("reset role");
+  const beforeShared = await balance(recipient);
+  await login(admin);
+  await assert.rejects(
+    value("select public.admin_create_karas_gift_code(80,$1,null) value", [
+      message
+    ]),
+    /GIFT_CODE_DETAILS_INVALID/
+  );
+  const sharedCode = await createShareable(80, message);
+  await login(recipient);
+  assert.deepEqual(await redeem(sharedCode), {
+    amount: 80,
+    message,
+    alreadyRedeemed: false
+  });
+  await login(other);
+  assert.deepEqual(await redeem(sharedCode), {
+    amount: 80,
+    message,
+    alreadyRedeemed: false
+  });
+  assert.deepEqual(await redeem(sharedCode), {
+    amount: 80,
+    message,
+    alreadyRedeemed: true
+  });
+  await login(recipient);
+  assert.equal((await redeem(sharedCode)).alreadyRedeemed, true);
+  await db.exec("reset role");
+  assert.equal(await balance(recipient), beforeShared + 80);
+  assert.equal(await balance(other), 330);
+
   await db.query("delete from auth.users where id=$1", [recipient]);
   await login(other);
   await assert.rejects(redeem(code), /GIFT_CODE_UNAVAILABLE/);

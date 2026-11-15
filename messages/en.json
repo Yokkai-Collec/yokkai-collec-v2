@@ -3527,7 +3527,11 @@
   },
   "giftCodes": {
     "adminTitle": "Karas gift codes",
-    "singleUse": "Each code can be redeemed once.",
+    "usage": "Who can redeem it?",
+    "singleMode": "Single use",
+    "singleUse": "Only the first player can redeem it.",
+    "sharedMode": "Shareable",
+    "sharedUse": "Multiple players can redeem it once each.",
     "amount": "Amount in Karas",
     "message": "Message shown to the recipient",
     "create": "Generate code",
