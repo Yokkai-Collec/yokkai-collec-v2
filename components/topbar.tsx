@@ -32,7 +32,7 @@ import { UnreadBadge } from "@/components/unread-badge";
 import { useBoostersLoadPriority } from "@/components/boosters-load-priority";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import { ProPromotion } from "@/components/pro-promotion";
-import { getProfile } from "@/lib/data/profile";
+import { getProfile, type Profile } from "@/lib/data/profile";
 import { PlayerTitle, NewTitlesBadge } from "@/components/player-title";
 import { subscribePlayerSnapshotInvalidation } from "@/lib/data/player-state";
 
@@ -148,11 +148,10 @@ export function Topbar({
   const isAdmin = useIsAdmin(secondaryReady);
   const [panel, setPanel] = useState<"notifications" | "account" | null>(null);
   const [mobileMenu, setMobileMenu] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState<string>();
-  const [profileName, setProfileName] = useState<string>();
-  const [titleId, setTitleId] = useState("collector");
-  const [unseenTitleCount, setUnseenTitleCount] = useState(0);
-  const newTitleCount = providedUnseenTitleCount ?? unseenTitleCount;
+  const [profile, setProfile] = useState<Profile>();
+  const avatarUrl = profile?.avatarUrl ?? undefined;
+  const newTitleCount =
+    providedUnseenTitleCount ?? profile?.unseenTitleIds?.length ?? 0;
   const feed = useNotificationFeed(!notifications && secondaryReady);
   const social = useSocialUnread(
     socialUnread,
@@ -168,17 +167,17 @@ export function Topbar({
     feed.progressUnread ??
     allNotifications?.filter(n => !n.read && n.progressCompletion).length ??
     0;
-  const progressBadge = unreadProgress > 0 && (
-    <span className="yk-progress-badge" aria-hidden="true">
-      {unreadProgress > 99 ? "99+" : unreadProgress}
-    </span>
-  );
+  const progressBadge = (count: number) =>
+    count > 0 && (
+      <span className="yk-progress-badge" aria-hidden="true">
+        {count > 99 ? "99+" : count}
+      </span>
+    );
   const progressDescriptionId =
     unreadProgress > 0 ? "account-progress" : undefined;
   const titleDescriptionId =
     newTitleCount > 0 ? "account-new-titles" : undefined;
-  const accountUnread = unreadProgress + newTitleCount;
-  const name = providedName || profileName;
+  const name = providedName || profile?.pseudo;
   useEffect(() => {
     let active = true;
     if (!secondaryReady) return;
@@ -186,10 +185,7 @@ export function Topbar({
       void getProfile().then(
         profile => {
           if (active) {
-            setAvatarUrl(profile.avatarUrl ?? undefined);
-            setProfileName(profile.pseudo);
-            setTitleId(profile.titleId ?? "collector");
-            setUnseenTitleCount(profile.unseenTitleIds?.length ?? 0);
+            setProfile(profile);
           }
         },
         () => undefined
@@ -571,11 +567,7 @@ export function Topbar({
             >
               <span className="yk-account-avatar">
                 <Avatar name={name || "Account"} image={avatarUrl} />
-                {accountUnread > 0 && (
-                  <span className="yk-progress-badge" aria-hidden="true">
-                    {accountUnread > 99 ? "99+" : accountUnread}
-                  </span>
-                )}
+                {progressBadge(unreadProgress + newTitleCount)}
               </span>
               <svg
                 aria-hidden="true"
@@ -627,7 +619,9 @@ export function Topbar({
                       <strong>{name || "Account"}</strong>
                       <span className="yk-account-title-line">
                         @{name || "account"} ·{" "}
-                        <PlayerTitle titleId={playerTitleId ?? titleId} />
+                        <PlayerTitle
+                          titleId={playerTitleId ?? profile?.titleId}
+                        />
                       </span>
                       {karas != null && (
                         <small className="yk-account-karas">
@@ -712,7 +706,7 @@ export function Topbar({
                         </svg>
                         {t("myAchievements")}
                       </Link>
-                      {progressBadge}
+                      {progressBadge(unreadProgress)}
                     </div>
                   </nav>
                   <div className="yk-account-separator" />
