@@ -1732,14 +1732,6 @@ export function AuctionView({
     <div
       className={`yk-auction-page${auction.isMystery ? " yk-mystery-detail" : ""}`}
     >
-      {auction.isMystery && (
-        <MysteryEventHeader
-          remaining={auction.remaining}
-          finished={auction.finished}
-          hidden={auction.mysteryHidden}
-          bids={auction.bids}
-        />
-      )}
       <div className="yk-auction-art">
         {auction.isMystery ? (
           <EventCardShowcase revealed={!auction.mysteryHidden}>
@@ -1758,6 +1750,14 @@ export function AuctionView({
           </p>
         )}
       </div>
+      {auction.isMystery && (
+        <MysteryEventHeader
+          remaining={auction.remaining}
+          finished={auction.finished}
+          hidden={auction.mysteryHidden}
+          bids={auction.bids}
+        />
+      )}
       <div className="yk-auction-main">
         <header className="yk-auction-header">
           <div className="min-w-0">

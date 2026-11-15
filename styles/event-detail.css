@@ -90,6 +90,9 @@
   background: #7da9ff08;
 }
 .yk-mystery-detail .yk-auction-art {
+  flex: 0 1 440px;
+  max-width: 100%;
+  margin-inline: auto;
   min-height: 410px;
   padding: 12px;
   border: 1px solid #8db5fb22;
@@ -109,6 +112,7 @@
   border-top: 1px solid #9abfff22;
 }
 .yk-mystery-detail .yk-auction-main {
+  flex-basis: 100%;
   align-self: stretch;
   padding: clamp(16px, 2.5vw, 28px);
   border: 1px solid var(--detail-line);
