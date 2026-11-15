@@ -12,6 +12,7 @@ import {
   type PointerEvent
 } from "react";
 import { Avatar, Button } from "@/components/ui";
+import { PlayerTitlePicker } from "@/components/player-title";
 import { YokaiCard } from "@/components/yokai-card";
 import dynamic from "next/dynamic";
 import { BannerCrop } from "@/components/banner-crop";
@@ -78,6 +79,7 @@ export function Editor({
   initialBannerFrame,
   framingAvailable,
   adapter,
+  onTitlesSeen,
   onSaved,
   onClose
 }: {
@@ -88,6 +90,7 @@ export function Editor({
   initialBannerFrame: BannerFrame | null;
   framingAvailable: boolean;
   adapter: ProfileAdapter;
+  onTitlesSeen?: (titleIds: string[]) => void;
   onSaved: (
     p: Profile & { bannerUrl: string | null; bannerFrame?: BannerFrame | null }
   ) => void;
@@ -95,6 +98,7 @@ export function Editor({
 }) {
   const t = useTranslations();
   const [bio, setBio] = useState(profile.bio);
+  const [titleId, setTitleId] = useState(profile.titleId ?? "collector");
   const proAccess = useProAccess();
   const pro = proAccess || Boolean(adapter.saveShowcaseStyle);
   const FEATURED_CARD_LIMIT = pro ? 10 : 5;
@@ -493,7 +497,8 @@ export function Editor({
         [...selected],
         bannerCard?.id ?? null,
         uploadedBannerUrl,
-        bannerFrame ?? undefined
+        bannerFrame ?? undefined,
+        mode === "profile" && profile.unlockedTitleIds ? titleId : undefined
       );
       if (mode === "showcase" && pro) {
         if (
@@ -560,6 +565,17 @@ export function Editor({
             {!pro && (
               <ProFeatureNotice
                 feature={t("profileUi.animatedProfilePictures")}
+              />
+            )}
+            {profile.unlockedTitleIds && (
+              <PlayerTitlePicker
+                titleId={titleId}
+                unlockedTitleIds={profile.unlockedTitleIds}
+                unseenTitleIds={profile.unseenTitleIds}
+                markSeen={adapter.markTitlesSeen}
+                onSeen={onTitlesSeen}
+                onChange={setTitleId}
+                disabled={busy}
               />
             )}
             <label className="block text-sm text-ink-2">
@@ -1245,7 +1261,11 @@ export function Editor({
       </div>
       {error && (
         <p role="alert" className="text-sm text-danger">
-          {t(gameErrorKey(error, "profileUi.profileUnavailable"))}
+          {error === "TITLE_NOT_UNLOCKED"
+            ? t("playerTitles.notUnlocked")
+            : error === "TITLE_SAVE_FAILED"
+              ? t("playerTitles.saveFailed")
+              : t(gameErrorKey(error, "profileUi.profileUnavailable"))}
         </p>
       )}
       <div className="flex justify-end gap-3 yk-profile-edit-actions">

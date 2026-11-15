@@ -198,7 +198,7 @@ const golden = {
   "components/profile-style-fields.tsx":
     "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
   "lib/data/profile.ts":
-    "1e0334218636422cdd53bc6ac6cb4df06c1efc9bdf4fb53ea59c7efc1008507a",
+    "8f555e3bf98d1b5372f0b092d843ce277feac8261c337c07643df148acd7eb34",
   "lib/data/profile-wall.ts":
     "66f9cd5f7123ceb7b9c1921dcc92fe2b51d4ec2fba80ca0f3adf661aa9222acb",
   "lib/data/profile-market.ts":

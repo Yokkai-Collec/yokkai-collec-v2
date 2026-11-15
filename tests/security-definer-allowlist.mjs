@@ -357,6 +357,9 @@ const allowlist = {
   "public.get_profile_active_auctions(uuid, jsonb, integer)": ["authenticated"], // Read-only bounded seller feed; collection privacy, bilateral blocks and deletion fences; no new bidding rights.
   "public.get_profile_engagement(uuid)": ["authenticated"], // Authenticated profile lookup; exposes aggregate counts and only the caller's like status, never viewer identities.
   "public.set_profile_like(uuid, boolean)": ["authenticated"], // Idempotent own like only, no self likes; bilateral blocks, unique pair and account deletion guards enforced.
+  "public.update_profile_appearance_titled(text, text, uuid[], uuid, text, jsonb, text)":
+    ["authenticated"], // Atomic own profile and unlocked title save; ban/deletion guards and existing appearance checks remain enforced. The standalone title helper is owner-only.
+  "public.mark_player_titles_seen(text[])": ["authenticated"], // Marks only the caller's listed unlocks as seen; cannot grant, equip or acknowledge another player's titles.
   "public.update_profile_interests(jsonb)": ["authenticated"], // Bounded preferences update only auth.uid() after authenticated profile lookup.
   "public.update_profile_widgets(jsonb)": ["authenticated"], // Only auth.uid(); bounded titles, unique categories from live cards, no inventory writes.
   "public.update_profile_appearance(text, text, uuid[], uuid, text)": [

@@ -1,4 +1,15 @@
 {
+  "public.player_title_catalog": {
+    "excluded": "Global title identifiers shared by all players; no player-specific records or personal data."
+  },
+  "public.player_title_unlocks": {
+    "sections": ["player_titles"],
+    "note": "Own unlocked title identifiers and unlock/consultation dates only."
+  },
+  "public.player_equipped_titles": {
+    "sections": ["player_title"],
+    "note": "Own equipped title identifier, including the default Collector fallback."
+  },
   "public.achievement_notification_refreshes": {
     "excluded": "Internal evaluation cache with a timestamp and a digest of progress counters already included in the player's export. It expires for evaluation purposes and is deleted with the account."
   },

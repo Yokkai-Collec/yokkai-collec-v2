@@ -7,7 +7,11 @@ import {
 } from "@/lib/ui/profile-style";
 import { DecorativeBadge } from "@/components/decorative-badge";
 
-export type PlayerCosmetics = { active: boolean; style: Partial<ProfileStyle> };
+export type PlayerCosmetics = {
+  active: boolean;
+  style: Partial<ProfileStyle>;
+  titleId?: string;
+};
 export function ProBadge() {
   return (
     <span
