@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { CardShell } from "@/components/card-shell";
 import "@/styles/event-scene.css";
+import "@/styles/event-detail.css";
 
 export function MysteryCardBack() {
   const t = useTranslations("mysteryAuction");

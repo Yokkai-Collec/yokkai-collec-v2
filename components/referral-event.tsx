@@ -233,7 +233,7 @@ export function ReferralEventPanel({
   const maximum = next?.threshold ?? event.tiers.at(-1)?.threshold ?? 20;
   return (
     <section
-      className="yk-referral-event"
+      className="yk-referral-event yk-referral-event-detail"
       aria-labelledby="referral-event-title"
     >
       <Link href="/events" className="yk-referral-event-back">
