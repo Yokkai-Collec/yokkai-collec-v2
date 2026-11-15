@@ -3525,7 +3525,32 @@
       "future": "A shared connection can have legitimate explanations. If these accounts belong to different people, contact support so the situation can be reviewed."
     }
   },
+  "giftCodes": {
+    "adminTitle": "Karas gift codes",
+    "singleUse": "Each code can be redeemed once.",
+    "amount": "Amount in Karas",
+    "message": "Message shown to the recipient",
+    "create": "Generate code",
+    "creating": "Generating…",
+    "detailsInvalid": "Enter a positive whole amount and a message of up to 500 characters.",
+    "createFailed": "Couldn’t generate the gift code. Try again.",
+    "keepCode": "Copy this code before leaving the page. It’s shown only here.",
+    "code": "Gift code",
+    "copyCode": "Copy code",
+    "copied": "Code copied.",
+    "copyFailed": "Select the code and copy it manually.",
+    "redeemTitle": "Redeem a Karas gift code",
+    "redeem": "Redeem",
+    "redeeming": "Redeeming…",
+    "codeUnavailable": "This code is invalid or has already been used.",
+    "balanceLimit": "Your current balance is too high to redeem this code.",
+    "maintenance": "Karas operations are paused. Try again later.",
+    "redeemFailed": "Couldn’t redeem the code. Try again.",
+    "received": "Karas received",
+    "alreadyRedeemed": "Karas already credited"
+  },
   "adminNavigation": {
+    "giftCodes": "Gift codes",
     "label": "Admin navigation",
     "cards": "Card publishing",
     "players": "Player administration",
