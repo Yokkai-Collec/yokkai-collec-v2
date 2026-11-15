@@ -210,6 +210,7 @@ test("API metadata controls owner moderation and stranger notice, with old paylo
     assert.doesNotMatch(html, /Your reply will be visible/);
   }
   const { ProfileWall } = load("components/profile-wall.tsx", {
+    "@/components/expandable-image": { ExpandableImage: () => null },
     "@/components/wall-mentions": wallMentions,
     "@/lib/ui/paste-image": { pasteImage: () => {} },
     "next/link": {
