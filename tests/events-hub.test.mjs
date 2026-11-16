@@ -87,6 +87,9 @@ test("the events hub lists the real event, filters its status, and keeps results
       }
     });
     const render = () => renderToStaticMarkup(jsx.jsx(exports.EventsHub, {}));
+    const home = () =>
+      renderToStaticMarkup(jsx.jsx(exports.EventsHub, { home: true }));
+    assert.equal(home(), ""); // Home promotes live events only.
     assert.match(render(), /yk-event-card/); // Known event remains discoverable before its migration is deployed.
     assert.doesNotMatch(render(), /<img/);
     const auction = {
@@ -106,6 +109,11 @@ test("the events hub lists the real event, filters its status, and keeps results
     filter = "live";
     assert.match(render(), /href="\/market\/auction"/);
     assert.match(render(), /Player/);
+    assert.match(home(), /href="\/market\/auction"/);
+    assert.doesNotMatch(
+      home(),
+      /yk-events-header|yk-events-toolbar|yk-events-coming-soon/
+    );
     filter = "upcoming";
     assert.doesNotMatch(render(), /yk-event-card/);
     state.event.auction = {
@@ -126,6 +134,8 @@ test("the events hub lists the real event, filters its status, and keeps results
       now: Date.parse("2099-01-02T00:00:00Z")
     };
     assert.match(render(), /href="\/referral-event"/);
+    assert.match(home(), /href="\/referral-event"/);
+    assert.doesNotMatch(home(), /href="\/market\/auction"/);
     filter = "all";
     assert.equal((render().match(/class="yk-event-card"/g) ?? []).length, 2);
     filter = "upcoming";

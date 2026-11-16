@@ -1,9 +1,6 @@
 "use client";
 import { EventsHub } from "@/components/events-hub";
-import {
-  MysteryAuctionBanner,
-  MysteryAuctionTile
-} from "@/components/mystery-auction";
+import { MysteryAuctionTile } from "@/components/mystery-auction";
 import { CardFranchise } from "@/components/card-franchise";
 import { PlayerTitle } from "@/components/player-title";
 import { EmojiReactionPicker } from "@/components/emoji-reaction-picker";
@@ -110,6 +107,9 @@ const MysteryAuctionLeader = dynamic(() =>
   import("@/components/mystery-auction-stage").then(
     module => module.MysteryAuctionLeader
   )
+);
+const MysteryAuctionHistory = dynamic(
+  () => import("@/components/mystery-auction-history")
 );
 const AuctionStatus = dynamic(() =>
   import("@/components/auction-outcome").then(module => module.AuctionStatus)
@@ -1049,7 +1049,6 @@ export function MarketView({
         else rememberMarketReturn(navigation);
       }}
     >
-      <MysteryAuctionBanner />
       {pageHeading ? (
         <header className="yk-market-heading">
           {pageHeading}
@@ -2095,6 +2094,9 @@ export function AuctionView({
           </p>
         )}
       </section>
+      {auction.isMystery && (
+        <MysteryAuctionHistory key={`${auction.id}:${!!auction.finished}`} />
+      )}
     </div>
   );
 }

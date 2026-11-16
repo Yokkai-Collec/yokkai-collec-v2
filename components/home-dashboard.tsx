@@ -1,6 +1,5 @@
-import { MysteryAuctionBanner } from "@/components/mystery-auction";
+import { EventsHub } from "@/components/events-hub";
 import { ProductUpdates } from "@/components/product-updates";
-import { ReferralEventPromotion } from "@/components/referral-event";
 import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { AmbientGlow } from "@/components/ambient-glow";
@@ -258,8 +257,7 @@ export function HomeDashboard({
       <HomeRefresh />
       <main id="main-content" className="yk-home-main">
         <HomeHero />
-        <ReferralEventPromotion />
-        <MysteryAuctionBanner home />
+        <EventsHub home />
         <HomePacks>
           <Suspense fallback={<HomeSkeleton />}>
             <PanelData load={() => packs()} />

@@ -1,3 +1,31 @@
+.yk-mystery-archive {
+  flex: 1 1 100%;
+  min-width: 0;
+  border-top: 1px solid #ffffff12;
+  padding-top: 1.5rem;
+}
+.yk-mystery-archive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 1fr));
+  gap: 1.5rem 1rem;
+  margin-top: 1.5rem;
+}
+.yk-mystery-archive-grid a {
+  display: block;
+  min-width: 0;
+  border-radius: 0.75rem;
+}
+.yk-mystery-archive-grid a:focus-visible {
+  outline: 2px solid var(--color-accent-neon);
+  outline-offset: 5px;
+}
+.yk-mystery-archive-grid time {
+  display: block;
+  margin-top: 0.75rem;
+  color: var(--color-ink-3);
+  font-size: 0.75rem;
+  text-align: center;
+}
 .yk-mystery-banner {
   display: flex;
   align-items: center;

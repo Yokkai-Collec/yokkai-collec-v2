@@ -65,6 +65,7 @@ test("auction stages and outcomes are loaded only when needed", () => {
   const files = eagerFiles("components/community-views.tsx");
   for (const file of [
     "components/auction-outcome.tsx",
+    "components/mystery-auction-history.tsx",
     "components/mystery-auction-stage.tsx"
   ])
     assert.ok(!files.has(path.resolve(root, file)), file);
