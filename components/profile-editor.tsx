@@ -47,11 +47,14 @@ const ShowcaseStyleFields = dynamic(() =>
   )
 );
 const PAGE_SIZES = [48, 96] as const;
+const showcaseAppearance = (card: CollectedCard) =>
+  JSON.stringify([card.id, card.image, card.shiny, card.isEvolved]);
+
 const PickerArt = memo(function PickerArt({ card }: { card: CollectedCard }) {
   return (
     <YokaiCard
       {...card}
-      image={card.catalogueImage || card.image}
+      fallbackImage={card.catalogueImage}
       animated={false}
       imageSizes="(max-width: 640px) 42vw, 150px"
     />
@@ -221,8 +224,9 @@ export function Editor({
     if (mode === "showcase")
       for (const card of collection) {
         instances.set(card.instanceId, card);
-        if (cards.has(card.id)) continue;
-        cards.set(card.id, card);
+        const appearance = showcaseAppearance(card);
+        if (cards.has(appearance)) continue;
+        cards.set(appearance, card);
         search.set(
           card.id,
           [card.name, card.category, card.anime ?? ""].map(value =>
@@ -256,15 +260,20 @@ export function Editor({
       }),
     [catalogue, selected, profile.featuredCards]
   );
-  const selectedCardIds = useMemo(
-    () => new Set(selectedFeaturedCards.map(card => card.id)),
+  const selectedAppearances = useMemo(
+    () => new Set(selectedFeaturedCards.map(showcaseAppearance)),
+    [selectedFeaturedCards]
+  );
+  const selectedByCardId = useMemo(
+    () =>
+      new Map(selectedFeaturedCards.map(card => [card.id, card.instanceId])),
     [selectedFeaturedCards]
   );
   const featuredChoices = useMemo(() => {
     const terms = cardSearchTerms(deferredQuery);
     return orderedChoices.filter(
       card =>
-        !selectedCardIds.has(card.id) &&
+        !selectedAppearances.has(showcaseAppearance(card)) &&
         (!featuredRarities.length || featuredRarities.includes(card.rarity)) &&
         (!featuredCategories.length ||
           featuredCategories.includes(card.category)) &&
@@ -276,7 +285,7 @@ export function Editor({
   }, [
     orderedChoices,
     catalogue,
-    selectedCardIds,
+    selectedAppearances,
     deferredQuery,
     featuredRarities,
     featuredCategories,
@@ -292,6 +301,11 @@ export function Editor({
   const isFull = selected.size >= FEATURED_CARD_LIMIT;
 
   function chooseCard(card: CollectedCard) {
+    const sameCard = selectedByCardId.get(card.id);
+    if (sameCard) {
+      replaceCard(sameCard, card);
+      return;
+    }
     if (isFull) {
       setReplacement(card);
       selectionHeading.current?.focus();
@@ -1150,29 +1164,38 @@ export function Editor({
                               (activePage - 1) * pageSize,
                               activePage * pageSize
                             )
-                            .map(card => (
-                              <button
-                                type="button"
-                                key={card.instanceId}
-                                onClick={() => chooseCard(card)}
-                                aria-label={t(
-                                  isFull
-                                    ? "profileUi.showcaseUseReplacement"
-                                    : "profileUi.showcaseAddCard",
-                                  { name: card.name }
-                                )}
-                                disabled={busy}
-                              >
-                                <PickerArt card={card} />
-                                <span>
-                                  {t(
-                                    isFull
-                                      ? "profileUi.showcaseReplace"
-                                      : "profileUi.choose"
+                            .map(card => {
+                              const canReplace =
+                                isFull || selectedByCardId.has(card.id);
+                              return (
+                                <button
+                                  type="button"
+                                  key={card.instanceId}
+                                  onClick={() => chooseCard(card)}
+                                  aria-label={t(
+                                    canReplace
+                                      ? "profileUi.showcaseUseReplacement"
+                                      : "profileUi.showcaseAddCard",
+                                    {
+                                      name: card.name,
+                                      image: card.customImageUrl
+                                        ? "custom"
+                                        : "original"
+                                    }
                                   )}
-                                </span>
-                              </button>
-                            ))}
+                                  disabled={busy}
+                                >
+                                  <PickerArt card={card} />
+                                  <span>
+                                    {t(
+                                      canReplace
+                                        ? "profileUi.showcaseReplace"
+                                        : "profileUi.choose"
+                                    )}
+                                  </span>
+                                </button>
+                              );
+                            })}
                         </div>
                       ) : (
                         <p
