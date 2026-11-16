@@ -996,7 +996,8 @@
     "notificationMysteryTitle": "Mystery Auction",
     "notificationMysteryStarted": "The event has started! Join the mystery auction.",
     "notificationMysteryResult": "The auction has ended: the mystery card was {cardName}. View the result.",
-    "events": "Events"
+    "events": "Events",
+    "notificationReferralEventPack": "Milestone reached! You receive a special Decision Pack with {count, number} LR cards."
   },
   "accountMenu": {
     "signIn": "Sign in",
@@ -4513,7 +4514,7 @@
     "limited": "LIMITED EVENT",
     "upcoming": "COMING SOON",
     "ended": "EVENT ENDED",
-    "intro": "Introduce your friends to Yokkai. Each valid referral brings you closer to more Karas and the exclusive Recruiter title.",
+    "intro": "Introduce your friends to Yokkai. Unlock Karas, then a special Decision Pack with 5 random LR cards and the exclusive Recruiter title.",
     "startsIn": "Starts in",
     "endsIn": "Time remaining",
     "countdown": "{days}d {hours}h {minutes}m {seconds}s",
@@ -4544,7 +4545,14 @@
     "rewardPool": "Cumulative rewards",
     "campaignLabel": "Recruitment campaign",
     "milestones": "Cumulative milestones",
-    "bannerDescription": "Invite your friends, grow your team and earn bonus rewards!"
+    "bannerDescription": "Invite your friends, grow your team and earn bonus rewards!",
+    "specialPack": "Special Decision Pack",
+    "specialPackReward": "Special Decision Pack · {count, number} LR",
+    "nextPackTier": "{count, plural, one {# more valid referral} other {# more valid referrals}} to unlock your special Decision Pack.",
+    "totalRewardsWithPack": "{amount, number} Karas + a special Decision Pack to unlock",
+    "packAwarded": "Your {count, number} random LR cards are already in your collection. You keep them all: no choosing or sacrificing cards.",
+    "revealPack": "Reveal my LR cards",
+    "loadingPack": "Preparing the reveal…"
   },
   "mysteryAuction": {
     "title": "Mystery Auction",

@@ -18,10 +18,10 @@ const event = {
   validCount: 4,
   pending: ["Kitsune <secret>"],
   tiers: [
-    { threshold: 3, karas: 400, awarded: true, badge: false },
+    { threshold: 3, karas: 750, awarded: true, badge: false },
     { threshold: 5, karas: 750, awarded: false, badge: false },
     { threshold: 10, karas: 1600, awarded: false, badge: false },
-    { threshold: 20, karas: 4000, awarded: false, badge: true }
+    { threshold: 20, karas: 0, lrCards: 5, awarded: false, badge: true }
   ]
 };
 function load(file, state) {
@@ -86,6 +86,7 @@ test("event page exposes server progress, cumulative tiers, escaped pending pseu
   assert.equal((html.match(/data-reached="false"/g) ?? []).length, 3);
   assert.match(html, /Kitsune &lt;secret&gt;/);
   assert.match(html, /Recruiter/);
+  assert.match(html, /Special Decision Pack/);
   assert.match(html, /13d 0h 0m 0s/);
   assert.match(html, /1 more valid referral to unlock 750 Karas/);
   assert.match(readFileSync("app/layout.tsx", "utf8"), /"referralEvent"/);
@@ -157,5 +158,20 @@ test("milestone notifications share translated EN/FR content for push and inbox"
     assert.equal(item.href, "/referral-event");
     assert.match(item.text, /750 Karas/);
     assert.equal(item.kind, "mission");
+    const pack = notificationItem(
+      {
+        id: "pack",
+        type: "referral_event_tier",
+        referenceId: "receipt",
+        createdAt: event.serverNow,
+        readAt: null,
+        referralReward: 0,
+        referralPackCards: 5
+      },
+      createTranslator({ locale, messages, namespace: "topbar" })
+    );
+    assert.match(pack.text, /5 LR/);
+    assert.match(pack.text, /Decision Pack/);
+    assert.equal(pack.href, "/referral-event");
   }
 });

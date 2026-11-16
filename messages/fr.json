@@ -996,7 +996,8 @@
     "notificationMysteryTitle": "Mystery Auction",
     "notificationMysteryStarted": "L’event a commencé ! Découvre l’enchère mystère.",
     "notificationMysteryResult": "L’enchère est terminée : la carte mystère était {cardName}. Consulte le résultat.",
-    "events": "Événements"
+    "events": "Événements",
+    "notificationReferralEventPack": "Palier atteint ! Tu reçois un Decision Pack spécial de {count, number} LR."
   },
   "accountMenu": {
     "signIn": "Se connecter",
@@ -4513,7 +4514,7 @@
     "limited": "ÉVÉNEMENT LIMITÉ",
     "upcoming": "BIENTÔT",
     "ended": "ÉVÉNEMENT TERMINÉ",
-    "intro": "Fais découvrir Yokkai à tes amis. Chaque filleul validé te rapproche de nouveaux Karas et du titre exclusif Recruiter.",
+    "intro": "Fais découvrir Yokkai à tes amis. Débloque des Karas, puis un Decision Pack spécial de 5 LR aléatoires et le titre exclusif Recruiter.",
     "startsIn": "Début dans",
     "endsIn": "Temps restant",
     "countdown": "{days}j {hours}h {minutes}m {seconds}s",
@@ -4544,7 +4545,14 @@
     "rewardPool": "Récompenses cumulées",
     "campaignLabel": "Campagne de recrutement",
     "milestones": "Paliers cumulés",
-    "bannerDescription": "Invite tes amis, agrandis ton équipe et gagne des récompenses bonus !"
+    "bannerDescription": "Invite tes amis, agrandis ton équipe et gagne des récompenses bonus !",
+    "specialPack": "Decision Pack spécial",
+    "specialPackReward": "Decision Pack spécial · {count, number} LR",
+    "nextPackTier": "Encore {count, plural, one {# filleul valide} other {# filleuls valides}} pour débloquer ton Decision Pack spécial.",
+    "totalRewardsWithPack": "{amount, number} Karas + un Decision Pack spécial à débloquer",
+    "packAwarded": "Tes {count, number} LR aléatoires sont déjà dans ta collection. Tu les conserves toutes : aucun choix ni sacrifice.",
+    "revealPack": "Découvrir mes LR",
+    "loadingPack": "Préparation de la révélation…"
   },
   "mysteryAuction": {
     "title": "Mystery Auction",

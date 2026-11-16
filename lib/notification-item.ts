@@ -40,9 +40,13 @@ export function notificationItem(
     return {
       ...common,
       title: t("notificationReferralEventTitle"),
-      text: t("notificationReferralEventText", {
-        amount: notification.referralReward ?? 0
-      }),
+      text: notification.referralPackCards
+        ? t("notificationReferralEventPack", {
+            count: notification.referralPackCards
+          })
+        : t("notificationReferralEventText", {
+            amount: notification.referralReward ?? 0
+          }),
       href: "/referral-event",
       kind: "mission"
     };

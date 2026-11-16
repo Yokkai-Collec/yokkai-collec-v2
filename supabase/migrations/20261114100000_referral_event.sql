@@ -13,7 +13,9 @@ create table public.referral_events (
 create table public.referral_event_tiers (
  event_id uuid not null references public.referral_events(id) on delete restrict,
  threshold integer not null check(threshold in(3,5,10,20)),
- karas integer not null check(karas>0),
+ karas integer not null check(karas>=0),
+ lr_cards integer not null default 0 check(lr_cards in(0,5)),
+ check((karas>0 and lr_cards=0) or (karas=0 and lr_cards=5 and threshold=20)),
  recruiter_badge boolean not null default false check(not recruiter_badge or threshold=20),
  primary key(event_id,threshold)
 );
@@ -22,8 +24,12 @@ create table public.referral_event_rewards (
  user_id uuid not null references auth.users(id) on delete cascade,
  event_id uuid not null,
  threshold integer not null,
- karas integer not null check(karas>0),
+ karas integer not null check(karas>=0),
+ lr_cards integer not null default 0 check(lr_cards in(0,5)),
+ check((karas>0 and lr_cards=0) or (karas=0 and lr_cards=5 and threshold=20)),
  recruiter_badge boolean not null,
+ decision_pack_id uuid unique references public.decision_packs(id) on delete set null,
+ cards jsonb not null default '[]',
  awarded_at timestamptz not null default clock_timestamp(),
  primary key(user_id,event_id,threshold),
  foreign key(event_id,threshold) references public.referral_event_tiers(event_id,threshold)
@@ -35,9 +41,9 @@ revoke all on public.referral_events,public.referral_event_tiers,public.referral
 
 insert into public.referral_events(slug,starts_at,ends_at)
  values('recruiter-2026-11','2026-11-14 19:00:00+00','2026-11-28 19:00:00+00');
-insert into public.referral_event_tiers(event_id,threshold,karas,recruiter_badge)
- select e.id,t.threshold,t.karas,t.badge from public.referral_events e
- cross join(values(3,400,false),(5,750,false),(10,1600,false),(20,4000,true))t(threshold,karas,badge)
+insert into public.referral_event_tiers(event_id,threshold,karas,lr_cards,recruiter_badge)
+ select e.id,t.threshold,t.karas,t.lr_cards,t.badge from public.referral_events e
+ cross join(values(3,750,0,false),(5,750,0,false),(10,1600,0,false),(20,0,5,true))t(threshold,karas,lr_cards,badge)
  where e.slug='recruiter-2026-11';
 
 -- Timestamped activity, not the worker's execution time, decides qualification.
@@ -59,6 +65,7 @@ language sql stable security definer set search_path='' as $$
     where o.opened_by=u.id and o.opened_at>=(to_jsonb(u)->>'created_at')::timestamptz+interval '24 hours'
    union all
    select d.claimed_at from public.decision_packs d where d.user_id=u.id
+    and not exists(select 1 from public.referral_event_rewards automatic where automatic.decision_pack_id=d.id)
     and d.status='claimed' and d.claimed_at>=(to_jsonb(u)->>'created_at')::timestamptz+interval '24 hours'
   ) openings
  ) activity on true
@@ -86,21 +93,43 @@ revoke all on function public.referral_event_qualified(uuid) from public,anon,au
 -- The worker is owner-only. Reading progress cannot award a reward.
 create function public.settle_referral_events()
 returns void language plpgsql security definer set search_path='' as $$
-declare event_row record; reward record;
+declare event_row record; reward record; pack uuid; picked public.cards%rowtype; copy uuid; drawn jsonb; shiny boolean;
 begin
  perform pg_advisory_xact_lock(hashtextextended('referral-event-settlement',0));
  for event_row in select * from public.referral_events where starts_at<=now() and settled_at is null order by starts_at loop
   for reward in
-   insert into public.referral_event_rewards(user_id,event_id,threshold,karas,recruiter_badge)
-   select q.referrer_id,event_row.id,t.threshold,t.karas,t.recruiter_badge
+   insert into public.referral_event_rewards(user_id,event_id,threshold,karas,lr_cards,recruiter_badge)
+   select q.referrer_id,event_row.id,t.threshold,t.karas,t.lr_cards,t.recruiter_badge
    from public.referral_event_qualified(event_row.id)q
    join public.referral_event_tiers t on t.event_id=event_row.id
-   group by q.referrer_id,t.threshold,t.karas,t.recruiter_badge
+   group by q.referrer_id,t.threshold,t.karas,t.lr_cards,t.recruiter_badge
    having count(*)>=t.threshold
    on conflict(user_id,event_id,threshold) do nothing returning *
   loop
-   perform public.credit_karas(reward.user_id,reward.karas);
-   perform public.advance_player_progress(reward.user_id,'karas_earned',reward.karas);
+   if reward.karas>0 then
+    perform public.credit_karas(reward.user_id,reward.karas);
+    perform public.advance_player_progress(reward.user_id,'karas_earned',reward.karas);
+   end if;
+   if reward.lr_cards>0 then
+    -- A fully claimed bonus Decision Pack: all five cards are kept. The existing
+    -- bonus marker excludes it from the daily quota and pending-choice flow.
+    insert into public.decision_packs(user_id,status,claimed_at,is_compensation)
+     values(reward.user_id,'claimed',clock_timestamp(),true) returning id into pack;
+    drawn:='[]'::jsonb;
+    for position in 1..reward.lr_cards loop
+     select * into picked from public.cards where rarete_base='LR' order by random() limit 1;
+     if not found then raise exception 'CATALOGUE_INCOMPLETE'; end if;
+     shiny:=random()<0.01; -- Same LR Shiny chance as the existing Decision Pack.
+     insert into public.decision_pack_choices(pack_id,card_id,rarity,is_shiny,position)
+      values(pack,picked.id,'LR',shiny,position);
+     insert into public.user_cards(user_id,card_id,date_obtention,rarity,is_shiny,is_evolved,is_first_owner)
+      values(reward.user_id,picked.id,clock_timestamp(),'LR',shiny,false,true) returning id into copy;
+     drawn:=drawn||jsonb_build_array(jsonb_build_object('id',picked.id,'name',picked.nom,
+      'category',picked.categorie,'anime',picked.franchise,'rarity','LR','image',picked.image_url,
+      'instanceId',copy,'shiny',shiny,'isEvolved',false));
+    end loop;
+    update public.referral_event_rewards set decision_pack_id=pack,cards=drawn where id=reward.id;
+   end if;
    insert into public.notifications(user_id,type,reference_id)
     values(reward.user_id,'referral_event_tier',reward.id);
   end loop;
@@ -125,9 +154,10 @@ begin
  return jsonb_build_object('id',event_row.id,'startsAt',event_row.starts_at,'endsAt',event_row.ends_at,
  'serverNow',now(),'validCount',valid_count,
  'tiers',(select coalesce(jsonb_agg(jsonb_build_object('threshold',t.threshold,'karas',t.karas,
-  'badge',t.recruiter_badge,'awarded',r.id is not null) order by t.threshold),'[]')
+  'lrCards',t.lr_cards,'badge',t.recruiter_badge,'awarded',r.id is not null) order by t.threshold),'[]')
   from public.referral_event_tiers t left join public.referral_event_rewards r
    on r.event_id=t.event_id and r.threshold=t.threshold and r.user_id=player where t.event_id=event_row.id),
+ 'rewardCards',coalesce((select r.cards from public.referral_event_rewards r where r.user_id=player and r.event_id=event_row.id and r.lr_cards>0),'[]'::jsonb),
  'pending',(select coalesce(jsonb_agg(c.pseudo order by c.pseudo),'[]')
   from public.referral_event_candidates(event_row.id)c
   join auth.users u on u.id=c.referred_id
@@ -162,7 +192,7 @@ begin
   definition:=pg_get_functiondef(signature);
   -- Preserve all existing notification privacy filters and privileges.
   updated:=replace(definition,'''createdAt'',n.created_at',
-   '''createdAt'',n.created_at,''referralReward'',(select r.karas from public.referral_event_rewards r where r.id=n.reference_id and r.user_id=n.user_id)');
+   '''createdAt'',n.created_at,''referralPackCards'',(select r.lr_cards from public.referral_event_rewards r where r.id=n.reference_id and r.user_id=n.user_id),''referralReward'',(select r.karas from public.referral_event_rewards r where r.id=n.reference_id and r.user_id=n.user_id)');
   if updated=definition then raise exception 'REFERRAL_NOTIFICATION_PATCH_MISMATCH: %',signature; end if;
   execute updated;
  end loop;

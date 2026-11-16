@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useId, useState, type ReactNode } from "react";
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useId,
+  useState,
+  type ReactNode
+} from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 import type { ReferralEvent } from "@/lib/referrals/event";
@@ -15,6 +22,12 @@ import {
 import "@/styles/referral-event.css";
 import { CardShell } from "@/components/card-shell";
 import { ReferralEventArtwork } from "@/components/event-scene";
+
+const RewardReveal = lazy(() =>
+  import("@/components/boosters").then(module => ({
+    default: module.BoosterReveal
+  }))
+);
 
 export function useReferralEvent(initial?: ReferralEvent | null) {
   const [event, setEvent] = useState(initial ?? null);
@@ -220,6 +233,8 @@ export function ReferralEventPanel({
   const t = useTranslations("referralEvent");
   const fmt = useFormatter();
   const { event, now, failed } = useReferralEvent(initialEvent);
+  const [showReward, setShowReward] = useState(false);
+  const [revealed, setRevealed] = useState(0);
   if (!event)
     return (
       <section className="yk-referral-event">
@@ -264,9 +279,14 @@ export function ReferralEventPanel({
         </div>
       </header>
       <p className="yk-referral-event-reward-total">
-        {t("totalRewards", {
-          amount: event.tiers.reduce((total, tier) => total + tier.karas, 0)
-        })}
+        {t(
+          event.tiers.some(tier => tier.lrCards)
+            ? "totalRewardsWithPack"
+            : "totalRewards",
+          {
+            amount: event.tiers.reduce((total, tier) => total + tier.karas, 0)
+          }
+        )}
       </p>
       {invite}
       {failed && <p role="status">{t("refreshError")}</p>}
@@ -277,10 +297,14 @@ export function ReferralEventPanel({
         </div>
         <p>
           {next
-            ? t("nextTier", {
-                count: Math.max(0, next.threshold - event.validCount),
-                karas: next.karas
-              })
+            ? next.lrCards
+              ? t("nextPackTier", {
+                  count: Math.max(0, next.threshold - event.validCount)
+                })
+              : t("nextTier", {
+                  count: Math.max(0, next.threshold - event.validCount),
+                  karas: next.karas
+                })
             : t("allReached")}
         </p>
         <progress
@@ -299,6 +323,7 @@ export function ReferralEventPanel({
             data-reached={tier.awarded}
             data-next={tier.threshold === next?.threshold}
             data-badge={tier.badge}
+            data-pack={!!tier.lrCards}
           >
             <span className="yk-referral-event-tier-mark" aria-hidden="true">
               {tier.awarded
@@ -311,7 +336,11 @@ export function ReferralEventPanel({
               {String(tier.threshold).padStart(2, "0")}
             </span>
             <h2>{t("tier", { count: tier.threshold })}</h2>
-            <strong>{t("karas", { amount: tier.karas })}</strong>
+            <strong>
+              {tier.lrCards
+                ? t("specialPackReward", { count: tier.lrCards })
+                : t("karas", { amount: tier.karas })}
+            </strong>
             {tier.badge && (
               <span className="yk-recruiter-badge">{t("badge")}</span>
             )}
@@ -327,6 +356,36 @@ export function ReferralEventPanel({
           </li>
         ))}
       </ol>
+      {!!event.rewardCards?.length && (
+        <section className="yk-referral-pack-reward">
+          <h2>{t("specialPack")}</h2>
+          <p>{t("packAwarded", { count: event.rewardCards.length })}</p>
+          <button
+            type="button"
+            className="yk-referral-reveal-button"
+            onClick={() => {
+              setRevealed(0);
+              setShowReward(true);
+            }}
+          >
+            {t("revealPack")}
+          </button>
+          {showReward && (
+            <Suspense fallback={<p role="status">{t("loadingPack")}</p>}>
+              <RewardReveal
+                cards={event.rewardCards}
+                revealed={revealed}
+                packLabel={t("specialPack")}
+                packKind="decision"
+                onReveal={index =>
+                  setRevealed(value => Math.max(value, index + 1))
+                }
+                onReturn={() => setShowReward(false)}
+              />
+            </Suspense>
+          )}
+        </section>
+      )}
       <div className="yk-referral-event-details">
         <section>
           <h2>{t("howTitle")}</h2>

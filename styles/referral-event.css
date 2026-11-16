@@ -10,6 +10,38 @@
   text-decoration: none;
   overflow-wrap: anywhere;
 }
+.yk-referral-event-tiers li[data-pack="true"] strong {
+  white-space: normal;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+.yk-referral-pack-reward {
+  margin-top: 24px;
+  padding: clamp(16px, 3vw, 24px);
+  border: 1px solid #dfc18570;
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse at top right, #b28a3420, transparent 70%), #0d101c;
+}
+.yk-referral-pack-reward > p {
+  margin: 12px 0;
+}
+.yk-referral-reveal-button {
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid #dfc185;
+  border-radius: 10px;
+  background: #dfc185;
+  color: #151018;
+  font-weight: 600;
+}
+.yk-referral-reveal-button:hover {
+  background: #f5ddb0;
+}
+.yk-referral-reveal-button:focus-visible {
+  outline: 2px solid #f5ddb0;
+  outline-offset: 4px;
+}
 .yk-recruiter-title:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 4px;

@@ -35,6 +35,7 @@ export type AppNotification = {
   replyId?: string;
   karaAmount?: number | null;
   referralReward?: number | null;
+  referralPackCards?: number | null;
 };
 export class NotificationRequestError extends Error {
   code?: string;
