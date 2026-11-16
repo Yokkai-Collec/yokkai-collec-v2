@@ -60,3 +60,23 @@ Migration `20261116130001_referral_event.sql` : à appliquer en production uniqu
 via `scripts/deploy-migrations.sh`. Aucun déploiement n'a été effectué pour cette PR.
 Test SQL autonome : `tests/sql/referral-event.sql`, enveloppe de test
 `node --test tests/referral-event-db.test.mjs` sur une base jetable.
+
+## Installation puis activation
+
+Les migrations installent les deux events avec `event_runtime_config.enabled=false`.
+Ce verrou opérateur est privé : ni un joueur ni le rôle de service ne peut l’activer.
+Les workers restent sans effet et les DTO d’événement renvoient null pendant
+la préparation, pour préserver la compatibilité avec l’ancien front.
+Après CI verte et déploiement du front, l’opérateur active les données de
+configuration dans une transaction :
+
+```sql
+begin;
+update public.event_runtime_config set enabled=true where singleton;
+select public.create_daily_mystery_auction();
+select public.settle_referral_events();
+commit;
+```
+
+La création quotidienne rattrape un démarrage après 20h locale, une seule fois
+par date. Les enchères existantes continuent toujours leur clôture normale.

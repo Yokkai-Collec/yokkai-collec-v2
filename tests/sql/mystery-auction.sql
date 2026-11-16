@@ -1,4 +1,9 @@
 begin;
+do $$ begin
+ assert not (select enabled from public.event_runtime_config where singleton), 'Events must install disabled';
+ assert not has_table_privilege('authenticated','public.event_runtime_config','update'), 'Player can activate events';
+end $$;
+update public.event_runtime_config set enabled=true where singleton;
 do $$
 declare
   loser uuid := '20000000-0000-4000-8000-000000000001';
@@ -9,6 +14,15 @@ begin
   insert into auth.users(id,raw_user_meta_data) values
     (loser,'{"pseudo":"MysteryLoser"}'),(winner,'{"pseudo":"MysteryWinner"}'),(spectator,'{"pseudo":"MysterySpectator"}');
   update public.user_profiles set karas_balance=1000 where user_id in (loser,winner,spectator);
+  update public.event_runtime_config set enabled=false where singleton;
+  perform set_config('request.jwt.claim.sub',spectator::text,true);
+  assert public.get_mystery_auction_event() is null, 'Disabled event exposed';
+  definition:=pg_get_functiondef('public.create_daily_mystery_auction()'::regprocedure);
+  execute replace(definition,'clock_timestamp()',quote_literal('2099-01-01 20:00:00+00')||'::timestamptz');
+  perform public.create_daily_mystery_auction();
+  assert not exists(select 1 from public.auctions where is_mystery), 'Disabled event started';
+  execute definition;
+  update public.event_runtime_config set enabled=true where singleton;
   insert into public.cards(source_id,nom,categorie,franchise,rarete_base,image_url,source)
     values ('mystery-test','Mystery test','Anime','Mystery test','LR','https://example.test/card.png','test');
   insert into public.auctions(is_mystery,mystery_day,starting_price,current_price,duration_minutes,ends_at)

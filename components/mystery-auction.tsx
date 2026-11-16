@@ -90,7 +90,7 @@ export function useMysteryAuctionEvent() {
       void getMysteryAuctionEvent().then(
         data => {
           if (active) {
-            setEvent(data);
+            setEvent(data ?? undefined);
             setNow(Date.now());
             setFailed(false);
           }

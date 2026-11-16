@@ -97,6 +97,7 @@ create function public.settle_referral_events()
 returns void language plpgsql security definer set search_path='' as $$
 declare event_row record; reward record; pack uuid; picked public.cards%rowtype; copy uuid; drawn jsonb; shiny boolean;
 begin
+ if not (select enabled from public.event_runtime_config where singleton) then return; end if;
  perform pg_advisory_xact_lock(hashtextextended('referral-event-settlement',0));
  for event_row in select * from public.referral_events where starts_at<=now() and settled_at is null order by starts_at loop
   for reward in
@@ -151,6 +152,7 @@ declare player uuid:=auth.uid(); event_row public.referral_events%rowtype; valid
 begin
  if player is null then raise exception 'AUTH_REQUIRED'; end if;
  perform public.assert_player_not_banned();
+ if not (select enabled from public.event_runtime_config where singleton) then return null; end if;
  select * into event_row from public.referral_events order by
  case when now()>=starts_at and now()<ends_at+interval '24 hours' then 0 when starts_at>now() then 1 else 2 end,
  case when starts_at>now() then starts_at end asc,starts_at desc limit 1;

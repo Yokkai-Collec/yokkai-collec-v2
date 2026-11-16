@@ -1,4 +1,5 @@
 begin;
+update public.event_runtime_config set enabled=true where singleton;
 alter table auth.users add column if not exists created_at timestamptz default now();
 alter table auth.users add column if not exists banned_until timestamptz;
 alter table auth.users add column if not exists deleted_at timestamptz;
@@ -51,6 +52,11 @@ begin
  insert into public.referral_event_rewards(user_id,event_id,threshold,karas,lr_cards,recruiter_badge,decision_pack_id)
  values(child,event_id,20,0,5,true,bonus_pack);
  if (public.get_referral_event()->>'validCount')::int<>20 then raise exception 'Automatic reward counted as active play'; end if;
+ update public.event_runtime_config set enabled=false where singleton;
+ perform public.settle_referral_events();
+ if exists(select 1 from public.referral_event_rewards where user_id=parent) then raise exception 'Disabled event awarded rewards'; end if;
+ if public.get_referral_event() is not null then raise exception 'Disabled event exposed'; end if;
+ update public.event_runtime_config set enabled=true where singleton;
  perform public.settle_referral_events();
  perform public.settle_referral_events();
  if (select count(*) from public.referral_event_rewards where user_id=parent)<>4 then raise exception 'Duplicate or missing tier'; end if;

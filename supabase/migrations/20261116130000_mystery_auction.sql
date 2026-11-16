@@ -1,6 +1,15 @@
 begin;
 set local lock_timeout='3s';
 
+-- Install independently from activation: the old frontend cannot render hidden cards.
+create table public.event_runtime_config (
+ singleton boolean primary key default true check(singleton),
+ enabled boolean not null default false
+);
+insert into public.event_runtime_config(singleton) values(true);
+alter table public.event_runtime_config enable row level security;
+revoke all on public.event_runtime_config from public,anon,authenticated,service_role;
+
 -- Same auction, bids, escrow and minute settlement; no parallel marketplace.
 alter table public.auctions add column is_mystery boolean not null default false,
   add column mystery_day date;
@@ -25,6 +34,7 @@ create function public.create_daily_mystery_auction() returns void
 language plpgsql volatile security definer set search_path='' as $$
 declare local_now timestamp:=clock_timestamp() at time zone 'Europe/Paris'; auction_id uuid; starts timestamptz;
 begin
+  if not (select enabled from public.event_runtime_config where singleton) then return; end if;
   if local_now::time<time '20:00' or exists(select 1 from public.auctions where is_mystery and mystery_day=local_now::date) then return; end if;
   perform public.settle_expired_auctions();
   starts:=(local_now::date+time '20:00') at time zone 'Europe/Paris';
@@ -117,7 +127,7 @@ begin
     'public.list_auctions_page(jsonb,integer)'::regprocedure,'public.list_auctions()'::regprocedure] loop
     definition:=pg_get_functiondef(target);
     updated:=replace(definition,'c.id is not null or a.card_snapshot is not null',
-      'a.is_mystery or c.id is not null or a.card_snapshot is not null');
+      '(a.is_mystery and (select enabled from public.event_runtime_config where singleton)) or c.id is not null or a.card_snapshot is not null');
     updated:=replace(updated,'''id'',a.id,''card'',','''id'',a.id,''isMystery'',a.is_mystery,''card'',');
     updated:=replace(updated,'case when c.id is not null then jsonb_build_object(',
       'case when a.is_mystery then a.card_snapshot when c.id is not null then jsonb_build_object(');
@@ -146,6 +156,7 @@ declare local_now timestamp:=statement_timestamp() at time zone 'Europe/Paris';
   next_day date; next_start timestamptz; latest uuid;
 begin
   if auth.uid() is null then raise exception 'AUTH_REQUIRED'; end if;
+  if not (select enabled from public.event_runtime_config where singleton) then return null; end if;
   next_day:=local_now::date;
   if next_day=local_now::date and local_now::time>=time '20:00' then next_day:=next_day+1; end if;
   next_start:=(next_day+time '20:00') at time zone 'Europe/Paris';

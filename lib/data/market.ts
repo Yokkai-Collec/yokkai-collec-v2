@@ -180,7 +180,7 @@ export const getAuction = async (id: string) => {
 // Presentation placeholder only; the server returns JSON null until settlement.
 const mysteryCard: Card = { id: "", name: "", category: "", rarity: "C", image: "", liveFranchise: true };
 export type MysteryAuctionEvent = { nextStartsAt: string; auction: AuctionPayload<AuctionDetail> | null };
-export const getMysteryAuctionEvent = () => call<MysteryAuctionEvent>("get_mystery_auction_event");
+export const getMysteryAuctionEvent = () => call<MysteryAuctionEvent | null>("get_mystery_auction_event");
 export async function createAuction(
   instanceId: string,
   startingPrice: number,

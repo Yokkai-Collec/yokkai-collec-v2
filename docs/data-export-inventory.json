@@ -597,5 +597,8 @@
   "public.referral_event_rewards": {
     "sections": ["referral_event_rewards"],
     "note": "Own milestone receipts, awarded Karas, special pack cards and title reward only; no referred-player identities."
+  },
+  "public.event_runtime_config": {
+    "excluded": "Global operator-controlled event activation switch; no player-specific records or personal data."
   }
 }
