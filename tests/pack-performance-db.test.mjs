@@ -4,6 +4,7 @@ import test from "node:test";
 import { replayMigrations } from "../scripts/replay-migrations.mjs";
 
 const migration = "20261009000012_pack_achievement_performance.sql";
+const transferMigration = "20261116120000_batch_transfer_achievements.sql";
 const alice = "10000000-0000-4000-8000-000000000001";
 const bob = "10000000-0000-4000-8000-000000000002";
 const directory = new URL("../supabase/migrations/", import.meta.url);
@@ -296,7 +297,9 @@ async function scenario(db) {
 
 test("all acquisition/removal paths preserve exact achievement progress before/after", async t => {
   const migrations = readdirSync(directory)
-    .filter(n => n.endsWith(".sql") && n !== migration)
+    .filter(
+      n => n.endsWith(".sql") && n !== migration && n !== transferMigration
+    )
     .sort();
   const { db } = await replayMigrations({ migrations });
   t.after(() => db.close());
@@ -316,9 +319,15 @@ test("all acquisition/removal paths preserve exact achievement progress before/a
     .replace("roll<.924", "roll<.894")
     .replace("random() < .001", "random() < .1");
   await db.exec(performanceSQL);
+  const transferSQL = readFileSync(
+    new URL(transferMigration, directory),
+    "utf8"
+  );
+  await db.exec(transferSQL);
   assert.deepEqual(await scenario(db), before);
   // Replaying the new migration must not duplicate triggers or change any data.
   await db.exec(performanceSQL);
+  await db.exec(transferSQL);
   assert.deepEqual(await scenario(db), before);
 });
 
