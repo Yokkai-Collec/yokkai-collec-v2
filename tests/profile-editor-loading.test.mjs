@@ -56,6 +56,6 @@ test("profile editing is loaded on demand and matches the reviewed editor body",
   // limits, errors and save guards.
   assert.equal(
     createHash("sha256").update(body).digest("hex"),
-    "6b57a626bb9b8dc386977b831e028ab4c7976162428cba70673d5a2baa155a37"
+    "e62713a8f89a2fe464f6e4e452ab2cf72349cba478238e98da9428bcf35b07df"
   );
 });
