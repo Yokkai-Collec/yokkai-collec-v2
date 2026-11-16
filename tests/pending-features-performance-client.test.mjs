@@ -1,3 +1,4 @@
+import { licenseName } from "./helpers/license-name.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import vm from "node:vm";
@@ -17,6 +18,7 @@ const compile = (path, mocks, globals = {}) => {
     {
       exports,
       require: name => {
+        if (name === "@/lib/ui/license-name") return licenseName;
         if (name in mocks) return mocks[name];
         throw Error("Unexpected " + name);
       },

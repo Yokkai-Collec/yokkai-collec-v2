@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { licenseName } from "./helpers/license-name.mjs";
 import fs from "node:fs";
 import vm from "node:vm";
 import ts from "typescript";
@@ -32,6 +33,7 @@ function render(
     {
       exports,
       require: name => {
+        if (name === "@/lib/ui/license-name") return licenseName;
         if (name === "react") return React;
         if (name === "react/jsx-runtime") return jsx;
         if (name === "next-intl")

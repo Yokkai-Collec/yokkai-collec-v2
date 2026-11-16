@@ -1,3 +1,4 @@
+import { licenseName } from "./license-name.mjs";
 import { intl } from "./i18n.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -30,6 +31,7 @@ export function load(path, imports = {}) {
     Response,
     Uint8Array,
     require: name => {
+      if (name === "@/lib/ui/license-name") return licenseName;
       if (name === "next-intl") return intl;
       if (name in imports) return imports[name];
       if (name === "@/lib/ui/card-rarity-label") return cardRarityLabels;

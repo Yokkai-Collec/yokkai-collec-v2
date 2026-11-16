@@ -1,3 +1,4 @@
+import { licenseName } from "./helpers/license-name.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -60,6 +61,7 @@ test("Choosing a license scopes the main players table, ignores stale reads and 
     {
       exports,
       require: name => {
+        if (name === "@/lib/ui/license-name") return licenseName;
         if (name === "react") return react;
         if (name === "react/jsx-runtime") return jsx;
         if (name === "next/link") return { default: passthrough("Link") };

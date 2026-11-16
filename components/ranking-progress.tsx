@@ -1,4 +1,5 @@
 "use client";
+import { formatLicenseName } from "@/lib/ui/license-name";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
@@ -197,12 +198,12 @@ export function RankingGoal({
     if (binder)
       text = t(mine.value! >= binder.total ? "completed" : "finishLicense", {
         count: Math.max(0, binder.total - (mine.value ?? 0)),
-        license: binder.license
+        license: formatLicenseName(binder.license)
       });
     else if (album) {
       text = t("finishLicense", {
         count: album.total - album.owned,
-        license: album.license
+        license: formatLicenseName(album.license)
       });
       href = binderHref(album);
     } else {

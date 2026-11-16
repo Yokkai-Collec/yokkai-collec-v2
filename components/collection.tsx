@@ -1,4 +1,5 @@
 "use client";
+import { formatLicenseName } from "@/lib/ui/license-name";
 import { gameErrorKey } from "@/i18n/game-messages";
 import { useTranslations, useFormatter } from "next-intl";
 
@@ -1716,7 +1717,7 @@ export function CollectionView({
                         </button>
                         <div>
                           <p className="yk-section-title">{tc("binder")}</p>
-                          <h2>{selectedAlbumName}</h2>
+                          <h2>{formatLicenseName(selectedAlbumName)}</h2>
                         </div>
                         <p>
                           {selectedAlbum?.owned ??
@@ -1824,7 +1825,7 @@ export function CollectionView({
                         {!readOnly && !previewOnly && (
                           <CollectionCoverEditor
                             targetKey={selectedLicense}
-                            name={selectedAlbumName ?? ""}
+                            name={formatLicenseName(selectedAlbumName)}
                             onSaved={() => setPaniniAlbumRefresh(n => n + 1)}
                           />
                         )}
@@ -1872,7 +1873,7 @@ export function CollectionView({
                         tabIndex={0}
                         className="yk-panini-slots"
                         aria-label={tc("cardsFrom", {
-                          license: selectedAlbumName ?? ""
+                          license: formatLicenseName(selectedAlbumName)
                         })}
                       >
                         {paniniCards.items.map(card => {
@@ -2119,7 +2120,7 @@ export function CollectionView({
                                   setPaniniPage(1);
                                 }}
                                 aria-label={tc("viewLicense", {
-                                  license: item.license,
+                                  license: formatLicenseName(item.license),
                                   owned: format.number(item.owned),
                                   total: format.number(item.total),
                                   count: item.total
@@ -2128,7 +2129,7 @@ export function CollectionView({
                                 <BinderCover
                                   image={binderCover(item, cards)}
                                   frame={item.coverFrame}
-                                  license={item.license}
+                                  license={formatLicenseName(item.license)}
                                 />
                                 <span className="yk-panini-details">
                                   <strong
@@ -2136,7 +2137,7 @@ export function CollectionView({
                                       Array.from(item.license).length > 32
                                     }
                                   >
-                                    {item.license}
+                                    {formatLicenseName(item.license)}
                                   </strong>
                                   <span className="yk-panini-count">
                                     <span className="yk-panini-count-values">
@@ -2168,7 +2169,7 @@ export function CollectionView({
                                   className="yk-panini-favorite"
                                   aria-label={tc("favoriteAria", {
                                     favorite: String(item.favorite),
-                                    license: item.license
+                                    license: formatLicenseName(item.license)
                                   })}
                                   aria-pressed={item.favorite}
                                   disabled={favoriteLicenseBusy !== null}
@@ -2644,7 +2645,7 @@ export function CollectionView({
                         className="underline underline-offset-4 hover:text-ink"
                         href={`/catalog?q=${encodeURIComponent(selected.anime.trim())}`}
                       >
-                        {selected.anime.trim()}
+                        {formatLicenseName(selected.anime.trim())}
                       </Link>
                     </dd>
                   </div>

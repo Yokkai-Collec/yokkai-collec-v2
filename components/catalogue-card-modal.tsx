@@ -1,4 +1,5 @@
 "use client";
+import { formatLicenseName } from "@/lib/ui/license-name";
 import { gameErrorKey } from "@/i18n/game-messages";
 import { useTranslations, useFormatter } from "next-intl";
 
@@ -185,7 +186,9 @@ export function CatalogueCardModal({
               {selected.category} · {selected.rarity}
             </p>
             {selected.anime && (
-              <p className="mt-2 text-sm text-ink-3">{selected.anime}</p>
+              <p className="mt-2 text-sm text-ink-3">
+                {formatLicenseName(selected.anime)}
+              </p>
             )}
             {ownedCopies !== undefined && (
               <p className="mt-2 text-sm text-ink-2">
