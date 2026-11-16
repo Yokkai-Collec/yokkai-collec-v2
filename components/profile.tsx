@@ -73,8 +73,8 @@ import {
 } from "@/lib/data/profile";
 import { getWishlist, type WishlistCard } from "@/lib/data/wishlist";
 import { matchesCardSearch } from "@/lib/ui/card-search";
-const RecruiterBadge = dynamic(() =>
-  import("@/components/referral-event").then(module => module.RecruiterBadge)
+const RecruiterTitle = dynamic(() =>
+  import("@/components/referral-event").then(module => module.RecruiterTitle)
 );
 const ProfileRecentCards = dynamic(() =>
   import("@/components/profile-recent-cards").then(
@@ -1066,7 +1066,6 @@ export function ProfileExperience({
                     cosmetics={profile.profileStyle}
                   />
                 </h2>
-                <RecruiterBadge userId={profile.id} />
                 {isAcceptedFriend && (
                   <span className="yk-profile-friend-status">
                     {t("profileUi.friendStatusaccepted")}
@@ -1082,6 +1081,7 @@ export function ProfileExperience({
                   />
                 )}
               </div>
+              <RecruiterTitle userId={profile.id} />
               <p className="yk-profile-bio">
                 {profile.bio || t("profileUi.noBioYet")}
               </p>

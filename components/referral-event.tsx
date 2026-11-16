@@ -351,7 +351,7 @@ export function ReferralEventPanel({
   );
 }
 
-export function RecruiterBadge({ userId }: { userId: string }) {
+export function RecruiterTitle({ userId }: { userId: string }) {
   const t = useTranslations("referralEvent");
   const [events, setEvents] = useState<{ eventId: string }[]>([]);
   useEffect(() => {
@@ -376,10 +376,9 @@ export function RecruiterBadge({ userId }: { userId: string }) {
     <Link
       href="/referral-event"
       key={event.eventId}
-      className="yk-recruiter-badge"
+      className="yk-recruiter-title"
       title={t("badgeDescription")}
     >
-      <span aria-hidden="true">✦ </span>
       {t("badge")}
     </Link>
   ));

@@ -19,7 +19,7 @@ sont dans la même transaction. Les lectures n'attribuent rien. Les exclusions
 Les récompenses déjà versées ne sont pas automatiquement reprises si un compte
 devient inéligible ultérieurement ; les sanctions existantes restent indépendantes.
 
-Le badge Recruiter est un droit acquis porté par le reçu du palier 20 et lié à
+Le titre Recruiter est un droit acquis porté par le reçu du palier 20 et lié à
 l'édition ; il ne dépend ni de Pro ni des décorations modifiables du profil.
 Il est lisible sur son propre profil ou un profil public, en respectant les blocages.
 
@@ -44,7 +44,7 @@ habituelles correspondant à son nombre de filleuls. Aucun temps de Pro n'est of
 ## Relancer une édition
 
 Ajouter une ligne `referral_events` avec un slug unique et des dates UTC, puis ses
-quatre lignes `referral_event_tiers` (seuils 3/5/10/20, montant et badge au seuil 20).
+quatre lignes `referral_event_tiers` (seuils 3/5/10/20, montant et titre au seuil 20).
 Les fenêtres d'inscription ne peuvent pas se chevaucher. Les anciens reçus restent
 liés à leur édition ; aucun changement d'interface ou de worker n'est nécessaire.
 La page `/referral-event` présente l'édition active, sinon la prochaine ou la dernière.
