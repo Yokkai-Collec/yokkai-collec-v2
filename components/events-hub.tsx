@@ -42,9 +42,7 @@ export function EventsHub() {
     <div className="yk-events-hub">
       <div className="yk-events-page-light" aria-hidden="true" />
       <header className="yk-events-header">
-        <p className="yk-events-overline">{t("title")}</p>
         <h1>{t("title")}</h1>
-        <p className="yk-events-intro">{t("lead")}</p>
       </header>
       <div className="yk-events-toolbar">
         <nav className="yk-events-filters" aria-label={t("filters")}>
