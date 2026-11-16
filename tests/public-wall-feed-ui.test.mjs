@@ -1,4 +1,5 @@
 import { intl, gameMessages, loadLocaleModule } from "./helpers/i18n.mjs";
+import { wallMentions } from "./helpers/wall-mentions.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -146,6 +147,8 @@ test("seeded post UI never issues an initial unit read; profile still does", asy
     const { WallPostInteractions } = load(
       "components/wall-post-interactions.tsx",
       {
+        "@/components/wall-mentions": wallMentions,
+        "@/lib/ui/paste-image": { pasteImage: () => {} },
         react: { ...React, useEffect: effect => effects.push(effect) },
         "next/link": {
           __esModule: true,

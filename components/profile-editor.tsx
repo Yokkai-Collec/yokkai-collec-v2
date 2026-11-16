@@ -1,5 +1,6 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
+import { formatLicenseName } from "@/lib/ui/license-name";
 import { gameErrorKey } from "@/i18n/game-messages";
 import { useTranslations } from "next-intl";
 import {
@@ -12,6 +13,7 @@ import {
   type PointerEvent
 } from "react";
 import { Avatar, Button } from "@/components/ui";
+import { PlayerTitlePicker } from "@/components/player-title";
 import { YokaiCard } from "@/components/yokai-card";
 import dynamic from "next/dynamic";
 import { BannerCrop } from "@/components/banner-crop";
@@ -46,11 +48,14 @@ const ShowcaseStyleFields = dynamic(() =>
   )
 );
 const PAGE_SIZES = [48, 96] as const;
+const showcaseAppearance = (card: CollectedCard) =>
+  JSON.stringify([card.id, card.image, card.shiny, card.isEvolved]);
+
 const PickerArt = memo(function PickerArt({ card }: { card: CollectedCard }) {
   return (
     <YokaiCard
       {...card}
-      image={card.catalogueImage || card.image}
+      fallbackImage={card.catalogueImage}
       animated={false}
       imageSizes="(max-width: 640px) 42vw, 150px"
     />
@@ -78,6 +83,7 @@ export function Editor({
   initialBannerFrame,
   framingAvailable,
   adapter,
+  onTitlesSeen,
   onSaved,
   onClose
 }: {
@@ -88,6 +94,7 @@ export function Editor({
   initialBannerFrame: BannerFrame | null;
   framingAvailable: boolean;
   adapter: ProfileAdapter;
+  onTitlesSeen?: (titleIds: string[]) => void;
   onSaved: (
     p: Profile & { bannerUrl: string | null; bannerFrame?: BannerFrame | null }
   ) => void;
@@ -95,6 +102,7 @@ export function Editor({
 }) {
   const t = useTranslations();
   const [bio, setBio] = useState(profile.bio);
+  const [titleId, setTitleId] = useState(profile.titleId ?? "collector");
   const proAccess = useProAccess();
   const pro = proAccess || Boolean(adapter.saveShowcaseStyle);
   const FEATURED_CARD_LIMIT = pro ? 10 : 5;
@@ -217,8 +225,9 @@ export function Editor({
     if (mode === "showcase")
       for (const card of collection) {
         instances.set(card.instanceId, card);
-        if (cards.has(card.id)) continue;
-        cards.set(card.id, card);
+        const appearance = showcaseAppearance(card);
+        if (cards.has(appearance)) continue;
+        cards.set(appearance, card);
         search.set(
           card.id,
           [card.name, card.category, card.anime ?? ""].map(value =>
@@ -252,15 +261,20 @@ export function Editor({
       }),
     [catalogue, selected, profile.featuredCards]
   );
-  const selectedCardIds = useMemo(
-    () => new Set(selectedFeaturedCards.map(card => card.id)),
+  const selectedAppearances = useMemo(
+    () => new Set(selectedFeaturedCards.map(showcaseAppearance)),
+    [selectedFeaturedCards]
+  );
+  const selectedByCardId = useMemo(
+    () =>
+      new Map(selectedFeaturedCards.map(card => [card.id, card.instanceId])),
     [selectedFeaturedCards]
   );
   const featuredChoices = useMemo(() => {
     const terms = cardSearchTerms(deferredQuery);
     return orderedChoices.filter(
       card =>
-        !selectedCardIds.has(card.id) &&
+        !selectedAppearances.has(showcaseAppearance(card)) &&
         (!featuredRarities.length || featuredRarities.includes(card.rarity)) &&
         (!featuredCategories.length ||
           featuredCategories.includes(card.category)) &&
@@ -272,7 +286,7 @@ export function Editor({
   }, [
     orderedChoices,
     catalogue,
-    selectedCardIds,
+    selectedAppearances,
     deferredQuery,
     featuredRarities,
     featuredCategories,
@@ -288,6 +302,11 @@ export function Editor({
   const isFull = selected.size >= FEATURED_CARD_LIMIT;
 
   function chooseCard(card: CollectedCard) {
+    const sameCard = selectedByCardId.get(card.id);
+    if (sameCard) {
+      replaceCard(sameCard, card);
+      return;
+    }
     if (isFull) {
       setReplacement(card);
       selectionHeading.current?.focus();
@@ -493,7 +512,8 @@ export function Editor({
         [...selected],
         bannerCard?.id ?? null,
         uploadedBannerUrl,
-        bannerFrame ?? undefined
+        bannerFrame ?? undefined,
+        mode === "profile" && profile.unlockedTitleIds ? titleId : undefined
       );
       if (mode === "showcase" && pro) {
         if (
@@ -560,6 +580,17 @@ export function Editor({
             {!pro && (
               <ProFeatureNotice
                 feature={t("profileUi.animatedProfilePictures")}
+              />
+            )}
+            {profile.unlockedTitleIds && (
+              <PlayerTitlePicker
+                titleId={titleId}
+                unlockedTitleIds={profile.unlockedTitleIds}
+                unseenTitleIds={profile.unseenTitleIds}
+                markSeen={adapter.markTitlesSeen}
+                onSeen={onTitlesSeen}
+                onChange={setTitleId}
+                disabled={busy}
               />
             )}
             <label className="block text-sm text-ink-2">
@@ -681,7 +712,9 @@ export function Editor({
                   <div>
                     <img src={bannerCard.image} alt="" decoding="async" />
                     <strong>{bannerCard.name}</strong>
-                    {bannerCard.anime && <small>{bannerCard.anime}</small>}
+                    {bannerCard.anime && (
+                      <small>{formatLicenseName(bannerCard.anime)}</small>
+                    )}
                   </div>
                 </div>
               )}
@@ -726,7 +759,9 @@ export function Editor({
                           />
                           <span>
                             <strong>{card.name}</strong>
-                            {card.anime && <small>{card.anime}</small>}
+                            {card.anime && (
+                              <small>{formatLicenseName(card.anime)}</small>
+                            )}
                           </span>
                         </button>
                       </li>
@@ -1134,29 +1169,38 @@ export function Editor({
                               (activePage - 1) * pageSize,
                               activePage * pageSize
                             )
-                            .map(card => (
-                              <button
-                                type="button"
-                                key={card.instanceId}
-                                onClick={() => chooseCard(card)}
-                                aria-label={t(
-                                  isFull
-                                    ? "profileUi.showcaseUseReplacement"
-                                    : "profileUi.showcaseAddCard",
-                                  { name: card.name }
-                                )}
-                                disabled={busy}
-                              >
-                                <PickerArt card={card} />
-                                <span>
-                                  {t(
-                                    isFull
-                                      ? "profileUi.showcaseReplace"
-                                      : "profileUi.choose"
+                            .map(card => {
+                              const canReplace =
+                                isFull || selectedByCardId.has(card.id);
+                              return (
+                                <button
+                                  type="button"
+                                  key={card.instanceId}
+                                  onClick={() => chooseCard(card)}
+                                  aria-label={t(
+                                    canReplace
+                                      ? "profileUi.showcaseUseReplacement"
+                                      : "profileUi.showcaseAddCard",
+                                    {
+                                      name: card.name,
+                                      image: card.customImageUrl
+                                        ? "custom"
+                                        : "original"
+                                    }
                                   )}
-                                </span>
-                              </button>
-                            ))}
+                                  disabled={busy}
+                                >
+                                  <PickerArt card={card} />
+                                  <span>
+                                    {t(
+                                      canReplace
+                                        ? "profileUi.showcaseReplace"
+                                        : "profileUi.choose"
+                                    )}
+                                  </span>
+                                </button>
+                              );
+                            })}
                         </div>
                       ) : (
                         <p
@@ -1245,7 +1289,11 @@ export function Editor({
       </div>
       {error && (
         <p role="alert" className="text-sm text-danger">
-          {t(gameErrorKey(error, "profileUi.profileUnavailable"))}
+          {error === "TITLE_NOT_UNLOCKED"
+            ? t("playerTitles.notUnlocked")
+            : error === "TITLE_SAVE_FAILED"
+              ? t("playerTitles.saveFailed")
+              : t(gameErrorKey(error, "profileUi.profileUnavailable"))}
         </p>
       )}
       <div className="flex justify-end gap-3 yk-profile-edit-actions">

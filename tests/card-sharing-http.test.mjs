@@ -1,5 +1,6 @@
 import { intl, intlServer, englishMessages } from "./helpers/i18n.mjs";
 import assert from "node:assert/strict";
+import { licenseName } from "./helpers/license-name.mjs";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
@@ -22,6 +23,7 @@ function load(file, globals = {}) {
   ).outputText;
   const context = { exports: {}, Response, Uint8Array, URL, ...globals };
   context.require = name => {
+    if (name === "@/lib/ui/license-name") return licenseName;
     if (name === "next-intl") return intl;
     if (name === "next-intl/server") return intlServer;
     if (name === "@/lib/ui/card-rarity-label")

@@ -281,15 +281,26 @@ export async function listTradeOffersPage(
   });
   return { ...page, items: await enrichTradeOffers(page.items) };
 }
-export const createTradeOffer = (input: {
+async function refreshTradeConnection() {
+  if (typeof window === "undefined") return;
+  await fetch("/api/security/network-observation", {
+    method: "POST",
+    credentials: "same-origin",
+    cache: "no-store",
+    signal: AbortSignal.timeout(2000)
+  }).catch(() => undefined);
+}
+
+export const createTradeOffer = async (input: {
   toUser: string;
   offeredCardIds: string[];
   offeredKaras: number;
   requestedCardIds: string[];
   requestedKaras: number;
   parentOfferId?: string | null;
-}) =>
-  call<string>("create_trade_offer", {
+}) => {
+  await refreshTradeConnection();
+  return call<string>("create_trade_offer", {
     p_to_user: input.toUser,
     p_offered_card_ids: input.offeredCardIds,
     p_offered_karas: input.offeredKaras,
@@ -297,6 +308,7 @@ export const createTradeOffer = (input: {
     p_requested_karas: input.requestedKaras,
     p_parent_offer_id: input.parentOfferId ?? null
   });
+};
 export async function cancelTradeOffer(id: string) {
   const { data, error } = await db().rpc("cancel_trade_offer", {
     p_offer_id: id
@@ -311,6 +323,7 @@ export async function respondTradeOffer(
   id: string,
   action: "accept" | "decline"
 ) {
+  if (action === "accept") await refreshTradeConnection();
   const accepted = await call<boolean>("respond_trade_offer", {
     p_offer_id: id,
     p_action: action
@@ -324,6 +337,7 @@ export async function respondTradeOfferWithStatus(
   id: string,
   action: "accept" | "decline"
 ): Promise<boolean | "quarantined" | "cancelled"> {
+  if (action === "accept") await refreshTradeConnection();
   const status = await call<string>("respond_trade_offer_with_status", {
     p_offer_id: id,
     p_action: action

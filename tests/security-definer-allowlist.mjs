@@ -5,7 +5,7 @@ export const ownerOnly = [
   "public.settle_referral_events()", // Cron owner only; no client or service-role reward attribution.
   "public.queue_card_rarity_announcement()", // Trigger-only catalogue snapshots; never an API entry point.
   "public.dispatch_card_rarity_announcements()", // Operator cron only, private player-server Discord destination.
-  "public.create_weekly_mystery_auction()", // Existing cron owner alone creates system auctions; no client/service execution.
+  "public.create_daily_mystery_auction()", // Existing cron owner alone creates system auctions; no client/service execution.
   "public.build_data_export_without_twitter_reward(uuid, uuid)", // Existing reservation-gated export; only the owning wrapper adds the caller's Twitter visit receipt.
   "public.build_data_export_without_discord_reward(uuid, uuid)", // Existing reservation-gated export builder; only the owning wrapper adds the caller's Discord receipt.
   "public.anticheat_deleted_account_snapshot_trigger()", // Trigger-only identity/transfer snapshot, private 90-day identity retention. Walid approved.
@@ -71,6 +71,8 @@ export const ownerOnly = [
   "public.guard_wall_media_binding()",
   "public.build_data_export_without_reply_media(uuid, uuid)",
   "public.notify_wall_post_reply()",
+  "public.notify_wall_mentions()", // Wall write trigger; checks recipient access before emitting notification.
+  "public.send_private_message_content(uuid, text, uuid, text, bytea)", // Shared authorization, rate limits and insert path for private messages.
   "public.cleanup_wall_reply_notifications()",
   "public.prepare_account_deletion_without_billing(uuid)",
   "public.build_data_export_without_wall_interactions(uuid, uuid)",
@@ -89,6 +91,9 @@ export const serverOnly = {
   "public.begin_self_requested_account_deletion(uuid)": ["service_role"], // Server-only provenance after recent authentication and explicit self-deletion confirmation; same deletion fence, no browser access. Walid approved.
   "public.record_anticheat_network_observation(uuid, text)": ["service_role"], // Trusted same-origin route only; verified session plus Cloudflare-produced versioned HMAC, never a raw IP. Walid approved.
   "public.record_anticheat_device_observation(uuid, text)": ["service_role"], // Trusted same-origin route only; verified session plus a seven-day first-party random token hash. Walid approved.
+  "public.record_anticheat_trade_connection(uuid, text, text)": [
+    "service_role"
+  ], // Latest pair comes from the verified session and one trusted request.
   "public.get_push_notification(uuid, timestamp with time zone)": [
     "service_role"
   ], // Exact notification/version, same live ACL as the in-app reader, trusted push route only.
@@ -98,7 +103,6 @@ export const serverOnly = {
 
 const allowlist = {
   "public.get_referral_event()": ["authenticated"], // Own progression and pending pseudos only; read-only, cannot award tiers.
-  "public.get_referral_event_badges(uuid)": ["authenticated"], // Earned badges only for self/public profiles, respecting blocks and account status.
   "public.update_catalogue_card_announced(uuid, jsonb, uuid)": [
     "authenticated"
   ], // Admin-only name/category import update with the same existing-card field whitelist and grouped announcement.
@@ -109,6 +113,12 @@ const allowlist = {
   "public.finish_catalogue_discord_import(uuid)": ["authenticated"], // Admin/operator-only finalisation of catalogue announcements, no webhook access or player data.
   "public.claim_catalogue_achievement(text)": ["authenticated"], // Own completed extended tier; delegates legacy claims without changing their locks.
   "public.get_achievement_catalogue()": ["authenticated"], // New own catalogue reader; the legacy eleven-achievement reader remains unchanged.
+  "public.list_notifications(integer, boolean)": ["authenticated"], // Evaluates and reads only the caller's progress and notifications.
+  "public.mark_progress_notifications_read()": ["authenticated"], // Clears only the caller's mission and achievement notifications.
+  "public.admin_create_karas_gift_code(integer, text, boolean)": [
+    "authenticated"
+  ], // Admin authorization, server-generated gift code with an admin-selected usage mode.
+  "public.redeem_karas_gift_code(text)": ["authenticated"], // Own balance, one-time credit under the gift row lock.
   "public.get_missions()": ["authenticated"], // Own fixed missions; settles only the caller's earned historical milestones.
   "public.claim_mission_milestone(text, timestamp with time zone, integer)": [
     "authenticated"
@@ -229,6 +239,8 @@ const allowlist = {
   "public.admin_get_reported_wall_media(uuid)": ["authenticated"], // Admin predicate, read-only current media path of a reported wall item for the private admin preview route.
   "public.get_binder_albums_page(uuid, text, text, boolean, integer, integer)":
     ["authenticated"], // Exact caller/friend can_view_collection ACL; no anonymous ownership or preference access.
+  "public.get_binder_albums_page(uuid, text, text, boolean, integer, integer, boolean)":
+    ["authenticated"], // Same collection visibility, with optional filtering to complete binders before pagination.
   "public.get_binder_cards_page(uuid, text, text, text, text, boolean, integer, integer)":
     ["authenticated"], // Same owner/friend ACL, exact stable key, bounded page; source metadata unchanged.
   "public.get_binder_cards_page(uuid, text, text, text, text, boolean, integer, integer, text)":
@@ -263,6 +275,7 @@ const allowlist = {
     "authenticated"
   ], // Active caller, same visible parent post/comment, own media, bounded rate and idempotent UUID. Walid approved.
   "public.publish_wall_post_reply(uuid, uuid, text)": ["authenticated"], // Own bounded text reply, idempotent UUID, serialized rate limit, same post ACL.
+  "public.find_wall_mention_players(text[], boolean)": ["authenticated"], // Bounded pseudonym search and resolution, active accounts and bilateral blocks.
   "public.delete_wall_post_reply(uuid, uuid)": ["authenticated"], // Only auth.uid()'s own reply on an accessible post.
   "public.get_friend_wall_feed(timestamp with time zone, uuid, integer)": [
     "authenticated"
@@ -351,12 +364,19 @@ const allowlist = {
   "public.mark_private_messages_read(uuid, uuid)": ["authenticated"], // Only auth.uid(); verifies incoming message ownership, social/deletion locks and monotonic read watermark.
   "public.send_private_message(uuid, text, uuid)": ["authenticated"], // Sender is auth.uid(); accepted friendship, blocks, deletion fence, rate limit and idempotency checked server-side.
   "public.send_private_message_gif(uuid, text, uuid, text)": ["authenticated"], // Same conversation authorization, shared sender limits and idempotency; only allowlisted HTTPS GIPHY media URLs, no uploads.
+  "public.send_private_message_image(uuid, text, uuid, text)": [
+    "authenticated"
+  ], // Authenticated image send through the same conversation rules and rate limits.
+  "public.get_private_message_image(uuid)": ["authenticated"], // Scoped to the sender and recipient in a currently permitted conversation.
   "public.publish_profile_wall_post(uuid, text, text, text)": ["authenticated"], // Idempotent own posts only, bounded text/rate/count and owner-scoped private media.
   "public.delete_profile_wall_post(uuid)": ["authenticated"], // Author deletes only their own post; private attachment cleanup stays owner-scoped.
   "public.get_profile_details(text)": ["authenticated"], // Calls get_profile first; inventory, activity and favorites obey its collection privacy; mutual friends obey friendsVisible.
   "public.get_profile_active_auctions(uuid, jsonb, integer)": ["authenticated"], // Read-only bounded seller feed; collection privacy, bilateral blocks and deletion fences; no new bidding rights.
   "public.get_profile_engagement(uuid)": ["authenticated"], // Authenticated profile lookup; exposes aggregate counts and only the caller's like status, never viewer identities.
   "public.set_profile_like(uuid, boolean)": ["authenticated"], // Idempotent own like only, no self likes; bilateral blocks, unique pair and account deletion guards enforced.
+  "public.update_profile_appearance_titled(text, text, uuid[], uuid, text, jsonb, text)":
+    ["authenticated"], // Atomic own profile and unlocked title save; ban/deletion guards and existing appearance checks remain enforced. The standalone title helper is owner-only.
+  "public.mark_player_titles_seen(text[])": ["authenticated"], // Marks only the caller's listed unlocks as seen; cannot grant, equip or acknowledge another player's titles.
   "public.update_profile_interests(jsonb)": ["authenticated"], // Bounded preferences update only auth.uid() after authenticated profile lookup.
   "public.update_profile_widgets(jsonb)": ["authenticated"], // Only auth.uid(); bounded titles, unique categories from live cards, no inventory writes.
   "public.update_profile_appearance(text, text, uuid[], uuid, text)": [
@@ -396,6 +416,7 @@ const allowlist = {
   "public.mark_notification_read(uuid)": ["authenticated"], // Player marks only their own notification.
   "public.mark_offline()": ["authenticated"], // Updates the current player's presence.
   "public.move_card_to_folder(uuid, uuid)": ["authenticated"], // Moves an owned card to an owned folder.
+  "public.lock_collection_cards(uuid[])": ["authenticated"], // Atomically locks the current player's selected cards that are not at auction.
   "public.move_cards_to_folder(uuid[], uuid)": ["authenticated"], // Atomically moves the current player's selected cards to an owned folder.
   "public.open_decision_pack()": ["authenticated"], // Opens the current player's available decision pack.
   "public.open_regular_pack()": ["authenticated"], // Opens the current player's available regular pack.

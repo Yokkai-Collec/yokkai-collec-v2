@@ -1,4 +1,5 @@
 "use client";
+import { formatLicenseName } from "@/lib/ui/license-name";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -106,14 +107,16 @@ export function HomeBinders({
                           : "continue"
                     )}
                   </span>
-                  <strong>{album.license}</strong>
+                  <strong>{formatLicenseName(album.license)}</strong>
                   <span>
                     {t("count", { owned: album.owned, total: album.total })}
                   </span>
                   <progress
                     value={album.owned}
                     max={album.total}
-                    aria-label={t("progressFor", { name: album.license })}
+                    aria-label={t("progressFor", {
+                      name: formatLicenseName(album.license)
+                    })}
                   />
                   <small>
                     {t("missing", {

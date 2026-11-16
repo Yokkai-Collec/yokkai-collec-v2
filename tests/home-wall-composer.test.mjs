@@ -1,4 +1,5 @@
 import { intl, gameMessages, loadLocaleModule } from "./helpers/i18n.mjs";
+import { wallMentions } from "./helpers/wall-mentions.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -11,6 +12,9 @@ import ts from "typescript";
 const require = createRequire(import.meta.url);
 const testModule = { exports: {} };
 const mocks = {
+  "@/components/expandable-image": { ExpandableImage: () => null },
+  "@/components/wall-mentions": wallMentions,
+  "@/lib/ui/paste-image": { pasteImage: () => {} },
   "@/components/player-moderation": { PlayerModeration: () => null },
   "@/components/wall-post-interactions": { WallPostInteractions: () => null },
   "@/components/ui": {
@@ -73,7 +77,7 @@ test("Home reuses the real wall composer without the profile's timeline chrome",
   assert.match(html, /Add image/);
   assert.match(html, />GIF</);
   assert.match(html, /type="submit" disabled=""/);
-  assert.match(html, /One image or GIF per post/);
+  assert.match(html, /Paste or add one image or GIF per post/);
   assert.match(html, /Visibility follows your/);
   assert.doesNotMatch(
     html,

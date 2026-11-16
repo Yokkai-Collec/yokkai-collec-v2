@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { cardRarityLabel } from "@/lib/ui/card-rarity-label";
+import { formatLicenseName } from "@/lib/ui/license-name";
 import "server-only";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -410,7 +411,7 @@ export function ShareCard({
                   textShadow: shadow
                 }}
               >
-                {card.franchise}
+                {formatLicenseName(card.franchise)}
               </span>
             )}
           </div>
@@ -598,7 +599,7 @@ export async function renderSharedCardImage(
                 color: ink[2]
               }}
             >
-              {card.franchise}
+              {formatLicenseName(card.franchise)}
             </div>
           )}
           <div

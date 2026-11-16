@@ -1,4 +1,5 @@
 "use client";
+import { formatLicenseName } from "@/lib/ui/license-name";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { gameErrorKey } from "@/i18n/game-messages";
@@ -169,7 +170,7 @@ export function PreferencesEditor({
                   )
                 }
               >
-                {widget.labels?.[license] ?? license}{" "}
+                {formatLicenseName(widget.labels?.[license] ?? license)}{" "}
                 <span aria-hidden="true">×</span>
               </button>
             ))}

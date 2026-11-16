@@ -23,6 +23,9 @@ function friendFilterParam(value: CardFilter = ""): string {
 }
 
 export type Profile = {
+  titleId?: string;
+  unlockedTitleIds?: string[];
+  unseenTitleIds?: string[];
   profileStyle?: PlayerCosmetics;
   id: string;
   pseudo: string;
@@ -145,6 +148,11 @@ export async function getProfile(identifier?: string) {
   if (error) throw fail(error);
   return hydrateProfile(data as Profile, true);
 }
+export async function markPlayerTitlesSeen(titleIds: string[]): Promise<void> {
+  const { error } = await db().rpc("mark_player_titles_seen", { p_title_ids: titleIds });
+  if (error) throw new Error("TITLE_SEEN_FAILED");
+  publishPlayerSnapshotInvalidation(["profile"]);
+}
 export async function getProfileDetails(
   identifier?: string
 ): Promise<ProfileDetails> {
@@ -213,12 +221,13 @@ export async function saveProfileAppearance(
   featuredIds: string[],
   bannerCardId: string | null,
   bannerUrl: string | null,
-  bannerFrame?: BannerFrame | null
+  bannerFrame?: BannerFrame | null,
+  titleId?: string
 ): Promise<
   Profile & { bannerUrl: string | null; bannerFrame?: BannerFrame | null }
 > {
   const { data, error } = await db().rpc(
-    bannerFrame === undefined
+    titleId !== undefined ? "update_profile_appearance_titled" : bannerFrame === undefined
       ? "update_profile_appearance"
       : "update_profile_appearance_framed",
     {
@@ -227,9 +236,11 @@ export async function saveProfileAppearance(
       p_featured_card_ids: featuredIds,
       p_banner_card_id: bannerCardId,
       p_banner_url: bannerUrl,
-      ...(bannerFrame === undefined ? {} : { p_banner_frame: bannerFrame })
+      ...(titleId !== undefined ? { p_title_id: titleId, p_banner_frame: bannerFrame ?? null } : bannerFrame === undefined ? {} : { p_banner_frame: bannerFrame })
     }
   );
+  if (error?.message === "TITLE_NOT_UNLOCKED") throw new Error("TITLE_NOT_UNLOCKED");
+  if (error?.code === "PGRST202" && titleId !== undefined) throw new Error("TITLE_SAVE_FAILED");
   if (error?.code === "PGRST202" && bannerFrame !== undefined)
     throw new Error(
       "Banner framing is not available yet. Please try again after the update."

@@ -796,7 +796,14 @@ test("la destruction multiple est active et transmet tous les exemplaires sélec
   );
   assert.match(
     normalizeWhitespace(controls),
-    normalizeWhitespace(/busy\?tu\("destroying"\):tu\("destroySelected"\)/)
+    normalizeWhitespace(
+      /destroying\?tu\("destroying"\):tu\("destroySelected"\)/
+    )
+  );
+  assert.match(normalizeWhitespace(controls), /destroying=busy/);
+  assert.match(
+    normalizeWhitespace(collection),
+    normalizeWhitespace(/busy=\{bulkBusy\}destroying=\{bulkDiscardBusy\}/)
   );
   assert.doesNotMatch(
     normalizeWhitespace(collection),
@@ -1554,7 +1561,7 @@ test("le sélecteur de cartes mises en avant recherche et remonte la sélection"
   assert.match(
     normalizeWhitespace(source),
     normalizeWhitespace(
-      /orderedChoices\.filter\(card => !selectedCardIds\.has\(card.id\)/
+      /orderedChoices\.filter\(card => !selectedAppearances\.has\(showcaseAppearance\(card\)\)/
     )
   );
   const selectedTray = source.indexOf("{selectedFeaturedCards.map(");
@@ -1924,9 +1931,9 @@ test("le Decision Pack confirmé affiche une carte gardée et quatre perdues", (
   assert.doesNotMatch(html, />SSR ×(?:<!-- -->)?5</);
 });
 
-test("la collection pagine par multiples de 6 pour remplir la grille", () => {
+test("la collection commence avec six rangées et ajuste ensuite sa page à la hauteur des filtres", () => {
   const { CollectionView } = load("components/collection.tsx");
-  const cards = Array.from({ length: 30 }, (_, i) => ({
+  const cards = Array.from({ length: 42 }, (_, i) => ({
     ...card,
     id: `card-${i}`,
     instanceId: `copy-${i}`,
@@ -1943,10 +1950,10 @@ test("la collection pagine par multiples de 6 pour remplir la grille", () => {
     async onDiscard() {},
     async onDiscardMany() {}
   });
-  assert.equal((html.match(/class="yk-collection-card[ "]/g) || []).length, 24);
+  assert.equal((html.match(/class="yk-collection-card[ "]/g) || []).length, 36);
   assert.match(
     html,
-    /<option value="24"[^>]*>24<\/option><option value="36"[^>]*>36<\/option><option value="48"[^>]*>48<\/option>/
+    /<option value="24"[^>]*>24<\/option><option value="36" selected=""[^>]*>36<\/option><option value="48"[^>]*>48<\/option>/
   );
   assert.doesNotMatch(html, /Cards per page \(unavailable/);
 });
@@ -3021,9 +3028,7 @@ test("la recherche multi-termes partage une sémantique ET entre Collection, Cat
     normalizeWhitespace(
       readFileSync(path.join(root, "lib/ui/collection-filter.ts"), "utf8")
     ),
-    normalizeWhitespace(
-      /matchesCardSearch\(query,\[c\.name,c\.category,c\.anime\]\)/
-    )
+    normalizeWhitespace(/matchesCardSearch\(query,\[c\.name,c\.anime\]\)/)
   );
   assert.match(
     normalizeWhitespace(community),

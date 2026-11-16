@@ -1,9 +1,11 @@
 import { UrlPagination } from "@/components/ui/url-pagination";
 import type { Metadata } from "next";
 import { CardShell } from "@/components/card-shell";
+import { MarketPreviewMessenger } from "@/components/market-preview";
 import { Topbar } from "@/components/topbar";
 import { YokaiCard } from "@/components/yokai-card";
 import type { Card, Rarity } from "@/lib/data/cards";
+import { CARD_PAGE_SIZES, DEFAULT_CARD_PAGE_SIZE } from "@/lib/ui/pagination";
 
 export const metadata: Metadata = {
   title: "Catalogue preview",
@@ -17,16 +19,22 @@ const rarityText: Record<Rarity, string> = {
   SSR: "text-rarity-ssr",
   LR: "text-rarity-lr"
 };
-const cards: Card[] = Array.from({ length: 24 }, (_, index) => ({
-  id: `catalogue-preview-${index}`,
-  name: ["Kitsune céleste", "Oni écarlate", "Tengu des brumes", "Kappa ancien"][
-    index % 4
-  ],
-  category: index % 2 ? "Manga" : "Anime",
-  anime: "Spirit Realm",
-  rarity: rarities[index % rarities.length],
-  image: "/assets/booster-pack.png"
-}));
+const cards: Card[] = Array.from(
+  { length: DEFAULT_CARD_PAGE_SIZE },
+  (_, index) => ({
+    id: `catalogue-preview-${index}`,
+    name: [
+      "Kitsune céleste",
+      "Oni écarlate",
+      "Tengu des brumes",
+      "Kappa ancien"
+    ][index % 4],
+    category: index % 2 ? "Manga" : "Anime",
+    anime: "Spirit Realm",
+    rarity: rarities[index % rarities.length],
+    image: "/assets/booster-pack.png"
+  })
+);
 const icon = (rarity: Rarity) => (
   <svg
     aria-hidden="true"
@@ -43,7 +51,7 @@ const icon = (rarity: Rarity) => (
 export default async function CataloguePreview({
   searchParams
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; messenger?: string }>;
 }) {
   const params = await searchParams;
   const page = Math.max(
@@ -160,10 +168,10 @@ export default async function CataloguePreview({
                 />
                 <label>
                   Cards per page
-                  <select defaultValue={24}>
-                    <option>24</option>
-                    <option>36</option>
-                    <option>48</option>
+                  <select defaultValue={DEFAULT_CARD_PAGE_SIZE}>
+                    {CARD_PAGE_SIZES.map(size => (
+                      <option key={size}>{size}</option>
+                    ))}
                   </select>
                 </label>
               </div>
@@ -171,6 +179,7 @@ export default async function CataloguePreview({
           </div>
         </section>
       </main>
+      {params.messenger !== undefined && <MarketPreviewMessenger />}
     </>
   );
 }

@@ -92,12 +92,14 @@ export function Karas({
 }
 export function SelectionModeButton({
   active,
+  disabled,
   onClick,
   className = "",
   inactiveLabel = "Select cards",
   activeLabel = "Exit selection"
 }: {
   active: boolean;
+  disabled?: boolean;
   onClick: () => void;
   className?: string;
   inactiveLabel?: string;
@@ -109,6 +111,7 @@ export function SelectionModeButton({
       variant="secondary"
       className={`yk-selection-mode ${className}`}
       aria-pressed={active}
+      disabled={disabled}
       onClick={onClick}
     >
       <svg
@@ -142,6 +145,7 @@ export function SelectionBar({
   count,
   value,
   busy,
+  destroying = busy,
   error,
   itemLabel = "carte",
   actions,
@@ -153,6 +157,7 @@ export function SelectionBar({
   count: number;
   value?: number;
   busy?: boolean;
+  destroying?: boolean;
   error?: string;
   itemLabel?: "carte" | "exemplaire";
   actions?: ReactNode;
@@ -201,7 +206,7 @@ export function SelectionBar({
         </span>
       )}
       <Button variant="danger" disabled={!count || busy} onClick={onDestroy}>
-        {busy ? tu("destroying") : tu("destroySelected")}
+        {destroying ? tu("destroying") : tu("destroySelected")}
       </Button>
       <button
         type="button"

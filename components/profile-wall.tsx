@@ -9,11 +9,18 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { Avatar, Button, Modal, Toast } from "@/components/ui";
 import { GifPicker } from "@/components/gif-picker";
+import { ExpandableImage } from "@/components/expandable-image";
 import { WallPostInteractions } from "@/components/wall-post-interactions";
+import {
+  WallMentionText,
+  WallMentionTextarea
+} from "@/components/wall-mentions";
 import { PlayerModeration } from "@/components/player-moderation";
 import { useIsAdmin } from "@/hooks/use-is-admin";
+import { allowFileDrop, dropImage, pasteImage } from "@/lib/ui/paste-image";
 import {
   liveWall,
+  wallRequestId,
   type WallAdapter,
   type WallPage,
   type WallPost
@@ -66,11 +73,6 @@ export function ProfileWall({
   const [cursor, setCursor] = useState<WallPage["next"]>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [mediaZoomed, setMediaZoomed] = useState(false);
-  const [expandedMedia, setExpandedMedia] = useState<{
-    src: string;
-    alt: string;
-  } | null>(null);
   const [text, setText] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState("");
@@ -85,6 +87,8 @@ export function ProfileWall({
   const uploaded = useRef<{ file: File; path: string } | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const deletedPost = useRef<string | null>(null);
+  const wall = useRef<HTMLElement>(null);
+  const focusedPost = useRef<string | null>(null);
   function finishDeletion() {
     if (deletedPost.current) {
       onDeleted?.(deletedPost.current);
@@ -137,6 +141,18 @@ export function ProfileWall({
       current = false;
     };
   }, [active, canRead, composerOnly, feedPost, ownerId, adapter, retry]);
+  useEffect(() => {
+    if (!active || loading || !posts.length || !wall.current) return;
+    const params = new URLSearchParams(window.location.search);
+    const target = params.get("post");
+    if (!target || target === focusedPost.current || params.has("reply"))
+      return;
+    const post = document.getElementById(`wall-post-${target}`);
+    if (!post || !wall.current.contains(post)) return;
+    focusedPost.current = target;
+    post.scrollIntoView({ block: "center" });
+    post.focus({ preventScroll: true });
+  }, [active, loading, posts]);
   async function discard(path: string) {
     try {
       await adapter.discard(path);
@@ -148,11 +164,6 @@ export function ProfileWall({
   }
   function changeAttachment(next: File | null, nextGif = "") {
     if (lock.current) return;
-    if (uploaded.current) {
-      void discard(uploaded.current.path);
-      uploaded.current = null;
-    }
-    requestId.current = null;
     setError("");
     if (
       next &&
@@ -165,6 +176,11 @@ export function ProfileWall({
       setError("JPG, PNG, WebP, or GIF, up to 6 MB.");
       return;
     }
+    if (uploaded.current) {
+      void discard(uploaded.current.path);
+      uploaded.current = null;
+    }
+    requestId.current = null;
     setFile(next);
     setPreview(next ? URL.createObjectURL(next) : "");
     setGif(nextGif);
@@ -182,8 +198,8 @@ export function ProfileWall({
     lock.current = true;
     setBusy(true);
     setError("");
-    requestId.current ??= crypto.randomUUID();
     try {
+      requestId.current ??= wallRequestId();
       if (file && uploaded.current?.file !== file)
         uploaded.current = { file, path: await adapter.upload(file, ownerId) };
       const post = await adapter.publish({
@@ -271,7 +287,7 @@ export function ProfileWall({
       </section>
     );
   return (
-    <section className="yk-profile-wall">
+    <section className="yk-profile-wall" ref={wall}>
       {!composerOnly && !feedPost && (
         <div className="yk-profile-section-heading">
           <div>
@@ -288,6 +304,9 @@ export function ProfileWall({
       {isMe && !feedPost && (
         <form
           className="yk-profile-surface yk-wall-composer"
+          onPaste={event => pasteImage(event, changeAttachment)}
+          onDragOver={allowFileDrop}
+          onDrop={event => dropImage(event, changeAttachment)}
           onSubmit={event => {
             event.preventDefault();
             void publish();
@@ -300,15 +319,15 @@ export function ProfileWall({
           <label htmlFor="wall-text" className="sr-only">
             {t("profileUi.yourPost")}{" "}
           </label>
-          <textarea
+          <WallMentionTextarea
             id="wall-text"
             className="auth-input"
             value={text}
             maxLength={3000}
             disabled={busy}
             placeholder={t("profileUi.postPlaceholder")}
-            onChange={event => {
-              setText(event.target.value);
+            onChange={value => {
+              setText(value);
               requestId.current = null;
             }}
           />
@@ -418,6 +437,8 @@ export function ProfileWall({
               className="yk-profile-surface yk-wall-post"
               key={post.id}
               data-wall-post={post.id}
+              id={`wall-post-${post.id}`}
+              tabIndex={-1}
             >
               <header>
                 <div className="yk-wall-author">
@@ -434,12 +455,14 @@ export function ProfileWall({
                         >
                           <StyledPlayerName
                             name={pseudo}
+                            playerId={ownerId}
                             cosmetics={post.profileStyle}
                           />
                         </Link>
                       ) : (
                         <StyledPlayerName
                           name={pseudo}
+                          playerId={ownerId}
                           cosmetics={post.profileStyle}
                         />
                       )}
@@ -510,40 +533,25 @@ export function ProfileWall({
                   )}
                 </div>
               </header>
-              {post.text && <p className="yk-wall-text">{post.text}</p>}
+              {post.text && (
+                <p className="yk-wall-text">
+                  <WallMentionText text={post.text} />
+                </p>
+              )}
               {(post.mediaPath || post.hasMedia || post.gifUrl) && (
-                <button
-                  type="button"
-                  className="yk-wall-media-button"
-                  aria-label={t("profileUi.enlargeImage")}
-                  onClick={() =>
-                    setExpandedMedia({
-                      src:
-                        post.previewUrl ??
-                        post.gifUrl ??
-                        `/api/profile-wall/media/${post.id}`,
-                      alt: post.gifUrl
-                        ? t("profileUi.gifpostedOnTheWall")
-                        : t("profileUi.imagePostedOnTheWall")
-                    })
+                <ExpandableImage
+                  className="yk-wall-media"
+                  src={
+                    post.previewUrl ??
+                    post.gifUrl ??
+                    `/api/profile-wall/media/${post.id}`
                   }
-                >
-                  <img
-                    className="yk-wall-media"
-                    src={
-                      post.previewUrl ??
-                      post.gifUrl ??
-                      `/api/profile-wall/media/${post.id}`
-                    }
-                    alt={
-                      post.gifUrl
-                        ? t("profileUi.gifpostedOnTheWall")
-                        : t("profileUi.imagePostedOnTheWall")
-                    }
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </button>
+                  alt={
+                    post.gifUrl
+                      ? t("profileUi.gifpostedOnTheWall")
+                      : t("profileUi.imagePostedOnTheWall")
+                  }
+                />
               )}
               {(canInteract || isPublic) && adapter === liveWall && (
                 <WallPostInteractions
@@ -565,46 +573,6 @@ export function ProfileWall({
           {loading ? t("packs.loading") : t("profileUi.seeOlderPosts")}
         </Button>
       )}
-      <Modal
-        open={!!expandedMedia}
-        onClose={() => {
-          setExpandedMedia(null);
-          setMediaZoomed(false);
-        }}
-        title={t("profileUi.enlargeImage")}
-        hideTitle
-        className="yk-wall-media-modal"
-      >
-        {expandedMedia && (
-          <button
-            type="button"
-            className="yk-wall-media-zoom"
-            aria-label={t(
-              mediaZoomed ? "profileUi.zoomOutImage" : "profileUi.zoomInImage"
-            )}
-            aria-pressed={mediaZoomed}
-            onClick={() => setMediaZoomed(value => !value)}
-            onPointerMove={event => {
-              const bounds = event.currentTarget.getBoundingClientRect();
-              event.currentTarget.style.setProperty(
-                "--zoom-x",
-                `${Math.max(0, Math.min(100, ((event.clientX - bounds.left) / bounds.width) * 100))}%`
-              );
-              event.currentTarget.style.setProperty(
-                "--zoom-y",
-                `${Math.max(0, Math.min(100, ((event.clientY - bounds.top) / bounds.height) * 100))}%`
-              );
-            }}
-          >
-            <img
-              src={expandedMedia.src}
-              alt={expandedMedia.alt}
-              draggable={false}
-              className="yk-wall-media-expanded"
-            />
-          </button>
-        )}
-      </Modal>
       <Modal
         open={!!removing}
         onClose={() => {

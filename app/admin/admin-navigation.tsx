@@ -11,7 +11,8 @@ const items = [
   { href: "/admin/players", label: "players" },
   { href: "/admin/reports", label: "reports" },
   { href: "/admin/security", label: "security" },
-  { href: "/admin/monitoring", label: "monitoring" }
+  { href: "/admin/monitoring", label: "monitoring" },
+  { href: "/admin/gift-codes", label: "giftCodes" }
 ];
 
 export function AdminNavigation() {

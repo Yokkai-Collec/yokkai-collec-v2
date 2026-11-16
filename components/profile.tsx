@@ -1,4 +1,5 @@
 "use client";
+import { formatLicenseName } from "@/lib/ui/license-name";
 import { useSyncExternalStore } from "react";
 import { showcaseScrollRef } from "@/lib/ui/profile-style";
 import { i18nEnabled } from "@/i18n/locale";
@@ -29,6 +30,7 @@ import { BannerImage } from "@/components/banner-image";
 import { ProfileStyleFields } from "@/components/profile-style-fields";
 import { AvatarDecoration } from "@/components/avatar-decoration";
 import { StyledPlayerName } from "@/components/styled-player-name";
+import { PlayerTitle, NewTitlesBadge } from "@/components/player-title";
 import {
   DEFAULT_PROFILE_STYLE,
   PROFILE_CARD_IMAGE_SIZES,
@@ -73,9 +75,6 @@ import {
 } from "@/lib/data/profile";
 import { getWishlist, type WishlistCard } from "@/lib/data/wishlist";
 import { matchesCardSearch } from "@/lib/ui/card-search";
-const RecruiterTitle = dynamic(() =>
-  import("@/components/referral-event").then(module => module.RecruiterTitle)
-);
 const ProfileRecentCards = dynamic(() =>
   import("@/components/profile-recent-cards").then(
     module => module.ProfileRecentCards
@@ -536,6 +535,7 @@ function FriendWishlist({
 }
 
 export type ProfileAdapter = {
+  markTitlesSeen?: typeof import("@/lib/data/profile").markPlayerTitlesSeen;
   messages?: import("@/lib/data/private-messages").PrivateMessagesAdapter;
   trades?: import("@/components/trades").TradesPanelAdapter;
   discovery?: CatalogueCardAdapter;
@@ -1057,12 +1057,13 @@ export function ProfileExperience({
                 <AvatarDecoration frame={activeStyle?.avatarFrame ?? "none"} />
               </div>
               <span className="yk-profile-identity-label">
-                {t("profileUi.collectorLabel")}
+                <PlayerTitle titleId={profile.titleId} />
               </span>
               <div className="yk-profile-name-row">
                 <h2>
                   <StyledPlayerName
                     name={profile.pseudo}
+                    playerId={profile.id}
                     cosmetics={profile.profileStyle}
                   />
                 </h2>
@@ -1081,7 +1082,6 @@ export function ProfileExperience({
                   />
                 )}
               </div>
-              <RecruiterTitle userId={profile.id} />
               <p className="yk-profile-bio">
                 {profile.bio || t("profileUi.noBioYet")}
               </p>
@@ -1098,6 +1098,9 @@ export function ProfileExperience({
                       }}
                     >
                       {t("profileUi.editProfile")}{" "}
+                      <NewTitlesBadge
+                        count={profile.unseenTitleIds?.length ?? 0}
+                      />
                     </Button>
                     <Button
                       variant="secondary"
@@ -1307,7 +1310,11 @@ export function ProfileExperience({
                                 <span className="yk-profile-taste-number">
                                   {String(index + 1).padStart(2, "0")}
                                 </span>
-                                <strong>{widget.labels?.[name] ?? name}</strong>
+                                <strong>
+                                  {formatLicenseName(
+                                    widget.labels?.[name] ?? name
+                                  )}
+                                </strong>
                                 {widget.unresolvedEntries?.includes(name) && (
                                   <small className="yk-binder-origin">
                                     {t("profileUi.previousBinderHint")}{" "}
@@ -1387,7 +1394,7 @@ export function ProfileExperience({
                           <h3>{event.card.name}</h3>
                         </Link>
                         <p className="yk-profile-muted">
-                          {event.card.anime}{" "}
+                          {formatLicenseName(event.card.anime)}{" "}
                           <span
                             className={`text-rarity-${event.card.rarity.toLowerCase()}`}
                           >
@@ -1641,6 +1648,18 @@ export function ProfileExperience({
           />
         ) : isMe && collection && details ? (
           <Editor
+            onTitlesSeen={titleIds =>
+              setProfile(current =>
+                current
+                  ? {
+                      ...current,
+                      unseenTitleIds: current.unseenTitleIds?.filter(
+                        id => !titleIds.includes(id)
+                      )
+                    }
+                  : current
+              )
+            }
             key={editingMode}
             mode={editingMode === "showcase" ? "showcase" : "profile"}
             profile={profile}
@@ -1657,7 +1676,7 @@ export function ProfileExperience({
             adapter={adapter}
             onClose={() => setEditing(false)}
             onSaved={p => {
-              setProfile(p);
+              setProfile(current => ({ ...current, ...p }));
               setSavedBannerUrl(p.bannerUrl);
               setSavedBannerFrame(p.bannerFrame ?? null);
               setToast(

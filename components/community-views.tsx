@@ -7,6 +7,8 @@ import {
   MysteryEventHeader,
   MysteryAuctionTile
 } from "@/components/mystery-auction";
+import { CardFranchise } from "@/components/card-franchise";
+import { PlayerTitle } from "@/components/player-title";
 import { EmojiReactionPicker } from "@/components/emoji-reaction-picker";
 import { reactionEmoji } from "@/lib/ui/reaction-emojis";
 import { insertMessageEmoji } from "@/lib/ui/message-emoji";
@@ -21,9 +23,11 @@ import {
   Suspense,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type ReactNode
 } from "react";
 import { animation } from "@/lib/ui/animations";
@@ -57,13 +61,18 @@ import {
 } from "@/lib/ui/market-labels";
 import { useMarketSort } from "@/lib/ui/market-sort";
 import {
+  readMarketReturn,
+  rememberMarketReturn,
+  restoreMarketScroll,
+  type MarketReturn
+} from "@/lib/ui/market-return";
+import {
   auctionReconciliationScopes,
   cancelAuction,
   getAuction,
   getAuctionChat,
-  browseAuctions,
-  MARKET_PAGE_SIZE,
   MARKET_MAX_ITEMS,
+  MARKET_PAGE_SIZE,
   type MarketQuery,
   type MarketPage,
   placeBid,
@@ -94,6 +103,8 @@ import {
   FilterSection as CatalogueFilterSection,
   RarityChips
 } from "@/components/collection-filters";
+
+const MarketListings = dynamic(() => import("@/components/market-listings"));
 
 const ProfileExperience = dynamic(
   () => import("@/components/profile").then(module => module.ProfileExperience),
@@ -316,9 +327,10 @@ export function CatalogueCardModal({
             <p className="text-sm text-ink-2">
               {selected.category} · {selected.rarity}
             </p>
-            {selected.anime && (
-              <p className="mt-2 text-sm text-ink-3">{selected.anime}</p>
-            )}
+            <CardFranchise
+              card={selected}
+              className="mt-2 block text-sm text-ink-3"
+            />
             <p className="mt-7 text-xs text-ink-3">{tv("marketValue")}</p>
             {detail?.marketValue != null ? (
               <Karas
@@ -563,6 +575,7 @@ function AuctionTile({ auction: a }: { auction: AuctionPresentation }) {
   if (a.mysteryHidden) return <MysteryAuctionTile auction={a} label={label} />;
   return (
     <li
+      data-market-auction={a.id}
       className={
         outcome ? "yk-market-tile yk-market-tile-ended" : "yk-market-tile"
       }
@@ -619,20 +632,25 @@ function AuctionTile({ auction: a }: { auction: AuctionPresentation }) {
               {tm("alreadyOwned", { count: a.ownedCount! })}
             </span>
           )}
-          <div className="yk-market-tile-line">
+          <div
+            className="yk-market-tile-line"
+            data-large-price={a.amount >= 1_000_000 ? "" : undefined}
+          >
             <span
-              className={`yk-market-timer ${a.finished ? "" : urgencyClass(a.remainingSeconds)}`}
+              className={`yk-market-timer ${outcome ? "yk-market-ended-date" : a.finished ? "" : urgencyClass(a.remainingSeconds)}`}
             >
               <HourglassIcon />
               {outcome ? ended : a.finished ? tm("ended") : a.remaining}
-            </span>
-            <span className="yk-market-tile-state">
-              {a.status && <AuctionStatus status={a.status} />}
             </span>
             {outcome !== "unsold" && (
               <Karas amount={a.amount} className="yk-market-price" />
             )}
           </div>
+          {a.status && (
+            <span className="yk-market-tile-state">
+              <AuctionStatus status={a.status} />
+            </span>
+          )}
         </div>
       </Link>
     </li>
@@ -680,6 +698,8 @@ export function MarketView({
   activeSales,
   marketPage,
   marketLimit = MARKET_PAGE_SIZE,
+  initialNavigation,
+  onRememberNavigation,
   loadingMore = false,
   onQueryChange,
   onLoadMore
@@ -690,6 +710,8 @@ export function MarketView({
   activeSales?: string;
   marketPage?: MarketPage;
   marketLimit?: number;
+  initialNavigation?: MarketReturn | null;
+  onRememberNavigation?: (navigation: MarketReturn) => void;
   loadingMore?: boolean;
   onQueryChange?: (query: MarketQuery) => void;
   onLoadMore?: () => void;
@@ -699,12 +721,27 @@ export function MarketView({
   const format = useFormatter();
   const formatKaras = (amount: number) => format.number(amount) + " Karas";
 
-  const [section, setSection] = useState(initialSection);
-  const [mineTab, setMineTab] = useState<MineTab>("all");
-  const [query, setQuery] = useState("");
-  const [rarity, setRarity] = useState<Rarity[]>([]);
+  const [section, setSection] = useState(
+    initialNavigation?.section ?? initialSection
+  );
+  const [mineTab, setMineTab] = useState<MineTab>(
+    initialNavigation?.mineTab ?? "all"
+  );
+  const [query, setQuery] = useState(initialNavigation?.query ?? "");
+  const [rarity, setRarity] = useState<Rarity[]>(
+    initialNavigation?.rarity ?? []
+  );
   const [sort, setSort] = useMarketSort();
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState(initialNavigation?.category ?? "");
+  const marketRoot = useRef<HTMLElement>(null);
+  const scrollRestored = useRef(false);
+  const navigationChanged = useRef(false);
+  useLayoutEffect(() => {
+    // Next's Activity cache keeps refs/state but restarts effects on re-entry.
+    // Each return must be eligible for a fresh scroll restoration.
+    scrollRestored.current = false;
+    navigationChanged.current = false;
+  }, []);
   const [filtersOpen, setFiltersOpen] = useState(false);
   useEffect(() => {
     if (!onQueryChange) return;
@@ -762,6 +799,20 @@ export function MarketView({
   };
   const mineCount = mineCounts?.all;
   const shown = section === "browse" ? browse : mine;
+  const scrollReady = shown !== undefined;
+  useLayoutEffect(() => {
+    if (
+      !initialNavigation ||
+      scrollRestored.current ||
+      !scrollReady ||
+      !marketRoot.current
+    )
+      return;
+    if (navigationChanged.current) return;
+    return restoreMarketScroll(initialNavigation, marketRoot.current, () => {
+      scrollRestored.current = true;
+    });
+  }, [initialNavigation, scrollReady]);
   const heading = !shown
     ? tm("loading")
     : section === "browse"
@@ -970,7 +1021,45 @@ export function MarketView({
     </div>
   );
   return (
-    <section aria-label={tm("region")} className="yk-market">
+    <section
+      ref={marketRoot}
+      aria-label={tm("region")}
+      className="yk-market"
+      onChangeCapture={() => {
+        navigationChanged.current = true;
+      }}
+      onClickCapture={event => {
+        if (
+          initialNavigation === undefined ||
+          event.button !== 0 ||
+          event.ctrlKey ||
+          event.metaKey ||
+          event.shiftKey ||
+          event.altKey
+        )
+          return;
+        const link = (event.target as HTMLElement).closest<HTMLAnchorElement>(
+          'a[href^="/market/"]'
+        );
+        const tile = link?.closest<HTMLElement>("[data-market-auction]");
+        if (!tile || link?.target === "_blank") return;
+        const navigation: MarketReturn = {
+          section,
+          mineTab,
+          query,
+          rarity,
+          category,
+          sort,
+          limit: marketLimit,
+          scrollY: window.scrollY,
+          anchorId: tile.dataset.marketAuction!,
+          anchorTop: tile.getBoundingClientRect().top,
+          savedAt: Date.now()
+        };
+        if (onRememberNavigation) onRememberNavigation(navigation);
+        else rememberMarketReturn(navigation);
+      }}
+    >
       <MysteryAuctionBanner />
       {pageHeading ? (
         <header className="yk-market-heading">
@@ -1477,9 +1566,13 @@ export function AuctionChatPanel({
                   <Link href={`/profile/${encodeURIComponent(item.pseudo)}`}>
                     <StyledPlayerName
                       name={item.pseudo}
+                      playerId={item.userId}
                       cosmetics={item.profileStyle}
                       fallbackLabel={item.mine ? t("profileUi.you") : undefined}
                     />
+                    <small className="yk-auction-player-title">
+                      <PlayerTitle titleId={item.profileStyle?.titleId} />
+                    </small>
                   </Link>
                   <time dateTime={item.createdAt}>
                     {format.dateTime(new Date(item.createdAt), {
@@ -1600,6 +1693,7 @@ export function AuctionChatPanel({
                         @
                         <StyledPlayerName
                           name={participant.pseudo}
+                          playerId={participant.userId}
                           cosmetics={participant.profileStyle}
                         />
                       </span>
@@ -1774,8 +1868,18 @@ export function AuctionView({
                   )}
                 </p>
               ) : (
-                <p className="yk-auction-seller mt-2 text-sm text-ink-2">
-                  {franchise ? `${franchise} · ` : ""}
+                <p className="yk-auction-seller mt-2 flex-wrap text-sm text-ink-2">
+                  {franchise && (
+                    <>
+                      <Link
+                        href={`/catalog?q=${encodeURIComponent(franchise)}`}
+                        className="min-w-0 break-words underline underline-offset-4 hover:text-accent-gold"
+                      >
+                        <CardFranchise card={auction.card} className="" />
+                      </Link>
+                      <span aria-hidden="true">·</span>
+                    </>
+                  )}
                   {t("profileUi.listedBy")}{" "}
                   <Avatar
                     name={auction.seller}
@@ -2147,40 +2251,94 @@ export function SearchView(
 function SearchViewFromUrl(props: Parameters<typeof SearchView>[0]) {
   const params = useSearchParams();
   const category = params.get("category") ?? "";
+  const query = params.get("q") ?? "";
   return (
-    <SearchViewContent key={category} {...props} initialCategory={category} />
+    <SearchViewContent
+      key={JSON.stringify([category, query])}
+      {...props}
+      initialCategory={category}
+      initialQuery={query}
+    />
   );
 }
 
 function SearchViewContent({
   loadPage = getCataloguePage,
   initialCategory = "",
+  initialQuery = "",
   previewCategories,
   pageHeading
 }: {
   initialCategory?: string;
+  initialQuery?: string;
   loadPage?: typeof getCataloguePage;
   previewCategories?: string[];
   pageHeading?: ReactNode;
 } = {}) {
   const tError = useTranslations();
   const tv = useTranslations("catalogueUi");
-  const [pageSize, setPageSize] = useState<number>(CARD_PAGE_SIZES[0]);
+  const filtersRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLUListElement>(null);
+  const [gridSize, setGridSize] = useState({ columns: 6, automatic: 24 });
+  const [preferredSize, setPreferredSize] = useState(0);
+  const pageSizes = CARD_PAGE_SIZES.map(
+    size => Math.round(size / gridSize.columns) * gridSize.columns
+  );
+  const pageSize = preferredSize
+    ? pageSizes[preferredSize - 1]
+    : gridSize.automatic;
   const [categories, setCategories] = useState<string[]>(
     previewCategories ?? []
   );
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
   const [category, setCategory] = useState<string[]>(
     initialCategory ? [initialCategory] : []
   );
   const [rarity, setRarity] = useState<Rarity[]>([]);
-  const [page, setPage] = useState(1);
+  const [pageOffset, setPageOffset] = useState(0);
+  const page = Math.floor(pageOffset / pageSize) + 1;
   const [selected, setSelected] = useState<Card | null>(null);
   const [results, setResults] = useState<Card[]>([]);
   const [total, setTotal] = useState(0);
   const [searching, setSearching] = useState(true);
   const [searchError, setSearchError] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
+  useEffect(() => {
+    const grid = gridRef.current;
+    const filters = filtersRef.current;
+    if (!grid || !filters) return;
+
+    const desktop = window.matchMedia("(min-width: 761px)");
+    const measure = () => {
+      const style = getComputedStyle(grid);
+      const tracks = style.gridTemplateColumns.split(" ");
+      const cardWidth = Number.parseFloat(tracks[0]);
+      if (!cardWidth) return;
+      const columns = tracks.length;
+      const gap = Number.parseFloat(style.rowGap) || 0;
+      // CardShell keeps the card art at a 5:7 aspect ratio.
+      const rowHeight = cardWidth * (7 / 5) + gap;
+      const rows = desktop.matches
+        ? Math.round((filters.offsetHeight + 2 + gap) / rowHeight)
+        : Math.ceil(CARD_PAGE_SIZES[0] / columns);
+      const automatic =
+        columns * Math.min(Math.floor(60 / columns), Math.max(2, rows));
+      setGridSize(current =>
+        current.columns === columns && current.automatic === automatic
+          ? current
+          : { columns, automatic }
+      );
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(grid);
+    observer.observe(filters);
+    desktop.addEventListener("change", measure);
+    measure();
+    return () => {
+      observer.disconnect();
+      desktop.removeEventListener("change", measure);
+    };
+  }, []);
   useEffect(() => {
     if (previewCategories) return;
     let active = true;
@@ -2204,6 +2362,7 @@ function SearchViewContent({
               if (active) {
                 setResults(value.cards);
                 setTotal(value.total);
+                setSearchError("");
               }
             },
             () => {
@@ -2225,7 +2384,7 @@ function SearchViewContent({
   }, [query, category, rarity, page, pageSize, loadPage]);
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
   const resetPage = () => {
-    setPage(1);
+    setPageOffset(0);
     setSearching(true);
     setSearchError("");
   };
@@ -2293,7 +2452,11 @@ function SearchViewContent({
           }}
         />
       </CatalogueFilterSection>
-      <CatalogueFilterSection title="Category" count={category.length}>
+      <CatalogueFilterSection
+        title="Category"
+        sectionId="catalogue-category"
+        count={category.length}
+      >
         {categories.map(item => (
           <button
             type="button"
@@ -2322,7 +2485,7 @@ function SearchViewContent({
           onClick={() => setFiltersOpen(false)}
         />
       )}
-      <div className="yk-collection-layout">
+      <div className="yk-collection-layout yk-catalogue-layout">
         {pageHeading && (
           <header className="yk-catalogue-title">{pageHeading}</header>
         )}
@@ -2341,7 +2504,11 @@ function SearchViewContent({
               ×
             </button>
           </div>
-          {filters}
+          <div className="yk-catalogue-filter-scroll">
+            <div ref={filtersRef} className="yk-catalogue-filter-content">
+              {filters}
+            </div>
+          </div>
         </aside>
         <div className="yk-collection-main">
           <div className="yk-catalogue-heading">
@@ -2385,6 +2552,7 @@ function SearchViewContent({
             <Unavailable>{tv("noCardsMatchTheseFilters")}</Unavailable>
           )}
           <ul
+            ref={gridRef}
             id="catalog-cards-list"
             tabIndex={0}
             className="yk-card-grid yk-catalogue-grid"
@@ -2409,33 +2577,42 @@ function SearchViewContent({
               </li>
             ))}
           </ul>
-          <div className="yk-collection-pagination">
-            <Pagination
-              page={page}
-              pageCount={pageCount}
-              scrollTargetId="catalog-cards-list"
-              onPageChange={number => {
-                setPage(number);
-                setSearching(true);
+        </div>
+        <div className="yk-collection-pagination yk-catalogue-pagination">
+          <Pagination
+            page={page}
+            pageCount={pageCount}
+            scrollTargetId="catalog-cards-list"
+            onPageChange={number => {
+              setPageOffset((number - 1) * pageSize);
+              setSearchError("");
+              setSearching(true);
+            }}
+          />
+          <label>
+            {tv("cardsPerPage")}
+            <select
+              value={preferredSize}
+              onChange={event => {
+                const size = Number(event.target.value);
+                setPreferredSize(size);
+                if (
+                  (size ? pageSizes[size - 1] : gridSize.automatic) === pageSize
+                )
+                  return;
+                resetPage();
               }}
-            />
-            <label>
-              {tv("cardsPerPage")}
-              <select
-                value={pageSize}
-                onChange={event => {
-                  setPageSize(Number(event.target.value));
-                  resetPage();
-                }}
-              >
-                {CARD_PAGE_SIZES.map(size => (
-                  <option key={size} value={size}>
-                    {size}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
+            >
+              <option value={0}>
+                {tv("automaticPageSize", { count: gridSize.automatic })}
+              </option>
+              {pageSizes.map((size, index) => (
+                <option key={size} value={index + 1}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
       </div>
       <CatalogueCardModal
@@ -2551,12 +2728,10 @@ export function WishlistView({
         ),
     [cards, query, rarity, category, sort]
   );
-  const filtered = !!(
-    query ||
-    rarity.length ||
-    category.length ||
-    sort !== "recent"
+  const hasCardFilters = Boolean(
+    query.trim() || rarity.length || category.length
   );
+  const filtered = Boolean(query) || hasCardFilters || sort !== "recent";
   async function remove(id: string) {
     try {
       await (onRemove ? onRemove(id) : liveToggleWishlist(id));
@@ -2703,24 +2878,35 @@ export function WishlistView({
         </div>
       ) : (
         <section className="yk-catalogue">
-          <div className="yk-catalogue-heading">
-            <div>
-              <p role="status" className="font-display text-xl">
-                {format.number(filteredCards.length)}{" "}
-                {filteredCards.length === 1
-                  ? tv("countPluralOneCardOtherCards", {
-                      count: filteredCards.length
-                    })
-                  : tv("countPluralOneCardOtherCards", {
-                      count: filteredCards.length
-                    })}
-              </p>
-              <p className="mt-1 text-xs text-ink-3">
-                {filtered
-                  ? tv("resultsMatchingYourFilters")
-                  : tv("allCardsOnYourWishlist")}
-              </p>
-            </div>
+          <div className="yk-catalogue-heading yk-wishlist-results-heading">
+            {hasCardFilters && (
+              <div role="status">
+                <p className="font-display text-xl">
+                  {format.number(filteredCards.length)}{" "}
+                  {tv("countPluralOneCardOtherCards", {
+                    count: filteredCards.length
+                  })}
+                </p>
+                <p className="mt-1 text-xs text-ink-3">
+                  {tv("resultsMatchingYourFilters")}
+                </p>
+              </div>
+            )}
+            {!hasCardFilters && (
+              <div className="yk-wishlist-default-results">
+                <p role="status" className="font-display text-xl">
+                  {format.number(filteredCards.length)}{" "}
+                  {tv("countPluralOneCardOtherCards", {
+                    count: filteredCards.length
+                  })}
+                </p>
+                <p className="mt-1 text-xs text-ink-3">
+                  {filtered
+                    ? tv("resultsMatchingYourFilters")
+                    : tv("allCardsOnYourWishlist")}
+                </p>
+              </div>
+            )}
             <button
               type="button"
               className="yk-mobile-filter-trigger"
@@ -2751,7 +2937,7 @@ export function WishlistView({
               onClick={() => setFiltersOpen(false)}
             />
           )}
-          <div className="yk-collection-layout">
+          <div className="yk-collection-layout yk-wishlist-layout">
             <aside
               id="wishlist-filters"
               className={`yk-collection-sidebar ${filtersOpen ? "yk-sidebar-open" : ""}`}
@@ -2767,7 +2953,7 @@ export function WishlistView({
                   ×
                 </button>
               </div>
-              {filters}
+              <div className="yk-catalogue-filter-content">{filters}</div>
             </aside>
             <div className="yk-collection-main">
               {filteredCards.length ? (
@@ -2931,8 +3117,11 @@ export function buildAuctionLists(market: AuctionData[], viewer: string) {
   };
 }
 
+const subscribeToStaticSnapshot = () => () => {};
+
 export function CommunityView({
   screen,
+  viewerId,
   account,
   name,
   joined,
@@ -2945,6 +3134,7 @@ export function CommunityView({
   children?: ReactNode;
   pageHeading?: ReactNode;
   screen: CommunityScreen;
+  viewerId?: string;
   account: ReactNode;
   name?: string;
   joined?: string;
@@ -2955,30 +3145,15 @@ export function CommunityView({
   const tError = useTranslations();
   const tv = useTranslations("catalogueUi");
   const router = useRouter();
+  const returningToMarket = useSyncExternalStore(
+    subscribeToStaticSnapshot,
+    () => screen === "auction" && Boolean(readMarketReturn()),
+    () => false
+  );
   const [collection, setCollection] = useState<CollectedCard[]>();
   const [error, setError] = useState("");
   const [karas, setKaras] = useState<number>();
   const [viewer, setViewer] = useState<string>();
-  const [market, setMarket] = useState<AuctionData[]>();
-  const [marketPage, setMarketPage] = useState<MarketPage>();
-  const [marketLimit, setMarketLimit] = useState(MARKET_PAGE_SIZE);
-  const [marketLoading, setMarketLoading] = useState(false);
-  const [marketQuery, setMarketQuery] = useState<MarketQuery>({
-    query: "",
-    rarity: "",
-    category: "",
-    sort: "end",
-    section: "active"
-  });
-  const marketQueryRef = useRef(marketQuery);
-  const changeMarketQuery = useCallback((next: MarketQuery) => {
-    if (JSON.stringify(next) === JSON.stringify(marketQueryRef.current)) return;
-    marketQueryRef.current = next;
-    setMarketQuery(next);
-    setMarketLimit(MARKET_PAGE_SIZE);
-    setMarket(undefined);
-    setMarketPage(undefined);
-  }, []);
   const [auction, setAuction] = useState<AuctionDetail>();
   const [, setClock] = useState(0);
   const [extended, setExtended] = useState(false);
@@ -2987,7 +3162,6 @@ export function CommunityView({
   );
   const extensionTimer = useRef<number | undefined>(undefined);
   const viewerRef = useRef<string | undefined>(undefined);
-  const marketRef = useRef<AuctionData[] | undefined>(undefined);
   const auctionRef = useRef<AuctionDetail | undefined>(undefined);
   // Presentation only: flags the notice when the server-provided endsAt moves later (anti-snipe already applied by place_bid).
   const receiveAuction = useCallback((next: AuctionDetail) => {
@@ -3063,51 +3237,6 @@ export function CommunityView({
     };
   }, [screen, isMe, playerId, auctionId, receiveAuction]);
   useEffect(() => {
-    if (screen !== "market") return;
-    let active = true,
-      loading = false;
-    const refresh = async () => {
-      if (loading || document.visibilityState === "hidden") return;
-      loading = true;
-      setMarketLoading(true);
-      try {
-        const page = await browseAuctions(marketQuery, marketLimit);
-        if (!active) return;
-        const next = page.items;
-        const scopes = auctionReconciliationScopes(
-          marketRef.current ?? [],
-          next,
-          viewerRef.current
-        );
-        marketRef.current = next;
-        if (scopes.length) invalidatePlayerSnapshots(scopes);
-        setMarket(next);
-        setMarketPage(page);
-        setError("");
-      } catch (e) {
-        if (active)
-          setError(
-            e instanceof Error
-              ? e.message
-              : "Couldn't load the market. Please try again."
-          );
-      } finally {
-        loading = false;
-        if (active) setMarketLoading(false);
-      }
-    };
-    // #388: the list is not live; actions and invalidations refresh it sooner.
-    const stop = startVisiblePolling(() => void refresh(), 30_000);
-    const unsubscribe = subscribePlayerSnapshotInvalidation(scopes => {
-      if (scopes.includes("collection")) void refresh();
-    });
-    return () => {
-      active = false;
-      stop();
-      unsubscribe();
-    };
-  }, [screen, marketQuery, marketLimit]);
-  useEffect(() => {
     if (screen !== "auction") return;
     let active = true;
     let loading = false;
@@ -3162,31 +3291,9 @@ export function CommunityView({
     };
   }, [screen, isMe]);
   const feed = useNotificationFeed();
-  const lists =
-    market && viewer ? buildAuctionLists(market, viewer) : undefined;
-  const activeSales = marketPage?.counts
-    ? String(marketPage.counts.activeSales)
-    : market && viewer
-      ? String(
-          market.filter(a => a.status === "active" && a.sellerId === viewer)
-            .length
-        )
-      : undefined;
   async function refreshAuction() {
     if (!auctionId) return;
     receiveAuction(await getAuction(auctionId));
-  }
-  async function watchFromMarket(id: string) {
-    try {
-      const watched = await toggleWatch(id);
-      setMarket(current =>
-        current?.map(item => (item.id === id ? { ...item, watched } : item))
-      );
-    } catch (e) {
-      setError(
-        e instanceof Error ? e.message : "Couldn't update your watchlist."
-      );
-    }
   }
   async function watchAuction() {
     if (!auction) return;
@@ -3239,17 +3346,13 @@ export function CommunityView({
         name={isMe ? name : undefined}
         karas={karas}
         notifications={notificationItems}
+        progressUnread={feed.progressUnread}
         notificationError={feed.error || undefined}
         onRetryNotifications={feed.retry}
         onRefreshNotifications={() => void feed.refresh()}
         onReadAll={async () => {
           await markNotificationRead();
-          feed.setNotifications(current =>
-            current?.map(n => ({
-              ...n,
-              readAt: n.readAt ?? new Date().toISOString()
-            }))
-          );
+          feed.markAllRead();
         }}
         onOpenNotification={async (id, href) => {
           await markNotificationRead(id);
@@ -3266,7 +3369,11 @@ export function CommunityView({
           !(screen === "auction" && auction?.isMystery) && (
             <div>
               {screen === "auction" && (
-                <Link href="/market" className="yk-back-link">
+                <Link
+                  href="/market"
+                  scroll={!returningToMarket}
+                  className="yk-back-link"
+                >
                   {tError("market.back")}
                 </Link>
               )}
@@ -3312,22 +3419,14 @@ export function CommunityView({
           {screen === "feed" && children}
           {screen === "events" && <EventsHub />}
           {screen === "market" && (
-            <MarketView
+            <MarketListings
+              view={MarketView}
+              buildAuctionLists={buildAuctionLists}
+              viewerId={viewerId ?? viewer}
               pageHeading={pageHeading}
-              lists={lists}
-              activeSales={activeSales}
-              marketPage={marketPage}
-              marketLimit={marketLimit}
-              loadingMore={marketLoading}
-              onQueryChange={changeMarketQuery}
-              onLoadMore={() =>
-                setMarketLimit(limit =>
-                  Math.min(MARKET_MAX_ITEMS, limit + MARKET_PAGE_SIZE)
-                )
-              }
-              onToggleWatch={watchFromMarket}
+              onError={setError}
             />
-          )}{" "}
+          )}
           {screen === "auction" && (
             <AuctionView
               auction={

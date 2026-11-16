@@ -436,3 +436,54 @@ test("collection pages match the client's filters, order, grouping and counters"
   await db.exec("reset role; set role anon");
   await assert.rejects(page({ ...empty, sort: "rarity" }), /permission denied/);
 });
+
+test("collection search follows the catalogue name and licence rules", async t => {
+  const { db } = await replayMigrations();
+  t.after(() => db.close());
+  const player = "38840000-0000-4000-8000-000000000001";
+  const secondaryMatch = "38850000-0000-4000-8000-000000000001";
+  const categoryDecoy = "38850000-0000-4000-8000-000000000002";
+
+  await db.query(
+    "insert into auth.users(id,raw_user_meta_data) values($1,$2)",
+    [player, JSON.stringify({ pseudo: "SearchParityPlayer" })]
+  );
+  await db.exec(`
+    insert into public.cards(id,source_id,nom,categorie,franchise,rarete_base,image_url,source)
+    values
+      ('${secondaryMatch}','collection-search-secondary','Hidden Collection Hero','ANIME/MANGA','Primary Saga','SR','https://example.test/secondary.png','test'),
+      ('${categoryDecoy}','collection-search-category','Category Decoy','KINGDOM','Other Saga','SR','https://example.test/category.png','test');
+    insert into public.card_franchises(card_id,franchise,position)
+    values ('${secondaryMatch}','Kingdom',1);
+    insert into public.user_cards(id,user_id,card_id,rarity,date_obtention)
+    values
+      ('38860000-0000-4000-8000-000000000001','${player}','${secondaryMatch}','SR',now()),
+      ('38860000-0000-4000-8000-000000000002','${player}','${categoryDecoy}','SR',now());
+  `);
+
+  const catalogue = (
+    await db.query(
+      "select public.get_catalogue_cards_page('kingdom','','',0,24,'rarity') page"
+    )
+  ).rows[0].page;
+  assert.deepEqual(
+    catalogue.items.map(card => card.id),
+    [secondaryMatch],
+    "catalogue searches secondary licences, not broad category labels"
+  );
+
+  await db.exec("set role authenticated");
+  await db.query("select set_config('request.jwt.claim.sub',$1,false)", [
+    player
+  ]);
+  const collection = (
+    await db.query(
+      "select public.get_collection_groups_page(p_query=>'kingdom',p_limit=>24) page"
+    )
+  ).rows[0].page;
+  assert.deepEqual(
+    collection.groups.flatMap(group => group.copies).map(copy => copy.id),
+    [secondaryMatch],
+    "collection search has the same matching semantics as the catalogue"
+  );
+});

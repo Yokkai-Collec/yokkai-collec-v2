@@ -1,5 +1,4 @@
 import type { CollectedCard, Rarity } from "@/lib/data/cards";
-import type { CardBinder } from "@/lib/ui/binder-identity";
 import { matchesCardSearch } from "@/lib/ui/card-search";
 import { sortCollection, type CollectionSort } from "@/lib/ui/collection-sort";
 
@@ -21,7 +20,7 @@ export type CollectionFilters = {
 // The collection screen's filters and order. get_collection_groups_page
 // (#388) reproduces this exactly in SQL; keep both in step.
 export function filterCollection(
-  cards: (CollectedCard & { binders?: CardBinder[] })[],
+  cards: CollectedCard[],
   filters: CollectionFilters,
   isFrozen: (instanceId: string) => boolean
 ): CollectedCard[] {
@@ -43,16 +42,10 @@ export function filterCollection(
   return sortCollection(
     cards.filter(
       c =>
-        (matchesCardSearch(query, [c.name, c.category, c.anime]) ||
-          matchesCardSearch(query, [
-            c.name,
-            c.category,
-            c.anime,
-            ...(c.binders?.flatMap(binder => [
-              binder.name,
-              ...(binder.searchNames ?? [])
-            ]) ?? [])
-          ])) &&
+        // Keep the client fallback aligned with the catalogue: a query targets
+        // a card name or its licence, never a broad category/binder label.
+        // Server pages additionally match the catalogue's hidden licences.
+        matchesCardSearch(query, [c.name, c.anime]) &&
         (!category.length || category.includes(c.category)) &&
         (!rarity.length || rarity.includes(c.rarity)) &&
         (!shinyOnly || c.shiny || c.isEvolved) &&

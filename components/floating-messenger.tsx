@@ -51,11 +51,14 @@ export function MessengerSession({
     let previous = -1;
     const update = () => {
       frame = 0;
+      const layoutScale =
+        Number(getComputedStyle(document.documentElement).zoom) || 1;
       const clearance = Math.max(
         0,
         Math.ceil(
-          window.innerHeight -
-            (footer?.getBoundingClientRect().top ?? window.innerHeight)
+          (window.innerHeight -
+            (footer?.getBoundingClientRect().top ?? window.innerHeight)) /
+            layoutScale
         )
       );
       if (clearance !== previous) {
@@ -192,7 +195,9 @@ export function MessengerSession({
         ? t("removed")
         : item.kind === "gif"
           ? t("gif")
-          : item.preview;
+          : item.kind === "image"
+            ? t("image")
+            : item.preview;
     return item.own ? t("youPreview", { text }) : text;
   }
   const counts = new Map(
@@ -242,6 +247,7 @@ export function MessengerSession({
                 >
                   <StyledPlayerName
                     name={friend.pseudo}
+                    playerId={friend.id}
                     cosmetics={friend.profileStyle}
                   />
                 </Link>
@@ -314,6 +320,7 @@ export function MessengerSession({
                           <strong>
                             <StyledPlayerName
                               name={item.friend.pseudo}
+                              playerId={item.friend.id}
                               cosmetics={item.friend.profileStyle}
                             />
                           </strong>

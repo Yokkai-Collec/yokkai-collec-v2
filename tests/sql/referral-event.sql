@@ -62,7 +62,9 @@ begin
  if (select count(*) from public.decision_pack_choices c join public.referral_event_rewards r on r.decision_pack_id=c.pack_id where r.user_id=parent and c.rarity='LR' and not c.is_discarded)<>5 then raise exception 'Special pack discarded a reward'; end if;
  if jsonb_array_length(public.get_referral_event()->'rewardCards')<>5 then raise exception 'Owned reward reveal missing'; end if;
  if not exists(select 1 from jsonb_array_elements(public.list_notifications(30))notice where (notice->>'referralPackCards')::int=5) then raise exception 'Pack notification missing'; end if;
- if jsonb_array_length(public.get_referral_event_badges(parent))<>1 then raise exception 'Event badge missing'; end if;
+ if (select count(*) from public.player_title_unlocks where user_id=parent and title_id='recruiter')<>1 then raise exception 'Recruiter title missing or duplicated'; end if;
+ perform public.equip_player_title('recruiter');
+ if public.get_profile(null)->>'titleId'<>'recruiter' then raise exception 'Recruiter title cannot be equipped'; end if;
  if (public.list_notifications(30)->0->>'referralReward') is null then raise exception 'Notification reward projection missing'; end if;
  if has_function_privilege('authenticated','public.settle_referral_events()','execute')
  or has_function_privilege('service_role','public.settle_referral_events()','execute') then raise exception 'Worker exposed to clients'; end if;

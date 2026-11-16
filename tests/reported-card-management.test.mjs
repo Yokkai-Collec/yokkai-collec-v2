@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { licenseName } from "./helpers/license-name.mjs";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
@@ -64,6 +65,7 @@ function load(file, modules) {
     {
       exports,
       require(name) {
+        if (name === "@/lib/ui/license-name") return licenseName;
         if (name === "react/jsx-runtime") return { jsx, jsxs };
         assert(Object.hasOwn(modules, name), name);
         return modules[name];

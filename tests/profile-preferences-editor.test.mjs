@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { licenseName } from "./helpers/license-name.mjs";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import vm from "node:vm";
@@ -34,6 +35,7 @@ test("the deferred board editor preserves draft isolation, category labels, lice
       {
         exports,
         require: name => {
+          if (name === "@/lib/ui/license-name") return licenseName;
           if (name === "react")
             return {
               useState: initial => {

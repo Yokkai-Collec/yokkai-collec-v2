@@ -16,6 +16,8 @@ export default async function Page({
   searchParams: Promise<{ screen?: string; state?: string }>;
 }) {
   const { screen, state } = await searchParams;
+  if (screen === "notifications" && state === "progress")
+    return <NotificationsPreview mode="progress" />;
   const title =
     screen === "wishlist"
       ? "Ma wishlist"

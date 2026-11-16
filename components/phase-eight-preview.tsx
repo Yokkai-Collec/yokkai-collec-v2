@@ -1,5 +1,5 @@
 "use client";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 
 import { useEffect, useRef, useState } from "react";
 import {
@@ -8,6 +8,7 @@ import {
 } from "@/components/achievements";
 import { WishlistView } from "@/components/community-views";
 import { MissionGauges } from "@/components/missions";
+import { BoostersPreview } from "@/components/boosters-preview";
 import type { Missions } from "@/lib/data/missions";
 import { notificationItem, Topbar } from "@/components/topbar";
 import type { Achievement } from "@/lib/data/achievements";
@@ -244,6 +245,33 @@ const rawNotifications: AppNotification[] = [
     achievementName: "Premier pas dans le marché"
   }
 ];
+const progressNotifications: AppNotification[] = [
+  {
+    id: "mission",
+    type: "mission_completed",
+    referenceId: "daily-packs-5",
+    readAt: null,
+    createdAt: now,
+    cardName: null,
+    actorPseudo: null,
+    achievementName: null,
+    missionMetric: "regular_packs_opened",
+    missionTarget: 5,
+    missionPeriod: "daily"
+  },
+  {
+    id: "achievement",
+    type: "catalogue_achievement_completed",
+    referenceId: "collector-50",
+    readAt: null,
+    createdAt: now,
+    cardName: null,
+    actorPseudo: null,
+    achievementName: "Collector",
+    achievementFamily: "collector",
+    achievementTarget: 50
+  }
+];
 
 export function AchievementsPreview() {
   const [items, setItems] = useState(achievements);
@@ -274,13 +302,34 @@ export function WishlistPreview({ empty = false }: { empty?: boolean }) {
 export function NotificationsPreview({
   mode = "list"
 }: {
-  mode?: "list" | "empty" | "error";
+  mode?: "list" | "empty" | "error" | "progress";
 }) {
   const tNotifications = useTranslations("topbar");
-  const notifications = rawNotifications.map(item =>
-    notificationItem(item, tNotifications)
+  const tMissions = useTranslations("missionUi");
+  const tCatalogue = useTranslations("achievementCatalog");
+  const tPacks = useTranslations("gameUi");
+  const format = useFormatter();
+  const [read, setRead] = useState(false);
+  const notifications = (
+    mode === "progress" ? progressNotifications : rawNotifications
+  ).map(item =>
+    notificationItem(
+      read ? { ...item, readAt: now } : item,
+      tNotifications,
+      mode === "progress"
+        ? format.dateTime(new Date(item.createdAt), {
+            dateStyle: "short",
+            timeStyle: "short",
+            timeZone: "Europe/Paris"
+          })
+        : undefined,
+      undefined,
+      tMissions,
+      tCatalogue
+    )
   );
   useEffect(() => {
+    if (mode === "progress") return;
     const frame = window.requestAnimationFrame(() =>
       document
         .querySelector<HTMLButtonElement>(
@@ -289,13 +338,16 @@ export function NotificationsPreview({
         ?.click()
     );
     return () => window.cancelAnimationFrame(frame);
-  }, []);
+  }, [mode]);
   return (
-    <>
+    <div
+      className={mode === "progress" ? "yk-boosters-page w-full" : undefined}
+    >
       <Topbar
-        view="wishlist"
+        view={mode === "progress" ? "packs" : "wishlist"}
         name="Kitsune"
         karas={4920}
+        account={mode === "progress" ? <></> : undefined}
         notifications={mode === "empty" ? [] : notifications}
         notificationError={
           mode === "error"
@@ -303,11 +355,26 @@ export function NotificationsPreview({
             : undefined
         }
         onRetryNotifications={() => {}}
-        onReadAll={() => {}}
+        onReadAll={() => setRead(true)}
         onOpenNotification={async () => {}}
       />
-      <div className="min-h-96" />
-    </>
+      {mode === "progress" ? (
+        <main
+          id="main-content"
+          className="yk-game-main mx-auto w-full max-w-6xl px-6 py-10"
+        >
+          <header className="yk-pack-page-heading">
+            <h1 className="yk-title mt-3">{tPacks("yourNextGreatPull")}</h1>
+            <p className="mt-4 max-w-xl text-sm leading-6 text-ink-2">
+              {tPacks("newYokkaiNewStoriesAlwaysSomethingToDiscover")}
+            </p>
+          </header>
+          <BoostersPreview />
+        </main>
+      ) : (
+        <div className="min-h-96" />
+      )}
+    </div>
   );
 }
 

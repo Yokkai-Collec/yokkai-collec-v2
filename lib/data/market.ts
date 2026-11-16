@@ -1,3 +1,4 @@
+import type { FirstLrCopySource } from "@/lib/data/first-lr-copies";
 import { createClient } from "@/utils/supabase/client";
 import { readRpcPages } from "@/lib/data/rpc-pages.mjs";
 import {
@@ -10,7 +11,7 @@ export type AuctionData = {
   isMystery?: boolean;
   mysteryHidden?: boolean;
   id: string;
-  card: Card & { shiny?: boolean; isEvolved?: boolean; catalogueImage?: string };
+  card: Card & { shiny?: boolean; isEvolved?: boolean; catalogueImage?: string; firstLrCopy?: FirstLrCopySource | null };
   amount: number;
   endsAt: string;
   status: "active" | "sold" | "expired";

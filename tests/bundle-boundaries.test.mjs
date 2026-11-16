@@ -53,6 +53,14 @@ test("PERF-08: community screens do not eagerly load the profile experience", ()
   );
 });
 
+test("community screens only load the market listings controller when needed", () => {
+  assert.ok(
+    !eagerFiles("components/community-views.tsx").has(
+      path.resolve(root, "components/market-listings.tsx")
+    )
+  );
+});
+
 test("PERF-08: packs do not eagerly load the collection browser", () => {
   assert.ok(
     !eagerFiles("components/game.tsx").has(

@@ -7,6 +7,8 @@ export type NotificationItem = {
   text: string;
   time: string;
   read: boolean;
+  progressCompletion?: boolean;
+  profileOnly?: boolean;
   href?: string;
   kind:
     | "wishlist"
@@ -29,7 +31,9 @@ export function notificationItem(
   notification: AppNotification,
   t: ReturnType<typeof useTranslations<"topbar">>,
   time?: string,
-  achievementT?: ReturnType<typeof useTranslations<"achievementUi">>
+  achievementT?: ReturnType<typeof useTranslations<"achievementUi">>,
+  missionT?: ReturnType<typeof useTranslations<"missionUi">>,
+  catalogueT?: ReturnType<typeof useTranslations<"achievementCatalog">>
 ): NotificationItem {
   const common = {
     id: notification.id,
@@ -50,6 +54,35 @@ export function notificationItem(
       href: "/referral-event",
       kind: "mission"
     };
+  if (
+    notification.type === "wall_post_mention" ||
+    notification.type === "wall_reply_mention"
+  ) {
+    const isReply = notification.type === "wall_reply_mention";
+    const query = new URLSearchParams({
+      tab: "wall",
+      post: notification.postId ?? ""
+    });
+    if (isReply && notification.replyId)
+      query.set("reply", notification.replyId);
+    return {
+      ...common,
+      title: t("notificationWallMentionTitle"),
+      text: t(
+        isReply
+          ? "notificationWallReplyMentionText"
+          : "notificationWallPostMentionText",
+        {
+          actorPseudo:
+            notification.actorPseudo ?? t("notificationFriendFallback")
+        }
+      ),
+      href: notification.postOwnerId
+        ? `/profile/${encodeURIComponent(notification.postOwnerId)}?${query}`
+        : "/social",
+      kind: "mention"
+    };
+  }
   if (notification.type === "wall_reply_received")
     return {
       ...common,
@@ -212,17 +245,75 @@ export function notificationItem(
       href: `/market/${notification.referenceId}#chat-enchere`,
       kind: "mention"
     };
-  if (notification.type === "achievement_completed") {
-    const achievementKey = `title${(notification.referenceId ?? "").replace(/-([a-z])/g, (_, c) => c.toUpperCase())}`;
+  if (notification.type === "mission_completed") {
+    const objectiveKey = `objectives.${notification.missionMetric}`;
+    if (
+      notification.missionReward != null &&
+      notification.missionPoints != null
+    )
+      return {
+        ...common,
+        profileOnly: true,
+        progressCompletion: true,
+        title: t(
+          notification.missionPeriod === "weekly"
+            ? "notificationWeeklyMissionRewardTitle"
+            : "notificationDailyMissionRewardTitle"
+        ),
+        text: t("notificationMissionRewardText", {
+          karaAmount: notification.missionReward,
+          points: notification.missionPoints
+        }),
+        href: "/achievements#missions",
+        kind: "mission"
+      };
     return {
       ...common,
+      profileOnly: true,
+      title: t(
+        notification.missionPeriod === "weekly"
+          ? "notificationWeeklyMissionTitle"
+          : "notificationDailyMissionTitle"
+      ),
+      text:
+        missionT?.has(objectiveKey) && notification.missionTarget != null
+          ? missionT(objectiveKey, { count: notification.missionTarget })
+          : t("notificationMissionFallback"),
+      href: "/achievements#missions",
+      kind: "mission"
+    };
+  }
+  if (
+    notification.type === "achievement_completed" ||
+    notification.type === "catalogue_achievement_completed"
+  ) {
+    const achievementKey = `title${(notification.referenceId ?? "").replace(/-([a-z])/g, (_, c) => c.toUpperCase())}`;
+    const familyKey = `${notification.achievementFamily}.title`;
+    const familyDescription = `${notification.achievementFamily}.description`;
+    const achievementName = catalogueT?.has(familyKey)
+      ? catalogueT(familyKey)
+      : achievementT?.has(achievementKey)
+        ? achievementT(achievementKey)
+        : (notification.achievementName ??
+          t("notificationAchievementFallback"));
+    return {
+      ...common,
+      ...(notification.type === "catalogue_achievement_completed"
+        ? { progressCompletion: true }
+        : {}),
       title: t("notificationAchievementTitle"),
-      text: t("notificationAchievementText", {
-        achievementName: achievementT?.has(achievementKey)
-          ? achievementT(achievementKey)
-          : (notification.achievementName ??
-            t("notificationAchievementFallback"))
-      }),
+      text:
+        catalogueT?.has(familyDescription) &&
+        notification.achievementTarget != null &&
+        notification.achievementTarget !== 999
+          ? t("notificationCatalogueAchievementText", {
+              achievementName,
+              objective: catalogueT(familyDescription, {
+                target: notification.achievementTarget
+              }),
+              category: notification.achievementCategory ?? "none"
+            })
+          : t("notificationAchievementText", { achievementName }),
       href: `/achievements#${notification.referenceId}`,
       kind: "mission"
     };

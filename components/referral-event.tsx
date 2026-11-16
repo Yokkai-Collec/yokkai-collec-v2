@@ -409,36 +409,3 @@ export function ReferralEventPanel({
     </section>
   );
 }
-
-export function RecruiterTitle({ userId }: { userId: string }) {
-  const t = useTranslations("referralEvent");
-  const [events, setEvents] = useState<{ eventId: string }[]>([]);
-  useEffect(() => {
-    let active = true;
-    void (async () => {
-      try {
-        const { data, error } = await createClient().rpc(
-          "get_referral_event_badges",
-          { p_user: userId }
-        );
-        if (active)
-          setEvents(error ? [] : ((data ?? []) as { eventId: string }[]));
-      } catch {
-        if (active) setEvents([]);
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, [userId]);
-  return events.map(event => (
-    <Link
-      href="/referral-event"
-      key={event.eventId}
-      className="yk-recruiter-title"
-      title={t("badgeDescription")}
-    >
-      {t("badge")}
-    </Link>
-  ));
-}

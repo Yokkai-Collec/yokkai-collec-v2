@@ -9,9 +9,11 @@
   --color-karas-readable-gold: #ffda75;
   --ease-yokkai: var(--ease-standard);
   --layout-desktop-gutter: 13.5rem;
+  --desktop-layout-width: calc(100vw / var(--desktop-layout-scale, 1));
+  --desktop-layout-height: calc(100dvh / var(--desktop-layout-scale, 1));
   --page-inline-gutter: clamp(
     4rem,
-    calc(30vw - 15.25rem),
+    calc(var(--desktop-layout-width) * 0.3 - 15.25rem),
     var(--layout-desktop-gutter)
   );
 }
@@ -63,8 +65,22 @@ body {
   transform-origin: center top;
 }
 
-/* Cap the content lane on laptop viewports. Page-specific max widths still
-   apply, and the navigation, backgrounds and pack cinematics span the screen. */
+/* Keep desktop proportions when the OS exposes a smaller CSS viewport.
+   Ease back to the usual responsive scale towards tablet widths. */
+@supports (zoom: calc(100vw / 1920px)) {
+  @media (1024px <= width <= 1600px) and (hover: hover) and (pointer: fine) {
+    html {
+      --desktop-layout-scale: max(
+        0.8,
+        calc(100vw / 1920px),
+        calc(1 - (100vw - 1024px) / 2560px)
+      );
+      zoom: var(--desktop-layout-scale);
+    }
+  }
+}
+
+/* Cap the content lane while keeping page-specific maximum widths. */
 @media (1024px <= width <= 1920px) {
   .yk-page-transition
     main:not(
@@ -80,7 +96,10 @@ body {
   .yk-auth-shell > .yk-auth-main {
     width: min(
       100%,
-      calc(100vw - 2 * (var(--page-inline-gutter) + var(--layout-gutter)))
+      calc(
+        var(--desktop-layout-width) - 2 *
+          (var(--page-inline-gutter) + var(--layout-gutter))
+      )
     );
     margin-inline: auto;
   }
@@ -735,21 +754,91 @@ select,
 /* Leave room beside the full-page card grids for the floating messenger. */
 .yk-card-browse-page {
   --card-browse-gutter: var(--layout-gutter-compact);
+  --card-browse-max: calc(
+    var(--layout-collection-max) - 2 * var(--layout-gutter)
+  );
   width: calc(100% - 2 * var(--card-browse-gutter));
-  max-width: calc(var(--layout-collection-max) - 2 * var(--layout-gutter));
+  max-width: var(--card-browse-max);
   padding-inline: 0;
 }
 
-@media (min-width: 761px) {
+@media (761px <= width < 1024px) {
   .yk-card-browse-page {
-    --card-browse-gutter: clamp(5rem, 6vw, 7rem);
+    --card-browse-gutter: 1.5rem;
+    --collection-sidebar-width: clamp(10rem, 22vw, 13rem);
   }
 }
 
 @media (min-width: 1024px) {
   .yk-card-browse-page {
-    --card-browse-gutter: var(--layout-desktop-gutter);
-    --collection-sidebar-width: clamp(12rem, 12.5vw, 15rem);
+    --catalogue-sidebar-width: clamp(
+      12rem,
+      calc(var(--desktop-layout-width) * 0.125),
+      15rem
+    );
+    --card-browse-start: clamp(
+      1.25rem,
+      calc(var(--desktop-layout-width) * 0.025),
+      4rem
+    );
+    --card-browse-end: max(
+      var(--layout-desktop-gutter),
+      calc(env(safe-area-inset-right, 0px) + 14.5rem)
+    );
+    --collection-sidebar-width: var(--catalogue-sidebar-width);
+    width: calc(100% - var(--card-browse-start) - var(--card-browse-end));
+    margin-inline-start: max(
+      var(--card-browse-start),
+      min(
+        calc((100% - var(--card-browse-max)) / 2),
+        calc(100% - var(--card-browse-max) - var(--card-browse-end))
+      )
+    );
+    margin-inline-end: auto;
+  }
+  .yk-card-browse-page:has(.yk-catalogue, .yk-market) {
+    --card-browse-max: 92rem;
+  }
+  .yk-card-browse-page .yk-collection-sidebar {
+    position: sticky;
+    top: calc(var(--topbar-height) + var(--layout-gutter-compact));
+    align-self: start;
+    max-height: calc(
+      var(--desktop-layout-height) - var(--topbar-height) - 2 *
+        var(--layout-gutter-compact)
+    );
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+}
+
+@media (1024px <= width <= 1600px) and (hover: hover) and (pointer: fine) {
+  .yk-card-browse-page:not(:has(.yk-catalogue)) {
+    --card-browse-start: clamp(
+      4rem,
+      calc(var(--desktop-layout-width) * 0.1),
+      var(--layout-desktop-gutter)
+    );
+    --collection-sidebar-width: clamp(
+      12.5rem,
+      calc(var(--desktop-layout-width) * 0.14),
+      14.5rem
+    );
+  }
+  .yk-card-browse-page:not(:has(.yk-catalogue)) .yk-collection-sidebar {
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+  }
+  .yk-card-browse-page :is(#collection-filters, #wishlist-filters) {
+    position: sticky;
+    top: calc(var(--topbar-height) + var(--layout-gutter-compact));
+    align-self: start;
+    max-height: none;
+    overflow: visible;
+    scrollbar-gutter: auto;
+  }
+  .yk-card-browse-page .yk-wishlist-layout {
+    --collection-sidebar-width: var(--catalogue-sidebar-width);
   }
 }
 
@@ -772,29 +861,28 @@ select,
     --card-grid-columns: var(--card-grid-columns-md);
   }
 }
-@media (761px <= width <= 900px) {
-  .yk-card-browse-page .yk-card-grid {
-    --card-grid-columns: 3;
-  }
-}
-@media (1367px <= width <= 1439px) {
-  .yk-card-browse-page .yk-card-grid {
-    --card-grid-columns: var(--card-grid-columns-lg);
-  }
-}
-@media (1181px <= width <= 1366px) {
-  .yk-card-browse-page .yk-card-grid {
-    --card-grid-columns: var(--card-grid-columns-md);
-  }
-}
-@media (1024px <= width <= 1180px) {
-  .yk-card-browse-page .yk-card-grid {
-    --card-grid-columns: 3;
-  }
-}
 @media (max-width: 760px) {
   .yk-card-grid {
     --card-grid-columns: var(--card-grid-columns-sm);
+  }
+}
+
+.yk-card-browse-page
+  :is(.yk-collection-grid, .yk-catalogue-grid, .yk-market-list) {
+  --browse-card-min: 7.375rem;
+  --browse-six-col-width: calc((100% - 5 * var(--collection-grid-gap)) / 6);
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(
+      min(100%, max(var(--browse-card-min), var(--browse-six-col-width))),
+      1fr
+    )
+  );
+}
+@media (max-width: 760px) {
+  .yk-card-browse-page
+    :is(.yk-collection-grid, .yk-catalogue-grid, .yk-market-list) {
+    --browse-card-min: clamp(7.375rem, 21vw, 9.5rem);
   }
 }
 

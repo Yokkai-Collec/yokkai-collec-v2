@@ -1,3 +1,5 @@
+import Image from "next/image";
+import { useTranslations } from "next-intl";
 import type { CSSProperties } from "react";
 import {
   DEFAULT_PROFILE_STYLE,
@@ -7,7 +9,11 @@ import {
 } from "@/lib/ui/profile-style";
 import { DecorativeBadge } from "@/components/decorative-badge";
 
-export type PlayerCosmetics = { active: boolean; style: Partial<ProfileStyle> };
+export type PlayerCosmetics = {
+  active: boolean;
+  style: Partial<ProfileStyle>;
+  titleId?: string;
+};
 export function ProBadge() {
   return (
     <span
@@ -30,16 +36,46 @@ export function ProBadge() {
     </span>
   );
 }
+const OFFICIAL_ACCOUNT_ID = "6ae0e386-ebe4-4b9c-9cd1-2b820696233f";
+
+function OfficialAccountBadge() {
+  const t = useTranslations("profileUi");
+  const label = t("officialAccount");
+  return (
+    <Image
+      className="yk-official-account-badge"
+      src="/push-icon-192.png"
+      alt={label}
+      title={label}
+      width={192}
+      height={192}
+      unoptimized
+    />
+  );
+}
+
 export function StyledPlayerName({
   name,
+  playerId,
   cosmetics,
   fallbackLabel
 }: {
   name: string;
+  playerId?: string | null;
   cosmetics?: PlayerCosmetics;
   fallbackLabel?: string;
 }) {
-  if (!cosmetics?.active) return <>{fallbackLabel ?? name}</>;
+  const official = playerId === OFFICIAL_ACCOUNT_ID;
+  const label = fallbackLabel ?? name;
+  if (!cosmetics?.active) {
+    if (!official) return <>{label}</>;
+    return (
+      <span className="yk-styled-player-name">
+        <span className="yk-style-name">{label}</span>
+        <OfficialAccountBadge />
+      </span>
+    );
+  }
   const style = normalizeProfileStyle({
     ...DEFAULT_PROFILE_STYLE,
     ...cosmetics.style
@@ -51,8 +87,9 @@ export function StyledPlayerName({
         data-name-effect={style.effect}
         style={nameStyleVariables(style) as CSSProperties}
       >
-        {fallbackLabel ?? name}
+        {label}
       </span>
+      {official && <OfficialAccountBadge />}
       <ProBadge />
       {style.badges.map(badge => (
         <DecorativeBadge key={badge} badge={badge} />

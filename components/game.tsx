@@ -29,6 +29,7 @@ import {
   getPackStatus,
   getUserCollection,
   keepDecisionPackCard,
+  lockCollectionCards,
   moveCardToFolder,
   moveCardsToFolder,
   openBooster,
@@ -535,6 +536,10 @@ export function Game({
     await setCollectionCardLocked(instanceId, locked);
     await reloadCollection();
   }
+  async function lockCards(instanceIds: string[]) {
+    await lockCollectionCards(instanceIds);
+    await reloadCollection();
+  }
   async function auctionCard(
     instanceId: string,
     price: number,
@@ -757,6 +762,7 @@ export function Game({
             onMoveCard={moveCard}
             onMoveCards={moveCards}
             onSetLocked={lockCard}
+            onLockCards={previewData ? undefined : lockCards}
             onCreateAuction={auctionCard}
             onEvolve={evolve}
             onSetCustomImage={customizeCard}

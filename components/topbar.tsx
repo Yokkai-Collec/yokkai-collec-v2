@@ -32,7 +32,8 @@ import { UnreadBadge } from "@/components/unread-badge";
 import { useBoostersLoadPriority } from "@/components/boosters-load-priority";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import { ProPromotion } from "@/components/pro-promotion";
-import { getProfile } from "@/lib/data/profile";
+import { getProfile, type Profile } from "@/lib/data/profile";
+import { PlayerTitle, NewTitlesBadge } from "@/components/player-title";
 import { subscribePlayerSnapshotInvalidation } from "@/lib/data/player-state";
 
 const notificationStyle = {
@@ -55,6 +56,8 @@ const notificationStyle = {
 export function useNotificationItems(notifications?: AppNotification[]) {
   const t = useTranslations("topbar");
   const tAchievements = useTranslations("achievementUi");
+  const tMissions = useTranslations("missionUi");
+  const tCatalogue = useTranslations("achievementCatalog");
   const fmt = useFormatter();
   const hydrated = useSyncExternalStore(
     subscribeToHydration,
@@ -78,7 +81,9 @@ export function useNotificationItems(notifications?: AppNotification[]) {
             })
           : "—"
         : undefined,
-      i18nEnabled() ? tAchievements : undefined
+      i18nEnabled() ? tAchievements : undefined,
+      tMissions,
+      tCatalogue
     )
   );
 }
@@ -91,6 +96,10 @@ export function Topbar({
   infoError,
   onRetryInfo,
   notifications,
+  progressUnread,
+  unseenTitleCount: providedUnseenTitleCount,
+  playerTitleId,
+  profileHref = "/profile",
   socialUnread,
   notificationError: externalNotificationError,
   onRetryNotifications,
@@ -122,6 +131,10 @@ export function Topbar({
   infoError?: string;
   onRetryInfo?: () => void;
   notifications?: NotificationItem[];
+  progressUnread?: number | null;
+  unseenTitleCount?: number;
+  playerTitleId?: string;
+  profileHref?: string;
   socialUnread?: SocialUnreadAdapter;
   notificationError?: string;
   onRetryNotifications?: () => void;
@@ -130,23 +143,42 @@ export function Topbar({
   onOpenNotification?: (id: string, href: string) => Promise<void>;
 }) {
   const t = useTranslations("topbar");
+  const tTitles = useTranslations("playerTitles");
   const sound = useSfx();
   const secondaryReady = useBoostersLoadPriority() >= 2;
   const isAdmin = useIsAdmin(secondaryReady);
   const [panel, setPanel] = useState<"notifications" | "account" | null>(null);
   const [mobileMenu, setMobileMenu] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState<string>();
-  const [profileName, setProfileName] = useState<string>();
+  const [profile, setProfile] = useState<Profile>();
+  const avatarUrl = profile?.avatarUrl ?? undefined;
+  const newTitleCount =
+    providedUnseenTitleCount ?? profile?.unseenTitleIds?.length ?? 0;
   const feed = useNotificationFeed(!notifications && secondaryReady);
   const social = useSocialUnread(
     socialUnread,
     secondaryReady && (!!socialUnread || !notifications)
   );
   const loaded = useNotificationItems(feed.notifications);
-  const shown = notifications ?? loaded;
+  const allNotifications = notifications ?? loaded;
+  const shown = allNotifications?.filter(n => !n.profileOnly);
   const visibleNotificationError = externalNotificationError ?? feed.error;
   const unread = shown?.filter(n => !n.read).length;
-  const name = providedName || profileName;
+  const unreadProgress =
+    progressUnread ??
+    feed.progressUnread ??
+    allNotifications?.filter(n => !n.read && n.progressCompletion).length ??
+    0;
+  const progressBadge = (count: number) =>
+    count > 0 && (
+      <span className="yk-progress-badge" aria-hidden="true">
+        {count > 99 ? "99+" : count}
+      </span>
+    );
+  const progressDescriptionId =
+    unreadProgress > 0 ? "account-progress" : undefined;
+  const titleDescriptionId =
+    newTitleCount > 0 ? "account-new-titles" : undefined;
+  const name = providedName || profile?.pseudo;
   useEffect(() => {
     let active = true;
     if (!secondaryReady) return;
@@ -154,8 +186,7 @@ export function Topbar({
       void getProfile().then(
         profile => {
           if (active) {
-            setAvatarUrl(profile.avatarUrl ?? undefined);
-            setProfileName(profile.pseudo);
+            setProfile(profile);
           }
         },
         () => undefined
@@ -185,12 +216,7 @@ export function Topbar({
     if (onReadAll) await onReadAll();
     else {
       await markNotificationRead();
-      feed.setNotifications(current =>
-        current?.map(n => ({
-          ...n,
-          readAt: n.readAt ?? new Date().toISOString()
-        }))
-      );
+      feed.markAllRead();
     }
   }
   function toggleNotifications() {
@@ -534,6 +560,11 @@ export function Topbar({
             <button
               type="button"
               aria-label={t("openMyAccount")}
+              aria-describedby={
+                [progressDescriptionId, titleDescriptionId]
+                  .filter(Boolean)
+                  .join(" ") || undefined
+              }
               title={t("myAccount")}
               aria-expanded={panel === "account"}
               aria-controls="account-panel"
@@ -542,7 +573,10 @@ export function Topbar({
                 setPanel(current => (current === "account" ? null : "account"))
               }
             >
-              <Avatar name={name || "Account"} image={avatarUrl} />
+              <span className="yk-account-avatar">
+                <Avatar name={name || "Account"} image={avatarUrl} />
+                {progressBadge(unreadProgress + newTitleCount)}
+              </span>
               <svg
                 aria-hidden="true"
                 width="12"
@@ -555,6 +589,16 @@ export function Topbar({
                 <path d="m7 10 5 5 5-5" />
               </svg>
             </button>
+            {progressDescriptionId && (
+              <span id={progressDescriptionId} className="sr-only">
+                {t("unreadProgress", { count: unreadProgress })}
+              </span>
+            )}
+            {titleDescriptionId && (
+              <span id={titleDescriptionId} className="sr-only">
+                {tTitles("newTitles", { count: newTitleCount })}
+              </span>
+            )}
             {panel === "account" && (
               <>
                 <button
@@ -581,8 +625,11 @@ export function Topbar({
                     />
                     <div>
                       <strong>{name || "Account"}</strong>
-                      <span>
-                        @{name || "account"} {t("collector")}
+                      <span className="yk-account-title-line">
+                        @{name || "account"} ·{" "}
+                        <PlayerTitle
+                          titleId={playerTitleId ?? profile?.titleId}
+                        />
                       </span>
                       {karas != null && (
                         <small className="yk-account-karas">
@@ -596,25 +643,31 @@ export function Topbar({
                     aria-label={t("profileActions")}
                     className="yk-account-actions"
                   >
-                    <Link
-                      href="/profile"
-                      className="yk-account-action"
-                      onClick={() => setPanel(null)}
-                    >
-                      <svg
-                        aria-hidden="true"
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
+                    <div className="yk-account-profile">
+                      <Link
+                        href={profileHref}
+                        className="yk-account-action"
+                        onClick={() => setPanel(null)}
+                        aria-describedby={titleDescriptionId}
                       >
-                        <circle cx="12" cy="8" r="4" />
-                        <path d="M4 21a8 8 0 0 1 16 0" />
-                      </svg>
-                      {t("viewMyProfile")}
-                    </Link>
+                        <svg
+                          aria-hidden="true"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                        >
+                          <circle cx="12" cy="8" r="4" />
+                          <path d="M4 21a8 8 0 0 1 16 0" />
+                        </svg>
+                        {t("viewMyProfile")}
+                      </Link>
+                      <span className="yk-account-title-notice">
+                        <NewTitlesBadge count={newTitleCount} />
+                      </span>
+                    </div>
                     <Link
                       href="/settings"
                       className="yk-account-action"
@@ -641,24 +694,28 @@ export function Topbar({
                       </svg>
                       {t("settings")}
                     </Link>
-                    <Link
-                      href="/achievements"
-                      className="yk-account-action"
-                      onClick={() => setPanel(null)}
-                    >
-                      <svg
-                        aria-hidden="true"
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
+                    <div className="yk-account-achievements">
+                      <Link
+                        href="/achievements"
+                        className="yk-account-action"
+                        onClick={() => setPanel(null)}
+                        aria-describedby={progressDescriptionId}
                       >
-                        <path d="M8 3h8v6a4 4 0 0 1-8 0V3ZM10 17h4M12 13v4M8 21h8M8 6H4v2a4 4 0 0 0 4 4M16 6h4v2a4 4 0 0 1-4 4" />
-                      </svg>
-                      {t("myAchievements")}
-                    </Link>
+                        <svg
+                          aria-hidden="true"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                        >
+                          <path d="M8 3h8v6a4 4 0 0 1-8 0V3ZM10 17h4M12 13v4M8 21h8M8 6H4v2a4 4 0 0 0 4 4M16 6h4v2a4 4 0 0 1-4 4" />
+                        </svg>
+                        {t("myAchievements")}
+                      </Link>
+                      {progressBadge(unreadProgress)}
+                    </div>
                   </nav>
                   <div className="yk-account-separator" />
                   {account || (

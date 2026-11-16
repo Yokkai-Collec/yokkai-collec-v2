@@ -1,3 +1,4 @@
+import { wallMentions } from "./helpers/wall-mentions.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -126,12 +127,15 @@ test("the shared composer notifies Home only after confirmed publication, keepin
       return runtime[name](type, props, key);
     };
     const { ProfileWall } = load("components/profile-wall.tsx", {
+      "@/components/expandable-image": { ExpandableImage: () => null },
+      "@/components/wall-mentions": wallMentions,
+      "@/lib/ui/paste-image": { pasteImage: () => {} },
       "@/components/player-moderation": { PlayerModeration: () => null },
       react: {
         ...React,
         useState: initial => {
           const i = states.length;
-          const value = i === 6 ? "Posting from Home" : initial;
+          const value = i === 4 ? "Posting from Home" : initial;
           states.push(value);
           return [
             value,
@@ -149,7 +153,10 @@ test("the shared composer notifies Home only after confirmed publication, keepin
         WallPostInteractions: () => null
       },
       "@/components/styled-player-name": { StyledPlayerName: () => null },
-      "@/lib/data/profile-wall": { liveWall: {} }
+      "@/lib/data/profile-wall": {
+        liveWall: {},
+        wallRequestId: () => "00000000-0000-4000-8000-000000000001"
+      }
     });
     renderToStaticMarkup(
       React.createElement(ProfileWall, {
@@ -180,8 +187,8 @@ test("the shared composer notifies Home only after confirmed publication, keepin
     submit({ preventDefault() {} });
     await new Promise(resolve => setImmediate(resolve));
     assert.equal(notified, fail ? 0 : 1);
-    assert.equal(states[6], fail ? "Posting from Home" : "");
-    assert.equal(states[10], false);
+    assert.equal(states[4], fail ? "Posting from Home" : "");
+    assert.equal(states[8], false);
   }
 });
 

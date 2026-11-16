@@ -27,6 +27,10 @@ test("account exceptions and admins bypass detection without exempting their IP 
       "insert into public.anticheat_device_observations(device_identity,user_id) values($1,$2)",
       [browser, id]
     );
+    await db.query(
+      "select public.record_anticheat_trade_connection($1,$2,$3)",
+      [id, ip, browser]
+    );
   }
   await db.query("select public.apply_account_ban_core($1,true,null)", [
     excepted

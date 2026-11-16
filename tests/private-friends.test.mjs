@@ -1,4 +1,6 @@
+import { licenseName } from "./helpers/license-name.mjs";
 import { intl, gameMessages, loadLocaleModule } from "./helpers/i18n.mjs";
+import { playerTitles } from "./helpers/player-titles.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -25,15 +27,19 @@ function load(file, overrides) {
   vm.runInNewContext(code, {
     exports,
     require: name =>
-      name === "next-intl"
-        ? intl
-        : name === "@/i18n/game-messages"
-          ? gameMessages
-          : name === "@/i18n/locale"
-            ? loadLocaleModule()
-            : name in overrides
-              ? overrides[name]
-              : require(name)
+      name === "@/lib/ui/license-name"
+        ? licenseName
+        : name === "next-intl"
+          ? intl
+          : name === "@/i18n/game-messages"
+            ? gameMessages
+            : name === "@/i18n/locale"
+              ? loadLocaleModule()
+              : name === "@/components/player-title"
+                ? playerTitles
+                : name in overrides
+                  ? overrides[name]
+                  : require(name)
   });
   return exports;
 }

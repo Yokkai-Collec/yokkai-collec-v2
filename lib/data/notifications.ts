@@ -18,9 +18,13 @@ export type KnownNotificationType =
   | "auction_sold"
   | "auction_chat_mention"
   | "achievement_completed"
+  | "catalogue_achievement_completed"
+  | "mission_completed"
   | "private_message_received"
   | "wall_post_reply"
-  | "wall_reply_received";
+  | "wall_reply_received"
+  | "wall_post_mention"
+  | "wall_reply_mention";
 export type AppNotification = {
   id: string;
   type: KnownNotificationType | (string & {});
@@ -30,12 +34,24 @@ export type AppNotification = {
   cardName: string | null;
   actorPseudo: string | null;
   achievementName: string | null;
+  achievementFamily?: string;
+  achievementTarget?: number;
+  achievementCategory?: string | null;
+  missionMetric?: string;
+  missionTarget?: number;
+  missionPeriod?: "daily" | "weekly";
+  missionPoints?: number;
+  missionReward?: number;
   postOwnerId?: string;
   postId?: string;
   replyId?: string;
   karaAmount?: number | null;
   referralReward?: number | null;
   referralPackCards?: number | null;
+};
+export type NotificationFeed = {
+  items: AppNotification[];
+  progressUnread: number | null;
 };
 export class NotificationRequestError extends Error {
   code?: string;
@@ -54,13 +70,27 @@ export class NotificationRequestError extends Error {
 }
 let client: ReturnType<typeof createClient> | undefined;
 const db = () => (client ??= createClient());
-export async function getNotifications() {
-  const { data, error } = await readRequest(signal =>
-    db().rpc("list_notifications", { p_limit: 30 }).abortSignal(signal)
-  );
+export async function getNotifications(): Promise<NotificationFeed> {
+  const request = (withProgress: boolean) =>
+    readRequest(signal =>
+      db()
+        .rpc(
+          "list_notifications",
+          withProgress ? { p_limit: 30, p_include_progress: true } : { p_limit: 30 }
+        )
+        .abortSignal(signal)
+    );
+  const { data, error } = await request(true);
+  // Keep the bell available during a staggered app and database rollout.
+  if (error?.code === "PGRST202") {
+    const legacy = await request(false);
+    if (!legacy.error)
+      return { items: legacy.data as AppNotification[], progressUnread: null };
+    throw new NotificationRequestError("Couldn't load notifications.", legacy.error);
+  }
   if (error)
     throw new NotificationRequestError("Couldn't load notifications.", error);
-  return data as AppNotification[];
+  return data as NotificationFeed;
 }
 export async function markNotificationRead(id?: string) {
   const { error } = await db().rpc("mark_notification_read", {
@@ -69,6 +99,15 @@ export async function markNotificationRead(id?: string) {
   if (error)
     throw new NotificationRequestError(
       "Couldn't mark this notification as read.",
+      error
+    );
+}
+
+export async function markProgressNotificationsRead() {
+  const { error } = await db().rpc("mark_progress_notifications_read");
+  if (error)
+    throw new NotificationRequestError(
+      "Couldn't mark progress notifications as read.",
       error
     );
 }

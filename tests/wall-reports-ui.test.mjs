@@ -1,4 +1,5 @@
 import { intl, gameMessages, loadLocaleModule } from "./helpers/i18n.mjs";
+import { wallMentions } from "./helpers/wall-mentions.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -53,6 +54,9 @@ const ui = {
 test("shared profile/feed posts expose Report only for another known player's post", () => {
   let admin = false;
   const { ProfileWall } = load("components/profile-wall.tsx", {
+    "@/components/expandable-image": { ExpandableImage: () => null },
+    "@/components/wall-mentions": wallMentions,
+    "@/lib/ui/paste-image": { pasteImage: () => {} },
     "@/components/player-moderation": {
       PlayerModeration: ({ contextId, contextType }) =>
         React.createElement(

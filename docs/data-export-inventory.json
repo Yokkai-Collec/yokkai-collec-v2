@@ -1,4 +1,18 @@
 {
+  "public.player_title_catalog": {
+    "excluded": "Global title identifiers shared by all players; no player-specific records or personal data."
+  },
+  "public.player_title_unlocks": {
+    "sections": ["player_titles"],
+    "note": "Own unlocked title identifiers and unlock/consultation dates only."
+  },
+  "public.player_equipped_titles": {
+    "sections": ["player_title"],
+    "note": "Own equipped title identifier, including the default Collector fallback."
+  },
+  "public.achievement_notification_refreshes": {
+    "excluded": "Internal evaluation cache with a timestamp and a digest of progress counters already included in the player's export. It expires for evaluation purposes and is deleted with the account."
+  },
   "public.catalogue_discord_imports": {
     "excluded": "Global catalogue import grouping identifiers and completion dates; no player records."
   },
@@ -193,6 +207,9 @@
   },
   "public.anticheat_network_observations": {
     "excluded": "Short-lived keyed network pseudonyms used for anti-cheat correlation. Raw addresses are not stored; records require separate manual privacy and security review and expire after seven days."
+  },
+  "public.anticheat_trade_connections": {
+    "excluded": "Latest network and browser pseudonyms observed together for the trade rule. Raw addresses and tokens are not stored. The record expires after seven days and requires separate manual privacy and security review."
   },
   "public.anticheat_account_exemptions": {
     "excluded": "Private operator-maintained account exceptions with internal review notes. Requests concerning security exemptions require separate manual privacy review."
@@ -398,6 +415,14 @@
   },
   "public.panini_album_favorites": {
     "sections": ["album_favorites"]
+  },
+  "public.karas_gift_codes": {
+    "sections": ["karas_gifts_received"],
+    "note": "Only amount and the message shown on a code the requesting player redeemed. Excludes secret hashes, issuer identity and issuance records."
+  },
+  "public.karas_gift_redemptions": {
+    "sections": ["karas_gifts_received"],
+    "note": "Only the requesting player's redemption dates. Excludes code hashes and other recipients."
   },
   "public.private_message_reads": {
     "excluded": "Private read receipts contain counterpart identifiers; manual privacy review, no received correspondence export."

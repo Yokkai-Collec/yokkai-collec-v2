@@ -1,7 +1,7 @@
 # Referral Event
 
-Première édition : du 14 novembre 2026 à 19:00 UTC au 28 novembre à 19:00 UTC
-(20h au démarrage et à la fin dans Europe/Paris). Grâce jusqu'au 29 novembre
+Première édition : du 16 novembre 2026 à 19:00 UTC au 30 novembre à 19:00 UTC
+(20h au démarrage et à la fin dans Europe/Paris). Grâce jusqu'au 1er décembre
 à 19:00 UTC, uniquement pour les comptes inscrits dans les dernières 24 heures.
 
 Le parrainage et ses 5 Regular Packs pour chaque joueur restent inchangés.
@@ -21,7 +21,7 @@ devient inéligible ultérieurement ; les sanctions existantes restent indépend
 
 Le titre Recruiter est un droit acquis porté par le reçu du palier 20 et lié à
 l'édition ; il ne dépend ni de Pro ni des décorations modifiables du profil.
-Il est lisible sur son propre profil ou un profil public, en respectant les blocages.
+Il est déverrouillé dans `player_title_unlocks`, puis sélectionnable dans le sélecteur de titres existant, sans équipement automatique. Les projections sociales et règles de visibilité existantes s’appliquent.
 
 ## Économie consultée en lecture seule le 13 novembre 2026
 
@@ -56,7 +56,7 @@ liés à leur édition ; aucun changement d'interface ou de worker n'est nécess
 La page `/referral-event` présente l'édition active, sinon la prochaine ou la dernière.
 Les encarts Home/Packs n'apparaissent qu'entre début et fin, pas pendant la grâce.
 
-Migration `20261114100000_referral_event.sql` : à appliquer en production uniquement
+Migration `20261116130001_referral_event.sql` : à appliquer en production uniquement
 via `scripts/deploy-migrations.sh`. Aucun déploiement n'a été effectué pour cette PR.
 Test SQL autonome : `tests/sql/referral-event.sql`, enveloppe de test
 `node --test tests/referral-event-db.test.mjs` sur une base jetable.

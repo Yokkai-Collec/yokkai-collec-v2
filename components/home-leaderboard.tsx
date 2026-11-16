@@ -93,6 +93,7 @@ export async function HomeLeaderboard({ userId }: { userId: string }) {
                   <strong>
                     <StyledPlayerName
                       name={entry.pseudo}
+                      playerId={entry.userId}
                       cosmetics={ranking.profileStyles?.[entry.userId]}
                     />
                   </strong>
@@ -140,6 +141,7 @@ export async function HomeLeaderboard({ userId }: { userId: string }) {
                   <strong>
                     <StyledPlayerName
                       name={entry.pseudo}
+                      playerId={entry.userId}
                       cosmetics={ranking.profileStyles?.[entry.userId]}
                     />
                   </strong>

@@ -40,7 +40,7 @@ alter table public.referral_event_rewards enable row level security;
 revoke all on public.referral_events,public.referral_event_tiers,public.referral_event_rewards from public,anon,authenticated,service_role;
 
 insert into public.referral_events(slug,starts_at,ends_at)
- values('recruiter-2026-11','2026-11-14 19:00:00+00','2026-11-28 19:00:00+00');
+ values('recruiter-2026-11','2026-11-16 19:00:00+00','2026-11-30 19:00:00+00');
 insert into public.referral_event_tiers(event_id,threshold,karas,lr_cards,recruiter_badge)
  select e.id,t.threshold,t.karas,t.lr_cards,t.badge from public.referral_events e
  cross join(values(3,750,0,false),(5,750,0,false),(10,1600,0,false),(20,0,5,true))t(threshold,karas,lr_cards,badge)
@@ -90,6 +90,8 @@ language sql stable security definer set search_path='' as $$
 $$;
 revoke all on function public.referral_event_qualified(uuid) from public,anon,authenticated,service_role;
 
+insert into public.player_title_catalog(id) values('recruiter');
+
 -- The worker is owner-only. Reading progress cannot award a reward.
 create function public.settle_referral_events()
 returns void language plpgsql security definer set search_path='' as $$
@@ -130,6 +132,9 @@ begin
     end loop;
     update public.referral_event_rewards set decision_pack_id=pack,cards=drawn where id=reward.id;
    end if;
+   if reward.recruiter_badge then
+    insert into public.player_title_unlocks(user_id,title_id) values(reward.user_id,'recruiter') on conflict do nothing;
+   end if;
    insert into public.notifications(user_id,type,reference_id)
     values(reward.user_id,'referral_event_tier',reward.id);
   end loop;
@@ -167,19 +172,6 @@ begin
 end;$$;
 revoke all on function public.get_referral_event() from public,anon,authenticated,service_role;
 grant execute on function public.get_referral_event() to authenticated;
-
--- Earned badges come from immutable receipts, never editable Pro cosmetics.
-create function public.get_referral_event_badges(p_user uuid)
-returns jsonb language sql stable security definer set search_path='' as $$
- select coalesce(jsonb_agg(jsonb_build_object('eventId',r.event_id) order by r.awarded_at),'[]')
- from public.referral_event_rewards r join public.user_profiles p on p.user_id=r.user_id
- join auth.users u on u.id=p.user_id
- where r.user_id=p_user and r.recruiter_badge and auth.uid() is not null
- and (p.is_public or p.user_id=auth.uid()) and not public.users_blocked(auth.uid(),p_user)
- and coalesce((to_jsonb(u)->>'banned_until')::timestamptz,'-infinity')<=now() and (to_jsonb(u)->>'deleted_at') is null
-$$;
-revoke all on function public.get_referral_event_badges(uuid) from public,anon,authenticated,service_role;
-grant execute on function public.get_referral_event_badges(uuid) to authenticated;
 
 do $$
 declare definition text; updated text; signature regprocedure;

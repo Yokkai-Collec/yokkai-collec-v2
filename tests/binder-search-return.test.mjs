@@ -49,7 +49,12 @@ function collection(readOnly = false) {
     if (name === "next-intl") return intl;
     if (name === "@/i18n/game-messages") return gameMessages;
     if (name === "react")
-      return { useState, useEffect, useMemo: callback => callback() };
+      return {
+        useState,
+        useEffect,
+        useMemo: callback => callback(),
+        useRef: initial => useState(() => ({ current: initial }))[0]
+      };
     if (name === "react/jsx-runtime")
       return { jsx, jsxs: jsx, Fragment: "fragment" };
     if (name === "next/navigation")
@@ -78,6 +83,13 @@ function collection(readOnly = false) {
       URLSearchParams,
       window: {
         location: { search: "" },
+        matchMedia: () => ({
+          matches: false,
+          addEventListener() {},
+          removeEventListener() {}
+        }),
+        requestAnimationFrame: callback => context.window.setTimeout(callback),
+        cancelAnimationFrame: id => context.window.clearTimeout(id),
         addEventListener() {},
         removeEventListener() {},
         history: { pushState() {} },
@@ -89,6 +101,10 @@ function collection(readOnly = false) {
         clearTimeout(id) {
           timers.delete(id);
         }
+      },
+      ResizeObserver: class {
+        observe() {}
+        disconnect() {}
       }
     };
     vm.runInNewContext(

@@ -1,3 +1,4 @@
+import { wallMentions } from "./helpers/wall-mentions.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -179,7 +180,13 @@ test("feed errors have English messages and Home links to the full feed", () => 
 
 test("Feed uses the actual profile post UI, private media route and interaction component", () => {
   const liveWall = {};
+  const expandableImage = load("components/expandable-image.tsx", {
+    "@/components/ui": { Modal: () => null }
+  });
   const { ProfileWall } = load("components/profile-wall.tsx", {
+    "@/components/wall-mentions": wallMentions,
+    "@/components/expandable-image": expandableImage,
+    "@/lib/ui/paste-image": { pasteImage: () => {} },
     "@/components/player-moderation": { PlayerModeration: () => null },
     "next/link": {
       __esModule: true,

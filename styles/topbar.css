@@ -4,7 +4,7 @@
   z-index: 30;
   display: grid;
   width: 100%;
-  max-width: 100vw;
+  max-width: var(--desktop-layout-width, 100vw);
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--layout-gutter);
@@ -292,6 +292,42 @@
   transform: rotate(180deg);
   color: var(--color-ink);
 }
+.yk-account-avatar {
+  position: relative;
+  display: inline-flex;
+}
+.yk-progress-badge {
+  display: inline-grid;
+  flex: none;
+  min-width: 16px;
+  min-height: 16px;
+  place-items: center;
+  padding-inline: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--color-danger);
+  color: var(--color-void);
+  font-size: 10px;
+  font-weight: 750;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.yk-account-avatar > .yk-progress-badge {
+  position: absolute;
+  inset-block-start: -3px;
+  inset-inline-end: -3px;
+  box-shadow: 0 0 0 2px var(--color-surface);
+}
+.yk-account-achievements,
+.yk-account-profile {
+  position: relative;
+}
+.yk-account-achievements > .yk-progress-badge {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: calc(var(--spacing) * 3);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
 .yk-account-backdrop {
   background: transparent;
   backdrop-filter: none;
@@ -354,6 +390,11 @@
   font-size: 12px;
   font-weight: 600;
 }
+.yk-account-summary .yk-account-title-line {
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: anywhere;
+}
 .yk-account-karas {
   display: none;
 }
@@ -381,6 +422,13 @@
 .yk-account-action svg {
   flex: 0 0 auto;
   transition: filter 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.yk-account-title-notice {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: calc(var(--spacing) * 3);
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 .yk-account-action:hover,
 .yk-account-action:focus-visible {

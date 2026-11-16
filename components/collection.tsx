@@ -1,4 +1,5 @@
 "use client";
+import { formatLicenseName } from "@/lib/ui/license-name";
 import { gameErrorKey } from "@/i18n/game-messages";
 import { useTranslations, useFormatter } from "next-intl";
 
@@ -13,7 +14,7 @@ import { cardRarityLabel } from "@/lib/ui/card-rarity-label";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useProAccess, ProFeatureNotice } from "@/components/pro-access";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type {
   Card,
   CardFilter,
@@ -39,7 +40,12 @@ import { CollectionLoading } from "@/components/collection-loading";
 import { CardShareButton, MyCardShares } from "@/components/card-sharing";
 import { CardReportButton } from "@/components/card-report-button";
 import { CatalogueCardModal } from "@/components/catalogue-card-modal";
-import { BINDER_CARD_PAGE_SIZES, CARD_PAGE_SIZES } from "@/lib/ui/pagination";
+import {
+  BINDER_CARD_PAGE_SIZES,
+  CARD_PAGE_SIZES,
+  DEFAULT_CARD_PAGE_SIZE,
+  pageSizeForCollectionHeight
+} from "@/lib/ui/pagination";
 import {
   COLLECTION_SORTS,
   isCollectionSort,
@@ -200,6 +206,7 @@ export function CollectionView({
   onMoveCard,
   onMoveCards,
   onSetLocked,
+  onLockCards,
   onCreateAuction,
   onEvolve,
   onSetCustomImage,
@@ -242,6 +249,7 @@ export function CollectionView({
     folderId: string | null
   ) => Promise<void>;
   onSetLocked?: (instanceId: string, locked: boolean) => Promise<void>;
+  onLockCards?: (instanceIds: string[]) => Promise<void>;
   onCreateAuction?: (
     instanceId: string,
     startingPrice: number,
@@ -259,6 +267,7 @@ export function CollectionView({
     query?: string;
     category?: CardFilter;
     favoritesOnly?: boolean;
+    completedOnly?: boolean;
     page?: number;
     pageSize?: number;
   }) => Promise<PaniniAlbumPage>;
@@ -348,7 +357,15 @@ export function CollectionView({
   const [duplicatesOnly, setDuplicatesOnly] = useState(false);
   const [page, setPage] = useState(1);
   const [sort, setSort] = useCollectionSort();
-  const [pageSize, setPageSize] = useState<number>(CARD_PAGE_SIZES[0]);
+  // The Collection grows its page in complete rows so the cards fill the
+  // height of the visible filter panel on each screen.
+  const [pageSize, setPageSize] = useState<number>(DEFAULT_CARD_PAGE_SIZE);
+  const [laptopPagination, setLaptopPagination] = useState(false);
+  const [manualPageSize, setManualPageSize] = useState<number>(
+    DEFAULT_CARD_PAGE_SIZE
+  );
+  const sidebarRef = useRef<HTMLElement>(null);
+  const cardsGridRef = useRef<HTMLUListElement>(null);
   const [folderName, setFolderName] = useState("");
   const [showFolderCreator, setShowFolderCreator] = useState(false);
   const [folderBusy, setFolderBusy] = useState(false);
@@ -394,10 +411,14 @@ export function CollectionView({
   const [bulkFolderTarget, setBulkFolderTarget] = useState("");
   const [bulkFolderBusy, setBulkFolderBusy] = useState(false);
   const [bulkFolderError, setBulkFolderError] = useState("");
+  const [bulkLockBusy, setBulkLockBusy] = useState(false);
+  const [bulkLockError, setBulkLockError] = useState("");
+  const bulkBusy = bulkLockBusy || bulkFolderBusy || bulkDiscardBusy;
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "panini">("grid");
   const [selectedLicense, setSelectedLicense] = useState<string | null>(null);
   const [linkedBinderName, setLinkedBinderName] = useState("");
+  const [completedOnly, setCompletedOnly] = useState(false);
   const td = useTranslations("binderDiscovery");
   useEffect(() => {
     if (readOnly) return;
@@ -407,6 +428,7 @@ export function CollectionView({
         setViewMode("panini");
         setSelectedLicense(p.get("binder"));
         setLinkedBinderName(p.get("name") ?? "");
+        setCompletedOnly(p.get("completed") === "1");
       } else if (!initial) {
         setViewMode(current => (current === "panini" ? "grid" : current));
         setSelectedLicense(null);
@@ -424,7 +446,7 @@ export function CollectionView({
     setSelecting(false);
     setSelection(new Set());
     if (!readOnly && !localPreview)
-      window.history.pushState(null, "", binderHref(binder));
+      window.history.pushState(null, "", binderHref(binder, completedOnly));
   }
   const [binderWishlist, setBinderWishlist] = useState<{
     busy?: boolean;
@@ -547,6 +569,61 @@ export function CollectionView({
   const shownGroups = remote ? remoteGroups : groups;
   const matchingGroups = remote ? (remote.page?.total ?? 0) : groups.length;
   const ownedCopies = remote ? (remote.counts?.copies ?? 0) : cards.length;
+
+  // Measure actual rendered cards instead of guessing from a breakpoint. It
+  // keeps six columns, but adds complete rows until the grid reaches the end
+  // of the filter panel. This only applies to the laptop layout; wider
+  // desktops retain their existing page density. ResizeObserver also reacts
+  // to Windows display scaling.
+  useEffect(() => {
+    if (viewMode === "panini") return;
+    const laptopLayout = window.matchMedia(
+      "(min-width: 1024px) and (max-width: 1600px) and (hover: hover) and (pointer: fine)"
+    );
+    const sidebar = sidebarRef.current;
+    const grid = cardsGridRef.current;
+
+    const updatePageSize = () => {
+      setLaptopPagination(laptopLayout.matches);
+      if (!laptopLayout.matches) {
+        setPageSize(manualPageSize);
+        return;
+      }
+      const firstCard = grid?.querySelector<HTMLElement>(":scope > li");
+      if (!sidebar || !grid || !firstCard) return;
+      const styles = window.getComputedStyle(grid);
+      const columnCount = styles.gridTemplateColumns
+        .split(" ")
+        .filter(Boolean).length;
+      const rowGap = Number.parseFloat(styles.rowGap) || 0;
+      const rowHeight = firstCard.offsetHeight + rowGap;
+      const nextPageSize = pageSizeForCollectionHeight(
+        sidebar.offsetHeight,
+        rowHeight,
+        columnCount
+      );
+      setPageSize(current =>
+        current === nextPageSize ? current : nextPageSize
+      );
+    };
+
+    const observer = new ResizeObserver(updatePageSize);
+    if (sidebar) observer.observe(sidebar);
+    if (grid) observer.observe(grid);
+    const frame = window.requestAnimationFrame(updatePageSize);
+    laptopLayout.addEventListener("change", updatePageSize);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      observer.disconnect();
+      laptopLayout.removeEventListener("change", updatePageSize);
+    };
+  }, [matchingGroups, viewMode, manualPageSize]);
+  // A new server-side search must not briefly render the preceding result set.
+  // For the client fallback, retain its previous behaviour: cards already
+  // available remain visible while a refresh is in progress.
+  const cardsLoading = remote
+    ? remote.loading && !remote.page
+    : loading && ownedCopies === 0;
   const paniniAlbumPageCount = Math.max(1, Math.ceil(paniniAlbums.total / 72));
   const activePaniniAlbumPage = Math.min(paniniAlbumPage, paniniAlbumPageCount);
   const ownedByCardId = useMemo(() => {
@@ -604,6 +681,7 @@ export function CollectionView({
           query,
           category,
           favoritesOnly,
+          completedOnly,
           page: activePaniniAlbumPage,
           pageSize: 72
         })
@@ -633,6 +711,7 @@ export function CollectionView({
   }, [
     activePaniniAlbumPage,
     category,
+    completedOnly,
     favoritesOnly,
     loadPaniniAlbums,
     paniniAlbumRefresh,
@@ -735,7 +814,7 @@ export function CollectionView({
   const pageCount = Math.max(1, Math.ceil(matchingGroups / pageSize));
   const activePage = Math.min(page, pageCount);
   const visibleGroups = remote
-    ? shownGroups
+    ? shownGroups.slice(0, pageSize)
     : groups.slice((activePage - 1) * pageSize, activePage * pageSize);
   const selectedCards = sourceCards.filter(
     c =>
@@ -1013,7 +1092,7 @@ export function CollectionView({
     }
   }
   async function discardSelection() {
-    if (!onDiscardMany || !selectedCards.length || bulkDiscardBusy) return;
+    if (!onDiscardMany || !selectedCards.length || bulkBusy) return;
     setBulkDiscardBusy(true);
     setBulkDiscardError("");
     try {
@@ -1031,16 +1110,33 @@ export function CollectionView({
       setBulkDiscardBusy(false);
     }
   }
+  async function lockSelection() {
+    if (!onLockCards || !selectedCards.length || bulkBusy) return;
+    setBulkLockBusy(true);
+    setBulkLockError("");
+    setBulkFolderError("");
+    setBulkDiscardError("");
+    try {
+      await onLockCards(selectedCards.map(card => card.instanceId));
+      setSelection(new Set());
+      setSelecting(false);
+      setBulkFolderTarget("");
+    } catch (error) {
+      setBulkLockError(
+        error instanceof Error
+          ? gameErrorKey(error)
+          : "collectionUi.couldntLockSelectedCards"
+      );
+    } finally {
+      setBulkLockBusy(false);
+    }
+  }
   async function moveSelection() {
-    if (
-      !onMoveCards ||
-      !selectedCards.length ||
-      !bulkFolderTarget ||
-      bulkFolderBusy
-    )
+    if (!onMoveCards || !selectedCards.length || !bulkFolderTarget || bulkBusy)
       return;
     setBulkFolderBusy(true);
     setBulkFolderError("");
+    setBulkLockError("");
     try {
       await onMoveCards(
         selectedCards.map(card => card.instanceId),
@@ -1497,7 +1593,9 @@ export function CollectionView({
         {!readOnly && (
           <SelectionModeButton
             active={selecting}
+            disabled={bulkBusy}
             onClick={() => {
+              setBulkLockError("");
               setSelecting(!selecting);
               setSelection(new Set());
             }}
@@ -1579,6 +1677,7 @@ export function CollectionView({
           <div className="yk-collection-layout">
             <aside
               id="collection-filters"
+              ref={sidebarRef}
               className={`yk-collection-sidebar ${filtersOpen ? "yk-sidebar-open" : ""}`}
               aria-label={tc("collectionFilters")}
             >
@@ -1618,7 +1717,7 @@ export function CollectionView({
                         </button>
                         <div>
                           <p className="yk-section-title">{tc("binder")}</p>
-                          <h2>{selectedAlbumName}</h2>
+                          <h2>{formatLicenseName(selectedAlbumName)}</h2>
                         </div>
                         <p>
                           {selectedAlbum?.owned ??
@@ -1726,7 +1825,7 @@ export function CollectionView({
                         {!readOnly && !previewOnly && (
                           <CollectionCoverEditor
                             targetKey={selectedLicense}
-                            name={selectedAlbumName ?? ""}
+                            name={formatLicenseName(selectedAlbumName)}
                             onSaved={() => setPaniniAlbumRefresh(n => n + 1)}
                           />
                         )}
@@ -1774,7 +1873,7 @@ export function CollectionView({
                         tabIndex={0}
                         className="yk-panini-slots"
                         aria-label={tc("cardsFrom", {
-                          license: selectedAlbumName ?? ""
+                          license: formatLicenseName(selectedAlbumName)
                         })}
                       >
                         {paniniCards.items.map(card => {
@@ -1917,6 +2016,29 @@ export function CollectionView({
                             {tc("favoritesOnly")}
                           </button>
                         )}
+                        {!readOnly && loadPaniniAlbums && (
+                          <button
+                            type="button"
+                            className="yk-panini-owned-toggle"
+                            aria-pressed={completedOnly}
+                            onClick={() => {
+                              const next = !completedOnly;
+                              setCompletedOnly(next);
+                              setPaniniAlbumPage(1);
+                              if (!localPreview)
+                                window.history.replaceState(
+                                  null,
+                                  "",
+                                  binderHref(undefined, next)
+                                );
+                            }}
+                          >
+                            <span aria-hidden="true">
+                              {completedOnly ? "✓" : "○"}
+                            </span>
+                            {tc("completedBindersOnly")}
+                          </button>
+                        )}
                       </div>
                       {paniniError && (
                         <div className="yk-panini-empty" role="alert">
@@ -1961,8 +2083,16 @@ export function CollectionView({
                       !paniniError &&
                       paniniAlbums.total === 0 ? (
                         <div className="yk-panini-empty">
-                          <strong>{tc("noLicensesFound")}</strong>
-                          <p>{tc("tryAnotherNameInTheSearchBar")}</p>
+                          <strong>
+                            {tc(
+                              completedOnly
+                                ? "noCompletedBindersFound"
+                                : "noLicensesFound"
+                            )}
+                          </strong>
+                          {(!completedOnly || query.trim()) && (
+                            <p>{tc("tryAnotherNameInTheSearchBar")}</p>
+                          )}
                         </div>
                       ) : !paniniBusy && !paniniError ? (
                         <ul
@@ -1990,7 +2120,7 @@ export function CollectionView({
                                   setPaniniPage(1);
                                 }}
                                 aria-label={tc("viewLicense", {
-                                  license: item.license,
+                                  license: formatLicenseName(item.license),
                                   owned: format.number(item.owned),
                                   total: format.number(item.total),
                                   count: item.total
@@ -1999,7 +2129,7 @@ export function CollectionView({
                                 <BinderCover
                                   image={binderCover(item, cards)}
                                   frame={item.coverFrame}
-                                  license={item.license}
+                                  license={formatLicenseName(item.license)}
                                 />
                                 <span className="yk-panini-details">
                                   <strong
@@ -2007,7 +2137,7 @@ export function CollectionView({
                                       Array.from(item.license).length > 32
                                     }
                                   >
-                                    {item.license}
+                                    {formatLicenseName(item.license)}
                                   </strong>
                                   <span className="yk-panini-count">
                                     <span className="yk-panini-count-values">
@@ -2039,7 +2169,7 @@ export function CollectionView({
                                   className="yk-panini-favorite"
                                   aria-label={tc("favoriteAria", {
                                     favorite: String(item.favorite),
-                                    license: item.license
+                                    license: formatLicenseName(item.license)
                                   })}
                                   aria-pressed={item.favorite}
                                   disabled={favoriteLicenseBusy !== null}
@@ -2110,7 +2240,7 @@ export function CollectionView({
                     </Button>
                   )}
                 </div>
-              ) : (remote ? remote.loading : loading) && ownedCopies === 0 ? (
+              ) : cardsLoading ? (
                 <CollectionLoading />
               ) : matchingGroups === 0 ? (
                 <div className="rounded-panel border border-dashed border-veil-strong px-6 py-16 text-center">
@@ -2151,6 +2281,7 @@ export function CollectionView({
                 <ul
                   id="collection-cards-list"
                   tabIndex={0}
+                  ref={cardsGridRef}
                   className={`yk-card-grid yk-collection-grid`}
                   aria-label={tc("ownedCardGroups")}
                 >
@@ -2177,7 +2308,9 @@ export function CollectionView({
                       <li key={group.key} className="min-w-0">
                         <button
                           type="button"
-                          disabled={selecting && eligible.length === 0}
+                          disabled={
+                            selecting && (bulkBusy || eligible.length === 0)
+                          }
                           className={`yk-collection-card ${selecting && (checked || partial) ? "yk-selected-card" : ""}`}
                           aria-label={tc("groupAria", {
                             action: selecting ? "select" : "view",
@@ -2263,22 +2396,31 @@ export function CollectionView({
                     onPageChange={setPage}
                     scrollTargetId="collection-cards-list"
                   />
-                  <label>
-                    {tc("cardsPerPage")}
-                    <select
-                      value={pageSize}
-                      onChange={event => {
-                        setPageSize(Number(event.target.value));
-                        setPage(1);
-                      }}
-                    >
-                      {CARD_PAGE_SIZES.map(size => (
-                        <option key={size} value={size}>
-                          {size}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                  {laptopPagination ? (
+                    <span className="yk-collection-page-size">
+                      {tc("cardsPerPage")}
+                      <output>{Math.min(pageSize, matchingGroups)}</output>
+                    </span>
+                  ) : (
+                    <label>
+                      {tc("cardsPerPage")}
+                      <select
+                        value={manualPageSize}
+                        onChange={event => {
+                          const size = Number(event.target.value);
+                          setManualPageSize(size);
+                          setPageSize(size);
+                          setPage(1);
+                        }}
+                      >
+                        {CARD_PAGE_SIZES.map(size => (
+                          <option key={size} value={size}>
+                            {size}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
                 </div>
               )}
               {selecting && (
@@ -2286,45 +2428,59 @@ export function CollectionView({
                   itemLabel="exemplaire"
                   count={selectedCards.length}
                   value={selectedValue}
-                  busy={bulkDiscardBusy || bulkFolderBusy}
-                  error={bulkFolderError || bulkDiscardError}
+                  busy={bulkBusy}
+                  destroying={bulkDiscardBusy}
+                  error={bulkLockError || bulkFolderError || bulkDiscardError}
                   actions={
-                    onMoveCards ? (
-                      <div className="yk-selection-folder">
-                        <label htmlFor="selection-folder" className="sr-only">
-                          {tc("destinationFolder")}
-                        </label>
-                        <select
-                          id="selection-folder"
-                          value={bulkFolderTarget}
-                          disabled={bulkFolderBusy || bulkDiscardBusy}
-                          onChange={event => {
-                            setBulkFolderTarget(event.target.value);
-                            setBulkFolderError("");
-                          }}
-                        >
-                          <option value="">{tc("chooseAFolder")}</option>
-                          <option value="unfiled">{tc("noFolder")}</option>
-                          {folders.map(item => (
-                            <option key={item.id} value={item.id}>
-                              {item.name}
-                            </option>
-                          ))}
-                        </select>
+                    <>
+                      {onLockCards && (
                         <Button
                           variant="secondary"
-                          disabled={
-                            !selectedCards.length ||
-                            !bulkFolderTarget ||
-                            bulkFolderBusy ||
-                            bulkDiscardBusy
-                          }
-                          onClick={() => void moveSelection()}
+                          disabled={!selectedCards.length || bulkBusy}
+                          onClick={() => void lockSelection()}
                         >
-                          {bulkFolderBusy ? tc("moving") : tc("move")}
+                          <ProtectedIcon />
+                          {tc(
+                            bulkLockBusy ? "lockingCards" : "lockSelectedCards"
+                          )}
                         </Button>
-                      </div>
-                    ) : undefined
+                      )}
+                      {onMoveCards && (
+                        <div className="yk-selection-folder">
+                          <label htmlFor="selection-folder" className="sr-only">
+                            {tc("destinationFolder")}
+                          </label>
+                          <select
+                            id="selection-folder"
+                            value={bulkFolderTarget}
+                            disabled={bulkBusy}
+                            onChange={event => {
+                              setBulkFolderTarget(event.target.value);
+                              setBulkFolderError("");
+                            }}
+                          >
+                            <option value="">{tc("chooseAFolder")}</option>
+                            <option value="unfiled">{tc("noFolder")}</option>
+                            {folders.map(item => (
+                              <option key={item.id} value={item.id}>
+                                {item.name}
+                              </option>
+                            ))}
+                          </select>
+                          <Button
+                            variant="secondary"
+                            disabled={
+                              !selectedCards.length ||
+                              !bulkFolderTarget ||
+                              bulkBusy
+                            }
+                            onClick={() => void moveSelection()}
+                          >
+                            {bulkFolderBusy ? tc("moving") : tc("move")}
+                          </Button>
+                        </div>
+                      )}
+                    </>
                   }
                   onAll={() =>
                     // Adds the current page only; other pages keep their picks.
@@ -2344,11 +2500,13 @@ export function CollectionView({
                   }
                   onNone={() => setSelection(new Set())}
                   onDestroy={() => {
+                    setBulkLockError("");
                     setBulkDiscardError("");
                     setBulkFolderError("");
                     setBulkDiscardConfirm(true);
                   }}
                   onClose={() => {
+                    setBulkLockError("");
                     setSelecting(false);
                     setSelection(new Set());
                     setBulkFolderTarget("");
@@ -2479,6 +2637,19 @@ export function CollectionView({
                 </div>
               )}
               <dl className="yk-detail-facts">
+                {selected.anime?.trim() && (
+                  <div>
+                    <dt>{tc("license")}</dt>
+                    <dd>
+                      <Link
+                        className="underline underline-offset-4 hover:text-ink"
+                        href={`/catalog?q=${encodeURIComponent(selected.anime.trim())}`}
+                      >
+                        {formatLicenseName(selected.anime.trim())}
+                      </Link>
+                    </dd>
+                  </div>
+                )}
                 <div>
                   <dt>{tc("category")}</dt>
                   <dd>

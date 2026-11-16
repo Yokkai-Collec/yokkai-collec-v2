@@ -156,9 +156,15 @@ export function useCollectionPages(
   );
   if (!adapter) return null;
   const current = pick(result, pageKey, null);
+  // Never render a page obtained for another filter set while a new search is
+  // pending. Keeping it visible made results from the previous query look like
+  // they belonged to the newly typed search. We still retain a previous page
+  // when only the page number changes, which keeps normal pagination smooth.
+  const latestForFilters = result?.key.startsWith(`${query}|`)
+    ? result.value
+    : null;
   return {
-    // The previous page stays on screen while the next one loads.
-    page: current ?? result?.value ?? null,
+    page: current ?? latestForFilters,
     counts: pick(counts, String(version), counts?.value ?? null),
     ownedCopies: owned ? pick(ownedCopies, `${version}|${owned}`, []) : [],
     licenseCopies: license

@@ -1,3 +1,4 @@
+import { licenseName } from "./helpers/license-name.mjs";
 import { intl } from "./helpers/i18n.mjs";
 import { createRequire } from "node:module";
 import { cardRarityLabels } from "./helpers/card-rarity-labels.mjs";
@@ -34,6 +35,7 @@ function load(input = source) {
         env: { NEXT_PUBLIC_SUPABASE_URL: "https://images.example.test" }
       },
       require: name => {
+        if (name === "@/lib/ui/license-name") return licenseName;
         if (name === "next-intl") return intl;
         if (name === "@/lib/ui/card-rarity-label") return cardRarityLabels;
         if (name.endsWith(".css")) return {};

@@ -36,6 +36,10 @@ test("trade review reserves cards and Karas and settles exactly once", async t =
       "insert into public.anticheat_device_observations(device_identity,user_id) values($1,$2)",
       [`v1:${"b".repeat(64)}`, id]
     );
+    await db.query(
+      "select public.record_anticheat_trade_connection($1,$2,$3)",
+      [id, `v1:${"a".repeat(64)}`, `v1:${"b".repeat(64)}`]
+    );
   }
   const catalog = (
     await db.query(
@@ -211,7 +215,7 @@ test("trade review reserves cards and Karas and settles exactly once", async t =
     [critical]
   );
   await db.exec("update public.anticheat_cases set status='reviewed'");
-  await db.exec("delete from public.anticheat_network_observations");
+  await db.exec("delete from public.anticheat_trade_connections");
   // Fault-inject only for the third case. Real worker runs against isolated test data.
   const analysis = (
     await db.query(

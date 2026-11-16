@@ -1,8 +1,12 @@
 import type { Card, PaniniAlbumProgress } from "@/lib/data/cards";
 import { binderIdentity } from "@/lib/ui/binder-identity";
 
-export function binderHref(binder?: { binderKey?: string; license: string }) {
+export function binderHref(
+  binder?: { binderKey?: string; license: string },
+  completedOnly = false
+) {
   const params = new URLSearchParams({ view: "binders" });
+  if (completedOnly) params.set("completed", "1");
   if (binder) {
     params.set("binder", binderIdentity(binder));
     params.set("name", binder.license);

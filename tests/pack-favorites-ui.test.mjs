@@ -1,5 +1,6 @@
 ﻿import assert from "node:assert/strict";
 import test from "node:test";
+import { licenseName } from "./helpers/license-name.mjs";
 import fs from "node:fs";
 import vm from "node:vm";
 import ts from "typescript";
@@ -21,6 +22,7 @@ const compile = (file, mocks, globals = {}) => {
     {
       exports,
       require: n => {
+        if (n === "@/lib/ui/license-name") return licenseName;
         if (n in mocks) return mocks[n];
         throw Error(n);
       },

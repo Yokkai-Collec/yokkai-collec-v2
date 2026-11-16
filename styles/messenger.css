@@ -61,7 +61,8 @@
     max(
       0px,
       calc(
-        100dvh - var(--yk-messenger-footer-clearance, 0px) -
+        var(--desktop-layout-height) -
+          var(--yk-messenger-footer-clearance, 0px) -
           var(--yk-messenger-edge-gap) - 88px
       )
     )
@@ -69,7 +70,7 @@
   max-height: max(
     0px,
     calc(
-      100dvh - var(--yk-messenger-footer-clearance, 0px) -
+      var(--desktop-layout-height) - var(--yk-messenger-footer-clearance, 0px) -
         var(--yk-messenger-edge-gap) - 88px
     )
   );
