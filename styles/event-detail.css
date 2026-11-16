@@ -60,25 +60,6 @@
 .yk-mystery-event-heading {
   align-items: start;
 }
-.yk-mystery-event-clock {
-  padding: 20px;
-  border: 1px solid var(--detail-line);
-  border-radius: 18px;
-  background: linear-gradient(135deg, #1b365b55, #070c17);
-  box-shadow: inset 0 1px #c8e2ff14;
-}
-.yk-mystery-clock-digits > span {
-  border: 0;
-  background: #050b1680;
-  box-shadow: inset 0 -2px #77aaff35;
-}
-.yk-mystery-event-state {
-  color: #95ffad;
-}
-.yk-mystery-event-state::before {
-  background: currentColor;
-  box-shadow: 0 0 12px #85ff9a70;
-}
 .yk-mystery-detail .yk-auction-art {
   flex: 0 1 440px;
   max-width: 100%;
@@ -112,7 +93,7 @@
   box-shadow: none;
 }
 .yk-mystery-detail .yk-auction-price {
-  font-size: clamp(2.2rem, 4vw, 3.2rem);
+  font-size: clamp(1.4rem, 2.5vw, 1.8rem);
 }
 .yk-mystery-detail .yk-bid-quick {
   min-height: 54px;

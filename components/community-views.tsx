@@ -1732,14 +1732,7 @@ export function AuctionView({
     <div
       className={`yk-auction-page${auction.isMystery ? " yk-mystery-detail" : ""}`}
     >
-      {auction.isMystery && (
-        <MysteryEventHeader
-          remaining={auction.remaining}
-          finished={auction.finished}
-          hidden={auction.mysteryHidden}
-          bids={auction.bids}
-        />
-      )}
+      {auction.isMystery && <MysteryEventHeader finished={auction.finished} />}
       <div className="yk-auction-art">
         {auction.isMystery ? (
           <EventCardShowcase revealed={!auction.mysteryHidden}>
@@ -1824,9 +1817,11 @@ export function AuctionView({
                 amount={auction.amount}
                 className="yk-auction-price yk-karas-gold"
               />
-              <p className="mt-1 text-xs text-ink-3">
-                {t("profileUi.bidCount", { count: auction.bids })}
-              </p>
+              {!auction.isMystery && (
+                <p className="mt-1 text-xs text-ink-3">
+                  {t("profileUi.bidCount", { count: auction.bids })}
+                </p>
+              )}
             </div>
             <div>
               <p className="yk-auction-label">

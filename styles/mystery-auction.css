@@ -112,76 +112,6 @@
   font-size: 0.8125rem;
   line-height: 1.8;
 }
-.yk-mystery-event-clock {
-  display: grid;
-  flex: 0 1 20rem;
-  min-width: 0;
-  gap: 0.75rem;
-}
-.yk-mystery-event-state {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: fit-content;
-  max-width: 100%;
-  color: var(--color-pack-accent);
-  font-size: 0.625rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  overflow-wrap: anywhere;
-}
-.yk-mystery-event-state::before {
-  content: "";
-  width: 5px;
-  height: 5px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: var(--color-pack-accent);
-  box-shadow: 0 0 10px
-    color-mix(in srgb, var(--color-accent-neon) 53%, transparent);
-}
-.yk-mystery-event-clock-label {
-  color: #a6b0c3;
-  font-size: 0.75rem;
-}
-.yk-mystery-clock-digits {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.5rem;
-}
-.yk-mystery-clock-digits > span {
-  display: grid;
-  justify-items: center;
-  gap: 0.35rem;
-  padding: 0.85rem 0.4rem 0.65rem;
-  border: 1px solid
-    color-mix(in srgb, var(--color-accent-neon) 19%, transparent);
-  border-radius: 0.65rem;
-  background: linear-gradient(
-    160deg,
-    color-mix(in srgb, var(--color-accent-neon) 5%, transparent),
-    #ffffff02
-  );
-}
-.yk-mystery-clock-digits > span > span {
-  color: var(--color-ink);
-  font-family: var(--font-display);
-  font-size: clamp(1.5rem, 3.5vw, 2.75rem);
-  font-weight: 600;
-  line-height: 1.1;
-  font-variant-numeric: tabular-nums;
-}
-.yk-mystery-clock-digits small {
-  color: #8f9ab0;
-  font-size: 0.5rem;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-}
-.yk-mystery-event-bids {
-  color: #8794ac;
-  font-size: 0.6875rem;
-}
 .yk-mystery-detail .yk-auction-art {
   overflow: clip;
   position: relative;
@@ -293,9 +223,6 @@
   padding: 1.25rem;
 }
 @media (max-width: 600px) {
-  .yk-mystery-event-clock {
-    flex-basis: 100%;
-  }
   .yk-mystery-event-heading {
     gap: 1.5rem;
   }

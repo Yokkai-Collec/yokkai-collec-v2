@@ -15,19 +15,8 @@ import "@/styles/mystery-auction.css";
 import { MysteryCardBack } from "@/components/event-scene";
 export { EventCardShowcase, MysteryCardBack } from "@/components/event-scene";
 
-export function MysteryEventHeader({
-  remaining,
-  finished,
-  hidden,
-  bids
-}: {
-  remaining: string;
-  finished?: boolean;
-  hidden?: boolean;
-  bids: number;
-}) {
+export function MysteryEventHeader({ finished }: { finished?: boolean }) {
   const t = useTranslations("mysteryAuction");
-  const tp = useTranslations("profileUi");
   return (
     <header className="yk-mystery-event-header">
       <Link href="/events" className="yk-mystery-event-back">
@@ -54,34 +43,6 @@ export function MysteryEventHeader({
           <p className="yk-mystery-event-subtitle">
             {t(finished ? "endedIntro" : "eventIntro")}
           </p>
-        </div>
-        <div className="yk-mystery-event-clock">
-          <span className="yk-mystery-event-state">
-            {t(finished ? (hidden ? "revealing" : "eventEnded") : "liveEvent")}
-          </span>
-          <span className="yk-mystery-event-clock-label">
-            {t(finished ? "reveal" : "revealIn")}
-          </span>
-          <strong
-            role="timer"
-            aria-live="off"
-            aria-label={finished ? "00:00:00" : remaining}
-            className="yk-mystery-clock-digits"
-          >
-            {(finished ? "00:00:00" : remaining)
-              .split(":")
-              .map((value, index) => (
-                <span key={index}>
-                  <span>{value}</span>
-                  <small>
-                    {t((["hours", "minutes", "seconds"] as const)[index])}
-                  </small>
-                </span>
-              ))}
-          </strong>
-          <span className="yk-mystery-event-bids">
-            {tp("bidCount", { count: bids })}
-          </span>
         </div>
       </div>
     </header>
