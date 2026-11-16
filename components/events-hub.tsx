@@ -77,7 +77,7 @@ export function EventsHub() {
                 >
                   <div className="yk-event-banner-content">
                     <span className="yk-event-frequency">
-                      {t("weeklyLabel")}
+                      {t("continuousLabel")}
                     </span>
                     <h3>{tm("title")}</h3>
                     <p className="yk-event-description">

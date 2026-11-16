@@ -48,7 +48,7 @@ export function MysteryEventHeader({
               <rect x="5" y="3" width="14" height="18" rx="3" />
               <path d="M9 8h6M9 12h6M9 16h3" />
             </svg>
-            {t("weeklyEvent")}
+            {t("dailyEvent")}
           </p>
           <h1>{t("title")}</h1>
           <p className="yk-mystery-event-subtitle">
@@ -159,7 +159,7 @@ export function useMysteryAuctionEvent() {
 export function MysteryAuctionBanner({ home = false }: { home?: boolean }) {
   const t = useTranslations("mysteryAuction");
   const { event, now, failed } = useMysteryAuctionEvent();
-  if (home && (!event || !event.isWednesday)) return null;
+  if (home && !event) return null;
   if (!event)
     return (
       <p role="status" className="text-sm text-ink-3">

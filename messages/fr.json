@@ -4550,7 +4550,7 @@
     "title": "Mystery Auction",
     "cardBack": "Dos de carte mystère",
     "description": "Toutes les cartes du catalogue ont la même chance d’être tirées au sort à la clôture. Une seule version en jeu : normale, jamais Shiny ni Infinity.",
-    "nextEvent": "Une nouvelle carte mystère chaque semaine.",
+    "nextEvent": "Une nouvelle carte mystère chaque jour.",
     "startsIn": "Prochain event dans {countdown}",
     "endsIn": "Fin dans {countdown}",
     "leader": "Meilleure enchère : {name}",
@@ -4562,8 +4562,7 @@
     "unavailable": "L’event est momentanément indisponible. Nouvelle tentative en cours…",
     "loading": "Chargement de la Mystery Auction…",
     "backToEvents": "Tous les événements",
-    "weeklyEvent": "Une enchère. Une surprise.",
-    "eventIntro": "Tu as 24 heures pour enchérir sur une carte mystère. Toutes les cartes du catalogue ont exactement la même chance de tomber, quelle que soit leur rareté. La carte est tirée au sort à la clôture, en version normale uniquement, puis révélée à tous. Le meilleur enchérisseur la remporte.",
+    "eventIntro": "Chaque jour, une nouvelle carte mystère est mise aux enchères jusqu’au prochain renouvellement. Toutes les cartes du catalogue ont exactement la même chance de tomber, quelle que soit leur rareté. La carte est tirée au sort à la clôture, en version normale uniquement, puis révélée à tous. Le meilleur enchérisseur la remporte.",
     "liveEvent": "Événement en cours",
     "eventEnded": "Événement terminé",
     "revealIn": "Révélation dans",
@@ -4580,7 +4579,8 @@
     "seconds": "S",
     "endedIntro": "Les enchères sont closes. Découvre la carte tirée au sort et le résultat de cette édition.",
     "resultDescription": "La carte a été tirée au sort à la clôture. Elle revient au meilleur enchérisseur ; sans enchère, elle n’est attribuée à personne.",
-    "resultTitle": "Le résultat de cette édition"
+    "resultTitle": "Le résultat de cette édition",
+    "dailyEvent": "Une enchère. Une surprise."
   },
   "events": {
     "title": "Événements",
@@ -4608,13 +4608,13 @@
     "unavailable": "Le programme est momentanément indisponible. Nouvelle tentative en cours…",
     "hubNote": "Les prochains événements seront ajoutés à ce hub dès leur arrivée.",
     "lead": "Participe aux événements temporaires et gagne des récompenses exclusives.",
-    "bannerMysteryDescription": "Une carte mystère. Une enchère de 24 h. Seras-tu le meilleur enchérisseur ?",
+    "bannerMysteryDescription": "Une nouvelle carte mystère chaque jour. Seras-tu le meilleur enchérisseur ?",
     "ended": "Terminé",
     "loadingShort": "Chargement",
     "emptyHint": "Reviens bientôt pour découvrir les prochains événements et leurs récompenses exclusives.",
     "countdownDays": "{days}j {hours}h {minutes}m",
     "countdownHours": "{hours}h {minutes}m {seconds}s",
-    "weeklyLabel": "Événement hebdomadaire",
-    "moreEventsTitle": "D’autres événements à venir"
+    "moreEventsTitle": "D’autres événements à venir",
+    "continuousLabel": "Événement permanent"
   }
 }

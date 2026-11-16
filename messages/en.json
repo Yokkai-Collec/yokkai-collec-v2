@@ -4550,7 +4550,7 @@
     "title": "Mystery Auction",
     "cardBack": "Mystery card back",
     "description": "Every card in the catalogue has an equal chance of being drawn at closing. Normal edition only: never Shiny or Infinity.",
-    "nextEvent": "A new mystery card every week.",
+    "nextEvent": "A new mystery card every day.",
     "startsIn": "Next event in {countdown}",
     "endsIn": "Ends in {countdown}",
     "leader": "Leading bidder: {name}",
@@ -4562,8 +4562,7 @@
     "unavailable": "The event is temporarily unavailable. Retrying…",
     "loading": "Loading the Mystery Auction…",
     "backToEvents": "All events",
-    "weeklyEvent": "One auction. One surprise.",
-    "eventIntro": "You have 24 hours to bid on a mystery card. Every card in the catalogue has exactly the same chance of being drawn, regardless of rarity. The card is drawn at closing, in its normal edition only, then revealed to everyone. The highest bidder wins it.",
+    "eventIntro": "A new mystery auction begins every day and runs until the next reset. Every card in the catalogue has exactly the same chance of being drawn, regardless of rarity. The card is drawn at closing, in its normal edition only, then revealed to everyone. The highest bidder wins it.",
     "liveEvent": "Live event",
     "eventEnded": "Event ended",
     "revealIn": "The reveal in",
@@ -4580,7 +4579,8 @@
     "seconds": "SEC",
     "endedIntro": "Bidding is closed. Discover the card drawn at closing and the result of this edition.",
     "resultDescription": "The card was drawn at closing. It goes to the highest bidder; if there were no bids, no one receives it.",
-    "resultTitle": "This edition’s result"
+    "resultTitle": "This edition’s result",
+    "dailyEvent": "One auction. One surprise."
   },
   "events": {
     "title": "Events",
@@ -4608,13 +4608,13 @@
     "unavailable": "The schedule is temporarily unavailable. Retrying…",
     "hubNote": "New events will be added to this hub as they arrive.",
     "lead": "Take part in limited-time events and earn exclusive rewards.",
-    "bannerMysteryDescription": "A mystery card. A 24h auction. Will you be the winning bidder?",
+    "bannerMysteryDescription": "A new mystery card every day. Will you be the winning bidder?",
     "ended": "Ended",
     "loadingShort": "Loading",
     "emptyHint": "Check back soon for new events and exclusive rewards.",
     "countdownDays": "{days}d {hours}h {minutes}m",
     "countdownHours": "{hours}h {minutes}m {seconds}s",
-    "weeklyLabel": "Weekly event",
-    "moreEventsTitle": "More events to come"
+    "moreEventsTitle": "More events to come",
+    "continuousLabel": "Ongoing event"
   }
 }

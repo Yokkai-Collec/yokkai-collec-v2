@@ -3,12 +3,12 @@ set local lock_timeout='3s';
 
 -- Same auction, bids, escrow and minute settlement; no parallel marketplace.
 alter table public.auctions add column is_mystery boolean not null default false,
-  add column mystery_week date;
-create unique index auctions_mystery_week on public.auctions(mystery_week) where is_mystery;
+  add column mystery_day date;
+create unique index auctions_mystery_day on public.auctions(mystery_day) where is_mystery;
 alter table public.auctions add constraint auctions_mystery_shape check (
-  (not is_mystery and mystery_week is null) or
-  (is_mystery and seller_id is null and mystery_week is not null
-    and extract(isodow from mystery_week)=3 and starting_price=50 and duration_minutes=1440
+  (not is_mystery and mystery_day is null) or
+  (is_mystery and seller_id is null and mystery_day is not null
+    and starting_price=50 and duration_minutes=1440
     and (status<>'active' or (card_instance_id is null and card_snapshot is null)))
 );
 
@@ -21,31 +21,33 @@ do $$ declare definition text; begin
   execute 'alter table public.notifications add constraint notifications_type_check check (type in (''mystery_auction_started'',''mystery_auction_result'') or ('||substring(definition from 8 for char_length(definition)-8)||'))';
 end $$;
 
-create function public.create_weekly_mystery_auction() returns void
+create function public.create_daily_mystery_auction() returns void
 language plpgsql volatile security definer set search_path='' as $$
 declare local_now timestamp:=clock_timestamp() at time zone 'Europe/Paris'; auction_id uuid; starts timestamptz;
 begin
-  if extract(isodow from local_now)<>3 or extract(hour from local_now)<>20 then return; end if;
+  if extract(hour from local_now)<>20 then return; end if;
+  perform public.settle_expired_auctions();
   starts:=(local_now::date+time '20:00') at time zone 'Europe/Paris';
-  insert into public.auctions(is_mystery,mystery_week,starting_price,current_price,duration_minutes,ends_at,created_at)
-    values(true,local_now::date,50,50,1440,starts+interval '24 hours',starts)
-    on conflict (mystery_week) where is_mystery do nothing returning id into auction_id;
+  insert into public.auctions(is_mystery,mystery_day,starting_price,current_price,duration_minutes,ends_at,created_at)
+    values(true,local_now::date,50,50,1440,((local_now::date+1)+time '20:00') at time zone 'Europe/Paris',starts)
+    on conflict (mystery_day) where is_mystery do nothing returning id into auction_id;
   if auction_id is null then return; end if;
   insert into public.notifications(user_id,type,reference_id)
     select user_id,'mystery_auction_started',auction_id from public.user_profiles
     on conflict do nothing;
 end $$;
-revoke all on function public.create_weekly_mystery_auction() from public,anon,authenticated,service_role;
+revoke all on function public.create_daily_mystery_auction() from public,anon,authenticated,service_role;
 
 -- cron.timezone is cluster-wide and requires a restart to change:
 -- https://github.com/citusdata/pg_cron#setting-up-pg_cron
--- Use a weekly job only when it is ALREADY Europe/Paris; otherwise hourly,
--- with a server-side Paris clock check and a unique Wednesday key.
+-- Use a daily job only when it is ALREADY Europe/Paris; otherwise hourly,
+-- with a server-side Paris clock check and a unique local-date key.
+-- End at the next local 20:00: DST editions last 23 or 25 actual hours.
 -- pg_settings also handles an unreadable privileged setting without requiring
 -- pg_read_all_settings (current_setting would raise even with missing_ok).
-select cron.schedule('weekly-mystery-auction',
-  case when (select setting from pg_settings where name='cron.timezone')='Europe/Paris' then '0 20 * * 3' else '0 * * * *' end,
-  'select public.create_weekly_mystery_auction();');
+select cron.schedule('daily-mystery-auction',
+  case when (select setting from pg_settings where name='cron.timezone')='Europe/Paris' then '0 20 * * *' else '0 * * * *' end,
+  'select public.create_daily_mystery_auction();');
 
 create or replace function public.notify_auction_sold() returns trigger
 language plpgsql security definer set search_path='' as $$
@@ -149,11 +151,11 @@ declare local_now timestamp:=statement_timestamp() at time zone 'Europe/Paris';
   next_day date; next_start timestamptz; latest uuid;
 begin
   if auth.uid() is null then raise exception 'AUTH_REQUIRED'; end if;
-  next_day:=local_now::date+((3-extract(isodow from local_now)::integer+7)%7);
-  if next_day=local_now::date and local_now::time>=time '20:00' then next_day:=next_day+7; end if;
+  next_day:=local_now::date;
+  if next_day=local_now::date and local_now::time>=time '20:00' then next_day:=next_day+1; end if;
   next_start:=(next_day+time '20:00') at time zone 'Europe/Paris';
-  select id into latest from public.auctions where is_mystery order by mystery_week desc limit 1;
-  return jsonb_build_object('nextStartsAt',next_start,'isWednesday',extract(isodow from local_now)=3,
+  select id into latest from public.auctions where is_mystery order by mystery_day desc limit 1;
+  return jsonb_build_object('nextStartsAt',next_start,
     'auction',case when latest is not null then public.get_auction(latest) end);
 end $$;
 revoke all on function public.get_mystery_auction_event() from public,anon,authenticated,service_role;
