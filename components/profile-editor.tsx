@@ -1,5 +1,6 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
+import { formatLicenseName } from "@/lib/ui/license-name";
 import { gameErrorKey } from "@/i18n/game-messages";
 import { useTranslations } from "next-intl";
 import {
@@ -711,7 +712,9 @@ export function Editor({
                   <div>
                     <img src={bannerCard.image} alt="" decoding="async" />
                     <strong>{bannerCard.name}</strong>
-                    {bannerCard.anime && <small>{bannerCard.anime}</small>}
+                    {bannerCard.anime && (
+                      <small>{formatLicenseName(bannerCard.anime)}</small>
+                    )}
                   </div>
                 </div>
               )}
@@ -756,7 +759,9 @@ export function Editor({
                           />
                           <span>
                             <strong>{card.name}</strong>
-                            {card.anime && <small>{card.anime}</small>}
+                            {card.anime && (
+                              <small>{formatLicenseName(card.anime)}</small>
+                            )}
                           </span>
                         </button>
                       </li>

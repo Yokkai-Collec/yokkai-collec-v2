@@ -1,4 +1,5 @@
 "use client";
+import { formatLicenseName } from "@/lib/ui/license-name";
 import { gameErrorKey } from "@/i18n/game-messages";
 import { useTranslations, useFormatter } from "next-intl";
 
@@ -24,7 +25,7 @@ export function BinderFavoriteReview({
       <p>{tv("somePreviousFavoritesMatchMoreThanOneBinder")}</p>
       {conflicts.map(conflict => (
         <fieldset key={conflict.license} disabled={busy !== null}>
-          <legend>{conflict.license}</legend>
+          <legend>{formatLicenseName(conflict.license)}</legend>
           {conflict.candidates.map(candidate => (
             <label key={candidate.binderKey}>
               <input
@@ -48,7 +49,7 @@ export function BinderFavoriteReview({
                 }}
               />
               <span>
-                {candidate.license}
+                {formatLicenseName(candidate.license)}
                 {candidate.total !== undefined && (
                   <small className="yk-binder-origin">
                     {candidate.category ? `${candidate.category} · ` : ""}

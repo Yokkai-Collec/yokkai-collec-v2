@@ -1,3 +1,4 @@
+import { formatLicenseName } from "@/lib/ui/license-name";
 import { getTranslations, getLocale } from "next-intl/server";
 import { cardRarityLabel } from "@/lib/ui/card-rarity-label";
 import type { Metadata } from "next";
@@ -40,7 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     name: card.cardName,
     rarity: cardRarityLabel(card.rarity, card.shiny, card.isEvolved),
     franchisePresent: card.franchise ? "yes" : "no",
-    franchise: card.franchise ?? "",
+    franchise: formatLicenseName(card.franchise),
     ownerPresent: card.pseudo ? "yes" : "no",
     owner: card.pseudo ?? ""
   });
@@ -113,7 +114,7 @@ export default async function SharedCardPage({ params }: Props) {
           <h1>{card.cardName}</h1>
           <p className="yk-share-meta">
             <span className={rarityText[card.rarity]}>{label}</span>
-            {card.franchise && <span>{card.franchise}</span>}
+            {card.franchise && <span>{formatLicenseName(card.franchise)}</span>}
           </p>
           {card.pseudo && (
             <p className="yk-share-owner">

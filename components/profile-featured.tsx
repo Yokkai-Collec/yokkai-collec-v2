@@ -1,4 +1,5 @@
 "use client";
+import { formatLicenseName } from "@/lib/ui/license-name";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { BinderCover } from "@/components/binder-cover";
@@ -241,10 +242,12 @@ function FeaturedPicker({
                       value.id === key &&
                       value.kind === (tab === "binder" ? "binder" : "folder")
                   );
-                const name =
+                const rawName =
                   item && "license" in item
                     ? item.license
                     : (item?.name ?? key);
+                const name =
+                  tab === "binder" ? formatLicenseName(rawName) : rawName;
                 return (
                   <li key={key}>
                     <span className="yk-profile-highlight-order-position">
@@ -344,7 +347,11 @@ function FeaturedPicker({
                       license={option.name}
                     />
                     <span>
-                      <strong>{option.name}</strong>
+                      <strong>
+                        {tab === "binder"
+                          ? formatLicenseName(option.name)
+                          : option.name}
+                      </strong>
                       <small>
                         {t("progress", {
                           owned: option.owned,

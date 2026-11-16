@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLicenseName } from "@/lib/ui/license-name";
 import dynamic from "next/dynamic";
 import type { Card } from "@/lib/data/cards";
 import { useEffect, useState } from "react";
@@ -27,6 +28,9 @@ const CatalogueCardModal = dynamic(() =>
 export type ProfileFavoriteAlbum = ProfileDetails["favoriteAlbums"][number] & {
   kind?: "binder" | "folder";
 };
+
+const albumName = (album: ProfileFavoriteAlbum) =>
+  album.kind === "folder" ? album.license : formatLicenseName(album.license);
 type CardLoader = typeof getFriendPaniniAlbumCardsPage;
 
 export function BinderContents({
@@ -88,10 +92,10 @@ export function BinderContents({
         <BinderCover
           image={album.image ?? undefined}
           frame={album.coverFrame}
-          license={album.license}
+          license={albumName(album)}
         />
         <div className="yk-profile-binder-detail-copy">
-          <strong>{album.license}</strong>
+          <strong>{albumName(album)}</strong>
           <p>
             {t("favoriteBinderCardCount", {
               owned: data?.binderOwned ?? album.owned,
@@ -101,7 +105,7 @@ export function BinderContents({
           <progress
             max={Math.max(1, data?.binderTotal ?? album.total)}
             value={data?.binderOwned ?? album.owned}
-            aria-label={t("completionFor", { license: album.license })}
+            aria-label={t("completionFor", { license: albumName(album) })}
           />
           {canEditCover && (
             <div className="yk-profile-binder-detail-actions">
@@ -116,7 +120,7 @@ export function BinderContents({
               )}
               <CollectionCoverEditor
                 targetKey={identity}
-                name={album.license}
+                name={albumName(album)}
               />
             </div>
           )}
@@ -281,14 +285,14 @@ export function ProfileFavoriteBinders({
                 folderMode || album.kind === "folder"
                   ? "openFeaturedFolder"
                   : "openFavoriteBinder",
-                { license: album.license }
+                { license: albumName(album) }
               )}
               aria-haspopup="dialog"
             >
               <BinderCover
                 image={album.image ?? undefined}
                 frame={album.coverFrame}
-                license={album.license}
+                license={albumName(album)}
               />
               <span className="yk-profile-favorite-copy">
                 {mixedMode && (
@@ -323,7 +327,7 @@ export function ProfileFavoriteBinders({
                 )}
                 <strong>
                   {!mixedMode && <span aria-hidden="true">★ </span>}
-                  {album.license}
+                  {albumName(album)}
                 </strong>
                 <span
                   className={
@@ -348,7 +352,7 @@ export function ProfileFavoriteBinders({
                 <progress
                   max={Math.max(1, album.total)}
                   value={album.owned}
-                  aria-label={t("completionFor", { license: album.license })}
+                  aria-label={t("completionFor", { license: albumName(album) })}
                 />
                 <small>
                   {t("percentComplete", { percent: album.percent })}
@@ -387,7 +391,7 @@ export function ProfileFavoriteBinders({
                   ? "featuredFolderTitle"
                   : "favoriteBinderTitle",
                 {
-                  license: activeAlbum.license,
+                  license: albumName(activeAlbum),
                   name: ownerName
                 }
               )

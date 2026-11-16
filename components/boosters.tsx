@@ -1,4 +1,5 @@
 "use client";
+import { formatLicenseName } from "@/lib/ui/license-name";
 import { gameErrorKey } from "@/i18n/game-messages";
 import { useTranslations, useFormatter } from "next-intl";
 import { cardRarityLabel } from "@/lib/ui/card-rarity-label";
@@ -942,7 +943,7 @@ export function BoosterReveal({
       <Modal open={!!inspected} onClose={() => setInspected(null)} title={inspected?.name ?? tp("cardPreview")} className="yk-batch-inspection">
         {inspected && <div className="yk-batch-card-preview">
           <YokaiCard {...inspected} animated={false} />
-          <p>{cardRarityLabel(inspected.rarity, inspected.shiny, inspected.isEvolved)}{inspected.anime ? ` · ${inspected.anime}` : ""}</p>
+          <p>{cardRarityLabel(inspected.rarity, inspected.shiny, inspected.isEvolved)}{inspected.anime ? ` · ${formatLicenseName(inspected.anime)}` : ""}</p>
           {inspected.isNew ? <StatusPill>{tp("new")}</StatusPill> : inspected.copies && inspected.copies > 1 ? <p>{tp("duplicateText")}{inspected.copies}</p> : null}
           <Button variant="secondary" onClick={() => setInspected(null)}>{tp("backToResults")}</Button>
         </div>}

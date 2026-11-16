@@ -1,4 +1,5 @@
 "use client";
+import { CardFranchise } from "@/components/card-franchise";
 import { PlayerTitle } from "@/components/player-title";
 import { EmojiReactionPicker } from "@/components/emoji-reaction-picker";
 import { reactionEmoji } from "@/lib/ui/reaction-emojis";
@@ -317,9 +318,10 @@ export function CatalogueCardModal({
             <p className="text-sm text-ink-2">
               {selected.category} · {selected.rarity}
             </p>
-            {selected.anime && (
-              <p className="mt-2 text-sm text-ink-3">{selected.anime}</p>
-            )}
+            <CardFranchise
+              card={selected}
+              className="mt-2 block text-sm text-ink-3"
+            />
             <p className="mt-7 text-xs text-ink-3">{tv("marketValue")}</p>
             {detail?.marketValue != null ? (
               <Karas
@@ -1824,7 +1826,7 @@ export function AuctionView({
                     href={`/catalog?q=${encodeURIComponent(franchise)}`}
                     className="min-w-0 break-words underline underline-offset-4 hover:text-accent-gold"
                   >
-                    {franchise}
+                    <CardFranchise card={auction.card} className="" />
                   </Link>
                   <span aria-hidden="true">·</span>
                 </>

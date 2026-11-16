@@ -1,4 +1,5 @@
 "use client";
+import { formatLicenseName } from "@/lib/ui/license-name";
 import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useFormatter, useTranslations } from "next-intl";
@@ -66,7 +67,9 @@ export function PackBinderProgress({
         {gains.map(gain => (
           <li key={binderIdentity(gain)}>
             <Link href={binderHref(gain)}>
-              <strong className="yk-pack-binder-name">{gain.license}</strong>
+              <strong className="yk-pack-binder-name">
+                {formatLicenseName(gain.license)}
+              </strong>
               <span
                 className="yk-pack-binder-gain"
                 aria-label={t("newForBinder", { count: gain.added })}
@@ -93,7 +96,9 @@ export function PackBinderProgress({
               <progress
                 value={gain.owned}
                 max={gain.total}
-                aria-label={t("progressFor", { name: gain.license })}
+                aria-label={t("progressFor", {
+                  name: formatLicenseName(gain.license)
+                })}
               />
               <span className="sr-only">
                 {cards

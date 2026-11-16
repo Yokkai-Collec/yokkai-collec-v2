@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLicenseName } from "@/lib/ui/license-name";
 import Link from "next/link";
 import { RankingGoal, RankingTrend } from "@/components/ranking-progress";
 import { useRankingPlayerPreview } from "@/components/ranking-player-preview";
@@ -173,7 +174,7 @@ export function CommunityLeaderboardView({
             </span>
             {isLicense && selectedLicense && (
               <h2 className="yk-ranking-license-name">
-                {selectedLicense.license}
+                {formatLicenseName(selectedLicense.license)}
               </h2>
             )}
             {isGlobal ? (

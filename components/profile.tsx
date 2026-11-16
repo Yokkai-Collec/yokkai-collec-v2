@@ -1,4 +1,5 @@
 "use client";
+import { formatLicenseName } from "@/lib/ui/license-name";
 import { useSyncExternalStore } from "react";
 import { showcaseScrollRef } from "@/lib/ui/profile-style";
 import { i18nEnabled } from "@/i18n/locale";
@@ -1309,7 +1310,11 @@ export function ProfileExperience({
                                 <span className="yk-profile-taste-number">
                                   {String(index + 1).padStart(2, "0")}
                                 </span>
-                                <strong>{widget.labels?.[name] ?? name}</strong>
+                                <strong>
+                                  {formatLicenseName(
+                                    widget.labels?.[name] ?? name
+                                  )}
+                                </strong>
                                 {widget.unresolvedEntries?.includes(name) && (
                                   <small className="yk-binder-origin">
                                     {t("profileUi.previousBinderHint")}{" "}
@@ -1389,7 +1394,7 @@ export function ProfileExperience({
                           <h3>{event.card.name}</h3>
                         </Link>
                         <p className="yk-profile-muted">
-                          {event.card.anime}{" "}
+                          {formatLicenseName(event.card.anime)}{" "}
                           <span
                             className={`text-rarity-${event.card.rarity.toLowerCase()}`}
                           >

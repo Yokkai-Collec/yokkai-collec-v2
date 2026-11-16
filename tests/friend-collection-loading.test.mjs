@@ -1,3 +1,4 @@
+import { licenseName } from "./helpers/license-name.mjs";
 import { intl, gameMessages, loadLocaleModule } from "./helpers/i18n.mjs";
 import { playerTitles } from "./helpers/player-titles.mjs";
 import assert from "node:assert/strict";
@@ -25,17 +26,19 @@ function load(file, mocks) {
       Error,
       process: { env: { NEXT_PUBLIC_STABLE_BINDERS_ENABLED: "true" } },
       require: name =>
-        name === "next-intl"
-          ? intl
-          : name === "@/i18n/game-messages"
-            ? gameMessages
-            : name === "@/i18n/locale"
-              ? loadLocaleModule()
-              : name === "@/components/player-title"
-                ? playerTitles
-                : name in mocks
-                  ? mocks[name]
-                  : require(name)
+        name === "@/lib/ui/license-name"
+          ? licenseName
+          : name === "next-intl"
+            ? intl
+            : name === "@/i18n/game-messages"
+              ? gameMessages
+              : name === "@/i18n/locale"
+                ? loadLocaleModule()
+                : name === "@/components/player-title"
+                  ? playerTitles
+                  : name in mocks
+                    ? mocks[name]
+                    : require(name)
     }
   );
   return exports;

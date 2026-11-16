@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { licenseName } from "./helpers/license-name.mjs";
 import { createRequire } from "node:module";
 import test from "node:test";
 import vm from "node:vm";
@@ -86,6 +87,7 @@ const context = {
   require(name) {
     if (name === "server-only") return {};
     if (name === "@/lib/server/card-sharing") return sharingContext.exports;
+    if (name === "@/lib/ui/license-name") return licenseName;
     if (name === "@/lib/ui/card-rarity-label") return rarityLabels.exports;
     if (name.startsWith("@/")) return {};
     return require(name);

@@ -1,3 +1,4 @@
+import { licenseName } from "./helpers/license-name.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
@@ -73,6 +74,7 @@ for (const count of [1, 10]) {
     vm.runInNewContext(compiled, {
       exports,
       require: name => {
+        if (name === "@/lib/ui/license-name") return licenseName;
         if (name === "react") return react;
         if (name === "react/jsx-runtime") return jsx;
         if (name === "next-intl") return intl;

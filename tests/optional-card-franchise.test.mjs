@@ -42,6 +42,24 @@ test("cards and license labels render without empty badges or category fallback"
     ),
     /Series/
   );
+  for (const [anime, label] of [
+    ["DRAGON BALL", "Dragon Ball"],
+    ["DC Comics", "DC Comics"],
+    ["NBA", "NBA"]
+  ]) {
+    assert.match(
+      renderToStaticMarkup(
+        CardFranchise({ card: { anime, category: "ARTIST" } })
+      ),
+      new RegExp(label)
+    );
+    assert.match(
+      renderToStaticMarkup(
+        YokaiCard({ name: "Hero", category: "ARTIST", rarity: "C", anime })
+      ),
+      new RegExp(label)
+    );
+  }
 });
 
 test("public share lookup and page metadata accept NULL without blank labels", async () => {

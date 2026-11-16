@@ -1,3 +1,4 @@
+import { licenseName } from "./helpers/license-name.mjs";
 import { intl, gameMessages } from "./helpers/i18n.mjs";
 import { cardRarityLabels } from "./helpers/card-rarity-labels.mjs";
 import assert from "node:assert/strict";
@@ -28,15 +29,17 @@ function load(file, mocks = {}, globals = {}) {
       AbortController,
       ...globals,
       require: name =>
-        name === "next-intl"
-          ? intl
-          : name === "@/i18n/game-messages"
-            ? gameMessages
-            : name === "@/lib/ui/card-rarity-label"
-              ? cardRarityLabels
-              : name in mocks
-                ? mocks[name]
-                : require(name)
+        name === "@/lib/ui/license-name"
+          ? licenseName
+          : name === "next-intl"
+            ? intl
+            : name === "@/i18n/game-messages"
+              ? gameMessages
+              : name === "@/lib/ui/card-rarity-label"
+                ? cardRarityLabels
+                : name in mocks
+                  ? mocks[name]
+                  : require(name)
     }
   );
   return exports;

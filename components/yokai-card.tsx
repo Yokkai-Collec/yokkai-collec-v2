@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLicenseName } from "@/lib/ui/license-name";
 import { useTranslations } from "next-intl";
 
 import { cardRarityLabel } from "@/lib/ui/card-rarity-label";
@@ -208,7 +209,7 @@ export function YokaiCard({
     (rarity === "SSR" || rarity === "LR");
   const evolvedStyle = evolved && !(shiny && rarity === "LR");
   const special = holo || evolved;
-  const franchise = anime?.trim();
+  const franchise = formatLicenseName(anime?.trim());
   const sparkCount = !animated
     ? 0
     : evolvedStyle

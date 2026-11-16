@@ -1,4 +1,5 @@
 "use client";
+import { formatLicenseName } from "@/lib/ui/license-name";
 import { Pagination } from "@/components/ui/pagination";
 
 import { useActionState, useState, useTransition } from "react";
@@ -406,7 +407,8 @@ function BulkDeleteDialog({
               <ul className="mt-2 max-h-40 list-disc overflow-y-auto pl-5">
                 {preview.multiFranchiseCards.map(card => (
                   <li key={card.id}>
-                    {card.name} — {card.franchises.join(" · ")}
+                    {card.name} —{" "}
+                    {card.franchises.map(formatLicenseName).join(" · ")}
                   </li>
                 ))}
               </ul>
@@ -685,7 +687,8 @@ export function AdminCardManager({
                 <p className="truncate font-semibold text-white">{card.nom}</p>
                 <p className="truncate text-xs text-slate-400">
                   {card.categorie} ·{" "}
-                  {card.franchises.join(" · ") || "No license"}
+                  {card.franchises.map(formatLicenseName).join(" · ") ||
+                    "No license"}
                 </p>
               </div>
               <span className="rounded-full border border-white/10 bg-slate-950 px-3 py-1 text-xs font-semibold text-slate-300">

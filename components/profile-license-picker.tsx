@@ -1,4 +1,5 @@
 "use client";
+import { formatLicenseName } from "@/lib/ui/license-name";
 import { gameErrorKey } from "@/i18n/game-messages";
 import { useTranslations } from "next-intl";
 
@@ -118,7 +119,9 @@ function LicenseResults({
             <span aria-hidden="true">
               {selected.includes(license) ? "✓" : "+"}
             </span>
-            <span>{result.labels?.[license] ?? license}</span>
+            <span>
+              {formatLicenseName(result.labels?.[license] ?? license)}
+            </span>
           </button>
         ))}
       </div>

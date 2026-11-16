@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLicenseName } from "@/lib/ui/license-name";
 import Link from "next/link";
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
@@ -130,7 +131,7 @@ export function CardReportList({
                 {report.cardName}
               </h3>
               <p className="text-sm text-slate-400">
-                {report.franchise || "No license provided"}
+                {formatLicenseName(report.franchise) || "No license provided"}
                 {report.rarity ? ` · ${report.rarity}` : ""}
               </p>
               <p className="mt-3 text-sm text-slate-400">

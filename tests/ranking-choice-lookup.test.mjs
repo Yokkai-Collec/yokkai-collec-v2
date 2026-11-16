@@ -1,3 +1,4 @@
+import { licenseName } from "./helpers/license-name.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -18,6 +19,7 @@ function load(path, dependencies) {
       exports,
       AbortSignal,
       require: name => {
+        if (name === "@/lib/ui/license-name") return licenseName;
         assert(name in dependencies, name);
         return dependencies[name];
       }
@@ -64,6 +66,9 @@ test("License lookup keeps all matching neighbors in one bounded category lookup
     query: "shared"
   });
   const controller = new AbortController();
+  assert.equal(choice.props.getLabel(rows[0]), "Jujutsu Kaisen");
+  assert.equal(choice.props.getKey(rows[0]), "j1");
+  assert.equal(rows[0].license, "JUJUTSU KAISEN");
   const result = await choice.props.findMatches("j", controller.signal);
   assert.deepEqual(
     Array.from(result, row => row.binderKey),

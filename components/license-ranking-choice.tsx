@@ -1,4 +1,5 @@
 "use client";
+import { formatLicenseName } from "@/lib/ui/license-name";
 import { useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { RankingChoice } from "@/components/ranking-choice";
@@ -6,7 +7,8 @@ import { type PaniniAlbumProgress } from "@/lib/data/cards";
 import { getRankingLicenseChoices } from "@/lib/leaderboard/choices";
 import { binderIdentity } from "@/lib/ui/binder-identity";
 import { normalizeChoiceLabel } from "@/lib/ui/select-typeahead";
-const licenseLabel = (item: PaniniAlbumProgress) => item.license;
+const licenseLabel = (item: PaniniAlbumProgress) =>
+  formatLicenseName(item.license);
 export function LicenseRankingChoice({
   items,
   selected,

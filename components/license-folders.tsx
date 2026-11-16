@@ -1,4 +1,5 @@
 "use client";
+import { formatLicenseName } from "@/lib/ui/license-name";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button, Modal, Pagination } from "@/components/ui";
@@ -458,7 +459,9 @@ export function LicenseFolderManager({
       {!compact && (folders.length > 0 || error || notice) && (
         <div className="yk-license-folder-list">
           <h3>
-            {binderName ? t("inBinder", { name: binderName }) : t("allFolders")}
+            {binderName
+              ? t("inBinder", { name: formatLicenseName(binderName) })
+              : t("allFolders")}
           </h3>
           {error && (
             <p role="alert" className="yk-license-folder-error">
