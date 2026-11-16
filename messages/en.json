@@ -4632,7 +4632,9 @@
     "leaderboardUnranked": "Your first valid referral will put you in the ranking.",
     "leaderboardYou": "(you)",
     "leaderboardCount": "{count, plural, one {# valid referral} other {# valid referrals}}",
-    "leaderboardEmpty": "No valid referrals yet. The ranking will appear after the first validations."
+    "leaderboardEmpty": "No valid referrals yet. The ranking will appear after the first validations.",
+    "leaderboardReferrals": "{count, plural, one {valid referral} other {valid referrals}}",
+    "leaderboardRemaining": "Remaining event rankings"
   },
   "mysteryAuction": {
     "title": "Mystery Auction",

@@ -4632,7 +4632,9 @@
     "leaderboardUnranked": "Ton premier filleul valide te fera entrer dans le classement.",
     "leaderboardYou": "(toi)",
     "leaderboardCount": "{count, plural, one {# filleul valide} other {# filleuls valides}}",
-    "leaderboardEmpty": "Aucun filleul valide pour le moment. Le classement apparaîtra après les premières validations."
+    "leaderboardEmpty": "Aucun filleul valide pour le moment. Le classement apparaîtra après les premières validations.",
+    "leaderboardReferrals": "{count, plural, one {filleul valide} other {filleuls valides}}",
+    "leaderboardRemaining": "Suite du classement de l’event"
   },
   "mysteryAuction": {
     "title": "Mystery Auction",

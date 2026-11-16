@@ -705,53 +705,29 @@
   color: #d8c4ff;
   font-weight: 600;
 }
-.yk-referral-leaderboard ol {
-  display: grid;
-  gap: 8px;
+.yk-referral-leaderboard-body {
   margin-top: 1.25rem;
-}
-.yk-referral-leaderboard li {
-  display: grid;
-  grid-template-columns: 2rem minmax(0, 1fr) minmax(0, auto);
-  align-items: center;
-  gap: 12px;
-  min-height: 52px;
-  padding: 8px 12px;
-  border: 1px solid #ffffff0d;
-  border-radius: 10px;
-  background: #ffffff03;
-  font-size: 0.8125rem;
-}
-.yk-referral-leaderboard li[data-mine="true"] {
-  border-color: #b999ff88;
-  background: #8a59d51a;
-}
-.yk-referral-leaderboard-rank {
-  color: #edcf87;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-.yk-referral-leaderboard a {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  min-height: 44px;
   min-width: 0;
-  overflow-wrap: anywhere;
-  color: var(--color-ink);
 }
-.yk-referral-leaderboard a span {
-  margin-left: 4px;
-  color: #d8c4ff;
+.yk-referral-leaderboard-body .yk-home-ranking-list {
+  max-height: 340px;
+  overflow-y: auto;
 }
-.yk-referral-leaderboard a:focus-visible {
+.yk-referral-leaderboard-body .is-you {
+  outline: 1px solid #b999ff88;
+  outline-offset: -1px;
+}
+.yk-referral-leaderboard-body :focus-visible {
   outline: 2px solid #c6a1ff;
-  outline-offset: 4px;
+  outline-offset: 3px;
 }
-.yk-referral-leaderboard strong {
-  max-width: 8rem;
-  color: #c7d6ef;
-  text-align: right;
-  font-size: 0.75rem;
-  overflow-wrap: anywhere;
+@media (min-width: 960px) {
+  .yk-referral-leaderboard-body[data-has-rest="true"] {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: 16px;
+  }
+  .yk-referral-leaderboard-body .yk-home-ranking-list {
+    margin-top: 0;
+  }
 }
