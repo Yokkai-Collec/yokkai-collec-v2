@@ -58,7 +58,7 @@
     inset 0 1px #d1e5ff24;
 }
 .yk-mystery-event-heading {
-  align-items: end;
+  align-items: start;
 }
 .yk-mystery-event-clock {
   padding: 20px;
