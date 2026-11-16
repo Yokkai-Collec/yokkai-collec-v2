@@ -3,7 +3,7 @@ import test from "node:test";
 import { readFileSync } from "node:fs";
 import { replayMigrations } from "../scripts/replay-migrations.mjs";
 
-test("Referral rewards are 750/1600/4000/five LR and already-paid tiers receive only the difference once", async t => {
+test("Referral rewards are 750/1600/4000/8000/five LR and already-paid tiers receive only the difference once", async t => {
   const { db } = await replayMigrations();
   t.after(() => db.close());
   const tiers = await db.query(
@@ -13,6 +13,7 @@ test("Referral rewards are 750/1600/4000/five LR and already-paid tiers receive 
     { threshold: 3, karas: 750, lr_cards: 0 },
     { threshold: 5, karas: 1600, lr_cards: 0 },
     { threshold: 10, karas: 4000, lr_cards: 0 },
+    { threshold: 15, karas: 8000, lr_cards: 0 },
     { threshold: 20, karas: 0, lr_cards: 5 }
   ]);
   await db.exec(`

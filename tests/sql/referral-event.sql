@@ -11,7 +11,7 @@ begin
  delete from public.referral_event_tiers;
  delete from public.referral_events;
  insert into public.referral_events(slug,starts_at,ends_at) values('test',stamp-interval '4 days',stamp+interval '1 day') returning id into event_id;
- insert into public.referral_event_tiers(event_id,threshold,karas,lr_cards,recruiter_badge) values(event_id,3,750,0,false),(event_id,5,1600,0,false),(event_id,10,4000,0,false),(event_id,20,0,5,true);
+ insert into public.referral_event_tiers(event_id,threshold,karas,lr_cards,recruiter_badge) values(event_id,3,750,0,false),(event_id,5,1600,0,false),(event_id,10,4000,0,false),(event_id,15,8000,0,false),(event_id,20,0,5,true);
  insert into public.cards(source_id,nom,categorie,rarete_base,image_url,source) values
  ('event-lr-1','Event LR 1','ANIME/MANGA','LR','https://example.test/lr1.png','test'),
  ('event-lr-2','Event LR 2','ANIME/MANGA','LR','https://example.test/lr2.png','test');
@@ -59,9 +59,10 @@ begin
  update public.event_runtime_config set enabled=true where singleton;
  perform public.settle_referral_events();
  perform public.settle_referral_events();
- if (select count(*) from public.referral_event_rewards where user_id=parent)<>4 then raise exception 'Duplicate or missing tier'; end if;
- if (select karas_balance from public.user_profiles where user_id=parent)<>initial_balance+6350 then raise exception 'Tier balances must be cumulative and idempotent'; end if;
- if (select count(*) from public.notifications where user_id=parent and type='referral_event_tier')<>4 then raise exception 'Notification duplicated'; end if;
+ if (select count(*) from public.referral_event_rewards where user_id=parent)<>5 then raise exception 'Duplicate or missing tier'; end if;
+ if (select karas_balance from public.user_profiles where user_id=parent)<>initial_balance+14350 then raise exception 'Tier balances must be cumulative and idempotent'; end if;
+ if (select count(*) from public.notifications where user_id=parent and type='referral_event_tier')<>5 then raise exception 'Notification duplicated'; end if;
+ if not exists(select 1 from public.referral_event_rewards where user_id=parent and threshold=15 and karas=8000) then raise exception '15-referral tier missing'; end if;
  if (select count(*) from public.user_cards where user_id=parent and rarity='LR' and not is_evolved and is_first_owner)<>5 then raise exception 'Special pack must award all five LR once'; end if;
  if (select count(*) from public.decision_packs where user_id=parent and is_compensation and status='claimed')<>1 then raise exception 'Special Decision Pack missing or duplicated'; end if;
  if (select count(*) from public.decision_packs where user_id=parent and not is_compensation and status='pending')<>1 then raise exception 'Special pack consumed or replaced the daily pack'; end if;
@@ -77,7 +78,7 @@ begin
      join public.referral_event_rewards reward on reward.id=(notice->>'referenceId')::uuid
      where notice->>'type'='referral_event_tier' and reward.user_id=parent
        and (notice->>'referralReward')::int=reward.karas
-       and (notice->>'referralPackCards')::int=reward.lr_cards)<>4 then
+       and (notice->>'referralPackCards')::int=reward.lr_cards)<>5 then
   raise exception 'Notification reward projection missing'; end if;
  if has_function_privilege('authenticated','public.settle_referral_events()','execute')
  or has_function_privilege('service_role','public.settle_referral_events()','execute') then raise exception 'Worker exposed to clients'; end if;

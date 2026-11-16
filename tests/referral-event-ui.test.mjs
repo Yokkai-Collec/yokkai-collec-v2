@@ -21,6 +21,7 @@ const event = {
     { threshold: 3, karas: 750, awarded: true, badge: false },
     { threshold: 5, karas: 1600, awarded: false, badge: false },
     { threshold: 10, karas: 4000, awarded: false, badge: false },
+    { threshold: 15, karas: 8000, awarded: false, badge: false },
     { threshold: 20, karas: 0, lrCards: 5, awarded: false, badge: true }
   ]
 };
@@ -83,7 +84,7 @@ test("event page exposes server progress, cumulative tiers, escaped pending pseu
   assert.match(html, /4<\/strong>/);
   assert.match(html, /value="4" max="5"|max="5" value="4"/);
   assert.equal((html.match(/data-reached="true"/g) ?? []).length, 1);
-  assert.equal((html.match(/data-reached="false"/g) ?? []).length, 3);
+  assert.equal((html.match(/data-reached="false"/g) ?? []).length, 4);
   assert.match(html, /Kitsune &lt;secret&gt;/);
   assert.match(html, /Recruiter/);
   assert.match(html, /Special Decision Pack/);
