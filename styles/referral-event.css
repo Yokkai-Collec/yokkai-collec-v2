@@ -1,0 +1,696 @@
+.yk-recruiter-title {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 6px;
+  color: #d8b7ff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.yk-referral-event-tiers li[data-pack="true"] strong {
+  white-space: normal;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+.yk-referral-pack-reward {
+  margin-top: 24px;
+  padding: clamp(16px, 3vw, 24px);
+  border: 1px solid #dfc18570;
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse at top right, #b28a3420, transparent 70%), #0d101c;
+}
+.yk-referral-pack-reward > p {
+  margin: 12px 0;
+}
+.yk-referral-reveal-button {
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid #dfc185;
+  border-radius: 10px;
+  background: #dfc185;
+  color: #151018;
+  font-weight: 600;
+}
+.yk-referral-reveal-button:hover {
+  background: #f5ddb0;
+}
+.yk-referral-reveal-button:focus-visible {
+  outline: 2px solid #f5ddb0;
+  outline-offset: 4px;
+}
+.yk-recruiter-title:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+.yk-recruiter-title:hover {
+  color: #f0ddff;
+}
+.yk-recruiter-emblem {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  color: var(--color-pack-accent);
+  filter: drop-shadow(
+    0 0 25px color-mix(in srgb, var(--color-accent-neon) 20%, transparent)
+  );
+}
+.yk-recruiter-emblem::before {
+  content: "";
+  position: absolute;
+  inset: 17%;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-accent-neon) 13%, transparent);
+  filter: blur(18px);
+}
+.yk-recruiter-emblem svg {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.yk-recruiter-emblem-rim {
+  stroke: var(--color-pack-accent);
+  stroke-width: 1.2;
+}
+.yk-recruiter-emblem-shield {
+  fill: color-mix(in srgb, var(--color-accent-neon) 8%, transparent);
+  stroke: var(--color-pack-accent);
+  stroke-width: 1.3;
+}
+.yk-referral-event {
+  --event-accent: var(--color-pack-accent);
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-ink);
+}
+.yk-referral-event::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 auto;
+  height: 560px;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse at 85% 35%,
+      color-mix(in srgb, var(--color-accent-neon) 9%, transparent),
+      transparent 52%
+    ),
+    radial-gradient(ellipse at 10% 0%, #657fab15, transparent 55%);
+}
+.yk-referral-event-back {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-ink-3);
+  font-size: 0.75rem;
+  transition: color var(--duration-fast, 200ms) var(--ease-standard);
+}
+.yk-referral-event-back:focus-visible {
+  outline: 2px solid var(--event-accent);
+  outline-offset: 4px;
+}
+.yk-referral-event h1 {
+  max-width: 9ch;
+  margin: 20px 0;
+  color: #f0e9d9;
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 7vw, 6.5rem);
+  font-weight: 600;
+  line-height: 0.9;
+  letter-spacing: -0.075em;
+  overflow-wrap: anywhere;
+}
+.yk-referral-event h2 {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.yk-referral-event p {
+  color: var(--color-ink-2);
+  line-height: 1.8;
+}
+.yk-referral-event-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: 32px;
+  padding: 24px 0 20px;
+}
+.yk-referral-event-intro {
+  min-width: 0;
+}
+.yk-referral-event-intro .eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--event-accent);
+  font-size: 0.625rem;
+  letter-spacing: 0.18em;
+}
+.yk-referral-event-intro .eyebrow::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  flex: none;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 14px
+    color-mix(in srgb, var(--color-accent-neon) 44%, transparent);
+}
+.yk-referral-event-intro > p:last-of-type {
+  max-width: 30rem;
+  font-size: 0.875rem;
+}
+.yk-referral-event-timer {
+  display: grid;
+  gap: 10px;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 28px;
+  padding: 16px 20px;
+  border: 1px solid
+    color-mix(in srgb, var(--color-accent-neon) 15%, transparent);
+  border-radius: 14px;
+  background: #080c1480;
+  box-shadow: inset 0 1px #ffffff04;
+}
+.yk-referral-event-timer > span:first-child {
+  color: var(--color-ink-3);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.yk-referral-event-clock {
+  color: var(--event-accent, var(--color-pack-accent));
+  font-size: 1.15rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+}
+.yk-referral-event-timer .yk-referral-event-clock {
+  font-size: clamp(1.2rem, 3vw, 1.75rem);
+}
+.yk-referral-event-trophy {
+  min-width: 0;
+  overflow: clip;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  gap: 6px;
+  isolation: isolate;
+}
+.yk-referral-event-trophy > .yk-recruiter-artwork {
+  width: clamp(160px, 20vw, 220px);
+  margin-bottom: 18px;
+  animation: yk-recruiter-float 9s ease-in-out infinite;
+}
+.yk-referral-event-trophy > strong {
+  color: var(--color-ink);
+  font-size: 1.3rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.yk-referral-event-trophy > span:last-child {
+  color: var(--color-ink-3);
+  font-size: 0.65rem;
+}
+.yk-referral-event-reward-total {
+  width: fit-content;
+  padding: 9px 14px;
+  border: 1px solid
+    color-mix(in srgb, var(--color-accent-neon) 15%, transparent);
+  border-radius: 999px;
+  color: var(--color-pack-accent) !important;
+  background: color-mix(in srgb, var(--color-accent-neon) 3%, transparent);
+  font-size: 0.7rem;
+}
+.yk-referral-event-progress {
+  display: grid;
+  gap: 8px;
+  margin: 32px 0;
+  padding: 28px 0;
+  border-block: 1px solid #b3c3df18;
+}
+.yk-referral-event-progress > div {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.yk-referral-event-progress strong {
+  color: #e2e9f4;
+  font-size: 3.25rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.07em;
+}
+.yk-referral-event-progress > div > span {
+  color: var(--color-ink-2);
+  font-size: 0.8rem;
+}
+.yk-referral-event-progress > p {
+  font-size: 0.8rem;
+}
+.yk-referral-event-progress progress {
+  display: block;
+  width: 100%;
+  height: 6px;
+  margin-top: 14px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: #aabbd914;
+  accent-color: var(--event-accent);
+}
+.yk-referral-event-progress progress::-webkit-progress-bar {
+  background: #aabbd914;
+}
+.yk-referral-event-progress progress::-webkit-progress-value {
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--color-ink-2),
+    var(--color-pack-accent)
+  );
+  box-shadow: 0 0 16px
+    color-mix(in srgb, var(--color-accent-neon) 25%, transparent);
+  transition: width 800ms var(--ease-standard);
+}
+.yk-referral-event-tiers {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: 0;
+  list-style: none;
+  border-block: 1px solid
+    color-mix(in srgb, var(--color-accent-neon) 19%, transparent);
+}
+.yk-referral-event-tiers li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 5px 16px;
+  min-width: 0;
+  min-height: 110px;
+  padding: 22px 12px;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--color-accent-neon) 13%, transparent);
+}
+.yk-referral-event-tiers li:last-child {
+  border-bottom: 0;
+}
+.yk-referral-event-tier-mark {
+  display: grid;
+  place-items: center;
+  grid-column: 1;
+  grid-row: 1/3;
+  width: 28px;
+  height: 28px;
+  border: 1px solid #9cabbe30;
+  border-radius: 50%;
+  color: #7e8da4;
+  font-size: 13px;
+}
+.yk-referral-event-tier-number {
+  display: none;
+}
+.yk-referral-event-tiers h2 {
+  grid-column: 2;
+  grid-row: 1;
+  color: #b7c1d2;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.yk-referral-event-tiers strong {
+  grid-column: 3;
+  grid-row: 1/3;
+  color: #d6deeb;
+  font-size: 1.1rem;
+  font-weight: 400;
+  letter-spacing: -0.05em;
+  white-space: nowrap;
+}
+.yk-referral-event-tiers li > span:last-child {
+  grid-column: 2;
+  grid-row: 2;
+  color: #78869b;
+  font-size: 0.6rem;
+}
+.yk-referral-event-tiers li[data-reached="true"] .yk-referral-event-tier-mark {
+  border-color: color-mix(in srgb, var(--color-accent-neon) 44%, transparent);
+  color: var(--color-pack-accent);
+  background: color-mix(in srgb, var(--color-accent-neon) 6%, transparent);
+}
+.yk-referral-event-tiers li[data-reached="true"] strong {
+  color: var(--color-pack-accent);
+}
+.yk-referral-event-tiers li[data-next="true"] {
+  background: linear-gradient(
+    105deg,
+    color-mix(in srgb, var(--color-accent-neon) 8%, transparent),
+    transparent
+  );
+}
+.yk-referral-event-tiers li[data-next="true"]::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  background: linear-gradient(
+    0deg,
+    transparent,
+    var(--color-pack-accent),
+    transparent
+  );
+}
+.yk-referral-event-tiers li > .yk-recruiter-badge {
+  grid-column: 2;
+  grid-row: 3;
+  margin-top: 7px;
+  padding: 3px 7px;
+  font-size: 0.55rem;
+}
+.yk-referral-event-details {
+  display: grid;
+  gap: 28px;
+  margin-top: 32px;
+  padding-top: 28px;
+  border-top: 1px solid #b3c3df18;
+}
+.yk-referral-event-details p {
+  margin-top: 12px;
+  font-size: 0.875rem;
+}
+.yk-referral-event-details h2 {
+  color: #c8d2e2;
+}
+.yk-referral-event-pending {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 0;
+  list-style: none;
+}
+.yk-referral-event-pending li {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  padding: 8px 12px;
+  border: 1px solid #a4bbdf18;
+  border-radius: 9px;
+  background: #a4bbdf06;
+  color: #bdcbe1;
+  font-size: 0.75rem;
+}
+@keyframes yk-recruiter-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(3deg);
+  }
+}
+@media (min-width: 600px) {
+  .yk-referral-event-hero {
+    grid-template-columns: minmax(0, 1fr) minmax(150px, 0.65fr);
+    gap: 20px;
+  }
+  .yk-referral-event-tiers {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .yk-referral-event-hero {
+    grid-template-columns: minmax(0, 1.3fr) minmax(220px, 1fr);
+    padding: 32px 0;
+    gap: 40px;
+  }
+  .yk-referral-event-tiers {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .yk-referral-event-details {
+    grid-template-columns: 1.2fr 1fr;
+    gap: 48px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .yk-referral-event *,
+  .yk-referral-event *::before,
+  .yk-referral-event *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.yk-referral-event-promotion {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  width: 100%;
+  padding: 20px;
+  border: 1px solid
+    color-mix(in srgb, var(--color-accent-neon) 31%, transparent);
+  border-radius: 18px;
+  background: linear-gradient(
+    110deg,
+    color-mix(in srgb, var(--color-accent-neon) 15%, transparent),
+    #14131c
+  );
+  color: var(--ink, #f6f2eb);
+  text-decoration: none;
+}
+.yk-referral-event-promotion > span:nth-child(2) {
+  display: grid;
+  gap: 5px;
+  flex: 1;
+  min-width: 140px;
+}
+.yk-referral-event-promotion strong {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+}
+.yk-referral-event-promotion > span:nth-child(2) > span {
+  color: var(--ink-2, #aaa9b9);
+  font-size: 0.85rem;
+}
+.yk-referral-event-promotion-time {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.yk-referral-event-seal {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid
+    color-mix(in srgb, var(--color-accent-neon) 44%, transparent);
+  border-radius: 50%;
+  color: var(--color-pack-accent);
+  flex: none;
+}
+.yk-recruiter-badge {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.5;
+  padding: 5px 10px;
+  border: 1px solid
+    color-mix(in srgb, var(--color-accent-neon) 44%, transparent);
+  border-radius: 999px;
+  color: var(--color-pack-accent);
+  background: color-mix(in srgb, var(--color-accent-neon) 11%, transparent);
+  text-decoration: none;
+}
+.yk-referral-event-promotion:focus-visible,
+.yk-recruiter-badge:focus-visible {
+  outline: 2px solid var(--color-pack-accent);
+  outline-offset: 4px;
+}
+
+.yk-recruiter-artwork {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  color: var(--color-pack-accent);
+}
+.yk-recruiter-artwork > .yk-recruiter-emblem {
+  width: 76%;
+}
+.yk-referral-event-invite {
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid #a6bce52a;
+  border-radius: 16px;
+  background: linear-gradient(110deg, #b2c8ef07, #0a0f18);
+}
+.yk-referral-event-invite > div:first-of-type {
+  margin-top: 0;
+}
+.yk-referral-event-invite h2 {
+  font-size: 0.75rem;
+  color: #bdc8da;
+}
+.yk-referral-event-invite input {
+  min-height: 48px;
+  border-color: #a6bce52a;
+  background: #080d16;
+  font-size: 0.8rem;
+}
+.yk-referral-event-invite button {
+  min-height: 48px;
+}
+
+.yk-referral-event-hero {
+  padding: 36px 0;
+  border-top: 1px solid #a7b6d322;
+  margin-top: 20px;
+}
+.yk-referral-event-trophy::before {
+  content: attr(data-goal);
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: 44%;
+  translate: -50% -50%;
+  color: transparent;
+  -webkit-text-stroke: 1px
+    color-mix(in srgb, var(--color-accent-neon) 11%, transparent);
+  font-size: clamp(200px, 28vw, 330px);
+  font-weight: 700;
+  letter-spacing: -0.12em;
+  line-height: 1;
+}
+.yk-referral-event-trophy > .yk-recruiter-artwork {
+  width: clamp(180px, 23vw, 270px);
+}
+.yk-referral-event-progress strong {
+  font-size: 4.5rem;
+}
+@media (min-width: 600px) {
+  .yk-referral-event-tiers li {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    min-height: 205px;
+    padding: 25px;
+    border-right: 1px solid
+      color-mix(in srgb, var(--color-accent-neon) 13%, transparent);
+  }
+  .yk-referral-event-tier-mark {
+    margin-bottom: 10px;
+  }
+  .yk-referral-event-tiers strong {
+    margin-top: 7px;
+    font-size: 1.7rem;
+  }
+  .yk-referral-event-tiers li > span:last-child {
+    margin-top: auto;
+    padding-top: 12px;
+  }
+  .yk-referral-event-tier-number {
+    display: block;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    font-size: 54px;
+    line-height: 1;
+    letter-spacing: -0.1em;
+    color: #a9b5cb15;
+  }
+  .yk-referral-event-tiers li[data-next="true"]::before {
+    top: auto;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: 2px;
+    background: linear-gradient(90deg, var(--color-pack-accent), transparent);
+  }
+}
+@media (min-width: 1024px) {
+  .yk-referral-event-tiers li {
+    min-height: 235px;
+  }
+  .yk-referral-event-hero {
+    gap: 60px;
+    padding: 46px 0;
+  }
+}
+.yk-recruiter-artwork > .yk-recruiter-emblem {
+  position: relative;
+  z-index: 2;
+  width: 70%;
+}
+.yk-recruiter-profile-card {
+  position: absolute;
+  z-index: 1;
+  top: 22%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 42%;
+  height: 59%;
+  padding: 10%;
+  border: 1px solid #a8c7f54d;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #263c60, #0b1425 65%);
+  box-shadow:
+    0 12px 30px #03070e70,
+    inset 0 1px #e4edff35;
+}
+.yk-recruiter-profile-card[data-side="0"] {
+  left: -5%;
+  rotate: -17deg;
+}
+.yk-recruiter-profile-card[data-side="1"] {
+  right: -5%;
+  rotate: 17deg;
+}
+.yk-recruiter-profile-card svg {
+  width: 100%;
+  max-width: 42px;
+  stroke: #a8c7f5;
+  stroke-width: 1.5;
+}
+.yk-recruiter-profile-card i {
+  width: 90%;
+  height: 2px;
+  flex: none;
+  border-radius: 2px;
+  background: #a8c7f53d;
+}
+.yk-recruiter-profile-card i:last-child {
+  width: 60%;
+  background: #a8c7f51a;
+}
+.yk-campaign-badge .yk-recruiter-emblem {
+  width: 24px;
+  height: 24px;
+}

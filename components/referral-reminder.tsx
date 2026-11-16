@@ -9,6 +9,7 @@ import { Button, Modal } from "@/components/ui";
 import { createClient } from "@/utils/supabase/client";
 import { PROPOSED_PLAN_RULES as rules } from "@/lib/premium/offer";
 import "@/styles/referral-reminder.css";
+import { ReferralEventPromotion } from "@/components/referral-event";
 
 type CopyState = "idle" | "copied" | "error";
 
@@ -300,6 +301,7 @@ export function ReferralReminder({
         className="yk-referral-reminder--boosters"
         aria-label={t("wantMorePacks")}
       >
+        <ReferralEventPromotion />
         {options}
       </aside>
     );

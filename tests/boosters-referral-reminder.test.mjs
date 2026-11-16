@@ -71,6 +71,7 @@ function reminder(pathname, dismissed = false, homeCard = false, options = {}) {
         default: ({ alt, src }) => React.createElement("img", { alt, src })
       },
       "@/lib/premium/offer": load("lib/premium/offer.ts"),
+      "@/components/referral-event": { ReferralEventPromotion: () => null },
       "@/components/ui": {
         Modal: ({ open, children }) =>
           open ? React.createElement("div", null, children) : null,

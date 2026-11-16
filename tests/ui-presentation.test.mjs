@@ -109,6 +109,21 @@ function load(relative) {
       URL,
       process: { env: { NODE_ENV: "test" } },
       require: name => {
+        if (name === "next/dynamic") {
+          const original = require(name);
+          return {
+            __esModule: true,
+            default: (loader, options) => {
+              if (loader.toString().includes("@/components/auction-outcome")) {
+                const outcome = load("components/auction-outcome.tsx");
+                return loader.toString().includes("AuctionStatus")
+                  ? outcome.AuctionStatus
+                  : outcome.default;
+              }
+              return (original.default ?? original)(loader, options);
+            }
+          };
+        }
         if (name.startsWith("@/messages/trade-limits/"))
           return {
             __esModule: true,

@@ -1,0 +1,631 @@
+.yk-events-hub {
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  overflow: clip;
+}
+.yk-events-page-light {
+  position: absolute;
+  z-index: -1;
+  top: -55px;
+  right: -8%;
+  width: 72%;
+  height: 300px;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 72% 40%, #668dff20, transparent 48%),
+    radial-gradient(ellipse at 95% 65%, #b461ed12, transparent 55%);
+  mask-image: radial-gradient(ellipse at 65% 45%, #000 15%, transparent 68%);
+}
+.yk-events-page-light::before,
+.yk-events-page-light::after {
+  content: "";
+  position: absolute;
+  inset: 12% -15%;
+  transform: rotate(-24deg);
+  mask-image: radial-gradient(ellipse, #000 10%, transparent 67%);
+}
+.yk-events-page-light::before {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0 11px,
+    #8dbbff12 12px,
+    transparent 13px 24px
+  );
+}
+.yk-events-page-light::after {
+  background: linear-gradient(
+    0deg,
+    transparent 38%,
+    #5e9bff0a 44%,
+    #a7caff38 45%,
+    #5c94e910 46%,
+    transparent 53%,
+    #bfa0f51a 63%,
+    transparent 64%
+  );
+}
+.yk-events-header {
+  padding: 20px 8px 12px;
+}
+.yk-events-overline {
+  color: var(--color-accent-gold);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+}
+.yk-events-header h1 {
+  margin-top: 12px;
+  color: var(--color-ink);
+  font-size: clamp(2.15rem, 4.5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.045em;
+  overflow-wrap: anywhere;
+}
+.yk-events-intro {
+  max-width: 44rem;
+  margin-top: 10px;
+  color: #e0e6f1;
+  font-size: clamp(0.85rem, 1.5vw, 1rem);
+  line-height: 1.6;
+}
+.yk-events-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 5px 20px;
+}
+.yk-events-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.yk-events-filters button {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 11px;
+  border: 1px solid transparent;
+  border-radius: 20px;
+  background: transparent;
+  color: var(--color-ink-3);
+  font-size: 0.7rem;
+  transition:
+    color 200ms,
+    background 200ms,
+    border-color 200ms;
+}
+.yk-events-filters button[aria-pressed="true"] {
+  border-color: #a9c9ff45;
+  color: #eef5ff;
+  background: #8dadff0d;
+}
+.yk-events-count {
+  color: #92a5c3;
+  font-size: 0.65rem;
+  font-variant-numeric: tabular-nums;
+}
+.yk-events-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+  padding: 0 4px 4px;
+}
+.yk-event-card {
+  --banner-accent: #72acff;
+  --banner-light: #d7e9ff;
+  --banner-glow: #3f8cff;
+  position: relative;
+  container-type: inline-size;
+  min-width: 0;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid #9fc4ffbc;
+  border-radius: 18px;
+  background: linear-gradient(115deg, #050912, #091226 70%, #071129);
+  box-shadow:
+    inset 0 1px #e2efff40,
+    0 0 0 1px #090e19,
+    0 8px 24px #0006;
+  transition:
+    border-color 250ms,
+    box-shadow 250ms,
+    translate 250ms;
+  display: flex;
+  flex-direction: column;
+}
+.yk-event-card[data-event="referral"] {
+  --banner-accent: #bd8bff;
+  --banner-light: #f0dfff;
+  --banner-glow: #d55fff;
+  border-color: #b9abedb0;
+  background: linear-gradient(115deg, #070a15, #150d25 72%, #1e0d28);
+}
+.yk-event-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse at 90% 55%,
+      color-mix(in srgb, var(--banner-glow) 24%, transparent),
+      transparent 55%
+    ),
+    linear-gradient(
+      149deg,
+      transparent 0 67%,
+      color-mix(in srgb, var(--banner-glow) 18%, transparent) 68%,
+      #e5f1ff66 68.2%,
+      color-mix(in srgb, var(--banner-glow) 18%, transparent) 68.7%,
+      transparent 72%
+    ),
+    repeating-linear-gradient(
+      145deg,
+      transparent 0 12px,
+      #ffffff03 12px 13px,
+      transparent 13px 26px
+    );
+}
+.yk-event-banner-link {
+  display: block;
+  position: relative;
+  min-height: clamp(245px, 53cqi, 285px);
+  color: var(--color-ink);
+  text-decoration: none;
+  height: auto;
+  flex: 1;
+  width: 100%;
+}
+.yk-event-banner-content {
+  position: relative;
+  z-index: 3;
+  width: 62%;
+  padding: 17px 0 58px 17px;
+}
+.yk-event-frequency {
+  display: inline-block;
+  max-width: 100%;
+  padding: 4px 10px;
+  border: 1px solid color-mix(in srgb, var(--banner-light) 75%, transparent);
+  border-radius: 999px;
+  color: var(--banner-light);
+  background: linear-gradient(180deg, #1d2b4660, #040712c0);
+  box-shadow: inset 0 1px #ffffff1f;
+  font-size: clamp(8px, 1.9cqi, 10px);
+  font-weight: 600;
+  line-height: 1.2;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.yk-event-banner-content h3 {
+  width: fit-content;
+  max-width: 9ch;
+  margin: 18px 0 0 2px;
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 7.15cqi, 2.8rem);
+  font-weight: 800;
+  font-style: italic;
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  transform: skewX(-7deg);
+  color: #e8edff;
+  background: linear-gradient(
+    180deg,
+    #fff 0%,
+    #e9edff 26%,
+    #b6c6e4 45%,
+    #fff 49%,
+    #8a9dc8 57%,
+    #e8edff 78%,
+    #f7f9ff
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0.35px #dce8ff9c;
+  filter: drop-shadow(1px 2px 0 #14233c) drop-shadow(0 0 5px #87aaff1a);
+}
+.yk-event-description {
+  max-width: 25ch;
+  margin-top: 14px;
+  color: #f0f2fa;
+  font-size: clamp(0.65rem, 2.4cqi, 0.85rem);
+  line-height: 1.5;
+}
+.yk-event-leader,
+.yk-event-reveal,
+.yk-event-notice {
+  max-width: 27ch;
+  margin-top: 7px;
+  color: #9eb4d5;
+  font-size: clamp(0.5rem, 1.8cqi, 0.65rem);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.yk-event-banner-price {
+  position: absolute;
+  z-index: 5;
+  top: 13px;
+  right: 12px;
+  font-size: clamp(0.6rem, 2.1cqi, 0.75rem);
+  gap: 4px;
+}
+.yk-event-banner-price .yk-karas-gem {
+  width: 9px;
+  height: 9px;
+}
+.yk-event-banner-footer {
+  position: absolute;
+  z-index: 5;
+  inset: auto 0 0;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 51px;
+  padding: 10px 14px;
+  border-top: 1px solid #a5bde72e;
+  background: linear-gradient(180deg, #020711cc, #02050bf5);
+}
+.yk-event-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  max-width: 100px;
+  padding: 4px 10px;
+  border: 1px solid #a7c0e14d;
+  border-radius: 999px;
+  color: #c1d5ee;
+  background: #152238;
+  font-size: clamp(0.625rem, 2.4cqi, 0.85rem);
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.yk-event-status[data-status="live"] {
+  border-color: #9cffab;
+  color: #061b0a;
+  background: linear-gradient(#a1ffa5, #77ed7e);
+  box-shadow: 0 0 12px #7dfa8e12;
+}
+.yk-event-banner-separator {
+  height: 19px;
+  width: 1px;
+  flex: none;
+  background: #a8c0e84d;
+}
+.yk-event-banner-time {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 6px;
+  color: #f1f5ff;
+  font-size: clamp(0.75rem, 3cqi, 1.05rem);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.yk-event-banner-time > svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+.yk-event-banner-arrow {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  margin-left: auto;
+  border: 1px solid #bdd5ffb0;
+  border-radius: 50%;
+  color: #e9f0ff;
+  box-shadow: inset 0 0 6px #8dadff10;
+}
+.yk-event-banner-arrow svg {
+  width: 18px;
+  height: 18px;
+}
+.yk-event-banner-art {
+  position: absolute;
+  z-index: 2;
+  top: 13%;
+  right: 1%;
+  width: 40%;
+  height: 72%;
+  color: var(--banner-accent);
+  pointer-events: none;
+  container-type: size;
+}
+.yk-event-banner-portrait {
+  position: absolute;
+  top: 0;
+  left: 10%;
+  width: min(77%, calc(85cqh * 5 / 7));
+  transform: rotate(13deg) skewY(-4deg);
+  filter: drop-shadow(
+    0 0 8px color-mix(in srgb, var(--banner-glow) 55%, transparent)
+  );
+  animation: yk-event-banner-float 7s ease-in-out infinite;
+  pointer-events: auto;
+}
+.yk-event-banner-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 13px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--banner-glow) 12%, #02050b),
+    #02050b 60%,
+    color-mix(in srgb, var(--banner-glow) 12%, #02050b)
+  );
+  box-shadow: inset 0 0 17px
+    color-mix(in srgb, var(--banner-glow) 17%, transparent);
+}
+.yk-event-banner-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.yk-event-banner-people {
+  position: absolute;
+  top: 42%;
+  left: 50%;
+  width: 68%;
+  translate: -50% -50%;
+  filter: drop-shadow(0 0 5px #cfacff80);
+}
+.yk-event-banner-brand {
+  position: absolute;
+  bottom: 9%;
+  left: 50%;
+  translate: -50% 0;
+  width: 28%;
+  aspect-ratio: 1.2;
+  background: url("/assets/bubble-card-back-v1.png") center 50%/160% auto
+    no-repeat;
+  opacity: 0.9;
+}
+.yk-event-card[data-event="referral"] .yk-event-banner-brand {
+  filter: hue-rotate(30deg);
+}
+.yk-event-banner-light {
+  position: absolute;
+  inset: -5% -28% -10%;
+  width: 153%;
+  height: 115%;
+  overflow: visible;
+  color: var(--banner-light);
+  filter: drop-shadow(0 0 3px var(--banner-glow))
+    drop-shadow(0 0 7px var(--banner-glow));
+  transform: rotate(-7deg);
+}
+.yk-event-banner-light path:first-child {
+  stroke-dasharray: 480 800;
+  animation: yk-event-banner-stream 10s linear infinite;
+}
+.yk-event-banner-card-shine {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    #e8f1ff00 42%,
+    #e8f1ff25 49%,
+    #ffffff70 50%,
+    #e8f1ff00 55%,
+    transparent 65%
+  );
+  transform: translateX(-110%);
+  animation: yk-event-banner-shine 7s ease-in-out infinite;
+}
+.yk-event-banner-spark {
+  position: absolute;
+  z-index: 4;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow:
+    0 0 5px #fff,
+    0 0 14px var(--banner-glow);
+  animation: yk-event-banner-spark 4s ease-in-out infinite;
+}
+.yk-event-banner-spark::before,
+.yk-event-banner-spark::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  background: linear-gradient(90deg, transparent, #fff, transparent);
+  width: 31px;
+  height: 1px;
+}
+.yk-event-banner-spark::after {
+  rotate: 90deg;
+}
+.yk-event-banner-spark-one {
+  top: 4%;
+  right: 6%;
+}
+.yk-event-banner-spark-two {
+  bottom: 12%;
+  left: 8%;
+  scale: 0.6;
+  animation-delay: -2s;
+}
+.yk-events-empty {
+  position: relative;
+  isolation: isolate;
+  margin: 0 4px 4px;
+  padding: 32px 20px;
+  overflow: hidden;
+  border: 1px solid #829bc673;
+  border-radius: 18px;
+  background: linear-gradient(140deg, #060a15, #0b142a);
+  text-align: center;
+}
+.yk-events-empty::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(
+    145deg,
+    transparent 10%,
+    #8dadff0a 20%,
+    transparent 30% 75%,
+    #529bff2e 76%,
+    #c1deff50 76.3%,
+    #1d4b870a 77%,
+    transparent 80%
+  );
+}
+.yk-events-empty h3 {
+  color: #f2f1ff;
+  font-size: clamp(1.15rem, 2.5vw, 1.8rem);
+  font-weight: 700;
+  line-height: 1.3;
+}
+.yk-events-empty p {
+  max-width: 38rem;
+  margin: 12px auto 0;
+  color: #b8c4df;
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+.yk-events-empty-art {
+  position: relative;
+  width: 230px;
+  max-width: 100%;
+  height: 145px;
+  margin: auto;
+}
+.yk-events-empty-art i {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  width: 74px;
+  aspect-ratio: 5/7;
+  border-radius: 7px;
+  background: url("/assets/bubble-card-back-v1.png") center/cover;
+  box-shadow: 0 0 8px #5e9bff30;
+  translate: -50% 0;
+}
+.yk-events-empty-art i:nth-child(1) {
+  transform: translate(-40px, 12px) rotate(-16deg);
+}
+.yk-events-empty-art i:nth-child(2) {
+  transform: translate(40px, 12px) rotate(16deg);
+}
+.yk-events-empty-art i:nth-child(3) {
+  z-index: 2;
+}
+.yk-events-empty-art svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: #a6ccff;
+  filter: drop-shadow(0 0 4px #3f86ff);
+}
+.yk-event-banner-link:focus-visible {
+  outline: 2px solid #e4eeff;
+  outline-offset: -4px;
+}
+.yk-events-filters button:focus-visible {
+  outline: 2px solid #e4eeff;
+  outline-offset: 2px;
+}
+@keyframes yk-event-banner-float {
+  50% {
+    transform: translateY(-5px) rotate(10deg) skewY(-4deg);
+  }
+}
+@keyframes yk-event-banner-stream {
+  to {
+    stroke-dashoffset: -1280;
+  }
+}
+@keyframes yk-event-banner-shine {
+  0%,
+  55% {
+    transform: translateX(-110%);
+  }
+  85%,
+  100% {
+    transform: translateX(110%);
+  }
+}
+@keyframes yk-event-banner-spark {
+  50% {
+    opacity: 0.4;
+    scale: 0.7;
+  }
+}
+@media (min-width: 1000px) {
+  .yk-events-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+  }
+}
+@media (min-width: 600px) {
+  .yk-events-header {
+    padding: 20px 12px 12px;
+  }
+  .yk-event-banner-content {
+    padding-left: 22px;
+    padding-top: 18px;
+  }
+  .yk-event-banner-footer {
+    padding-inline: 20px;
+    min-height: 55px;
+  }
+}
+@media (hover: hover) {
+  .yk-event-card:hover {
+    border-color: var(--banner-light);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--banner-glow) 20%, transparent);
+    translate: 0 -2px;
+  }
+  .yk-events-filters button:hover {
+    color: #e3eeff;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .yk-events-hub *,
+  .yk-events-hub *::before,
+  .yk-events-hub *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+.yk-events-coming-soon {
+  margin-top: 20px;
+}
+@media (forced-colors: active) {
+  .yk-event-banner-content h3 {
+    -webkit-text-fill-color: CanvasText;
+    -webkit-text-stroke: 0;
+    background: none;
+    filter: none;
+  }
+  .yk-event-card,
+  .yk-event-frequency,
+  .yk-event-status,
+  .yk-event-banner-arrow {
+    border-color: CanvasText;
+  }
+}

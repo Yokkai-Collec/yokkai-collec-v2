@@ -136,6 +136,8 @@ function overviewColumns(count: number, max: number) {
 export function BoosterReveal({
   previewOnly = false,
   packCount = 1,
+  packLabel,
+  packKind,
   cards,
   collection = [],
   collectionReady = true,
@@ -163,6 +165,8 @@ export function BoosterReveal({
 }: {
   previewOnly?: boolean;
   packCount?: number;
+  packLabel?: string;
+  packKind?: "regular" | "decision";
   cards: RevealCard[];
   revealed: number;
   onReveal: (index: number) => void;
@@ -585,7 +589,7 @@ export function BoosterReveal({
           onSound?.(current.rarity === "SR" ? "sr" : current.rarity === "R" ? "rare" : "common");
       }}
       aria-label={tp("packCards")}
-      data-pack-kind={decision ? "decision" : "regular"}
+      data-pack-kind={packKind ?? (decision ? "decision" : "regular")}
       data-reveal-state={done ? "complete" : "revealing"}
       className={`yk-reveal-screen ${done && !choosing ? "yk-reveal-complete" : ""} ${batch ? "yk-reveal-batch" : ""} ${overview ? "yk-reveal-instant" : ""}`}
       style={overview ? {
@@ -600,7 +604,7 @@ export function BoosterReveal({
       <header className="yk-reveal-header">
         <div className="yk-reveal-copy">
           <p className={`eyebrow ${!done && !batch ? "sr-only" : ""}`}>
-            {decision ? "Decision Pack" : packCount > 1 ? `${packCount} Regular Packs` : "Regular Pack"}
+            {packLabel ?? (decision ? "Decision Pack" : packCount > 1 ? `${packCount} Regular Packs` : "Regular Pack")}
           </p>
           <h2 className={done || batch ? "mt-2 font-display text-2xl" : "sr-only"}>
             {decision

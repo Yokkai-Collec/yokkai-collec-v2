@@ -1,4 +1,9 @@
 "use client";
+import { EventsHub } from "@/components/events-hub";
+import {
+  MysteryAuctionBanner,
+  MysteryAuctionTile
+} from "@/components/mystery-auction";
 import { CardFranchise } from "@/components/card-franchise";
 import { PlayerTitle } from "@/components/player-title";
 import { EmojiReactionPicker } from "@/components/emoji-reaction-picker";
@@ -96,6 +101,20 @@ import {
   RarityChips
 } from "@/components/collection-filters";
 
+const MysteryAuctionStage = dynamic(() =>
+  import("@/components/mystery-auction-stage").then(
+    module => module.MysteryAuctionStage
+  )
+);
+const MysteryAuctionLeader = dynamic(() =>
+  import("@/components/mystery-auction-stage").then(
+    module => module.MysteryAuctionLeader
+  )
+);
+const AuctionStatus = dynamic(() =>
+  import("@/components/auction-outcome").then(module => module.AuctionStatus)
+);
+const AuctionOutcome = dynamic(() => import("@/components/auction-outcome"));
 const MarketListings = dynamic(() => import("@/components/market-listings"));
 
 const ProfileExperience = dynamic(
@@ -116,7 +135,8 @@ export type CommunityScreen =
   | "auction"
   | "trades"
   | "search"
-  | "wishlist";
+  | "wishlist"
+  | "events";
 const headings = {
   profile: ["Collector", "My profile"],
   friends: ["Between collectors", "Social"],
@@ -397,6 +417,8 @@ export function CatalogueCardModal({
 // View models receive display values from their eventual API adapters. No prices,
 // minimum bids, durations, balances or auction rules are computed in these views.
 export type AuctionPresentation = {
+  isMystery?: boolean;
+  mysteryHidden?: boolean;
   id: string;
   ownedCount?: number;
   card: Card;
@@ -431,28 +453,6 @@ export type AuctionPresentation = {
     mine?: boolean;
   }[];
 };
-function AuctionStatus({
-  status
-}: {
-  status: NonNullable<AuctionPresentation["status"]>;
-}) {
-  const tStatus = useTranslations("profileUi");
-  return (
-    <StatusPill
-      tone={
-        status === "outbid" || status === "lost"
-          ? "danger"
-          : status === "leading" || status === "sold"
-            ? "success"
-            : status === "unsold"
-              ? "neutral"
-              : "gold"
-      }
-    >
-      {tStatus(`auctionStatus${status}`)}
-    </StatusPill>
-  );
-}
 const urgencyClass = (seconds: number) =>
   seconds < 300
     ? "yk-urgency-critical"
@@ -544,7 +544,7 @@ function AuctionTile({ auction: a }: { auction: AuctionPresentation }) {
       : undefined;
   const ended = formatEndDate(a.endsAt, locale);
   const label = tm("viewAuction", {
-    name: a.card.name,
+    name: a.mysteryHidden ? tm("mysteryTitle") : a.card.name,
     details:
       outcome === "won"
         ? tm("wonDetails", { amount: formatKaras(a.amount), date: ended })
@@ -561,6 +561,7 @@ function AuctionTile({ auction: a }: { auction: AuctionPresentation }) {
                 remaining: a.remaining
               })
   });
+  if (a.mysteryHidden) return <MysteryAuctionTile auction={a} label={label} />;
   return (
     <li
       data-market-auction={a.id}
@@ -584,7 +585,9 @@ function AuctionTile({ auction: a }: { auction: AuctionPresentation }) {
         aria-label={label}
       >
         <div className="yk-market-tile-meta">
-          {outcome ? (
+          {a.isMystery ? (
+            <span className="yk-market-seller">{tm("mysteryTitle")}</span>
+          ) : outcome ? (
             <span className="yk-market-outcome truncate">
               {outcome === "won"
                 ? tm("boughtFrom", { name: a.seller })
@@ -1046,6 +1049,7 @@ export function MarketView({
         else rememberMarketReturn(navigation);
       }}
     >
+      <MysteryAuctionBanner />
       {pageHeading ? (
         <header className="yk-market-heading">
           {pageHeading}
@@ -1201,83 +1205,6 @@ export function MarketView({
         </div>
       </div>
     </section>
-  );
-}
-function AuctionOutcome({ auction }: { auction: AuctionPresentation }) {
-  const t = useTranslations();
-  const format = useFormatter();
-  const formatKaras = (amount: number) => format.number(amount) + " Karas";
-  const won = auction.status === "won" || auction.status === "leading";
-  const lost = auction.status === "lost" || auction.status === "outbid";
-  if (won)
-    return (
-      <div role="status" className="yk-auction-outcome yk-outcome-won">
-        <p className="yk-outcome-badge">{t("profileUi.auctionWon")}</p>
-        <p className="mt-2 text-sm text-ink-2">
-          {t("profileUi.cardJoinsCollection", {
-            name: auction.card.name,
-            amount: formatKaras(auction.amount)
-          })}
-        </p>
-        <Link href="/collection" className="yk-button yk-button-secondary mt-4">
-          {t("profileUi.viewMyCollection")}{" "}
-        </Link>
-      </div>
-    );
-  if (lost)
-    return (
-      <div role="status" className="yk-auction-outcome yk-outcome-lost">
-        <p className="yk-outcome-badge">{t("profileUi.auctionLost")}</p>
-        <p className="mt-2 text-sm text-ink-2">
-          {auction.winner
-            ? t("profileUi.wonAuctionBy", {
-                name: auction.winner,
-                amount: formatKaras(auction.amount)
-              })
-            : t("profileUi.anotherBidWon")}{" "}
-          {t("profileUi.yourBidHasBeenRefunded")}{" "}
-        </p>
-        <Link href="/market" className="yk-button yk-button-secondary mt-4">
-          {t("profileUi.backToMarket")}{" "}
-        </Link>
-      </div>
-    );
-  if (
-    auction.status === "sold" ||
-    (auction.status === "mine" && auction.winner)
-  )
-    return (
-      <div role="status" className="yk-auction-outcome yk-outcome-won">
-        <p className="yk-outcome-badge">{t("profileUi.cardSold")}</p>
-        <p className="mt-2 text-sm text-ink-2">
-          {t("profileUi.soldToPlayer", {
-            name: auction.winner ?? t("profileUi.aPlayer"),
-            amount: formatKaras(auction.amount)
-          })}
-        </p>
-      </div>
-    );
-  if (auction.status === "unsold")
-    return (
-      <div role="status" className="yk-auction-outcome">
-        <p className="yk-outcome-badge">{t("profileUi.noBids")}</p>
-        <p className="mt-2 text-sm text-ink-2">
-          {t("profileUi.auctionCardReturned")}{" "}
-        </p>
-      </div>
-    );
-  return (
-    <div role="status" className="yk-auction-outcome">
-      <p className="yk-outcome-badge">{t("profileUi.auctionEnded")}</p>
-      <p className="mt-2 text-sm text-ink-2">
-        {auction.winner
-          ? t("profileUi.wonAuctionBy", {
-              name: auction.winner,
-              amount: formatKaras(auction.amount)
-            })
-          : t("profileUi.noBidsWerePlaced")}
-      </p>
-    </div>
   );
 }
 export type AuctionChatAdapter = {
@@ -1803,54 +1730,68 @@ export function AuctionView({
   const biddable = !!onBid && !auction.finished && auction.nextBid != null;
   const franchise = auction.card.anime?.trim();
   return (
-    <div className="yk-auction-page">
-      <div className="yk-auction-art">
-        <YokaiCard {...auction.card} />
-      </div>
+    <div
+      className={`yk-auction-page${auction.isMystery ? " yk-mystery-detail" : ""}`}
+    >
+      {auction.isMystery ? (
+        <MysteryAuctionStage
+          card={auction.card}
+          hidden={auction.mysteryHidden}
+          finished={auction.finished}
+        />
+      ) : (
+        <div className="yk-auction-art">
+          <YokaiCard {...auction.card} />
+        </div>
+      )}
       <div className="yk-auction-main">
         <header className="yk-auction-header">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <span
-                className={`text-sm font-bold tracking-widest ${catalogueRarityText[auction.card.rarity]}`}
-              >
-                {auction.card.rarity}
-              </span>
-              {auction.status && <AuctionStatus status={auction.status} />}
-            </div>
-            <h2 className="mt-2 font-display">{auction.card.name}</h2>
-            <p className="yk-auction-seller mt-2 flex-wrap text-sm text-ink-2">
-              {franchise && (
-                <>
-                  <Link
-                    href={`/catalog?q=${encodeURIComponent(franchise)}`}
-                    className="min-w-0 break-words underline underline-offset-4 hover:text-accent-gold"
-                  >
-                    <CardFranchise card={auction.card} className="" />
-                  </Link>
-                  <span aria-hidden="true">·</span>
-                </>
-              )}
-              {t("profileUi.listedBy")}{" "}
-              <Avatar
-                name={auction.seller}
-                image={auction.sellerAvatarUrl ?? undefined}
-                size={26}
-              />
-              {auction.sellerId === null ? (
-                <span className="font-semibold">
-                  {t("profileUi.deletedPlayer")}
-                </span>
-              ) : (
-                <Link
-                  href={`/profile/${encodeURIComponent(auction.seller)}`}
-                  className="font-semibold hover:text-accent-gold"
+          {(!auction.isMystery || !auction.mysteryHidden) && (
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <span
+                  className={`text-sm font-bold tracking-widest ${catalogueRarityText[auction.card.rarity]}`}
                 >
-                  {auction.seller}
-                </Link>
+                  {auction.card.rarity}
+                </span>
+                {auction.status && <AuctionStatus status={auction.status} />}
+              </div>
+              <h2 className="mt-2 font-display">{auction.card.name}</h2>
+              {!auction.isMystery && (
+                <p className="yk-auction-seller mt-2 flex-wrap text-sm text-ink-2">
+                  {franchise && (
+                    <>
+                      <Link
+                        href={`/catalog?q=${encodeURIComponent(franchise)}`}
+                        className="min-w-0 break-words underline underline-offset-4 hover:text-accent-gold"
+                      >
+                        <CardFranchise card={auction.card} className="" />
+                      </Link>
+                      <span aria-hidden="true">·</span>
+                    </>
+                  )}
+                  {t("profileUi.listedBy")}{" "}
+                  <Avatar
+                    name={auction.seller}
+                    image={auction.sellerAvatarUrl ?? undefined}
+                    size={26}
+                  />
+                  {auction.sellerId === null ? (
+                    <span className="font-semibold">
+                      {t("profileUi.deletedPlayer")}
+                    </span>
+                  ) : (
+                    <Link
+                      href={`/profile/${encodeURIComponent(auction.seller)}`}
+                      className="font-semibold hover:text-accent-gold"
+                    >
+                      {auction.seller}
+                    </Link>
+                  )}
+                </p>
               )}
-            </p>
-          </div>
+            </div>
+          )}
           {onToggleWatch && (
             <WatchButton
               watched={auction.wishlist}
@@ -1870,9 +1811,11 @@ export function AuctionView({
                 amount={auction.amount}
                 className="yk-auction-price yk-karas-gold"
               />
-              <p className="mt-1 text-xs text-ink-3">
-                {t("profileUi.bidCount", { count: auction.bids })}
-              </p>
+              {!auction.isMystery && (
+                <p className="mt-1 text-xs text-ink-3">
+                  {t("profileUi.bidCount", { count: auction.bids })}
+                </p>
+              )}
             </div>
             <div>
               <p className="yk-auction-label">
@@ -1888,6 +1831,9 @@ export function AuctionView({
               </p>
             </div>
           </div>
+          {auction.isMystery && (
+            <MysteryAuctionLeader winner={auction.winner} />
+          )}
           {auction.extended && !auction.finished && (
             <p role="status" className="yk-auction-extension">
               <HourglassIcon />
@@ -1903,7 +1849,13 @@ export function AuctionView({
               </p>
             )}
           {auction.finished ? (
-            <AuctionOutcome auction={auction} />
+            auction.mysteryHidden ? (
+              <p role="status" className="yk-auction-hint">
+                {t("mysteryAuction.revealing")}
+              </p>
+            ) : (
+              <AuctionOutcome auction={auction} />
+            )
           ) : auction.nextBid == null ? (
             <>
               <p className="yk-auction-hint">
@@ -2020,13 +1972,25 @@ export function AuctionView({
             </p>
           )}
         </section>
-        <AuctionChatPanel
-          auctionId={auction.id}
-          refreshKey={auction.bids}
-          finished={!!auction.finished}
-          adapter={chatAdapter}
-        />
+        {!auction.isMystery && (
+          <AuctionChatPanel
+            auctionId={auction.id}
+            refreshKey={auction.bids}
+            finished={!!auction.finished}
+            adapter={chatAdapter}
+          />
+        )}
       </div>
+      {auction.isMystery && (
+        <div className="yk-mystery-chat">
+          <AuctionChatPanel
+            auctionId={auction.id}
+            refreshKey={auction.bids}
+            finished={!!auction.finished}
+            adapter={chatAdapter}
+          />
+        </div>
+      )}
       <Modal
         open={cancelConfirm}
         onClose={() => {
@@ -2979,6 +2943,8 @@ export function presentAuction(
               : undefined;
   return {
     id: raw.id,
+    isMystery: raw.isMystery,
+    mysteryHidden: raw.mysteryHidden,
     ...(raw.ownedCount !== undefined ? { ownedCount: raw.ownedCount } : {}),
     card: { ...raw.card, image: raw.card.catalogueImage ?? raw.card.image },
     amount: raw.amount,
@@ -3002,7 +2968,7 @@ export function presentAuction(
     minimumBid: raw.amount + 10,
     wishlist: raw.watched,
     antiSnipeMessage:
-      left.seconds < 300 && !finished
+      !raw.isMystery && left.seconds < 300 && !finished
         ? "Each bid adds one minute to the end time."
         : undefined,
     history: detail.history?.map(b => ({
@@ -3227,25 +3193,27 @@ export function CommunityView({
     }
   }
   const [overline, title] =
-    screen === "search"
-      ? [tv("catalogOverline"), tv("catalogTitle")]
-      : screen === "wishlist"
-        ? [tv("wishlistOverline"), tv("wishlistTitle")]
-        : screen === "profile"
-          ? [tError("profileUi.collector"), tError("profileUi.myProfile")]
-          : screen === "friends" || screen === "feed"
-            ? [
-                tError("socialFriends.overline"),
-                tError(
-                  screen === "feed" ? "topbar.social" : "socialFriends.title"
-                )
-              ]
-            : screen === "auction"
+    screen === "events"
+      ? [tError("events.overline"), tError("events.title")]
+      : screen === "search"
+        ? [tv("catalogOverline"), tv("catalogTitle")]
+        : screen === "wishlist"
+          ? [tv("wishlistOverline"), tv("wishlistTitle")]
+          : screen === "profile"
+            ? [tError("profileUi.collector"), tError("profileUi.myProfile")]
+            : screen === "friends" || screen === "feed"
               ? [
-                  tError("market.auctionOverline"),
-                  tError("market.auctionTitle")
+                  tError("socialFriends.overline"),
+                  tError(
+                    screen === "feed" ? "topbar.social" : "socialFriends.title"
+                  )
                 ]
-              : headings[screen];
+              : screen === "auction"
+                ? [
+                    tError("market.auctionOverline"),
+                    tError("market.auctionTitle")
+                  ]
+                : headings[screen];
   const notificationItems = useNotificationItems(feed.notifications ?? []);
   const isSocialPage =
     screen === "friends" || screen === "feed" || screen === "trades";
@@ -3259,7 +3227,7 @@ export function CommunityView({
   return (
     <>
       <Topbar
-        view={screen}
+        view={screen === "auction" && auction?.isMystery ? "events" : screen}
         account={account}
         name={isMe ? name : undefined}
         karas={karas}
@@ -3281,25 +3249,28 @@ export function CommunityView({
         id="main-content"
         className={`${isSocialPage ? "yk-social-page" : ""} mx-auto w-full ${pageWidth} px-6 py-10`}
       >
-        {screen !== "market" && screen !== "search" && (
-          <div>
-            {screen === "auction" && (
-              <Link
-                href="/market"
-                scroll={!returningToMarket}
-                className="yk-back-link"
-              >
-                {tError("market.back")}
-              </Link>
-            )}
-            <p className="eyebrow">{overline}</p>
-            <h1 className="yk-title mt-3">
-              {screen === "profile" && !isMe
-                ? tError("profileUi.playerProfile")
-                : title}
-            </h1>
-          </div>
-        )}
+        {screen !== "market" &&
+          screen !== "search" &&
+          screen !== "events" &&
+          !(screen === "auction" && auction?.isMystery) && (
+            <div>
+              {screen === "auction" && (
+                <Link
+                  href="/market"
+                  scroll={!returningToMarket}
+                  className="yk-back-link"
+                >
+                  {tError("market.back")}
+                </Link>
+              )}
+              <p className="eyebrow">{overline}</p>
+              <h1 className="yk-title mt-3">
+                {screen === "profile" && !isMe
+                  ? tError("profileUi.playerProfile")
+                  : title}
+              </h1>
+            </div>
+          )}
         {error && (
           <p
             role="alert"
@@ -3316,7 +3287,9 @@ export function CommunityView({
               ? undefined
               : screen === "friends" || screen === "feed" || screen === "trades"
                 ? "yk-social-page-content mt-4"
-                : "mt-8"
+                : screen === "events"
+                  ? undefined
+                  : "mt-8"
           }
         >
           {screen === "profile" && (
@@ -3330,6 +3303,7 @@ export function CommunityView({
           )}
           {screen === "friends" && (children ?? <FriendsView />)}
           {screen === "feed" && children}
+          {screen === "events" && <EventsHub />}
           {screen === "market" && (
             <MarketListings
               view={MarketView}

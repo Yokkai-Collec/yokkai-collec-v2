@@ -61,6 +61,15 @@ test("community screens only load the market listings controller when needed", (
   );
 });
 
+test("auction stages and outcomes are loaded only when needed", () => {
+  const files = eagerFiles("components/community-views.tsx");
+  for (const file of [
+    "components/auction-outcome.tsx",
+    "components/mystery-auction-stage.tsx"
+  ])
+    assert.ok(!files.has(path.resolve(root, file)), file);
+});
+
 test("PERF-08: packs do not eagerly load the collection browser", () => {
   assert.ok(
     !eagerFiles("components/game.tsx").has(

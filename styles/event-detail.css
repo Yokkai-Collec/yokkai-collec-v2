@@ -1,0 +1,252 @@
+/* The two event destinations share the hub's chrome and light, not its banners. */
+.yk-mystery-detail,
+.yk-referral-event.yk-referral-event-detail {
+  --detail-light: #71adff;
+  --detail-line: #92baff40;
+}
+.yk-referral-event.yk-referral-event-detail {
+  --detail-light: #df9bff;
+  --detail-line: #df9bff40;
+  padding: clamp(16px, 3vw, 36px);
+  border: 1px solid var(--detail-line);
+  border-radius: 26px;
+  background:
+    radial-gradient(ellipse at 100% 0, #8032bf1c, transparent 48%), #070b14;
+  box-shadow:
+    0 30px 90px #0005,
+    inset 0 1px #e3d1ff24;
+}
+.yk-referral-event.yk-referral-event-detail::before {
+  display: none;
+}
+.yk-mystery-event-intro h1,
+.yk-referral-event.yk-referral-event-detail h1 {
+  width: fit-content;
+  max-width: 100%;
+  padding-right: 0.15em;
+  font-size: clamp(2.25rem, 6.2vw, 5.2rem);
+  font-weight: 850;
+  font-style: italic;
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+  color: #e8edff;
+  background: linear-gradient(
+    180deg,
+    #fff 8%,
+    #d9e4fa 35%,
+    #9cabcd 47%,
+    #fff 50%,
+    #9caed4 58%,
+    #edf3ff 83%
+  );
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 3px 0 #1b2946) drop-shadow(0 0 15px #91b7ff20);
+}
+.yk-mystery-event-eyebrow,
+.yk-referral-event .yk-referral-event-intro .eyebrow {
+  color: var(--detail-light);
+}
+.yk-auction-page.yk-mystery-detail {
+  gap: 28px;
+  border-color: var(--detail-line);
+  background:
+    radial-gradient(ellipse at 10% 40%, #17498425, transparent 45%), #070b14;
+  box-shadow:
+    0 30px 90px #0005,
+    inset 0 1px #d1e5ff24;
+}
+.yk-mystery-event-heading {
+  align-items: start;
+}
+.yk-mystery-detail .yk-auction-art {
+  flex: 0 1 440px;
+  max-width: 100%;
+  margin-inline: auto;
+  min-height: 410px;
+  padding: 12px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+.yk-mystery-detail .yk-event-card-scene {
+  min-height: 350px;
+}
+.yk-mystery-detail .yk-event-card-object {
+  width: clamp(160px, 23vw, 275px);
+}
+.yk-mystery-detail .yk-auction-main {
+  flex-basis: 100%;
+  align-self: stretch;
+  padding: clamp(16px, 2.5vw, 28px);
+  border: 1px solid var(--detail-line);
+  border-radius: 22px;
+  background: linear-gradient(145deg, #14203980, #080d18);
+  box-shadow: inset 0 1px #bfd8ff14;
+}
+.yk-mystery-detail .yk-auction-panel {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+.yk-mystery-detail .yk-auction-price {
+  font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+}
+.yk-mystery-detail .yk-bid-quick {
+  min-height: 54px;
+  border: 1px solid #bfddff;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #edf6ff, #a3caff);
+  box-shadow:
+    0 0 24px #579aff26,
+    inset 0 1px #fff;
+  color: #081b37;
+}
+.yk-mystery-chat .yk-auction-chat,
+.yk-mystery-detail .yk-auction-history {
+  border-color: #96bdff29;
+  background: linear-gradient(135deg, #14223b55, #070b14);
+}
+.yk-referral-event .yk-referral-event-hero {
+  position: relative;
+  gap: 12px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--detail-line);
+}
+.yk-referral-event.yk-referral-event-detail h1 {
+  max-width: 10ch;
+  margin: 18px 0;
+}
+.yk-referral-event .yk-referral-event-trophy {
+  padding: 12px;
+  overflow: clip;
+}
+.yk-referral-event .yk-referral-event-trophy::before {
+  display: none;
+}
+.yk-referral-event .yk-referral-event-trophy > .yk-recruiter-artwork {
+  width: min(100%, 340px);
+  margin: 0;
+}
+.yk-referral-event .yk-referral-event-trophy > strong {
+  padding: 7px 20px;
+  border: 1px solid #daabff65;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #6d3f8d50, #101022);
+  font-size: 1rem;
+  box-shadow: 0 0 24px #d476ff18;
+}
+.yk-referral-event .yk-referral-event-timer {
+  border-color: var(--detail-line);
+  background: linear-gradient(135deg, #5f347e33, #0a0c19);
+}
+.yk-referral-event .yk-referral-event-clock {
+  color: #e6bdff;
+}
+.yk-referral-event .yk-referral-event-reward-total {
+  margin: 20px 0;
+  border-color: #e1bd7f55;
+  color: #f1d99c !important;
+  background: #cf9d3a0b;
+}
+.yk-referral-event .yk-referral-event-progress {
+  padding: 24px;
+  border: 1px solid var(--detail-line);
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse at 0 0, #923bb72a, transparent 70%), #0a0e19;
+}
+.yk-referral-event .yk-referral-event-progress strong {
+  color: #f2dfff;
+}
+.yk-referral-event
+  .yk-referral-event-progress
+  progress::-webkit-progress-value {
+  background: linear-gradient(90deg, #7751e9, #ed99ff);
+  box-shadow: 0 0 18px #dc8aff70;
+}
+.yk-referral-event .yk-referral-event-tiers {
+  gap: 14px;
+  border: 0;
+}
+.yk-referral-event .yk-referral-event-tiers li,
+.yk-referral-event .yk-referral-event-tiers li:last-child {
+  padding: 20px;
+  border: 1px solid #aaa7d730;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #1c1730, #090d18 75%);
+  box-shadow: inset 0 1px #eee2ff0a;
+}
+.yk-referral-event .yk-referral-event-tiers li[data-reached="true"] {
+  border-color: #b997ff77;
+  background: linear-gradient(145deg, #50307155, #0b0f1c);
+}
+.yk-referral-event .yk-referral-event-tiers li[data-next="true"] {
+  border-color: #e7b4ff;
+  box-shadow:
+    0 0 26px #ce80ff15,
+    inset 0 1px #fff3;
+}
+.yk-referral-event .yk-referral-event-tiers li[data-badge="true"] {
+  border-color: #dfc18570;
+  background:
+    radial-gradient(ellipse at 100% 0, #b28a3420, transparent 70%), #0d101c;
+}
+.yk-referral-event .yk-referral-event-tiers strong {
+  color: #f1da9a;
+  font-weight: 650;
+  letter-spacing: -0.035em;
+}
+.yk-referral-event .yk-referral-event-details {
+  gap: 16px;
+  border-top: 0;
+  padding-top: 0;
+}
+.yk-referral-event .yk-referral-event-details > section {
+  min-width: 0;
+  padding: 24px;
+  border: 1px solid #aba1d72a;
+  border-radius: 18px;
+  background: #0a0e19;
+}
+@media (min-width: 768px) {
+  .yk-referral-event .yk-referral-event-hero {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    min-height: 360px;
+  }
+  .yk-referral-event .yk-referral-event-progress {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+  }
+  .yk-referral-event .yk-referral-event-progress progress {
+    grid-column: 1/-1;
+  }
+}
+@media (max-width: 599px) {
+  .yk-referral-event .yk-referral-event-hero {
+    gap: 0;
+  }
+  .yk-referral-event .yk-referral-event-trophy > .yk-recruiter-artwork {
+    width: min(80%, 240px);
+  }
+  .yk-referral-event .yk-referral-event-tiers li {
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 8px 12px;
+  }
+  .yk-referral-event .yk-referral-event-tiers strong {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .yk-referral-event .yk-referral-event-tiers li > span:last-child {
+    grid-row: 3;
+  }
+  .yk-referral-event .yk-referral-event-tiers .yk-recruiter-badge {
+    grid-column: 2;
+    grid-row: 4;
+    width: fit-content;
+  }
+}

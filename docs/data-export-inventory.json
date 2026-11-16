@@ -587,5 +587,18 @@
   "public.profile_featured_selection": {
     "sections": ["profile_featured_selection"],
     "note": "Own explicit profile binder selection, independent from collection favorites."
+  },
+  "public.referral_events": {
+    "excluded": "Global event schedule and configuration shared by every player; no personal records."
+  },
+  "public.referral_event_tiers": {
+    "excluded": "Global reward thresholds and amounts shared by every player; no player-specific records."
+  },
+  "public.referral_event_rewards": {
+    "sections": ["referral_event_rewards"],
+    "note": "Own milestone receipts, awarded Karas, special pack cards and title reward only; no referred-player identities."
+  },
+  "public.event_runtime_config": {
+    "excluded": "Global operator-controlled event activation switch; no player-specific records or personal data."
   }
 }

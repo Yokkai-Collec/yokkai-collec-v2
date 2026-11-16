@@ -14,10 +14,12 @@ import { ReferralDetails } from "@/components/referral-details";
 
 export function ReferralPanel({
   initialStatus,
-  siteOrigin
+  siteOrigin,
+  compact = false
 }: {
   initialStatus: ReferralStatus;
   siteOrigin: string;
+  compact?: boolean;
 }) {
   const fmt = useFormatter();
   const t = useTranslations();
@@ -48,63 +50,71 @@ export function ReferralPanel({
   return (
     <section
       id="referrals"
-      className="mt-6 rounded-panel border border-veil bg-surface p-6"
+      className={
+        compact
+          ? "yk-referral-event-invite"
+          : "mt-6 rounded-panel border border-veil bg-surface p-6"
+      }
     >
-      <p className="eyebrow">{t("proPromotion.inviteFriends")}</p>
+      {!compact && <p className="eyebrow">{t("proPromotion.inviteFriends")}</p>}
       <div className="mt-2 flex flex-wrap items-start justify-between gap-6">
         <div className="max-w-2xl">
           <h2 className="font-display text-xl">
             {t("settingsUi.yourReferralLink")}
           </h2>
-          <p className="mt-3 text-sm leading-6 text-ink-2">
-            {t("settingsUi.referralRewardNotice")}{" "}
-          </p>
+          {!compact && (
+            <p className="mt-3 text-sm leading-6 text-ink-2">
+              {t("settingsUi.referralRewardNotice")}{" "}
+            </p>
+          )}
         </div>
-        <div className="yk-referral-counters">
-          <button
-            type="button"
-            className="yk-referral-counter"
-            aria-haspopup="dialog"
-            onClick={() => setDetailsOpen(true)}
-          >
-            <span className="text-xs text-ink-3">
-              {t("settingsUi.verifiedFriends")}
-            </span>
-            <strong className="text-xl">
-              {fmt.number(initialStatus.verifiedReferrals)}
-            </strong>
-            {rankLabel && initialStatus.rank?.position != null ? (
-              <>
-                <span className="yk-referral-rank">
-                  {t("settingsUi.referralRankLabel", {
-                    value: rankLabel.slice(4)
-                  })}
-                </span>
-                <span className="yk-referral-rank-position">
-                  {t("settingsUi.referralPosition", {
-                    position: initialStatus.rank.position,
-                    total: initialStatus.rank.totalPlayers
-                  })}
-                </span>
-              </>
-            ) : initialStatus.rank ? (
-              <span className="yk-referral-rank-position">
-                {t("settingsUi.notRankedYet")}
+        {!compact && (
+          <div className="yk-referral-counters">
+            <button
+              type="button"
+              className="yk-referral-counter"
+              aria-haspopup="dialog"
+              onClick={() => setDetailsOpen(true)}
+            >
+              <span className="text-xs text-ink-3">
+                {t("settingsUi.verifiedFriends")}
               </span>
-            ) : null}
-            <span className="yk-referral-counter-link">
-              {t("settingsUi.viewReferrals")}
-            </span>
-          </button>
-          <div className="yk-referral-counter yk-referral-counter-static">
-            <span className="text-xs text-ink-3">
-              {t("settingsUi.packsEarned")}
-            </span>
-            <strong className="text-xl">
-              {fmt.number(initialStatus.packsEarned)}
-            </strong>
+              <strong className="text-xl">
+                {fmt.number(initialStatus.verifiedReferrals)}
+              </strong>
+              {rankLabel && initialStatus.rank?.position != null ? (
+                <>
+                  <span className="yk-referral-rank">
+                    {t("settingsUi.referralRankLabel", {
+                      value: rankLabel.slice(4)
+                    })}
+                  </span>
+                  <span className="yk-referral-rank-position">
+                    {t("settingsUi.referralPosition", {
+                      position: initialStatus.rank.position,
+                      total: initialStatus.rank.totalPlayers
+                    })}
+                  </span>
+                </>
+              ) : initialStatus.rank ? (
+                <span className="yk-referral-rank-position">
+                  {t("settingsUi.notRankedYet")}
+                </span>
+              ) : null}
+              <span className="yk-referral-counter-link">
+                {t("settingsUi.viewReferrals")}
+              </span>
+            </button>
+            <div className="yk-referral-counter yk-referral-counter-static">
+              <span className="text-xs text-ink-3">
+                {t("settingsUi.packsEarned")}
+              </span>
+              <strong className="text-xl">
+                {fmt.number(initialStatus.packsEarned)}
+              </strong>
+            </div>
           </div>
-        </div>
+        )}
       </div>
       {state.error && (
         <p role="alert" className="mt-4 text-sm text-danger">
@@ -143,7 +153,7 @@ export function ReferralPanel({
           {t("settingsUi.referralManualCopy")}{" "}
         </p>
       )}
-      {initialStatus.bonusPacks > 0 && (
+      {!compact && initialStatus.bonusPacks > 0 && (
         <p className="mt-4 text-sm text-success">
           {t("settingsUi.bonusPacksReady", { count: initialStatus.bonusPacks })}
         </p>
