@@ -266,6 +266,7 @@ export function CollectionView({
     query?: string;
     category?: CardFilter;
     favoritesOnly?: boolean;
+    completedOnly?: boolean;
     page?: number;
     pageSize?: number;
   }) => Promise<PaniniAlbumPage>;
@@ -416,6 +417,7 @@ export function CollectionView({
   const [viewMode, setViewMode] = useState<"grid" | "panini">("grid");
   const [selectedLicense, setSelectedLicense] = useState<string | null>(null);
   const [linkedBinderName, setLinkedBinderName] = useState("");
+  const [completedOnly, setCompletedOnly] = useState(false);
   const td = useTranslations("binderDiscovery");
   useEffect(() => {
     if (readOnly) return;
@@ -425,6 +427,7 @@ export function CollectionView({
         setViewMode("panini");
         setSelectedLicense(p.get("binder"));
         setLinkedBinderName(p.get("name") ?? "");
+        setCompletedOnly(p.get("completed") === "1");
       } else if (!initial) {
         setViewMode(current => (current === "panini" ? "grid" : current));
         setSelectedLicense(null);
@@ -442,7 +445,7 @@ export function CollectionView({
     setSelecting(false);
     setSelection(new Set());
     if (!readOnly && !localPreview)
-      window.history.pushState(null, "", binderHref(binder));
+      window.history.pushState(null, "", binderHref(binder, completedOnly));
   }
   const [binderWishlist, setBinderWishlist] = useState<{
     busy?: boolean;
@@ -677,6 +680,7 @@ export function CollectionView({
           query,
           category,
           favoritesOnly,
+          completedOnly,
           page: activePaniniAlbumPage,
           pageSize: 72
         })
@@ -706,6 +710,7 @@ export function CollectionView({
   }, [
     activePaniniAlbumPage,
     category,
+    completedOnly,
     favoritesOnly,
     loadPaniniAlbums,
     paniniAlbumRefresh,
@@ -2010,6 +2015,29 @@ export function CollectionView({
                             {tc("favoritesOnly")}
                           </button>
                         )}
+                        {!readOnly && loadPaniniAlbums && (
+                          <button
+                            type="button"
+                            className="yk-panini-owned-toggle"
+                            aria-pressed={completedOnly}
+                            onClick={() => {
+                              const next = !completedOnly;
+                              setCompletedOnly(next);
+                              setPaniniAlbumPage(1);
+                              if (!localPreview)
+                                window.history.replaceState(
+                                  null,
+                                  "",
+                                  binderHref(undefined, next)
+                                );
+                            }}
+                          >
+                            <span aria-hidden="true">
+                              {completedOnly ? "✓" : "○"}
+                            </span>
+                            {tc("completedBindersOnly")}
+                          </button>
+                        )}
                       </div>
                       {paniniError && (
                         <div className="yk-panini-empty" role="alert">
@@ -2054,8 +2082,16 @@ export function CollectionView({
                       !paniniError &&
                       paniniAlbums.total === 0 ? (
                         <div className="yk-panini-empty">
-                          <strong>{tc("noLicensesFound")}</strong>
-                          <p>{tc("tryAnotherNameInTheSearchBar")}</p>
+                          <strong>
+                            {tc(
+                              completedOnly
+                                ? "noCompletedBindersFound"
+                                : "noLicensesFound"
+                            )}
+                          </strong>
+                          {(!completedOnly || query.trim()) && (
+                            <p>{tc("tryAnotherNameInTheSearchBar")}</p>
+                          )}
                         </div>
                       ) : !paniniBusy && !paniniError ? (
                         <ul

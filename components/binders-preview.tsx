@@ -215,7 +215,9 @@ export function BindersPreview({ mode }: { mode: string }) {
                     a.license
                       .toLowerCase()
                       .includes(options.query.toLowerCase())) &&
-                  (!options.favoritesOnly || a.favorite)
+                  (!options.favoritesOnly || a.favorite) &&
+                  (!options.completedOnly ||
+                    (a.total > 0 && a.owned === a.total))
               )
               .sort(
                 (a, b) =>

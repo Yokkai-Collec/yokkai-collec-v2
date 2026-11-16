@@ -234,6 +234,8 @@ const allowlist = {
   "public.admin_get_reported_wall_media(uuid)": ["authenticated"], // Admin predicate, read-only current media path of a reported wall item for the private admin preview route.
   "public.get_binder_albums_page(uuid, text, text, boolean, integer, integer)":
     ["authenticated"], // Exact caller/friend can_view_collection ACL; no anonymous ownership or preference access.
+  "public.get_binder_albums_page(uuid, text, text, boolean, integer, integer, boolean)":
+    ["authenticated"], // Same collection visibility, with optional filtering to complete binders before pagination.
   "public.get_binder_cards_page(uuid, text, text, text, text, boolean, integer, integer)":
     ["authenticated"], // Same owner/friend ACL, exact stable key, bounded page; source metadata unchanged.
   "public.get_binder_cards_page(uuid, text, text, text, text, boolean, integer, integer, text)":
