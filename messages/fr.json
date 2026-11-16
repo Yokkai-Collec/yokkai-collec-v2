@@ -4660,7 +4660,15 @@
     "endedIntro": "Les enchères sont closes. Découvre la carte tirée au sort et le résultat de cette édition.",
     "resultDescription": "La carte a été tirée au sort à la clôture. Elle revient au meilleur enchérisseur ; sans enchère, elle n’est attribuée à personne.",
     "resultTitle": "Le résultat de cette édition",
-    "dailyEvent": "Une enchère. Une surprise."
+    "dailyEvent": "Une enchère. Une surprise.",
+    "historyTitle": "Les cartes déjà révélées",
+    "historyDescription": "Retrouve les cartes tirées lors des éditions précédentes. Ouvre une carte pour voir le résultat de son enchère.",
+    "historyResult": "Voir le résultat pour {name}, {date}",
+    "historyEmpty": "La première carte apparaîtra ici après la première révélation.",
+    "historyLoading": "Chargement des cartes révélées…",
+    "historyError": "Impossible de charger les cartes révélées.",
+    "historyRetry": "Réessayer",
+    "historyMore": "Voir les anciennes révélations"
   },
   "events": {
     "title": "Événements",

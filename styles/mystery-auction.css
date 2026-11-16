@@ -1,3 +1,31 @@
+.yk-mystery-archive {
+  flex: 1 1 100%;
+  min-width: 0;
+  border-top: 1px solid #ffffff12;
+  padding-top: 1.5rem;
+}
+.yk-mystery-archive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 1fr));
+  gap: 1.5rem 1rem;
+  margin-top: 1.5rem;
+}
+.yk-mystery-archive-grid a {
+  display: block;
+  min-width: 0;
+  border-radius: 0.75rem;
+}
+.yk-mystery-archive-grid a:focus-visible {
+  outline: 2px solid var(--color-accent-neon);
+  outline-offset: 5px;
+}
+.yk-mystery-archive-grid time {
+  display: block;
+  margin-top: 0.75rem;
+  color: var(--color-ink-3);
+  font-size: 0.75rem;
+  text-align: center;
+}
 .yk-mystery-banner {
   display: flex;
   align-items: center;
@@ -39,42 +67,20 @@
   flex-wrap: wrap;
   align-items: start;
   max-width: 1240px;
-  gap: clamp(1.5rem, 4vw, 3rem);
   padding: clamp(1rem, 3.2vw, 2.75rem);
-  border: 1px solid
-    color-mix(in srgb, var(--color-accent-neon) 19%, transparent);
+  border-width: 1px;
+  border-style: solid;
   border-radius: 1.75rem;
-  background:
-    radial-gradient(
-      ellipse at 18% 43%,
-      color-mix(in srgb, var(--color-accent-neon) 9%, transparent),
-      transparent 45%
-    ),
-    radial-gradient(ellipse at 90% 0%, #3348771a, transparent 50%), #080b12;
-  box-shadow:
-    0 32px 100px #0005,
-    inset 0 1px #ffffff05;
   isolation: isolate;
 }
 .yk-mystery-event-header {
   flex: 1 1 100%;
   min-width: 0;
 }
-.yk-mystery-event-back {
-  display: inline-flex;
-  min-height: 44px;
-  align-items: center;
-  color: #9ba8c1;
-  font-size: 0.75rem;
-}
-.yk-mystery-event-back:hover {
-  color: var(--color-ink);
-}
 .yk-mystery-event-heading {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  align-items: center;
   gap: 1.75rem 2.5rem;
   margin-top: 1.5rem;
 }
@@ -86,7 +92,6 @@
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  color: var(--color-pack-accent);
   font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.2em;
@@ -96,13 +101,8 @@
   font-size: 1rem;
 }
 .yk-mystery-event-intro h1 {
-  max-width: 35rem;
   margin-top: 0.75rem;
-  color: var(--color-ink);
   font-family: var(--font-display);
-  font-size: clamp(2.1rem, 5.5vw, 4.75rem);
-  line-height: 1.02;
-  letter-spacing: -0.045em;
   overflow-wrap: anywhere;
 }
 .yk-mystery-event-subtitle {
@@ -116,15 +116,11 @@
   overflow: clip;
   position: relative;
   display: grid;
-  flex: 1 1 21rem;
   min-width: 0;
   width: auto;
   justify-items: center;
   align-content: center;
   gap: 2.25rem;
-  min-height: 32rem;
-  margin: 0;
-  padding: 2.5rem 1rem 1.25rem;
   isolation: isolate;
 }
 .yk-mystery-detail .yk-auction-art > .yk-event-card-scene {
@@ -132,7 +128,6 @@
   min-height: 430px;
 }
 .yk-mystery-detail .yk-auction-main {
-  flex: 1 1 27rem;
   min-width: 0;
   width: auto;
   gap: 1rem;
@@ -155,28 +150,9 @@
 }
 .yk-mystery-detail .yk-auction-panel {
   grid-template-columns: minmax(0, 1fr);
-  padding: clamp(1rem, 2.5vw, 1.75rem);
-  border-color: color-mix(in srgb, var(--color-accent-neon) 22%, transparent);
-  border-radius: 1rem;
-  background: linear-gradient(145deg, #ffffff04, transparent 65%), #0d111b;
-  box-shadow: 0 16px 40px #0003;
-}
-.yk-mystery-detail .yk-auction-price {
-  font-size: clamp(1.75rem, 3vw, 2.5rem);
 }
 .yk-mystery-detail .yk-auction-countdown {
   font-size: clamp(1.25rem, 2.5vw, 1.75rem);
-}
-.yk-mystery-detail .yk-bid-quick {
-  border-color: var(--color-pack-accent);
-  background: linear-gradient(
-    115deg,
-    var(--color-ink),
-    var(--color-pack-accent)
-  );
-  color: #241b0b;
-  box-shadow: 0 4px 22px
-    color-mix(in srgb, var(--color-accent-neon) 9%, transparent);
 }
 .yk-mystery-detail .yk-bid-quick span {
   color: inherit;
@@ -212,8 +188,6 @@
 .yk-mystery-chat .yk-auction-chat,
 .yk-mystery-detail .yk-auction-history {
   height: 100%;
-  border-color: #ffffff0d;
-  background: #0a0e17;
   border-radius: 1rem;
 }
 .yk-mystery-detail .yk-auction-history {

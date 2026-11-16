@@ -37,9 +37,9 @@ Il est déverrouillé dans `player_title_unlocks`, puis sélectionnable dans le 
 - Succès en base : 10 à 100 Karas, moyenne 50.
 - 2 973 enchères vendues sur 30 jours : moyenne 283 Karas, médiane 90.
 
-Paliers validés par Walid : 3 → 750 Karas ; 5 → 750 Karas ; 10 → 1 600 Karas ;
+Paliers validés par Walid : 3 → 750 Karas ; 5 → 1 600 Karas ; 10 → 4 000 Karas ; 15 → 8 000 Karas ;
 20 → un Decision Pack spécial de 5 LR aléatoires, toutes conservées, et le titre Recruiter.
-Le cumul en Karas est de 3 100. Aucun temps de Pro n'est offert.
+Le cumul en Karas est de 14 350. Aucun temps de Pro n'est offert.
 Le pack utilise decision_packs / decision_pack_choices et l'insertion de collection
 existante, avec le marqueur de pack bonus pour préserver le quota quotidien.
 Il est attribué et ouvert côté serveur avec le reçu unique ; la révélation UI
@@ -50,7 +50,7 @@ Shiny LR habituelle du Decision Pack (1 %), jamais Infinity.
 ## Relancer une édition
 
 Ajouter une ligne `referral_events` avec un slug unique et des dates UTC, puis ses
-quatre lignes `referral_event_tiers` (seuils 3/5/10/20, montant, nombre de LR et titre au seuil 20).
+cinq lignes `referral_event_tiers` (seuils 3/5/10/15/20, montant, nombre de LR et titre au seuil 20).
 Les fenêtres d'inscription ne peuvent pas se chevaucher. Les anciens reçus restent
 liés à leur édition ; aucun changement d'interface ou de worker n'est nécessaire.
 La page `/referral-event` présente l'édition active, sinon la prochaine ou la dernière.

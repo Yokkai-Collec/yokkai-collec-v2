@@ -158,6 +158,13 @@ async function enrichAuctions(auctions: AuctionPayload<AuctionData>[], sort = tr
 }
 export const getAuctions = async () =>
   enrichAuctions(await call<AuctionData[]>("list_auctions", undefined, true));
+
+export type MysteryHistoryPage = {
+  items: { id: string; day: string; card: Card }[];
+  nextBefore: string | null;
+};
+export const getMysteryAuctionHistory = (before?: string) =>
+  call<MysteryHistoryPage>("list_mystery_auction_history", { p_before: before ?? null });
 export const getAuction = async (id: string) => {
   const auction = await call<AuctionPayload<AuctionDetail>>("get_auction", {
     p_auction_id: id

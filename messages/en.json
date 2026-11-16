@@ -4660,7 +4660,15 @@
     "endedIntro": "Bidding is closed. Discover the card drawn at closing and the result of this edition.",
     "resultDescription": "The card was drawn at closing. It goes to the highest bidder; if there were no bids, no one receives it.",
     "resultTitle": "This edition’s result",
-    "dailyEvent": "One auction. One surprise."
+    "dailyEvent": "One auction. One surprise.",
+    "historyTitle": "Previous reveals",
+    "historyDescription": "Discover the cards drawn in past editions. Open a card to view its auction result.",
+    "historyResult": "View the result for {name}, {date}",
+    "historyEmpty": "The first card will appear here after the first reveal.",
+    "historyLoading": "Loading previous reveals…",
+    "historyError": "Previous reveals could not be loaded.",
+    "historyRetry": "Try again",
+    "historyMore": "Show older reveals"
   },
   "events": {
     "title": "Events",
