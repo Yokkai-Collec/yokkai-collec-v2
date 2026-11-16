@@ -1,5 +1,6 @@
 // Exact overloads and roles only. Every addition requires an access justification.
 export const ownerOnly = [
+  "public.referral_event_leaderboard(uuid)", // Aggregate event rankings, called only by the existing guarded progression RPC.
   "public.referral_event_candidates(uuid)", // Private eligibility includes Auth dates and existing anti-abuse approval; never exposed to players.
   "public.referral_event_qualified(uuid)", // Private qualification/deadline query; only the protected DTO and worker consume it.
   "public.settle_referral_events()", // Cron owner only; no client or service-role reward attribution.

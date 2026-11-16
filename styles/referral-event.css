@@ -681,3 +681,77 @@
   width: 24px;
   height: 24px;
 }
+.yk-referral-leaderboard {
+  min-width: 0;
+  margin-top: 2rem;
+  padding: clamp(16px, 3vw, 28px);
+  border: 1px solid #c6a1ff38;
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse at 100% 0, #783ba51c, transparent 60%), #0a0e19;
+}
+.yk-referral-leaderboard h2 {
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+}
+.yk-referral-leaderboard > p {
+  margin-top: 0.75rem;
+  color: var(--color-ink-3);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+.yk-referral-leaderboard .yk-referral-leaderboard-mine {
+  color: #d8c4ff;
+  font-weight: 600;
+}
+.yk-referral-leaderboard ol {
+  display: grid;
+  gap: 8px;
+  margin-top: 1.25rem;
+}
+.yk-referral-leaderboard li {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr) minmax(0, auto);
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 8px 12px;
+  border: 1px solid #ffffff0d;
+  border-radius: 10px;
+  background: #ffffff03;
+  font-size: 0.8125rem;
+}
+.yk-referral-leaderboard li[data-mine="true"] {
+  border-color: #b999ff88;
+  background: #8a59d51a;
+}
+.yk-referral-leaderboard-rank {
+  color: #edcf87;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.yk-referral-leaderboard a {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-height: 44px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--color-ink);
+}
+.yk-referral-leaderboard a span {
+  margin-left: 4px;
+  color: #d8c4ff;
+}
+.yk-referral-leaderboard a:focus-visible {
+  outline: 2px solid #c6a1ff;
+  outline-offset: 4px;
+}
+.yk-referral-leaderboard strong {
+  max-width: 8rem;
+  color: #c7d6ef;
+  text-align: right;
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}

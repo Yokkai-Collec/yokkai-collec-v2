@@ -386,6 +386,46 @@ export function ReferralEventPanel({
           )}
         </section>
       )}
+      {event.leaderboard && (
+        <section
+          className="yk-referral-leaderboard"
+          aria-labelledby="referral-leaderboard-title"
+        >
+          <h2 id="referral-leaderboard-title">{t("leaderboardTitle")}</h2>
+          <p>{t("leaderboardHint")}</p>
+          <p className="yk-referral-leaderboard-mine">
+            {event.leaderboard.mine?.position != null
+              ? t("leaderboardPosition", {
+                  rank: event.leaderboard.mine.position
+                })
+              : t(
+                  event.leaderboard.mine?.isPublic === false
+                    ? "leaderboardPrivate"
+                    : "leaderboardUnranked"
+                )}
+          </p>
+          {event.leaderboard.entries.length ? (
+            <ol>
+              {event.leaderboard.entries.map(entry => (
+                <li key={entry.pseudo} data-mine={entry.mine}>
+                  <span className="yk-referral-leaderboard-rank">
+                    {fmt.number(entry.position)}
+                  </span>
+                  <Link href={`/profile/${encodeURIComponent(entry.pseudo)}`}>
+                    {entry.pseudo}
+                    {entry.mine && <span> {t("leaderboardYou")}</span>}
+                  </Link>
+                  <strong>
+                    {t("leaderboardCount", { count: entry.validCount })}
+                  </strong>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p role="status">{t("leaderboardEmpty")}</p>
+          )}
+        </section>
+      )}
       <div className="yk-referral-event-details">
         <section>
           <h2>{t("howTitle")}</h2>

@@ -4624,7 +4624,15 @@
     "totalRewardsWithPack": "{amount, number} Karas + a special Decision Pack to unlock",
     "packAwarded": "Your {count, number} random LR cards are already in your collection. You keep them all: no choosing or sacrificing cards.",
     "revealPack": "Reveal my LR cards",
-    "loadingPack": "Preparing the reveal…"
+    "loadingPack": "Preparing the reveal…",
+    "leaderboardTitle": "Event leaderboard",
+    "leaderboardHint": "Top 20 public profiles, ranked by valid referrals during this event. Tied players share the same rank.",
+    "leaderboardPosition": "Your rank: #{rank}",
+    "leaderboardPrivate": "Your private profile does not appear in the leaderboard.",
+    "leaderboardUnranked": "Your first valid referral will put you in the ranking.",
+    "leaderboardYou": "(you)",
+    "leaderboardCount": "{count, plural, one {# valid referral} other {# valid referrals}}",
+    "leaderboardEmpty": "No valid referrals yet. The ranking will appear after the first validations."
   },
   "mysteryAuction": {
     "title": "Mystery Auction",
