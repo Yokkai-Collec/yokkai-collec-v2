@@ -95,11 +95,9 @@
   margin-inline: auto;
   min-height: 410px;
   padding: 12px;
-  border: 1px solid #8db5fb22;
-  border-radius: 22px;
-  background:
-    radial-gradient(ellipse at center, #2052a12b, transparent 68%),
-    linear-gradient(145deg, #10223b40, #050912);
+  border: 0;
+  border-radius: 0;
+  background: none;
 }
 .yk-mystery-detail .yk-event-card-scene {
   min-height: 350px;
@@ -109,7 +107,6 @@
 }
 .yk-mystery-stage-caption {
   padding: 10px 16px;
-  border-top: 1px solid #9abfff22;
 }
 .yk-mystery-detail .yk-auction-main {
   flex-basis: 100%;
