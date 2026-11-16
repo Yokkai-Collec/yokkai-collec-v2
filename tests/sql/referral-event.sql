@@ -71,7 +71,14 @@ begin
  if (select count(*) from public.player_title_unlocks where user_id=parent and title_id='recruiter')<>1 then raise exception 'Recruiter title missing or duplicated'; end if;
  perform public.equip_player_title('recruiter');
  if public.get_profile(null)->>'titleId'<>'recruiter' then raise exception 'Recruiter title cannot be equipped'; end if;
- if (public.list_notifications(30)->0->>'referralReward') is null then raise exception 'Notification reward projection missing'; end if;
+ -- Other notification types can precede rewards, including with identical timestamps.
+ update public.notifications set created_at=stamp+interval '1 minute' where user_id=parent and type<>'referral_event_tier';
+ if (select count(*) from jsonb_array_elements(public.list_notifications(30)) notice
+     join public.referral_event_rewards reward on reward.id=(notice->>'referenceId')::uuid
+     where notice->>'type'='referral_event_tier' and reward.user_id=parent
+       and (notice->>'referralReward')::int=reward.karas
+       and (notice->>'referralPackCards')::int=reward.lr_cards)<>4 then
+  raise exception 'Notification reward projection missing'; end if;
  if has_function_privilege('authenticated','public.settle_referral_events()','execute')
  or has_function_privilege('service_role','public.settle_referral_events()','execute') then raise exception 'Worker exposed to clients'; end if;
  if has_table_privilege('authenticated','public.referral_event_rewards','insert') then raise exception 'Client can forge tiers'; end if;
