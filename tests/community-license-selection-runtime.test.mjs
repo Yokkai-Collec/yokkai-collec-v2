@@ -75,6 +75,14 @@ test("Choosing a license scopes the main players table, ignores stale reads and 
           return { stableBindersEnabled: () => true };
         if (name === "@/lib/ui/binder-identity")
           return { binderIdentity: b => b.key };
+        if (name === "@/lib/ui/binder-discovery")
+          return {
+            binderHref: (binder, completedOnly) => {
+              assert.equal(binder, undefined);
+              assert.equal(completedOnly, true);
+              return "/collection?view=binders&completed=1";
+            }
+          };
         if (name === "@/lib/leaderboard/community")
           return {
             completionRatio: (v, total) =>
@@ -146,15 +154,21 @@ test("Choosing a license scopes the main players table, ignores stale reads and 
         isFriend: false
       }
     ],
-    mine: { value: 1, position: 1, isPublic: true },
+    mine: { value: 1, position: 1, isPublic: true, completedLicenses: 1 },
     profileStyles: {},
     catalogue: { totalCards: 10, totalLicenses: 2 }
   });
   const picker = () => walk(tree).find(n => n.type === explorer);
+  const completedShortcut = () =>
+    walk(tree).find(n => n.props?.children === "View completed licenses");
   await flush();
   assert.equal(calls[0].key, "global:progress-score");
   calls[0].resolve(result("Overall"));
   await flush();
+  assert.equal(
+    completedShortcut().props.href,
+    "/collection?view=binders&completed=1"
+  );
   picker().props.onSelect({
     key: "source:dragon",
     license: "Dragon",
@@ -185,6 +199,7 @@ test("Choosing a license scopes the main players table, ignores stale reads and 
   );
   assert.equal(links.length, 1);
   assert.equal(links[0].props.href, "/profile/NarutoPlayer");
+  assert.equal(completedShortcut(), undefined);
   const friends = walk(tree).find(
     n => n.props?.["aria-pressed"] === false && n.props.children === "Friends"
   );
@@ -207,4 +222,5 @@ test("Choosing a license scopes the main players table, ignores stale reads and 
     n => n.props?.className === "yk-leaderboard-player"
   );
   assert.equal(links[0].props.href, "/profile/OverallAgain");
+  assert.ok(completedShortcut());
 });
