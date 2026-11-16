@@ -31,7 +31,11 @@ begin
   perform set_config('request.jwt.claim.sub',spectator::text,true);
   item:=public.get_auction(auction);
   assert item->'card'='null'::jsonb and (item->>'isMystery')::boolean, 'API leaks card';
-  assert exists(select 1 from jsonb_array_elements(public.browse_auctions_page()->'items') a where a->>'id'=auction::text and a->'card'='null'::jsonb), 'browse hides event or leaks card';
+  assert public.browse_auctions_page()->'items'='[]'::jsonb, 'Mystery appears in market browse';
+  assert (public.browse_auctions_page()->'counts'->>'active')::int=0, 'Mystery counted as market listing';
+  assert public.list_auctions()='[]'::jsonb, 'Mystery appears in legacy market';
+  assert public.list_auctions_page()->'items'='[]'::jsonb, 'Mystery appears in paged market';
+  assert public.get_mystery_auction_event()->'auction'->>'id'=auction::text, 'Mystery event inaccessible';
   assert not has_function_privilege('authenticated','public.create_daily_mystery_auction()','execute'), 'client can create event';
   assert not has_table_privilege('authenticated','public.auctions','select'), 'raw auction read exposed';
   begin
@@ -44,6 +48,7 @@ begin
   update public.auctions set ends_at=deadline where id=auction;
   perform set_config('request.jwt.claim.sub',winner::text,true);
   perform public.place_bid(auction,70);
+  assert public.browse_auctions_page(p_section=>'mine')->'items'='[]'::jsonb, 'Bidder sees Mystery in market';
   assert (select ends_at=deadline from public.auctions where id=auction), 'mystery duration extended';
   assert (select count(*)=1 from public.notifications where user_id=loser and reference_id=auction and type='outbid'), 'outbid notification missing';
   assert (select karas_balance=1000 from public.user_profiles where user_id=loser), 'loser not refunded';
@@ -55,6 +60,10 @@ begin
   update public.auctions set ends_at=clock_timestamp()-interval '1 second' where id=auction;
   perform public.settle_expired_auctions();
   assert (select status='sold' and card_snapshot is not null from public.auctions where id=auction), 'no revelation';
+  assert public.browse_auctions_page(p_section=>'won')->'items'='[]'::jsonb, 'Revealed Mystery appears in market wins';
+  assert public.list_auctions()='[]'::jsonb, 'Revealed Mystery appears in legacy market';
+  assert public.list_auctions_page()->'items'='[]'::jsonb, 'Revealed Mystery appears in paged market';
+  assert public.list_mystery_auction_history()->'items'->0->>'id'=auction::text, 'Mystery reveal history inaccessible';
   assert (select count(*)=copies+1 from public.user_cards), 'wrong copy count';
   assert exists(select 1 from public.auctions a join public.user_cards u on u.id=a.card_instance_id
     where a.id=auction and u.user_id=winner and not u.is_shiny and not u.is_evolved
