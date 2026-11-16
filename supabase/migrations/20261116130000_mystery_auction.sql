@@ -25,7 +25,7 @@ create function public.create_daily_mystery_auction() returns void
 language plpgsql volatile security definer set search_path='' as $$
 declare local_now timestamp:=clock_timestamp() at time zone 'Europe/Paris'; auction_id uuid; starts timestamptz;
 begin
-  if extract(hour from local_now)<>20 then return; end if;
+  if local_now::time<time '20:00' or exists(select 1 from public.auctions where is_mystery and mystery_day=local_now::date) then return; end if;
   perform public.settle_expired_auctions();
   starts:=(local_now::date+time '20:00') at time zone 'Europe/Paris';
   insert into public.auctions(is_mystery,mystery_day,starting_price,current_price,duration_minutes,ends_at,created_at)
@@ -38,15 +38,10 @@ begin
 end $$;
 revoke all on function public.create_daily_mystery_auction() from public,anon,authenticated,service_role;
 
--- cron.timezone is cluster-wide and requires a restart to change:
--- https://github.com/citusdata/pg_cron#setting-up-pg_cron
--- Use a daily job only when it is ALREADY Europe/Paris; otherwise hourly,
--- with a server-side Paris clock check and a unique local-date key.
+-- A minute tick is timezone-independent and catches a deployment after 20:00.
+-- The Paris clock and unique local-date key still allow only one edition per day.
 -- End at the next local 20:00: DST editions last 23 or 25 actual hours.
--- pg_settings also handles an unreadable privileged setting without requiring
--- pg_read_all_settings (current_setting would raise even with missing_ok).
-select cron.schedule('daily-mystery-auction',
-  case when (select setting from pg_settings where name='cron.timezone')='Europe/Paris' then '0 20 * * *' else '0 * * * *' end,
+select cron.schedule('daily-mystery-auction','* * * * *',
   'select public.create_daily_mystery_auction();');
 
 create or replace function public.notify_auction_sold() returns trigger

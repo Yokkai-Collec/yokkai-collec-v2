@@ -458,7 +458,7 @@ test("drift detects changed, missing and extra cron jobs", async t => {
   assert.deepEqual(
     jobs.find(job => job.name === "daily-mystery-auction@postgres").value,
     {
-      schedule: "0 * * * *",
+      schedule: "* * * * *",
       command: "select public.create_daily_mystery_auction();",
       username: "postgres",
       database: "postgres",

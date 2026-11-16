@@ -194,6 +194,23 @@ test("every public, Auth and Storage relation has an explicit export projection 
   }
 });
 
+test("event reward exports contain only the player's own receipts", async t => {
+  const { db, build } = await setup(t);
+  const event = (
+    await db.query("select id from public.referral_events limit 1")
+  ).rows[0].id;
+  await db.query(
+    "insert into public.referral_event_rewards(user_id,event_id,threshold,karas,lr_cards,recruiter_badge) values($1,$3,3,750,0,false),($2,$3,5,750,0,false)",
+    [a, b, event]
+  );
+  const data = await build(a);
+  assert.equal(data.referral_event_rewards.length, 1);
+  assert.equal(data.referral_event_rewards[0].threshold, 3);
+  assert.equal(data.referral_event_rewards[0].karas, 750);
+  assert.deepEqual(data.referral_event_rewards[0].cards, []);
+  assert.equal(data.referral_event_rewards[0].event_id, event);
+});
+
 test("referral rows count toward the unchanged complete-file bounds and failed generation releases its reservation", async t => {
   const { db, build } = await setup(t);
   await db.query(

@@ -190,5 +190,30 @@ begin
  end loop;
 end;$$;
 
+-- Extend the existing snapshot export in place, preserving its identity and ACL.
+do $export$
+declare source text; marker text := 'return result;';
+begin
+ source := pg_get_functiondef('public.build_data_export(uuid,uuid)'::regprocedure);
+ if (length(source)-length(replace(source,marker,'')))/length(marker)<>1 then
+  raise exception 'REFERRAL_EVENT_EXPORT_PATCH_MISMATCH';
+ end if;
+ execute replace(source,marker,$body$
+  select result || jsonb_build_object('referral_event_rewards',coalesce((
+   select jsonb_agg(jsonb_build_object('event_id',r.event_id,'event',e.slug,
+    'starts_at',e.starts_at,'ends_at',e.ends_at,'threshold',r.threshold,
+    'karas',r.karas,'lr_cards',r.lr_cards,'recruiter_title',r.recruiter_badge,
+    'awarded_at',r.awarded_at,'decision_pack_id',r.decision_pack_id,'cards',r.cards)
+    order by r.awarded_at,r.id)
+   from public.referral_event_rewards r join public.referral_events e on e.id=r.event_id
+   where r.user_id=p_user_id),'[]'::jsonb)) into result;
+  if (select coalesce(sum(case when jsonb_typeof(value)='array' then jsonb_array_length(value)
+   when jsonb_typeof(value)='object' then 1 else 0 end),0) from jsonb_each(result))>100000
+   or octet_length(result::text)>26214400 then raise exception 'EXPORT_TOO_LARGE'; end if;
+  return result;
+ $body$);
+end;
+$export$;
+
 select cron.schedule('settle-referral-events','* * * * *','select public.settle_referral_events()');
 commit;

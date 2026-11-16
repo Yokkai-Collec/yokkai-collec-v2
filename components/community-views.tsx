@@ -2,9 +2,6 @@
 import { EventsHub } from "@/components/events-hub";
 import {
   MysteryAuctionBanner,
-  MysteryCardBack,
-  EventCardShowcase,
-  MysteryEventHeader,
   MysteryAuctionTile
 } from "@/components/mystery-auction";
 import { CardFranchise } from "@/components/card-franchise";
@@ -104,6 +101,20 @@ import {
   RarityChips
 } from "@/components/collection-filters";
 
+const MysteryAuctionStage = dynamic(() =>
+  import("@/components/mystery-auction-stage").then(
+    module => module.MysteryAuctionStage
+  )
+);
+const MysteryAuctionLeader = dynamic(() =>
+  import("@/components/mystery-auction-stage").then(
+    module => module.MysteryAuctionLeader
+  )
+);
+const AuctionStatus = dynamic(() =>
+  import("@/components/auction-outcome").then(module => module.AuctionStatus)
+);
+const AuctionOutcome = dynamic(() => import("@/components/auction-outcome"));
 const MarketListings = dynamic(() => import("@/components/market-listings"));
 
 const ProfileExperience = dynamic(
@@ -442,28 +453,6 @@ export type AuctionPresentation = {
     mine?: boolean;
   }[];
 };
-function AuctionStatus({
-  status
-}: {
-  status: NonNullable<AuctionPresentation["status"]>;
-}) {
-  const tStatus = useTranslations("profileUi");
-  return (
-    <StatusPill
-      tone={
-        status === "outbid" || status === "lost"
-          ? "danger"
-          : status === "leading" || status === "sold"
-            ? "success"
-            : status === "unsold"
-              ? "neutral"
-              : "gold"
-      }
-    >
-      {tStatus(`auctionStatus${status}`)}
-    </StatusPill>
-  );
-}
 const urgencyClass = (seconds: number) =>
   seconds < 300
     ? "yk-urgency-critical"
@@ -1218,83 +1207,6 @@ export function MarketView({
     </section>
   );
 }
-function AuctionOutcome({ auction }: { auction: AuctionPresentation }) {
-  const t = useTranslations();
-  const format = useFormatter();
-  const formatKaras = (amount: number) => format.number(amount) + " Karas";
-  const won = auction.status === "won" || auction.status === "leading";
-  const lost = auction.status === "lost" || auction.status === "outbid";
-  if (won)
-    return (
-      <div role="status" className="yk-auction-outcome yk-outcome-won">
-        <p className="yk-outcome-badge">{t("profileUi.auctionWon")}</p>
-        <p className="mt-2 text-sm text-ink-2">
-          {t("profileUi.cardJoinsCollection", {
-            name: auction.card.name,
-            amount: formatKaras(auction.amount)
-          })}
-        </p>
-        <Link href="/collection" className="yk-button yk-button-secondary mt-4">
-          {t("profileUi.viewMyCollection")}{" "}
-        </Link>
-      </div>
-    );
-  if (lost)
-    return (
-      <div role="status" className="yk-auction-outcome yk-outcome-lost">
-        <p className="yk-outcome-badge">{t("profileUi.auctionLost")}</p>
-        <p className="mt-2 text-sm text-ink-2">
-          {auction.winner
-            ? t("profileUi.wonAuctionBy", {
-                name: auction.winner,
-                amount: formatKaras(auction.amount)
-              })
-            : t("profileUi.anotherBidWon")}{" "}
-          {t("profileUi.yourBidHasBeenRefunded")}{" "}
-        </p>
-        <Link href="/market" className="yk-button yk-button-secondary mt-4">
-          {t("profileUi.backToMarket")}{" "}
-        </Link>
-      </div>
-    );
-  if (
-    auction.status === "sold" ||
-    (auction.status === "mine" && auction.winner)
-  )
-    return (
-      <div role="status" className="yk-auction-outcome yk-outcome-won">
-        <p className="yk-outcome-badge">{t("profileUi.cardSold")}</p>
-        <p className="mt-2 text-sm text-ink-2">
-          {t("profileUi.soldToPlayer", {
-            name: auction.winner ?? t("profileUi.aPlayer"),
-            amount: formatKaras(auction.amount)
-          })}
-        </p>
-      </div>
-    );
-  if (auction.status === "unsold")
-    return (
-      <div role="status" className="yk-auction-outcome">
-        <p className="yk-outcome-badge">{t("profileUi.noBids")}</p>
-        <p className="mt-2 text-sm text-ink-2">
-          {t("profileUi.auctionCardReturned")}{" "}
-        </p>
-      </div>
-    );
-  return (
-    <div role="status" className="yk-auction-outcome">
-      <p className="yk-outcome-badge">{t("profileUi.auctionEnded")}</p>
-      <p className="mt-2 text-sm text-ink-2">
-        {auction.winner
-          ? t("profileUi.wonAuctionBy", {
-              name: auction.winner,
-              amount: formatKaras(auction.amount)
-            })
-          : t("profileUi.noBidsWerePlaced")}
-      </p>
-    </div>
-  );
-}
 export type AuctionChatAdapter = {
   get: typeof getAuctionChat;
   send: typeof sendAuctionChatMessage;
@@ -1817,25 +1729,21 @@ export function AuctionView({
     offerValue > auction.balance;
   const biddable = !!onBid && !auction.finished && auction.nextBid != null;
   const franchise = auction.card.anime?.trim();
-  const cardArt = auction.mysteryHidden ? (
-    <MysteryCardBack />
-  ) : (
-    <YokaiCard {...auction.card} />
-  );
   return (
     <div
       className={`yk-auction-page${auction.isMystery ? " yk-mystery-detail" : ""}`}
     >
-      {auction.isMystery && <MysteryEventHeader finished={auction.finished} />}
-      <div className="yk-auction-art">
-        {auction.isMystery ? (
-          <EventCardShowcase revealed={!auction.mysteryHidden}>
-            {cardArt}
-          </EventCardShowcase>
-        ) : (
-          cardArt
-        )}
-      </div>
+      {auction.isMystery ? (
+        <MysteryAuctionStage
+          card={auction.card}
+          hidden={auction.mysteryHidden}
+          finished={auction.finished}
+        />
+      ) : (
+        <div className="yk-auction-art">
+          <YokaiCard {...auction.card} />
+        </div>
+      )}
       <div className="yk-auction-main">
         <header className="yk-auction-header">
           {(!auction.isMystery || !auction.mysteryHidden) && (
@@ -1844,30 +1752,12 @@ export function AuctionView({
                 <span
                   className={`text-sm font-bold tracking-widest ${catalogueRarityText[auction.card.rarity]}`}
                 >
-                  {auction.mysteryHidden
-                    ? t("mysteryAuction.hiddenCard")
-                    : auction.card.rarity}
+                  {auction.card.rarity}
                 </span>
                 {auction.status && <AuctionStatus status={auction.status} />}
               </div>
-              <h2 className="mt-2 font-display">
-                {auction.mysteryHidden
-                  ? t(
-                      auction.finished
-                        ? "mysteryAuction.resultTitle"
-                        : "mysteryAuction.enterAuction"
-                    )
-                  : auction.card.name}
-              </h2>
-              {auction.isMystery ? (
-                <p className="mt-2 text-sm text-ink-2">
-                  {t(
-                    auction.finished
-                      ? "mysteryAuction.resultDescription"
-                      : "mysteryAuction.description"
-                  )}
-                </p>
-              ) : (
+              <h2 className="mt-2 font-display">{auction.card.name}</h2>
+              {!auction.isMystery && (
                 <p className="yk-auction-seller mt-2 flex-wrap text-sm text-ink-2">
                   {franchise && (
                     <>
@@ -1942,11 +1832,7 @@ export function AuctionView({
             </div>
           </div>
           {auction.isMystery && (
-            <p className="yk-auction-hint">
-              {t("mysteryAuction.leader", {
-                name: auction.winner ?? t("mysteryAuction.noBids")
-              })}
-            </p>
+            <MysteryAuctionLeader winner={auction.winner} />
           )}
           {auction.extended && !auction.finished && (
             <p role="status" className="yk-auction-extension">

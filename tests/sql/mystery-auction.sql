@@ -59,14 +59,14 @@ begin
   assert (select status='expired' and card_instance_id is null and card_snapshot->>'id' is not null from public.auctions where id=empty_auction), 'no-bid revelation failed';
   assert (select count(*)=copies+1 from public.user_cards), 'unsold card awarded';
   assert exists(select 1 from cron.job where jobname='daily-mystery-auction'
-    and schedule=case when (select setting from pg_settings where name='cron.timezone')='Europe/Paris' then '0 20 * * *' else '0 * * * *' end
+    and schedule='* * * * *'
     and command='select public.create_daily_mystery_auction();' and active), 'daily job missing';
 
   assert not exists(select 1 from cron.job where jobname='weekly-mystery-auction' and active), 'weekly job still active';
 
   -- Exercise the REAL creator with a fixed server clock, rolled back below.
   definition:=pg_get_functiondef('public.create_daily_mystery_auction()'::regprocedure);
-  foreach stamp in array array['2099-01-07 19:00:00+00','2099-01-08 19:00:00+00','2099-07-08 18:00:00+00','2099-03-28 19:00:00+00','2099-10-24 18:00:00+00'] loop
+  foreach stamp in array array['2099-01-07 19:00:00+00','2099-01-08 19:00:00+00','2099-01-09 20:15:00+00','2099-07-08 18:00:00+00','2099-03-28 19:00:00+00','2099-10-24 18:00:00+00'] loop
     execute replace(definition,'clock_timestamp()',quote_literal(stamp)||'::timestamptz');
     -- Fixtures already use Jan 7; remove it solely within this rollback test.
     delete from public.notifications where reference_id in(select id from public.auctions where mystery_day=(stamp::timestamptz at time zone 'Europe/Paris')::date);
