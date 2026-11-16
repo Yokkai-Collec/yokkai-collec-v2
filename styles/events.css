@@ -7,15 +7,43 @@
 .yk-events-page-light {
   position: absolute;
   z-index: -1;
-  top: -20px;
-  right: -12%;
-  width: 110%;
-  height: 370px;
+  top: -55px;
+  right: -8%;
+  width: 72%;
+  height: 300px;
   pointer-events: none;
-  color: #65a6ff;
-  opacity: 0.85;
-  filter: drop-shadow(0 0 8px #2b79ff) drop-shadow(0 0 18px #1d57be);
-  mask-image: linear-gradient(90deg, transparent, #000 40%);
+  background:
+    radial-gradient(ellipse at 72% 40%, #668dff20, transparent 48%),
+    radial-gradient(ellipse at 95% 65%, #b461ed12, transparent 55%);
+  mask-image: radial-gradient(ellipse at 65% 45%, #000 15%, transparent 68%);
+}
+.yk-events-page-light::before,
+.yk-events-page-light::after {
+  content: "";
+  position: absolute;
+  inset: 12% -15%;
+  transform: rotate(-24deg);
+  mask-image: radial-gradient(ellipse, #000 10%, transparent 67%);
+}
+.yk-events-page-light::before {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0 11px,
+    #8dbbff12 12px,
+    transparent 13px 24px
+  );
+}
+.yk-events-page-light::after {
+  background: linear-gradient(
+    0deg,
+    transparent 38%,
+    #5e9bff0a 44%,
+    #a7caff38 45%,
+    #5c94e910 46%,
+    transparent 53%,
+    #bfa0f51a 63%,
+    transparent 64%
+  );
 }
 .yk-events-header {
   padding: 20px 8px 12px;

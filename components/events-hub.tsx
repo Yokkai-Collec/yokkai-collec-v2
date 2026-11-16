@@ -40,30 +40,7 @@ export function EventsHub() {
   const deadline = live ? auction.endsAt : event?.nextStartsAt;
   return (
     <div className="yk-events-hub">
-      <svg
-        className="yk-events-page-light"
-        viewBox="0 0 1200 500"
-        preserveAspectRatio="none"
-        fill="none"
-        aria-hidden="true"
-      >
-        <path
-          d="M350 260C730 0 960 180 1250 20M450 320C880 270 1060 190 1260 125"
-          stroke="#438eff"
-          strokeWidth="20"
-          strokeOpacity=".1"
-        />
-        <path
-          d="M350 260C730 0 960 180 1250 20M450 320C880 270 1060 190 1260 125"
-          stroke="#529bff"
-          strokeWidth="1.2"
-        />
-        <path
-          d="M600 180C850 80 1150 180 1290 70"
-          stroke="#d9edff"
-          strokeWidth="1.8"
-        />
-      </svg>
+      <div className="yk-events-page-light" aria-hidden="true" />
       <header className="yk-events-header">
         <p className="yk-events-overline">{t("title")}</p>
         <h1>{t("title")}</h1>
