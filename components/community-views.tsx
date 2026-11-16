@@ -1748,70 +1748,63 @@ export function AuctionView({
         ) : (
           cardArt
         )}
-        {auction.isMystery && (
-          <p className="yk-mystery-stage-caption">
-            {t(
-              auction.mysteryHidden
-                ? "mysteryAuction.stageHidden"
-                : "mysteryAuction.stageRevealed"
-            )}
-          </p>
-        )}
       </div>
       <div className="yk-auction-main">
         <header className="yk-auction-header">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <span
-                className={`text-sm font-bold tracking-widest ${catalogueRarityText[auction.card.rarity]}`}
-              >
+          {(!auction.isMystery || !auction.mysteryHidden) && (
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <span
+                  className={`text-sm font-bold tracking-widest ${catalogueRarityText[auction.card.rarity]}`}
+                >
+                  {auction.mysteryHidden
+                    ? t("mysteryAuction.hiddenCard")
+                    : auction.card.rarity}
+                </span>
+                {auction.status && <AuctionStatus status={auction.status} />}
+              </div>
+              <h2 className="mt-2 font-display">
                 {auction.mysteryHidden
-                  ? t("mysteryAuction.hiddenCard")
-                  : auction.card.rarity}
-              </span>
-              {auction.status && <AuctionStatus status={auction.status} />}
-            </div>
-            <h2 className="mt-2 font-display">
-              {auction.mysteryHidden
-                ? t(
+                  ? t(
+                      auction.finished
+                        ? "mysteryAuction.resultTitle"
+                        : "mysteryAuction.enterAuction"
+                    )
+                  : auction.card.name}
+              </h2>
+              {auction.isMystery ? (
+                <p className="mt-2 text-sm text-ink-2">
+                  {t(
                     auction.finished
-                      ? "mysteryAuction.resultTitle"
-                      : "mysteryAuction.enterAuction"
-                  )
-                : auction.card.name}
-            </h2>
-            {auction.isMystery ? (
-              <p className="mt-2 text-sm text-ink-2">
-                {t(
-                  auction.finished
-                    ? "mysteryAuction.resultDescription"
-                    : "mysteryAuction.description"
-                )}
-              </p>
-            ) : (
-              <p className="yk-auction-seller mt-2 text-sm text-ink-2">
-                {franchise ? `${franchise} · ` : ""}
-                {t("profileUi.listedBy")}{" "}
-                <Avatar
-                  name={auction.seller}
-                  image={auction.sellerAvatarUrl ?? undefined}
-                  size={26}
-                />
-                {auction.sellerId === null ? (
-                  <span className="font-semibold">
-                    {t("profileUi.deletedPlayer")}
-                  </span>
-                ) : (
-                  <Link
-                    href={`/profile/${encodeURIComponent(auction.seller)}`}
-                    className="font-semibold hover:text-accent-gold"
-                  >
-                    {auction.seller}
-                  </Link>
-                )}
-              </p>
-            )}
-          </div>
+                      ? "mysteryAuction.resultDescription"
+                      : "mysteryAuction.description"
+                  )}
+                </p>
+              ) : (
+                <p className="yk-auction-seller mt-2 text-sm text-ink-2">
+                  {franchise ? `${franchise} · ` : ""}
+                  {t("profileUi.listedBy")}{" "}
+                  <Avatar
+                    name={auction.seller}
+                    image={auction.sellerAvatarUrl ?? undefined}
+                    size={26}
+                  />
+                  {auction.sellerId === null ? (
+                    <span className="font-semibold">
+                      {t("profileUi.deletedPlayer")}
+                    </span>
+                  ) : (
+                    <Link
+                      href={`/profile/${encodeURIComponent(auction.seller)}`}
+                      className="font-semibold hover:text-accent-gold"
+                    >
+                      {auction.seller}
+                    </Link>
+                  )}
+                </p>
+              )}
+            </div>
+          )}
           {onToggleWatch && (
             <WatchButton
               watched={auction.wishlist}

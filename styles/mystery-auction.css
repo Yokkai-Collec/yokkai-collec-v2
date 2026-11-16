@@ -201,13 +201,6 @@
   width: 100%;
   min-height: 430px;
 }
-.yk-mystery-stage-caption {
-  max-width: 16rem;
-  color: #9eabc1;
-  font-size: 0.6875rem;
-  line-height: 1.7;
-  text-align: center;
-}
 .yk-mystery-detail .yk-auction-main {
   flex: 1 1 27rem;
   min-width: 0;

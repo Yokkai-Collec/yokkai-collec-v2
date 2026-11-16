@@ -95,9 +95,6 @@
 .yk-mystery-detail .yk-event-card-object {
   width: clamp(160px, 23vw, 275px);
 }
-.yk-mystery-stage-caption {
-  padding: 10px 16px;
-}
 .yk-mystery-detail .yk-auction-main {
   flex-basis: 100%;
   align-self: stretch;

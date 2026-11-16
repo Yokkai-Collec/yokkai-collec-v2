@@ -254,12 +254,6 @@
   z-index: 5;
   top: 13px;
   right: 12px;
-  padding: 3px 7px;
-  border: 1px solid #b0c9f44d;
-  border-radius: 20px;
-  background: #050914b8;
-}
-.yk-event-banner-price .yk-karas {
   font-size: clamp(0.6rem, 2.1cqi, 0.75rem);
   gap: 4px;
 }

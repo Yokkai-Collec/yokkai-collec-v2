@@ -102,9 +102,10 @@ export function EventsHub() {
                       </p>
                     )}
                   </div>
-                  <span className="yk-event-banner-price">
-                    <Karas amount={live ? auction.amount : 50} />
-                  </span>
+                  <Karas
+                    amount={live ? auction.amount : 50}
+                    className="yk-event-banner-price"
+                  />
                   <EventBannerArt kind="mystery">
                     {auction?.card ? (
                       <YokaiCard {...auction.card} />
