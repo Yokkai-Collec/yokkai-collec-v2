@@ -138,6 +138,12 @@ test("the events hub lists the real event, filters its status, and keeps results
     assert.doesNotMatch(home(), /href="\/market\/auction"/);
     filter = "all";
     assert.equal((render().match(/class="yk-event-card"/g) ?? []).length, 2);
+    assert.match(render(), /class="yk-title mt-3"/);
+    assert.match(render(), /aria-pressed="true"[^>]*>[^<]+<span>2<\/span>/);
+    assert.equal(
+      (render().match(/<span>1<\/span><\/button>/g) ?? []).length,
+      2
+    );
     filter = "upcoming";
     assert.doesNotMatch(render(), /href="\/referral-event"/);
   }

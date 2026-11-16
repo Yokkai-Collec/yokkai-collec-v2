@@ -46,23 +46,16 @@
   );
 }
 .yk-events-header {
-  padding: 20px 8px 12px;
+  display: grid;
+  align-items: center;
+  gap: var(--layout-gutter);
+  min-width: 0;
+  padding: 20px 4px 24px;
 }
-.yk-events-overline {
-  color: var(--color-accent-gold);
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.4em;
-  text-transform: uppercase;
-}
-.yk-events-header h1 {
-  margin-top: 12px;
-  color: var(--color-ink);
-  font-size: clamp(2.15rem, 4.5vw, 3.2rem);
-  font-weight: 700;
-  line-height: 1.08;
-  letter-spacing: -0.045em;
-  overflow-wrap: anywhere;
+@media (min-width: 900px) {
+  .yk-events-header {
+    grid-template-columns: var(--collection-sidebar-width, 16rem) minmax(0, 1fr);
+  }
 }
 .yk-events-intro {
   max-width: 44rem;
@@ -73,41 +66,55 @@
 }
 .yk-events-toolbar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
-  padding: 12px 5px 20px;
+  min-width: 0;
+  padding: calc(var(--spacing) * 2);
+  border: 1px solid var(--color-veil);
+  border-radius: var(--radius-panel);
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
 }
 .yk-events-filters {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
+  min-width: 0;
+  padding: 4px;
+  border: 1px solid var(--color-veil);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
 }
 .yk-events-filters button {
   display: flex;
   align-items: center;
   min-height: 44px;
-  padding: 8px 11px;
-  border: 1px solid transparent;
-  border-radius: 20px;
+  gap: 8px;
+  padding: 0 16px;
+  border-radius: var(--radius-pill);
   background: transparent;
-  color: var(--color-ink-3);
-  font-size: 0.7rem;
+  color: var(--color-ink-2);
+  font-size: 13px;
+  font-weight: 600;
   transition:
     color 200ms,
     background 200ms,
     border-color 200ms;
 }
 .yk-events-filters button[aria-pressed="true"] {
-  border-color: #a9c9ff45;
-  color: #eef5ff;
-  background: #8dadff0d;
+  color: var(--color-ink);
+  background: var(--color-veil);
+  box-shadow: var(--shadow-chip);
 }
-.yk-events-count {
-  color: #92a5c3;
-  font-size: 0.65rem;
+.yk-events-filters button span {
+  color: var(--color-ink-3);
   font-variant-numeric: tabular-nums;
+}
+.yk-events-filters button[aria-pressed="true"] span {
+  color: var(--color-karas);
+}
+.yk-events-filters button:focus-visible {
+  outline: 2px solid #b6caff;
+  outline-offset: 2px;
 }
 .yk-events-grid {
   display: grid;
