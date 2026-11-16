@@ -31,7 +31,7 @@ const golden = {
   },
   files: {
     "lib/server/card-share-image.tsx":
-      "00eceb295bf107bb48509dfdbc2fd4447fc27e86f1910a8b4dd3a149f8948774",
+      "99d96dc6cc712eef5b1afa8aa9f7c26404b79dfa65213875ffdd626d8e0707b1",
     "app/(auth)/signup/opengraph-image.tsx":
       "9799f4153c1026d93cb3a81996ad08e1f1a49b8b71c2eda7e35c99eb0db4fe72",
     "app/(auth)/signup/twitter-image.tsx":
@@ -385,10 +385,10 @@ test("PR5 static catalogue calls resolve in both locales in their lexical scope"
   }
 });
 
-test("Premium English HTML only changes the approved fixed-time footnote", async () => {
+test("Premium English HTML preserves the reviewed presentation with normalized license names", async () => {
   assert.equal(
     hash(await fixture("en").render("app/premium/page.tsx")),
-    "77251a8df31a675bf5b5a14949822a27767bbf77f7bb1e7f14aa773447cae19c"
+    "5d00221be5dc4267d098fde6ca580661940e7f2d5463341a62c0f911289dfa77"
   );
 });
 test("Achievement notifications reuse the SQL-ID catalogue and preserve unknown names", () => {
