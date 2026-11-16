@@ -4563,7 +4563,7 @@
     "loading": "Loading the Mystery Auction…",
     "backToEvents": "All events",
     "weeklyEvent": "One auction. One surprise.",
-    "eventIntro": "24 hours to bid without knowing the card. When time runs out, everyone sees the reveal. The highest bidder takes it home.",
+    "eventIntro": "You have 24 hours to bid on a mystery card. Every card in the catalogue has exactly the same chance of being drawn, regardless of rarity. The card is drawn at closing, in its normal edition only, then revealed to everyone. The highest bidder wins it.",
     "liveEvent": "Live event",
     "eventEnded": "Event ended",
     "revealIn": "The reveal in",

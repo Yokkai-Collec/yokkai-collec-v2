@@ -84,11 +84,6 @@ export function MysteryEventHeader({
           </span>
         </div>
       </div>
-      <ul className="yk-mystery-event-facts">
-        <li>{t("durationFact")}</li>
-        <li>{t("catalogueFact")}</li>
-        <li>{t("normalFact")}</li>
-      </ul>
     </header>
   );
 }

@@ -79,16 +79,6 @@
   background: currentColor;
   box-shadow: 0 0 12px #85ff9a70;
 }
-.yk-mystery-event-facts {
-  gap: 10px;
-  padding-top: 20px;
-}
-.yk-mystery-event-facts li {
-  padding: 7px 12px;
-  border: 1px solid #96bdff22;
-  border-radius: 999px;
-  background: #7da9ff08;
-}
 .yk-mystery-detail .yk-auction-art {
   flex: 0 1 440px;
   max-width: 100%;
