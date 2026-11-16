@@ -4,7 +4,7 @@
       "collector": "Collectionneur",
       "reseller": "Revendeur",
       "explorer": "Explorateur",
-      "recruiter": "Recruiter"
+      "recruiter": "Recruteur"
     },
     "label": "Titre du joueur",
     "newTitles": "{count, plural, one {# nouveau titre} other {# nouveaux titres}}",
@@ -4337,7 +4337,7 @@
       "description": "Atteindre {target, number} jours d’ancienneté."
     },
     "recruiter": {
-      "title": "Recruiter",
+      "title": "Recruteur",
       "description": "Parrainer {target, plural, one {un joueur vérifié} other {# joueurs vérifiés}} avec trois jours consécutifs d’activité."
     },
     "mentor": {
@@ -4586,18 +4586,18 @@
     "limited": "ÉVÉNEMENT LIMITÉ",
     "upcoming": "BIENTÔT",
     "ended": "ÉVÉNEMENT TERMINÉ",
-    "intro": "Fais découvrir Yokkai à tes amis. Débloque des Karas, puis un Decision Pack spécial de 5 LR aléatoires et le titre exclusif Recruiter.",
+    "intro": "Fais découvrir Yokkai à tes amis. Débloque des Karas, puis un Decision Pack spécial de 5 LR aléatoires et le titre exclusif Recruteur.",
     "startsIn": "Début dans",
     "endsIn": "Temps restant",
     "countdown": "{days}j {hours}h {minutes}m {seconds}s",
-    "promotion": "Invite tes amis et débloque des Karas supplémentaires et le titre Recruiter.",
+    "promotion": "Invite tes amis et débloque des Karas supplémentaires et le titre Recruteur.",
     "validReferrals": "{count, plural, one {filleul valide} other {filleuls valides}}",
     "nextTier": "Encore {count, plural, one {# filleul valide} other {# filleuls valides}} pour débloquer {karas, number} Karas.",
-    "allReached": "Tous les paliers sont à toi, ainsi que le titre Recruiter. Bien joué !",
+    "allReached": "Tous les paliers sont à toi, ainsi que le titre Recruteur. Bien joué !",
     "progressLabel": "{count, number} filleuls valides sur {target, number} pour le prochain palier",
     "tier": "{count, number} filleuls valides",
     "karas": "{amount, number} Karas",
-    "badge": "Recruiter",
+    "badge": "Recruteur",
     "badgeDescription": "Titre exclusif du Referral Event, obtenu avec 20 filleuls valides.",
     "awarded": "Récompense reçue",
     "processing": "Palier atteint · attribution en cours",
