@@ -1561,7 +1561,7 @@ test("le sélecteur de cartes mises en avant recherche et remonte la sélection"
   assert.match(
     normalizeWhitespace(source),
     normalizeWhitespace(
-      /orderedChoices\.filter\(card => !selectedCardIds\.has\(card.id\)/
+      /orderedChoices\.filter\(card => !selectedAppearances\.has\(showcaseAppearance\(card\)\)/
     )
   );
   const selectedTray = source.indexOf("{selectedFeaturedCards.map(");
