@@ -36,6 +36,7 @@ test("the events hub lists the real event, filters its status, and keeps results
               createTranslator({ locale, messages, namespace })
           };
         if (name === "next/link") return { default: "a" };
+        if (name === "next/image") return { default: () => null };
         if (name.endsWith("/event-banner"))
           return {
             EventBannerFrame: ({ href, label, children }) =>
@@ -146,5 +147,10 @@ test("the events hub lists the real event, filters its status, and keeps results
     );
     filter = "upcoming";
     assert.doesNotMatch(render(), /href="\/referral-event"/);
+    state.event.auction = auction;
+    assert.match(home(), /yk-home-events-strip/);
+    assert.match(home(), /href="\/market\/auction"/);
+    assert.match(home(), /href="\/referral-event"/);
+    assert.doesNotMatch(home(), /yk-event-card|yk-event-description/);
   }
 });

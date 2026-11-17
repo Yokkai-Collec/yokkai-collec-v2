@@ -1,5 +1,7 @@
 "use client";
 import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useMysteryAuctionEvent } from "@/components/mystery-auction";
 import { YokaiCard } from "@/components/yokai-card";
@@ -20,7 +22,8 @@ import "@/styles/events.css";
 
 export function EventsHub({ home = false }: { home?: boolean }) {
   const t = useTranslations("events"),
-    tm = useTranslations("mysteryAuction");
+    tm = useTranslations("mysteryAuction"),
+    tr = useTranslations("referralEvent");
   const { event, now, failed } = useMysteryAuctionEvent();
   const [filter, setFilter] = useState<"all" | "live" | "upcoming">("all");
   const auction = event?.auction,
@@ -48,6 +51,53 @@ export function EventsHub({ home = false }: { home?: boolean }) {
       Number(status === "upcoming") + Number(referralStatus === "upcoming")
   };
   if (home && !visible && !referralVisible) return null;
+  if (home)
+    return (
+      <section className="yk-home-events-strip" aria-label={t("title")}>
+        {[
+          ...(live && auction
+            ? [
+                {
+                  kind: "mystery",
+                  href: `/market/${auction.id}`,
+                  title: tm("title"),
+                  end: auction.endsAt,
+                  clock: now,
+                  image: "/assets/events/mystery-card.png"
+                }
+              ]
+            : []),
+          ...(referralVisible && referral.event
+            ? [
+                {
+                  kind: "referral",
+                  href: "/referral-event",
+                  title: tr("title"),
+                  end: referral.event.endsAt,
+                  clock: referral.now,
+                  image: "/assets/events/referral-event.png"
+                }
+              ]
+            : [])
+        ].map(item => (
+          <Link key={item.kind} href={item.href} data-event={item.kind}>
+            <span className="yk-home-events-thumb">
+              <Image src={item.image} alt="" fill sizes="72px" />
+            </span>
+            <span className="yk-home-events-copy">
+              <strong>{item.title}</strong>
+              <span className="yk-home-events-time">
+                <span className="sr-only">{t("endsIn")}</span>
+                <EventBannerClockIcon />
+                <EventBannerCountdown end={item.end} now={item.clock} />
+              </span>
+            </span>
+            <span className="yk-home-events-live">{t("live")}</span>
+            <EventBannerArrow />
+          </Link>
+        ))}
+      </section>
+    );
   return (
     <div className={`yk-events-hub${home ? " yk-home-events" : ""}`}>
       {!home && (
