@@ -4624,7 +4624,17 @@
     "totalRewardsWithPack": "{amount, number} Karas + un Decision Pack spécial à débloquer",
     "packAwarded": "Tes {count, number} LR aléatoires sont déjà dans ta collection. Tu les conserves toutes : aucun choix ni sacrifice.",
     "revealPack": "Découvrir mes LR",
-    "loadingPack": "Préparation de la révélation…"
+    "loadingPack": "Préparation de la révélation…",
+    "leaderboardTitle": "Classement de l’event",
+    "leaderboardHint": "Les 20 meilleurs profils publics, classés selon leurs filleuls valides pendant cet event. Les ex æquo partagent la même place.",
+    "leaderboardPosition": "Ta position : nº {rank}",
+    "leaderboardPrivate": "Ton profil privé n’apparaît pas dans le classement.",
+    "leaderboardUnranked": "Ton premier filleul valide te fera entrer dans le classement.",
+    "leaderboardYou": "(toi)",
+    "leaderboardCount": "{count, plural, one {# filleul valide} other {# filleuls valides}}",
+    "leaderboardEmpty": "Aucun filleul valide pour le moment. Le classement apparaîtra après les premières validations.",
+    "leaderboardReferrals": "{count, plural, one {filleul valide} other {filleuls valides}}",
+    "leaderboardRemaining": "Suite du classement de l’event"
   },
   "mysteryAuction": {
     "title": "Mystery Auction",

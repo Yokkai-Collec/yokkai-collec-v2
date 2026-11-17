@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import {
   lazy,
   Suspense,
@@ -22,6 +23,10 @@ import {
 import "@/styles/referral-event.css";
 import { CardShell } from "@/components/card-shell";
 import { ReferralEventArtwork } from "@/components/event-scene";
+
+const EventLeaderboard = dynamic(
+  () => import("@/components/referral-event-leaderboard")
+);
 
 const RewardReveal = lazy(() =>
   import("@/components/boosters").then(module => ({
@@ -386,6 +391,7 @@ export function ReferralEventPanel({
           )}
         </section>
       )}
+      {event.leaderboard && <EventLeaderboard ranking={event.leaderboard} />}
       <div className="yk-referral-event-details">
         <section>
           <h2>{t("howTitle")}</h2>

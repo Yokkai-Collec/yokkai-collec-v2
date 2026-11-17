@@ -1,5 +1,7 @@
 "use client";
 import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useMysteryAuctionEvent } from "@/components/mystery-auction";
 import { YokaiCard } from "@/components/yokai-card";
@@ -20,7 +22,8 @@ import "@/styles/events.css";
 
 export function EventsHub({ home = false }: { home?: boolean }) {
   const t = useTranslations("events"),
-    tm = useTranslations("mysteryAuction");
+    tm = useTranslations("mysteryAuction"),
+    tr = useTranslations("referralEvent");
   const { event, now, failed } = useMysteryAuctionEvent();
   const [filter, setFilter] = useState<"all" | "live" | "upcoming">("all");
   const auction = event?.auction,
@@ -41,32 +44,86 @@ export function EventsHub({ home = false }: { home?: boolean }) {
       ? referralStatus === "live"
       : filter === "all" || filter === referralStatus);
   const deadline = live ? auction.endsAt : event?.nextStartsAt;
+  const counts = {
+    all: 1 + Number(!!referral.event),
+    live: Number(!!live) + Number(referralStatus === "live"),
+    upcoming:
+      Number(status === "upcoming") + Number(referralStatus === "upcoming")
+  };
   if (home && !visible && !referralVisible) return null;
+  if (home)
+    return (
+      <section className="yk-home-events-strip" aria-label={t("title")}>
+        {[
+          ...(live && auction
+            ? [
+                {
+                  kind: "mystery",
+                  href: `/market/${auction.id}`,
+                  title: tm("title"),
+                  end: auction.endsAt,
+                  clock: now,
+                  image: "/assets/events/mystery-card.png"
+                }
+              ]
+            : []),
+          ...(referralVisible && referral.event
+            ? [
+                {
+                  kind: "referral",
+                  href: "/referral-event",
+                  title: tr("title"),
+                  end: referral.event.endsAt,
+                  clock: referral.now,
+                  image: "/assets/events/referral-event.png"
+                }
+              ]
+            : [])
+        ].map(item => (
+          <Link key={item.kind} href={item.href} data-event={item.kind}>
+            <span className="yk-home-events-thumb">
+              <Image src={item.image} alt="" fill sizes="72px" />
+            </span>
+            <span className="yk-home-events-copy">
+              <strong>{item.title}</strong>
+              <span className="yk-home-events-time">
+                <span className="sr-only">{t("endsIn")}</span>
+                <EventBannerClockIcon />
+                <EventBannerCountdown end={item.end} now={item.clock} />
+              </span>
+            </span>
+            <span className="yk-home-events-live">{t("live")}</span>
+            <EventBannerArrow />
+          </Link>
+        ))}
+      </section>
+    );
   return (
     <div className={`yk-events-hub${home ? " yk-home-events" : ""}`}>
       {!home && (
         <>
           <div className="yk-events-page-light" aria-hidden="true" />
           <header className="yk-events-header">
-            <h1>{t("title")}</h1>
+            <div>
+              <p className="eyebrow">{t("overline")}</p>
+              <h1 className="yk-title mt-3">{t("title")}</h1>
+            </div>
+            <div className="yk-events-toolbar">
+              <nav className="yk-events-filters" aria-label={t("filters")}>
+                {(["all", "live", "upcoming"] as const).map(value => (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-pressed={filter === value}
+                    onClick={() => setFilter(value)}
+                  >
+                    {t(value)}
+                    <span>{counts[value]}</span>
+                  </button>
+                ))}
+              </nav>
+            </div>
           </header>
-          <div className="yk-events-toolbar">
-            <nav className="yk-events-filters" aria-label={t("filters")}>
-              {(["all", "live", "upcoming"] as const).map(value => (
-                <button
-                  key={value}
-                  type="button"
-                  aria-pressed={filter === value}
-                  onClick={() => setFilter(value)}
-                >
-                  {t(value)}
-                </button>
-              ))}
-            </nav>
-            <span className="yk-events-count">
-              {t("count", { count: Number(visible) + Number(referralVisible) })}
-            </span>
-          </div>
         </>
       )}
       <section aria-labelledby="events-list-title">

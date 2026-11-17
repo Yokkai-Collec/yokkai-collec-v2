@@ -84,6 +84,26 @@ begin
  or has_function_privilege('service_role','public.settle_referral_events()','execute') then raise exception 'Worker exposed to clients'; end if;
  if has_table_privilege('authenticated','public.referral_event_rewards','insert') then raise exception 'Client can forge tiers'; end if;
 
+ -- Ranking reuses exactly the event qualification, not all-time referrals.
+ update public.user_profiles set is_public=true where user_id=parent;
+ result:=public.get_referral_event()->'leaderboard';
+ assert result->'mine'->>'position'='1', 'Event rank missing';
+ assert jsonb_array_length(result->'entries')=1, 'Invalid referrals counted in ranking';
+ assert result->'entries'->0->>'validCount'='20', 'Ranking differs from event progress';
+ assert result->'entries'->0->>'mine'='true', 'Own ranking row not identified';
+ update public.user_profiles set is_public=false where user_id=parent;
+ result:=public.get_referral_event()->'leaderboard';
+ assert result->'entries'='[]'::jsonb and result->'mine'->'position'='null'::jsonb, 'Private profile exposed';
+ assert result->'mine'->>'validCount'='20', 'Private player lost own progress';
+ update public.user_profiles set is_public=true where user_id=parent;
+
+ insert into public.user_blocks(blocker_id,blocked_id) values(child,parent);
+ perform set_config('request.jwt.claim.sub',child::text,true);
+ assert public.get_referral_event()->'leaderboard'->'entries'='[]'::jsonb, 'Blocked player exposed in ranking';
+ perform set_config('request.jwt.claim.sub',parent::text,true);
+ delete from public.user_blocks where blocker_id=child and blocked_id=parent;
+ assert not has_function_privilege('authenticated','public.referral_event_leaderboard(uuid)','execute'), 'Ranking helper exposed';
+
  -- A final-day signup may qualify during grace; an earlier signup may not.
  update public.referral_events set starts_at=stamp-interval '6 days',ends_at=stamp-interval '12 hours' where id=event_id;
  update public.referrals set created_at=stamp-interval '30 hours',rewarded_at=stamp-interval '1 hour',verified_at=stamp-interval '1 hour' where referrer_id=parent;

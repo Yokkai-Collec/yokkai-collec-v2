@@ -47,6 +47,16 @@ ne fait que lire les cinq cartes déjà attribuées. Cette attribution automatiq
 ne compte pas comme une activité du filleul. Doublons possibles et chance
 Shiny LR habituelle du Decision Pack (1 %), jamais Infinity.
 
+## Classement de l’édition
+
+Le classement de chaque édition réutilise `referral_event_qualified` : seuls les
+filleuls validés dans la fenêtre de l’event et sa grâce éventuelle comptent.
+Le top 20 reprend les règles du classement de parrainage existant (profils publics,
+blocages respectés), avec rang partagé en cas d’égalité. La position personnelle
+reste disponible hors du top 20 ; un profil privé garde sa progression mais n’est
+pas classé. Aucun code ni identité de filleul n’est exposé. Le classement est lu
+dans la RPC de progression, sans déclencher de récompense.
+
 ## Relancer une édition
 
 Ajouter une ligne `referral_events` avec un slug unique et des dates UTC, puis ses

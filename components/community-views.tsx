@@ -3221,11 +3221,12 @@ export function CommunityView({
     screen === "friends" || screen === "feed" || screen === "trades";
   const isCardBrowse =
     screen === "search" || screen === "market" || screen === "wishlist";
-  const pageWidth = isCardBrowse
-    ? "yk-card-browse-page"
-    : isSocialPage || screen === "auction"
-      ? "max-w-[var(--layout-collection-max)]"
-      : "max-w-6xl";
+  const pageWidth =
+    isCardBrowse || screen === "events"
+      ? "yk-card-browse-page"
+      : isSocialPage || screen === "auction"
+        ? "max-w-[var(--layout-collection-max)]"
+        : "max-w-6xl";
   return (
     <>
       <Topbar

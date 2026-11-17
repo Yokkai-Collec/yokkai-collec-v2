@@ -17,6 +17,15 @@ const event = {
   serverNow: "2026-11-15T19:00:00Z",
   validCount: 4,
   pending: ["Kitsune <secret>"],
+  leaderboard: {
+    entries: [
+      { pseudo: "TopPlayer", position: 1, validCount: 6, mine: false },
+      { pseudo: "MyPlayer", position: 2, validCount: 4, mine: true },
+      { pseudo: "ThirdPlayer", position: 2, validCount: 4, mine: false },
+      { pseudo: "FourthPlayer", position: 4, validCount: 1, mine: false }
+    ],
+    mine: { position: 2, validCount: 4, isPublic: true }
+  },
   tiers: [
     { threshold: 3, karas: 750, awarded: true, badge: false },
     { threshold: 5, karas: 1600, awarded: false, badge: false },
@@ -39,6 +48,19 @@ function load(file, state) {
     {
       exports,
       require: name => {
+        if (name === "next/dynamic")
+          return {
+            __esModule: true,
+            default: () =>
+              load("components/referral-event-leaderboard.tsx").default
+          };
+        if (name === "@/components/styled-player-avatar")
+          return {
+            StyledPlayerAvatar: ({ name }) =>
+              React.createElement("span", { "aria-label": name })
+          };
+        if (name === "@/components/styled-player-name")
+          return { StyledPlayerName: ({ name }) => name };
         if (name === "react")
           return {
             ...React,
@@ -88,6 +110,13 @@ test("event page exposes server progress, cumulative tiers, escaped pending pseu
   assert.match(html, /Kitsune &lt;secret&gt;/);
   assert.match(html, /Recruiter/);
   assert.match(html, /Special Decision Pack/);
+  assert.match(html, /Event leaderboard/);
+  assert.match(html, /Your rank: #2/);
+  assert.match(html, /data-mine="true"/);
+  assert.match(html, /href="\/profile\/TopPlayer"/);
+  assert.match(html, /<strong>6<\/strong><small>valid referrals<\/small>/);
+  assert.equal((html.match(/data-slot="[123]"/g) ?? []).length, 3);
+  assert.match(html, /class="yk-home-ranking-list" start="4"/);
   assert.match(html, /13d 0h 0m 0s/);
   assert.match(html, /1 more valid referral to unlock 1,600 Karas/);
   assert.match(readFileSync("app/layout.tsx", "utf8"), /"referralEvent"/);
