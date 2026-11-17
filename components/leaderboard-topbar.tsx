@@ -6,7 +6,13 @@ import { Topbar } from "@/components/topbar";
 import { getGameInfo } from "@/lib/data/cards";
 import { subscribePlayerSnapshotInvalidation } from "@/lib/data/player-state";
 
-export function LeaderboardTopbar({ account }: { account?: ReactNode }) {
+export function LeaderboardTopbar({
+  account,
+  view = "leaderboard"
+}: {
+  account?: ReactNode;
+  view?: "leaderboard" | "events";
+}) {
   const t = useTranslations("socialUi");
   const [karas, setKaras] = useState<number>();
   const [error, setError] = useState<string>();
@@ -39,7 +45,7 @@ export function LeaderboardTopbar({ account }: { account?: ReactNode }) {
 
   return (
     <Topbar
-      view="leaderboard"
+      view={view}
       account={account}
       karas={karas}
       infoError={error ? t(error) : undefined}
