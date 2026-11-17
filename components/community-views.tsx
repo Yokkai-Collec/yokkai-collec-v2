@@ -419,6 +419,8 @@ export function CatalogueCardModal({
 export type AuctionPresentation = {
   isMystery?: boolean;
   mysteryHidden?: boolean;
+  mysteryLrChance?: number | null;
+  mysteryMisses?: number | null;
   id: string;
   ownedCount?: number;
   card: Card;
@@ -1736,6 +1738,8 @@ export function AuctionView({
         <MysteryAuctionStage
           card={auction.card}
           hidden={auction.mysteryHidden}
+          chance={auction.mysteryLrChance}
+          misses={auction.mysteryMisses}
           finished={auction.finished}
         />
       ) : (
@@ -2947,6 +2951,8 @@ export function presentAuction(
     id: raw.id,
     isMystery: raw.isMystery,
     mysteryHidden: raw.mysteryHidden,
+    mysteryLrChance: raw.mysteryLrChance,
+    mysteryMisses: raw.mysteryMisses,
     ...(raw.ownedCount !== undefined ? { ownedCount: raw.ownedCount } : {}),
     card: { ...raw.card, image: raw.card.catalogueImage ?? raw.card.image },
     amount: raw.amount,

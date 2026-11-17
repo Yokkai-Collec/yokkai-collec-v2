@@ -332,6 +332,9 @@ const allowlist = {
   "public.get_achievements()": ["authenticated"], // Reads the current player's achievement progress.
   "public.get_auction(uuid)": ["authenticated"], // Marketplace detail with viewer access checks.
   "public.get_mystery_auction_event()": ["authenticated"], // Public event timing and the same authenticated auction detail; no write path.
+  "public.list_mystery_auction_history_page(timestamp with time zone)": [
+    "authenticated"
+  ], // Same revealed-only feed and ban fence; edition cursor includes both daily slots.
   "public.list_mystery_auction_history(date)": ["authenticated"], // Bounded, read-only revealed snapshots; active cards excluded.
   "public.get_auction_chat(uuid)": ["authenticated"], // Auction chat read checks viewer eligibility.
   "public.get_card_discovery(uuid, integer, integer, boolean)": [

@@ -65,12 +65,17 @@ export default function MysteryAuctionHistory() {
       {!!page?.items.length && (
         <ul className="yk-mystery-archive-grid">
           {page.items.map(item => {
-            const date = format.dateTime(new Date(`${item.day}T12:00:00Z`), {
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-              timeZone: "UTC"
-            });
+            const date = format.dateTime(
+              new Date(item.editionAt ?? `${item.day}T12:00:00Z`),
+              {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+                ...(item.editionAt
+                  ? { hour: "2-digit" as const, minute: "2-digit" as const }
+                  : { timeZone: "UTC" })
+              }
+            );
             return (
               <li key={item.id}>
                 <Link
@@ -83,7 +88,7 @@ export default function MysteryAuctionHistory() {
                   <CardShell>
                     <YokaiCard {...item.card} />
                   </CardShell>
-                  <time dateTime={item.day}>{date}</time>
+                  <time dateTime={item.editionAt ?? item.day}>{date}</time>
                 </Link>
               </li>
             );

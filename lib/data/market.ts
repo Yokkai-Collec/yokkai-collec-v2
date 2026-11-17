@@ -10,6 +10,8 @@ import {
 export type AuctionData = {
   isMystery?: boolean;
   mysteryHidden?: boolean;
+  mysteryLrChance?: number | null;
+  mysteryMisses?: number | null;
   id: string;
   card: Card & { shiny?: boolean; isEvolved?: boolean; catalogueImage?: string; firstLrCopy?: FirstLrCopySource | null };
   amount: number;
@@ -160,11 +162,11 @@ export const getAuctions = async () =>
   enrichAuctions(await call<AuctionData[]>("list_auctions", undefined, true));
 
 export type MysteryHistoryPage = {
-  items: { id: string; day: string; card: Card }[];
+  items: { id: string; day: string; editionAt?: string; card: Card }[];
   nextBefore: string | null;
 };
 export const getMysteryAuctionHistory = (before?: string) =>
-  call<MysteryHistoryPage>("list_mystery_auction_history", { p_before: before ?? null });
+  call<MysteryHistoryPage>("list_mystery_auction_history_page", { p_before: before ?? null });
 export const getAuction = async (id: string) => {
   const auction = await call<AuctionPayload<AuctionDetail>>("get_auction", {
     p_auction_id: id
