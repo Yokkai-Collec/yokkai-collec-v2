@@ -1791,7 +1791,7 @@ export function AuctionView({
               )}
             </div>
           )}
-          {onToggleWatch && (
+          {onToggleWatch && !auction.isMystery && (
             <WatchButton
               watched={auction.wishlist}
               onToggle={onToggleWatch}
@@ -1852,9 +1852,9 @@ export function AuctionView({
               <p role="status" className="yk-auction-hint">
                 {t("mysteryAuction.revealing")}
               </p>
-            ) : (
+            ) : !auction.isMystery ? (
               <AuctionOutcome auction={auction} />
-            )
+            ) : null
           ) : auction.nextBid == null ? (
             <>
               <p className="yk-auction-hint">

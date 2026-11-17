@@ -180,6 +180,12 @@
   min-width: 0;
   overflow-wrap: anywhere;
 }
+.yk-mystery-detail .yk-mystery-leader {
+  color: #dce5f8;
+  font-size: clamp(1rem, 1.8vw, 1.35rem);
+  font-weight: 600;
+  line-height: 1.6;
+}
 .yk-mystery-chat,
 .yk-mystery-detail .yk-auction-history {
   flex: 1 1 25rem;
