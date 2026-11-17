@@ -1,5 +1,3 @@
-import { MaintenanceCompensation } from "@/components/maintenance-compensation";
-import { hasUnseenMaintenanceCompensation } from "@/lib/maintenance-compensation";
 import { getTranslations, getLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import AuthLayout from "./(auth)/layout";
@@ -31,19 +29,16 @@ export default async function Home({
 }) {
   const user = await getVerifiedUser();
   if (user) {
-    const compensation = await hasUnseenMaintenanceCompensation(user.id);
     return (
-      <>
-        {compensation && <MaintenanceCompensation />}
-        <HomeDashboard
-          userId={user.id}
-          seenRelease={
-            typeof user.user_metadata?.yokkai_last_seen_update === "string"
-              ? user.user_metadata.yokkai_last_seen_update
-              : null
-          }
-        />
-      </>
+      <HomeDashboard
+        userId={user.id}
+        seenAnnouncement={
+          typeof user.user_metadata
+            ?.yokkai_seen_mystery_auction_announcement === "string"
+            ? user.user_metadata.yokkai_seen_mystery_auction_announcement
+            : null
+        }
+      />
     );
   }
   return (

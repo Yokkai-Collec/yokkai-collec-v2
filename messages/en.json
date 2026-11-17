@@ -1,4 +1,19 @@
 {
+  "mysteryAnnouncement": {
+    "title": "Mystery Auction evolves",
+    "release": "Two daily editions · progressive LR chance",
+    "headline": "More reveals. A growing chance of LR.",
+    "intro": "Mystery Auction has a new rhythm. Discover the new rules before placing your next bid.",
+    "scheduleTitle": "Two auctions every day",
+    "scheduleBody": "One daytime edition and one evening edition, with a one-hour reveal break before each new auction. The evening edition keeps your usual daily rendezvous.",
+    "lrTitle": "An LR chance that grows after every miss",
+    "lrBody": "Each reveal without an LR increases the next edition’s LR chance, up to 80%. Once an LR appears, the chance returns to the catalogue’s base rate, even if there were no bids.",
+    "revealTitle": "The surprise stays secret",
+    "revealBody": "The chance is shown before bidding. The card is drawn only at closing, in its normal edition. The highest bidder wins it. Previous reveals remain available in the event history.",
+    "done": "Got it",
+    "explore": "Discover the event",
+    "reopen": "Show the announcement"
+  },
   "playerTitles": {
     "names": {
       "collector": "Collector",
@@ -2992,26 +3007,7 @@
     "notRanked": "Not ranked yet",
     "privateRank": "Private profile"
   },
-  "productUpdates": {
-    "title": "New Yokkai update",
-    "release": "Profiles, showcases & challenges",
-    "headline": "Your collection enters a new dimension.",
-    "intro": "Personalize your profile, stage your cards and take on new goals to earn Karas.",
-    "profilesTitle": "Revamped profiles and showcases",
-    "profilesBody": "A more flexible showcase: card selection and order, new animated scenes, and a profile organized around your collections.",
-    "profilesAction": "Customize my profile",
-    "achievementsTitle": "New achievements",
-    "achievementsBody": "Explore the achievement catalogue, track your progress and collect Karas rewards for your milestones.",
-    "achievementsAction": "View my achievements",
-    "missionsTitle": "Daily & weekly missions",
-    "missionsBody": "Pick challenges you enjoy, fill your daily and weekly gauges, then claim your Karas.",
-    "missionsAction": "View my missions",
-    "footer": "Your next Karas are waiting.",
-    "done": "Let's go",
-    "previewTitle": "New features announcement",
-    "previewIntro": "Preview the announcement shown to players on Home.",
-    "reopen": "Show the announcement again"
-  },
+
   "shareUi": {
     "sharedCard": "Shared card",
     "sharedBy": "Shared by <strong>{name}</strong>",
@@ -4201,12 +4197,7 @@
     "firewallDetail": "Only Cloudflare can reach ports 80 and 443",
     "fail2banDetail": "SSH brute-force protection"
   },
-  "maintenanceCompensation": {
-    "title": "A gift for your patience",
-    "body": "Sorry for the maintenance interruption. We have added these bonus packs to your account.",
-    "availability": "Already credited. Open them whenever you like: these bonus packs never expire and do not replace your daily packs.",
-    "done": "Thank you!"
-  },
+
   "achievementCatalog": {
     "collector": {
       "title": "Collector",

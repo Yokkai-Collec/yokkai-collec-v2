@@ -1,4 +1,19 @@
 {
+  "mysteryAnnouncement": {
+    "title": "Mystery Auction évolue",
+    "release": "Deux éditions par jour · chance de LR progressive",
+    "headline": "Plus de révélations. Une chance de LR qui grandit.",
+    "intro": "Mystery Auction change de rythme. Découvre les nouvelles règles avant ta prochaine mise.",
+    "scheduleTitle": "Deux enchères chaque jour",
+    "scheduleBody": "Une édition en journée et une le soir, avec une pause de révélation d’une heure avant chaque nouvelle enchère. L’édition du soir conserve ton rituel quotidien habituel.",
+    "lrTitle": "Une chance qui monte après chaque tirage sans LR",
+    "lrBody": "Chaque révélation sans LR augmente la chance de LR de l’édition suivante, jusqu’à 80 %. Dès qu’une LR sort, le taux revient à celui du catalogue, même s’il n’y avait aucune offre.",
+    "revealTitle": "La surprise reste secrète",
+    "revealBody": "Le taux est affiché avant les mises. La carte est tirée au sort uniquement à la clôture, en version normale. Le meilleur enchérisseur la remporte. Retrouve les anciennes révélations dans l’historique de l’event.",
+    "done": "Compris",
+    "explore": "Découvrir l’event",
+    "reopen": "Revoir l’annonce"
+  },
   "playerTitles": {
     "names": {
       "collector": "Collectionneur",
@@ -2992,26 +3007,7 @@
     "notRanked": "Pas encore classé",
     "privateRank": "Profil privé"
   },
-  "productUpdates": {
-    "title": "Nouvelle maj Yokkai",
-    "release": "Profils, vitrines & défis",
-    "headline": "Ta collection prend une nouvelle dimension.",
-    "intro": "Personnalise ton profil, mets tes cartes en scène et avance vers de nouveaux objectifs pour gagner des Karas.",
-    "profilesTitle": "Profils et vitrines renouvelés",
-    "profilesBody": "Une vitrine plus libre : sélection, ordre des cartes, nouveaux décors animés et un profil mieux organisé autour de tes collections.",
-    "profilesAction": "Personnaliser mon profil",
-    "achievementsTitle": "De nouveaux succès",
-    "achievementsBody": "Découvre le catalogue de succès, suis ta progression et récupère les récompenses Karas de tes exploits.",
-    "achievementsAction": "Voir mes succès",
-    "missionsTitle": "Missions quotidiennes & hebdo",
-    "missionsBody": "Choisis les défis qui te plaisent, remplis les jauges quotidienne et hebdomadaire, puis réclame tes Karas.",
-    "missionsAction": "Voir mes missions",
-    "footer": "À toi de jouer : de nouveaux Karas t’attendent.",
-    "done": "C’est parti",
-    "previewTitle": "Annonce des nouveautés",
-    "previewIntro": "Aperçu de l’annonce présentée aux joueurs sur l’accueil.",
-    "reopen": "Revoir l’annonce"
-  },
+
   "shareUi": {
     "sharedCard": "Carte partagée",
     "sharedBy": "Partagée par <strong>{name}</strong>",
@@ -4201,12 +4197,7 @@
     "firewallDetail": "Seul Cloudflare peut joindre les ports 80 et 443",
     "fail2banDetail": "Protection contre le brute-force SSH"
   },
-  "maintenanceCompensation": {
-    "title": "Merci pour ta patience",
-    "body": "Désolés pour la maintenance. Nous avons ajouté ces packs bonus à ton compte.",
-    "availability": "Ils sont déjà crédités. Ouvre-les quand tu veux : ces packs bonus n’expirent pas et ne remplacent pas tes packs quotidiens.",
-    "done": "Merci !"
-  },
+
   "achievementCatalog": {
     "collector": {
       "title": "Collector",

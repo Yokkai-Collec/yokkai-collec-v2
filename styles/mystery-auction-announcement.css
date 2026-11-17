@@ -1,0 +1,72 @@
+.yk-modal.yk-mystery-announcement {
+  width: min(680px, calc(100% - 24px));
+  max-height: calc(100dvh - 24px);
+  background:
+    radial-gradient(ellipse at top right, #1b3a6144, transparent 65%), #0b101b;
+  border-color: #a8bfff40;
+}
+.yk-mystery-announcement-hero {
+  display: grid;
+  gap: 1rem;
+  align-items: center;
+  margin-block: 1rem;
+}
+.yk-mystery-announcement-hero h3 {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  line-height: 1.2;
+  margin-block: 0.5rem 0.75rem;
+  text-wrap: balance;
+}
+.yk-mystery-announcement-hero img {
+  width: min(100%, 140px);
+  height: auto;
+  margin-inline: auto;
+  mix-blend-mode: screen;
+  mask-image: radial-gradient(ellipse, black 40%, transparent 72%);
+}
+.yk-mystery-announcement p {
+  color: #afbdd3;
+  font-size: 0.875rem;
+  line-height: 1.65;
+}
+.yk-mystery-announcement .eyebrow {
+  color: #e9ce7a;
+  font-size: 0.6875rem;
+}
+.yk-mystery-announcement-facts {
+  display: grid;
+  gap: 1rem;
+  padding: 0;
+  list-style: none;
+}
+.yk-mystery-announcement-facts li {
+  border-top: 1px solid #a8bfff22;
+  padding-top: 1rem;
+}
+.yk-mystery-announcement-facts strong {
+  color: #e5ecff;
+  font-size: 0.9375rem;
+}
+.yk-mystery-announcement-facts p {
+  margin-top: 0.35rem;
+}
+.yk-mystery-announcement-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+.yk-mystery-announcement-actions > * {
+  min-height: 44px;
+  white-space: normal;
+  text-align: center;
+}
+@media (min-width: 480px) {
+  .yk-mystery-announcement-hero {
+    grid-template-columns: minmax(0, 1fr) 180px;
+  }
+  .yk-mystery-announcement-hero img {
+    width: 100%;
+  }
+}
