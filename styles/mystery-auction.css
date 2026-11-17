@@ -216,3 +216,66 @@
     transform: none;
   }
 }
+
+.yk-mystery-odds {
+  flex: 1 1 100%;
+  min-width: 0;
+  width: 100%;
+  max-width: 42rem;
+  margin-inline: auto;
+  padding: 1rem;
+  border: 1px solid #50659366;
+  border-radius: 1rem;
+  background: linear-gradient(120deg, #15244080, #0b101c80);
+}
+.yk-mystery-odds-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: #dce5f8;
+}
+.yk-mystery-odds-heading strong {
+  font-size: 1.5rem;
+  color: #e9ce7a;
+  font-variant-numeric: tabular-nums;
+}
+.yk-mystery-odds meter {
+  width: 100%;
+  height: 0.8rem;
+  margin-block: 0.5rem;
+  accent-color: #b8c9ff;
+}
+.yk-mystery-odds p {
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: #a5b2cc;
+  margin-block: 0.35rem 0;
+}
+
+.yk-mystery-odds meter::-webkit-meter-bar {
+  background: #1b2740;
+  border: 0;
+  border-radius: 1rem;
+}
+.yk-mystery-odds meter::-webkit-meter-optimum-value {
+  background: linear-gradient(90deg, #8eafff, #e9ce7a);
+  border-radius: 1rem;
+}
+.yk-mystery-odds meter::-moz-meter-bar {
+  background: linear-gradient(90deg, #8eafff, #e9ce7a);
+  border-radius: 1rem;
+}
+.yk-mystery-odds summary {
+  cursor: pointer;
+  min-height: 44px;
+  align-content: center;
+  color: #b8c9ee;
+  font-size: 0.8125rem;
+}
+.yk-mystery-odds summary:focus-visible {
+  outline: 2px solid #b8c9ff;
+  outline-offset: 3px;
+  border-radius: 0.25rem;
+}

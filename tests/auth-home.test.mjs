@@ -81,22 +81,19 @@ test("the connected home page renders the dashboard for the authenticated player
     "./(auth)/signup/page": { default: () => null, __esModule: true }
   });
   const tree = await home.default({ searchParams: Promise.resolve({}) });
-  assert.equal(tree.type, Symbol.for("react.fragment"));
-  assert.equal(tree.props.children[0], false);
-  const dashboard = tree.props.children[1];
+  const dashboard = tree;
   assert.equal(dashboard.type, HomeDashboard);
   assert.equal(dashboard.props.userId, "home-player");
 });
 
-test("the compensation popup is rendered only for an eligible authenticated player", async () => {
+test("the retired compensation popup is never queried or rendered, even for an eligible player", async () => {
   const HomeDashboard = () => null;
   const MaintenanceCompensation = () => null;
   const home = load("app/page.tsx", {
     "@/components/maintenance-compensation": { MaintenanceCompensation },
     "@/lib/maintenance-compensation": {
       hasUnseenMaintenanceCompensation: async id => {
-        assert.equal(id, "gift-player");
-        return true;
+        assert.fail("Retired compensation must not be queried on home");
       }
     },
     "@/lib/auth/session": {
@@ -107,9 +104,8 @@ test("the compensation popup is rendered only for an eligible authenticated play
     "./(auth)/signup/page": { default: () => null, __esModule: true }
   });
   const tree = await home.default({ searchParams: Promise.resolve({}) });
-  assert.equal(tree.props.children[0].type, MaintenanceCompensation);
-  assert.equal(tree.props.children[1].type, HomeDashboard);
-  assert.equal(tree.props.children[1].props.userId, "gift-player");
+  assert.equal(tree.type, HomeDashboard);
+  assert.equal(tree.props.userId, "gift-player");
 });
 
 function shell(getCurrentUser, redirect) {

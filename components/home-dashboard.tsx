@@ -1,5 +1,5 @@
 import { EventsHub } from "@/components/events-hub";
-import { ProductUpdates } from "@/components/product-updates";
+import { MysteryAuctionAnnouncement } from "@/components/mystery-auction-announcement";
 import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { AmbientGlow } from "@/components/ambient-glow";
@@ -241,10 +241,10 @@ async function HomeTopbar() {
 
 export function HomeDashboard({
   userId,
-  seenRelease
+  seenAnnouncement
 }: {
   userId: string;
-  seenRelease?: string | null;
+  seenAnnouncement?: string | null;
 }) {
   const t = useTranslations("homeDashboard");
   const discordEnabled = Boolean(getDiscordInviteUrl());
@@ -307,7 +307,10 @@ export function HomeDashboard({
         </HomePanel>
         <HomeLinks discordEnabled={discordEnabled} />
       </main>
-      <ProductUpdates userId={userId} seenRelease={seenRelease} />
+      <MysteryAuctionAnnouncement
+        userId={userId}
+        seenAnnouncement={seenAnnouncement}
+      />
       <SiteFooter
         discordEnabled={discordEnabled}
         contactEmail={process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim()}

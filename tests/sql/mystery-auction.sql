@@ -27,6 +27,7 @@ begin
     values ('mystery-test','Mystery test','Anime','Mystery test','LR','https://example.test/card.png','test');
   insert into public.auctions(is_mystery,mystery_day,starting_price,current_price,duration_minutes,ends_at)
     values(true,'2099-01-07',50,50,1440,clock_timestamp()+interval '24 hours') returning id into auction;
+  update public.auctions set mystery_lr_chance=1,mystery_misses=0 where id=auction;
   assert (select card_instance_id is null and card_snapshot is null from public.auctions where id=auction), 'card exists before closure';
   perform set_config('request.jwt.claim.sub',spectator::text,true);
   item:=public.get_auction(auction);
@@ -91,15 +92,17 @@ begin
   definition:=pg_get_functiondef('public.create_daily_mystery_auction()'::regprocedure);
   foreach stamp in array array['2099-01-07 19:00:00+00','2099-01-08 19:00:00+00','2099-01-09 20:15:00+00','2099-07-08 18:00:00+00','2099-03-28 19:00:00+00','2099-10-24 18:00:00+00'] loop
     execute replace(definition,'clock_timestamp()',quote_literal(stamp)||'::timestamptz');
+    -- Complete preceding fixture editions before advancing the simulated clock.
+    update public.auctions set status='expired' where is_mystery and status='active';
     -- Fixtures already use Jan 7; remove it solely within this rollback test.
     delete from public.notifications where reference_id in(select id from public.auctions where mystery_day=(stamp::timestamptz at time zone 'Europe/Paris')::date);
     delete from public.auctions where mystery_day=(stamp::timestamptz at time zone 'Europe/Paris')::date;
     perform public.create_daily_mystery_auction();
     perform public.create_daily_mystery_auction();
     assert (select count(*)=1 from public.auctions where mystery_day=(stamp::timestamptz at time zone 'Europe/Paris')::date), 'creator not idempotent across DST';
-    assert (select ends_at=((created_at at time zone 'Europe/Paris')::date+1+time '19:00') at time zone 'Europe/Paris'
-      and ends_at-created_at=case when stamp like '2099-03%' then interval '22 hours' when stamp like '2099-10%' then interval '24 hours' else interval '23 hours' end
-      and duration_minutes=1380 and card_snapshot is null and card_instance_id is null
+    assert (select ends_at=((created_at at time zone 'Europe/Paris')::date+1+time '11:00') at time zone 'Europe/Paris'
+      and ends_at-created_at=case when stamp like '2099-03%' then interval '14 hours' when stamp like '2099-10%' then interval '16 hours' else interval '15 hours' end
+      and duration_minutes=900 and mystery_slot=20 and mystery_lr_chance is not null and card_snapshot is null and card_instance_id is null
       from public.auctions where mystery_day=(stamp::timestamptz at time zone 'Europe/Paris')::date), 'wrong duration or premature draw';
   end loop;
   execute replace(definition,'clock_timestamp()',quote_literal('2099-07-08 17:00:00+00')||'::timestamptz');
@@ -116,9 +119,10 @@ begin
     perform public.create_daily_mystery_auction();
     assert not exists(select 1 from public.auctions where mystery_day='2099-07-09'), 'Auction created during the break';
   end loop;
+  update public.auctions set status='expired' where is_mystery and status='active';
   execute replace(definition,'clock_timestamp()',quote_literal('2099-07-09 18:00:00+00')||'::timestamptz');
   perform public.create_daily_mystery_auction();
-  assert exists(select 1 from public.auctions where mystery_day='2099-07-09' and ends_at='2099-07-10 17:00:00+00'), 'Auction did not restart after the break';
+  assert exists(select 1 from public.auctions where mystery_day='2099-07-09' and ends_at='2099-07-10 09:00:00+00'), 'Auction did not restart after the break';
 
   definition:=pg_get_functiondef('public.get_mystery_auction_event()'::regprocedure);
   execute replace(definition,'statement_timestamp()',quote_literal('2099-07-09 17:30:00+00')||'::timestamptz');
@@ -126,7 +130,7 @@ begin
   foreach stamp in array array['2099-03-28 20:00:00+00','2099-10-24 20:00:00+00'] loop
     execute replace(definition,'statement_timestamp()',quote_literal(stamp)||'::timestamptz');
     item:=public.get_mystery_auction_event();
-    assert (item->>'nextStartsAt')::timestamptz=case when stamp like '2099-03%' then '2099-03-29 18:00:00+00'::timestamptz else '2099-10-25 19:00:00+00'::timestamptz end, 'next countdown ignores DST';
+    assert (item->>'nextStartsAt')::timestamptz=case when stamp like '2099-03%' then '2099-03-29 10:00:00+00'::timestamptz else '2099-10-25 11:00:00+00'::timestamptz end, 'next countdown ignores DST';
   end loop;
 end $$;
 rollback;

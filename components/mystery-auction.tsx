@@ -15,7 +15,13 @@ import "@/styles/mystery-auction.css";
 import { MysteryCardBack } from "@/components/event-scene";
 export { EventCardShowcase, MysteryCardBack } from "@/components/event-scene";
 
-export function MysteryEventHeader({ finished }: { finished?: boolean }) {
+export function MysteryEventHeader({
+  finished,
+  progressive = false
+}: {
+  finished?: boolean;
+  progressive?: boolean;
+}) {
   const t = useTranslations("mysteryAuction");
   return (
     <header className="yk-mystery-event-header">
@@ -41,7 +47,13 @@ export function MysteryEventHeader({ finished }: { finished?: boolean }) {
           </p>
           <h1>{t("title")}</h1>
           <p className="yk-mystery-event-subtitle">
-            {t(finished ? "endedIntro" : "eventIntro")}
+            {t(
+              finished
+                ? "endedIntro"
+                : progressive
+                  ? "eventIntro"
+                  : "legacyIntro"
+            )}
           </p>
         </div>
       </div>
