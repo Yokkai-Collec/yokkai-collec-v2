@@ -6,7 +6,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { getReferralStatus } from "@/lib/referrals/server";
 import type { ReferralEvent } from "@/lib/referrals/event";
 import { createClient } from "@/utils/supabase/server";
-import { Topbar } from "@/components/topbar";
+import { LeaderboardTopbar } from "@/components/leaderboard-topbar";
 import { AccountMenu } from "@/components/account-menu";
 import { ReferralPanel } from "@/components/referral-panel";
 import { ReferralEventPanel } from "@/components/referral-event";
@@ -30,7 +30,7 @@ export default async function ReferralEventPage() {
   ).origin;
   return (
     <div className="flex min-h-dvh w-full flex-col">
-      <Topbar view="events" account={<AccountMenu />} />
+      <LeaderboardTopbar view="events" account={<AccountMenu />} />
       <main
         id="main-content"
         className="mx-auto w-full max-w-6xl min-w-0 px-3 py-6 sm:px-6 sm:py-10"
