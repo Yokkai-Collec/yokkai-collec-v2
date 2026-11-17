@@ -33,7 +33,7 @@ export function MysteryAuctionStage({
 export function MysteryAuctionLeader({ winner }: { winner?: string | null }) {
   const t = useTranslations("mysteryAuction");
   return (
-    <p className="yk-auction-hint">
+    <p className="yk-auction-hint yk-mystery-leader">
       {t("leader", { name: winner ?? t("noBids") })}
     </p>
   );

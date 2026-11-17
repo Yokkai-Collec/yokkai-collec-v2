@@ -3135,6 +3135,25 @@ test("Phase 6 : détail d'enchère, solde, minute ajoutée, historique et issues
     /Auction lost[^]*Won by Oni/
   );
   const ownSale = { ...base, bids: 0, nextBid: undefined, status: "mine" };
+  for (const status of ["won", "lost", "unsold"]) {
+    const mysteryResult = render(AuctionView, {
+      auction: {
+        ...base,
+        isMystery: true,
+        finished: true,
+        status,
+        winner: "Oni"
+      },
+      async onToggleWatch() {}
+    });
+    assert.doesNotMatch(mysteryResult, /yk-auction-watch|yk-auction-outcome/);
+  }
+  assert.match(
+    render(AuctionView, {
+      auction: { ...base, isMystery: true, mysteryHidden: true, finished: true }
+    }),
+    /Revealing the card/
+  );
   assert.equal(
     (
       render(AuctionView, { auction: ownSale, async onCancel() {} }).match(
