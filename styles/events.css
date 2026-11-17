@@ -68,11 +68,8 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  justify-self: start;
   min-width: 0;
-  padding: calc(var(--spacing) * 2);
-  border: 1px solid var(--color-veil);
-  border-radius: var(--radius-panel);
-  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
 }
 .yk-events-filters {
   display: flex;
