@@ -97,17 +97,32 @@ begin
     perform public.create_daily_mystery_auction();
     perform public.create_daily_mystery_auction();
     assert (select count(*)=1 from public.auctions where mystery_day=(stamp::timestamptz at time zone 'Europe/Paris')::date), 'creator not idempotent across DST';
-    assert (select ends_at=((created_at at time zone 'Europe/Paris')::date+1+time '20:00') at time zone 'Europe/Paris'
-      and ends_at-created_at=case when stamp like '2099-03%' then interval '23 hours' when stamp like '2099-10%' then interval '25 hours' else interval '24 hours' end
-      and card_snapshot is null and card_instance_id is null
+    assert (select ends_at=((created_at at time zone 'Europe/Paris')::date+1+time '19:00') at time zone 'Europe/Paris'
+      and ends_at-created_at=case when stamp like '2099-03%' then interval '22 hours' when stamp like '2099-10%' then interval '24 hours' else interval '23 hours' end
+      and duration_minutes=1380 and card_snapshot is null and card_instance_id is null
       from public.auctions where mystery_day=(stamp::timestamptz at time zone 'Europe/Paris')::date), 'wrong duration or premature draw';
   end loop;
   execute replace(definition,'clock_timestamp()',quote_literal('2099-07-08 17:00:00+00')||'::timestamptz');
   select count(*) into copies from public.auctions;
   perform public.create_daily_mystery_auction();
   assert (select count(*)=copies from public.auctions), 'event created outside Paris hour';
+  begin
+    insert into public.auctions(seller_id,starting_price,current_price,duration_minutes,ends_at)
+    values(winner,50,50,1380,clock_timestamp()+interval '23 hours');
+    raise exception 'Normal auction accepted a system-only duration';
+  exception when check_violation then null; end;
+  foreach stamp in array array['2099-07-09 16:59:00+00','2099-07-09 17:00:00+00','2099-07-09 17:30:00+00','2099-07-09 17:59:59+00'] loop
+    execute replace(definition,'clock_timestamp()',quote_literal(stamp)||'::timestamptz');
+    perform public.create_daily_mystery_auction();
+    assert not exists(select 1 from public.auctions where mystery_day='2099-07-09'), 'Auction created during the break';
+  end loop;
+  execute replace(definition,'clock_timestamp()',quote_literal('2099-07-09 18:00:00+00')||'::timestamptz');
+  perform public.create_daily_mystery_auction();
+  assert exists(select 1 from public.auctions where mystery_day='2099-07-09' and ends_at='2099-07-10 17:00:00+00'), 'Auction did not restart after the break';
 
   definition:=pg_get_functiondef('public.get_mystery_auction_event()'::regprocedure);
+  execute replace(definition,'statement_timestamp()',quote_literal('2099-07-09 17:30:00+00')||'::timestamptz');
+  assert (public.get_mystery_auction_event()->>'nextStartsAt')::timestamptz='2099-07-09 18:00:00+00'::timestamptz, 'Break countdown does not target the next edition';
   foreach stamp in array array['2099-03-28 20:00:00+00','2099-10-24 20:00:00+00'] loop
     execute replace(definition,'statement_timestamp()',quote_literal(stamp)||'::timestamptz');
     item:=public.get_mystery_auction_event();
