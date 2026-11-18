@@ -279,3 +279,25 @@
   outline-offset: 3px;
   border-radius: 0.25rem;
 }
+
+.yk-mystery-next {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-top: 1.5rem;
+  padding-block: 1rem;
+  border-block: 1px solid #92baff30;
+  color: #b8c9ee;
+}
+.yk-mystery-next time {
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #e9ce7a;
+  white-space: nowrap;
+}
+.yk-mystery-next p {
+  flex-basis: 100%;
+  font-size: 0.8125rem;
+}
