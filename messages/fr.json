@@ -4628,6 +4628,7 @@
     "leaderboardRemaining": "Suite du classement de l’event"
   },
   "mysteryAuction": {
+    "nextEditionLabel": "Prochaine enchère mystère dans",
     "lrRulesTitle": "Comment évolue la chance de LR",
     "legacyIntro": "Chaque jour, une nouvelle enchère mystère, suivie d’une pause d’une heure avant l’édition suivante. Toutes les cartes du catalogue ont exactement la même chance de tomber, quelle que soit leur rareté. La carte est tirée au sort à la clôture, en version normale uniquement, puis révélée à tous. Le meilleur enchérisseur la remporte.",
     "lrChanceLabel": "Chance de LR pour cette édition",

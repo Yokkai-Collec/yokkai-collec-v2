@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   getMysteryAuctionEvent,
   type MysteryAuctionEvent
@@ -16,9 +17,11 @@ import { MysteryCardBack } from "@/components/event-scene";
 export { EventCardShowcase, MysteryCardBack } from "@/components/event-scene";
 
 export function MysteryEventHeader({
+  auctionId,
   finished,
   progressive = false
 }: {
+  auctionId?: string;
   finished?: boolean;
   progressive?: boolean;
 }) {
@@ -57,6 +60,7 @@ export function MysteryEventHeader({
           </p>
         </div>
       </div>
+      {finished && <MysteryNextEdition auctionId={auctionId} />}
     </header>
   );
 }
@@ -127,6 +131,40 @@ export function useMysteryAuctionEvent() {
     };
   }, []);
   return { event, now, failed };
+}
+
+// Follow only the latest result that was observed during its reveal break.
+// Opening an older archive directly must never redirect away from its result.
+export function MysteryNextEdition({ auctionId }: { auctionId?: string }) {
+  const t = useTranslations("mysteryAuction");
+  const router = useRouter();
+  const following = useRef(false);
+  const { event, now, failed } = useMysteryAuctionEvent();
+  const latest = event?.auction;
+  const live =
+    latest?.status === "active" &&
+    now != null &&
+    Date.parse(latest.endsAt) > now;
+  useEffect(() => {
+    if (auctionId && latest?.id === auctionId) following.current = true;
+    else if (following.current && live && latest?.id)
+      router.replace(`/market/${latest.id}`, { scroll: false });
+  }, [auctionId, latest?.id, live, router]);
+  if (live || (latest && auctionId && latest.id !== auctionId)) return null;
+  const deadline = event ? Date.parse(event.nextStartsAt) : NaN;
+  const countdown =
+    now != null && Number.isFinite(deadline)
+      ? packCountdown(deadline, now, true)
+      : "—";
+  return (
+    <section className="yk-mystery-next" aria-label={t("nextEditionLabel")}>
+      <span>{t("nextEditionLabel")}</span>
+      <time role="timer" aria-live="off" dateTime={event?.nextStartsAt}>
+        {countdown}
+      </time>
+      {failed && <p role="status">{t("unavailable")}</p>}
+    </section>
+  );
 }
 
 export function MysteryAuctionBanner({ home = false }: { home?: boolean }) {
