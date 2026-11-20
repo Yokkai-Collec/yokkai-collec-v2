@@ -87,6 +87,7 @@ body {
       :where(
         .yk-auth-main,
         .yk-card-browse-page,
+        .yk-black-market,
         :has(.yk-opening-stage, .yk-reveal-screen)
       )
     ) {
@@ -570,6 +571,7 @@ select,
     border-color var(--duration-fast) var(--ease-standard);
 }
 .yk-tab[aria-selected="true"],
+.yk-tab[aria-pressed="true"],
 .yk-tab[aria-current="page"] {
   border-color: var(--color-veil-strong);
   background: var(--color-surface);

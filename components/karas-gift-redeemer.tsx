@@ -9,7 +9,12 @@ import { createClient } from "@/utils/supabase/client";
 
 type Receipt = { amount: number; message: string; alreadyRedeemed: boolean };
 type RedeemError =
-  "codeUnavailable" | "balanceLimit" | "maintenance" | "redeemFailed";
+  | "codeUnavailable"
+  | "codeAlreadyUsed"
+  | "alreadyRedeemed"
+  | "balanceLimit"
+  | "maintenance"
+  | "redeemFailed";
 
 export function KarasGiftRedeemer() {
   const t = useTranslations("giftCodes");
@@ -28,13 +33,17 @@ export function KarasGiftRedeemer() {
         switch (error?.message) {
           case "GIFT_CODE_UNAVAILABLE":
             return "codeUnavailable";
+          case "GIFT_CODE_ALREADY_USED":
+            return "codeAlreadyUsed";
           case "GIFT_CODE_BALANCE_LIMIT":
             return "balanceLimit";
           case "ECONOMIC_MAINTENANCE":
             return "maintenance";
         }
         if (error || !data) return "redeemFailed";
-        setReceipt(data as Receipt);
+        const result = data as Receipt;
+        if (result.alreadyRedeemed) return "alreadyRedeemed";
+        setReceipt(result);
         setCode("");
         invalidatePlayerSnapshots(["balance"]);
         router.refresh();
@@ -82,7 +91,7 @@ export function KarasGiftRedeemer() {
       </form>
       <Modal
         open={receipt !== null}
-        title={t(receipt?.alreadyRedeemed ? "alreadyRedeemed" : "received")}
+        title={t("received")}
         onClose={() => setReceipt(null)}
         className="max-w-md"
       >

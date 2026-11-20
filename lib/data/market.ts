@@ -8,6 +8,7 @@ import {
 } from "@/lib/data/cards";
 
 export type AuctionData = {
+  isBlackMarket?: boolean;
   isMystery?: boolean;
   mysteryHidden?: boolean;
   mysteryLrChance?: number | null;
@@ -30,6 +31,8 @@ export type AuctionData = {
   ownedCount?: number;
 };
 export type AuctionDetail = AuctionData & {
+  bidIncrement?: number | null;
+  lateBidIncrement?: number | null;
   winner?: string | null;
   balance: number;
   history: {
@@ -99,6 +102,8 @@ async function call<T>(
   if (error) {
     if (error.message === "ECONOMIC_MAINTENANCE") throw new Error(error.message, { cause: { i18nKey: "cardErrors.economicMaintenance" } });
     const details = "details" in error ? error.details : undefined;
+    if (error.message === "BLACK_MARKET_BID_TOO_LOW" || error.message === "BLACK_MARKET_NOT_OPEN")
+      throw new Error(error.message);
     if (error.message === "AUCTION_LIMIT_REACHED")
       throw new Error(
         "Your active auction limit has been reached. Basic members can list 3 cards at once; Pro members can list 6."

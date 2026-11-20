@@ -26,6 +26,10 @@ import {
 } from "react";
 import { animation } from "@/lib/ui/animations";
 import {
+  buildAuctionLists,
+  presentAuction
+} from "@/lib/ui/auction-presentation";
+import {
   getCataloguePage,
   getGameInfo,
   getUserCollection,
@@ -72,7 +76,6 @@ import {
   placeBid,
   sendAuctionChatMessage,
   toggleWatch,
-  type AuctionData,
   type AuctionDetail
 } from "@/lib/data/market";
 import { subscribePlayerSnapshotInvalidation } from "@/lib/data/player-state";
@@ -417,6 +420,7 @@ export function CatalogueCardModal({
 // View models receive display values from their eventual API adapters. No prices,
 // minimum bids, durations, balances or auction rules are computed in these views.
 export type AuctionPresentation = {
+  isBlackMarket?: boolean;
   isMystery?: boolean;
   mysteryHidden?: boolean;
   mysteryLrChance?: number | null;
@@ -442,6 +446,7 @@ export type AuctionPresentation = {
   balance?: number;
   nextBid?: number;
   minimumBid?: number;
+  bidIncrement?: number;
   progress?: number;
   antiSnipeMessage?: string;
   extended?: boolean;
@@ -536,8 +541,10 @@ function WatchButton({
 }
 function AuctionTile({ auction: a }: { auction: AuctionPresentation }) {
   const tm = useTranslations("market");
+  const tb = useTranslations("blackMarket");
   const locale = useLocale();
   const format = useFormatter();
+  const seller = a.isBlackMarket ? tb("seller") : a.seller;
   const formatKaras = (amount: number) => format.number(amount) + " Karas";
   const outcome =
     a.finished &&
@@ -592,7 +599,7 @@ function AuctionTile({ auction: a }: { auction: AuctionPresentation }) {
           ) : outcome ? (
             <span className="yk-market-outcome truncate">
               {outcome === "won"
-                ? tm("boughtFrom", { name: a.seller })
+                ? tm("boughtFrom", { name: seller })
                 : outcome === "unsold"
                   ? tm("returned")
                   : a.buyer
@@ -602,11 +609,13 @@ function AuctionTile({ auction: a }: { auction: AuctionPresentation }) {
           ) : (
             <span className="yk-market-seller">
               <Avatar
-                name={a.seller}
-                image={a.sellerAvatarUrl ?? undefined}
+                name={seller}
+                image={
+                  a.isBlackMarket ? undefined : (a.sellerAvatarUrl ?? undefined)
+                }
                 size={26}
               />
-              <span className="truncate">{a.seller}</span>
+              <span className="truncate">{seller}</span>
             </span>
           )}
           {(a.ownedCount ?? 0) > 0 && (
@@ -684,6 +693,12 @@ export function compareMarketAuctions(
 }
 export function MarketView({
   initialSection = "browse",
+  browseOnly = false,
+  browseHeading,
+  browseEmpty,
+  cardPreview,
+  sharedDeadline = false,
+  rarityOptions,
   pageHeading,
   lists,
   activeSales,
@@ -696,6 +711,15 @@ export function MarketView({
   onLoadMore
 }: {
   initialSection?: "browse" | "mine";
+  browseOnly?: boolean;
+  browseHeading?: ReactNode;
+  browseEmpty?: ReactNode;
+  cardPreview?: {
+    cards: readonly Card[];
+    render: (matches: (card: Card) => boolean) => ReactNode;
+  };
+  sharedDeadline?: boolean;
+  rarityOptions?: readonly Rarity[];
   pageHeading?: ReactNode;
   lists?: Record<"active" | "mine" | "won" | "sold", AuctionPresentation[]>;
   activeSales?: string;
@@ -722,7 +746,11 @@ export function MarketView({
   const [rarity, setRarity] = useState<Rarity[]>(
     initialNavigation?.rarity ?? []
   );
-  const [sort, setSort] = useMarketSort();
+  const [marketSort, setMarketSort] = useMarketSort();
+  const [editionSort, setEditionSort] = useState<MarketSort>("popular");
+  const sort = sharedDeadline ? editionSort : marketSort;
+  const setSort = sharedDeadline ? setEditionSort : setMarketSort;
+  const defaultSort = sharedDeadline ? "popular" : "end";
   const [category, setCategory] = useState(initialNavigation?.category ?? "");
   const marketRoot = useRef<HTMLElement>(null);
   const scrollRestored = useRef(false);
@@ -749,10 +777,11 @@ export function MarketView({
     );
     return () => window.clearTimeout(timer);
   }, [query, rarity, category, sort, section, mineTab, onQueryChange]);
-  const matches = (a: AuctionPresentation) =>
+  const matches = (a: { card: Card }) =>
     matchesCardSearch(query, [a.card.name, a.card.anime]) &&
     (!rarity.length || rarity.includes(a.card.rarity)) &&
     (!category || a.card.category === category);
+  const matchesCard = (card: Card) => matches({ card });
   // Seller history is one legacy list; split it by outcome for Sold and Unsold.
   const myLists: Record<MineTab, AuctionPresentation[]> | undefined = lists && {
     all: [...lists.mine, ...lists.won, ...lists.sold],
@@ -765,9 +794,10 @@ export function MarketView({
     marketPage?.categories ??
     [
       ...new Set(
-        (section === "browse" ? lists?.active : myLists?.[mineTab])?.map(
-          a => a.card.category
-        )
+        cardPreview?.cards.map(card => card.category) ??
+          (section === "browse" ? lists?.active : myLists?.[mineTab])?.map(
+            a => a.card.category
+          )
       )
     ].sort();
   const filtered = !!(query || rarity.length || category);
@@ -804,11 +834,15 @@ export function MarketView({
       scrollRestored.current = true;
     });
   }, [initialNavigation, scrollReady]);
-  const heading = !shown
-    ? tm("loading")
-    : section === "browse"
-      ? tm("upForAuction", { count: shown.length })
-      : tm(`count${mineTab}`, { count: shown.length });
+  const heading = cardPreview
+    ? tm("previewCardCount", {
+        count: cardPreview.cards.filter(matchesCard).length
+      })
+    : !shown
+      ? tm("loading")
+      : section === "browse"
+        ? tm("upForAuction", { count: shown.length })
+        : tm(`count${mineTab}`, { count: shown.length });
   const recap =
     counts?.sales != null && counts.unsold != null
       ? tm(
@@ -837,14 +871,15 @@ export function MarketView({
         disabled={
           !(
             filtered ||
-            (section === "browse" ? sort !== "end" : mineTab !== "all")
+            (!cardPreview &&
+              (section === "browse" ? sort !== defaultSort : mineTab !== "all"))
           )
         }
         onClick={() => {
           setQuery("");
           setRarity([]);
           setCategory("");
-          setSort("end");
+          setSort(defaultSort);
           setMineTab("all");
         }}
       >
@@ -887,7 +922,7 @@ export function MarketView({
         />
       </div>
       <div className="yk-market-filter-scroll">
-        {section === "browse" && (
+        {section === "browse" && !cardPreview && (
           <FilterGroup title={tm("sort")}>
             {(
               [
@@ -896,18 +931,20 @@ export function MarketView({
                 ["desc", "Price: high to low"],
                 ["popular", "Most popular"]
               ] as const
-            ).map(([key, label]) => (
-              <button
-                type="button"
-                key={key}
-                className="yk-filter-option"
-                aria-pressed={sort === key}
-                onClick={() => setSort(key)}
-              >
-                <span className="yk-filter-check" />
-                <span>{tm(labelKeys[label])}</span>
-              </button>
-            ))}
+            )
+              .filter(([key]) => !sharedDeadline || key !== "end")
+              .map(([key, label]) => (
+                <button
+                  type="button"
+                  key={key}
+                  className="yk-filter-option"
+                  aria-pressed={sort === key}
+                  onClick={() => setSort(key)}
+                >
+                  <span className="yk-filter-check" />
+                  <span>{tm(labelKeys[label])}</span>
+                </button>
+              ))}
           </FilterGroup>
         )}
         {section === "mine" && (
@@ -932,6 +969,7 @@ export function MarketView({
         <CatalogueFilterSection title="Rarity" count={rarity.length}>
           <RarityChips
             selected={rarity}
+            options={rarityOptions}
             onToggle={r => setRarity(current => toggleFilterValue(current, r))}
           />
         </CatalogueFilterSection>
@@ -977,38 +1015,56 @@ export function MarketView({
         {tm("filters")}
         {filtered ? <span>•</span> : null}
       </button>
-      <div
-        className="yk-market-sections"
-        role="tablist"
-        aria-label={tm("sections")}
-      >
-        {(
-          [
-            ["browse", "Auctions", counts?.active ?? lists?.active.length],
-            ["mine", "My auctions", mineCount]
-          ] as const
-        ).map(([key, label, count]) => (
-          <button
-            key={key}
-            type="button"
-            role="tab"
-            aria-selected={section === key}
-            className="yk-market-section"
-            onClick={() => {
-              setSection(key);
-              setCategory("");
-            }}
-          >
-            {tm(labelKeys[label])}
-            {count != null && <span>{count}</span>}
-          </button>
+      {!cardPreview &&
+        (browseOnly ? (
+          (browseHeading ?? (
+            <h2 className="yk-black-market-auctions-heading">
+              {tm(labelKeys.Auctions)}
+              {shown && (
+                <span aria-hidden="true">{format.number(shown.length)}</span>
+              )}
+            </h2>
+          ))
+        ) : (
+          <>
+            <div
+              className="yk-market-sections"
+              role="tablist"
+              aria-label={tm("sections")}
+            >
+              {(
+                [
+                  [
+                    "browse",
+                    "Auctions",
+                    counts?.active ?? lists?.active.length
+                  ],
+                  ["mine", "My auctions", mineCount]
+                ] as const
+              ).map(([key, label, count]) => (
+                <button
+                  key={key}
+                  type="button"
+                  role="tab"
+                  aria-selected={section === key}
+                  className="yk-market-section"
+                  onClick={() => {
+                    setSection(key);
+                    setCategory("");
+                  }}
+                >
+                  {tm(labelKeys[label])}
+                  {count != null && <span>{count}</span>}
+                </button>
+              ))}
+            </div>
+            <div className="yk-market-band-actions">
+              <StatusPill>
+                {tm("activeListings", { count: activeSales ?? "—" })}
+              </StatusPill>
+            </div>
+          </>
         ))}
-      </div>
-      <div className="yk-market-band-actions">
-        <StatusPill>
-          {tm("activeListings", { count: activeSales ?? "—" })}
-        </StatusPill>
-      </div>
     </div>
   );
   return (
@@ -1016,6 +1072,7 @@ export function MarketView({
       ref={marketRoot}
       aria-label={tm("region")}
       className="yk-market"
+      data-card-preview={!!cardPreview || undefined}
       onChangeCapture={() => {
         navigationChanged.current = true;
       }}
@@ -1051,7 +1108,7 @@ export function MarketView({
         else rememberMarketReturn(navigation);
       }}
     >
-      {pageHeading ? (
+      {pageHeading || browseOnly ? (
         <header className="yk-market-heading">
           {pageHeading}
           <p role="status" className="sr-only">
@@ -1102,13 +1159,15 @@ export function MarketView({
           {filters}
         </aside>
         <div className="yk-collection-main">
-          {!pageHeading && toolbar}
-          {section === "browse" ? (
+          {!pageHeading && !browseOnly && toolbar}
+          {cardPreview ? (
+            cardPreview.render(matchesCard)
+          ) : section === "browse" ? (
             !browse ? (
               <Unavailable>{tm("loading")}</Unavailable>
             ) : !browse.length ? (
               <Unavailable>
-                {filtered ? tm("noMatch") : tm("noActive")}
+                {filtered ? tm("noMatch") : (browseEmpty ?? tm("noActive"))}
               </Unavailable>
             ) : (
               <ul
@@ -1689,7 +1748,13 @@ export function AuctionView({
       await onBid(amount);
       setOffer("");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Couldn't place this bid.");
+      if (e instanceof Error && e.message === "BLACK_MARKET_BID_TOO_LOW") {
+        setError(t("blackMarket.bidChanged"));
+      } else if (e instanceof Error && e.message === "BLACK_MARKET_NOT_OPEN") {
+        setError(t("blackMarket.auctionClosed"));
+      } else {
+        setError(e instanceof Error ? e.message : "Couldn't place this bid.");
+      }
     } finally {
       setPending(false);
     }
@@ -1774,12 +1839,20 @@ export function AuctionView({
                     </>
                   )}
                   {t("profileUi.listedBy")}{" "}
-                  <Avatar
-                    name={auction.seller}
-                    image={auction.sellerAvatarUrl ?? undefined}
-                    size={26}
-                  />
-                  {auction.sellerId === null ? (
+                  {auction.isBlackMarket ? (
+                    <Avatar name={t("blackMarket.seller")} size={26} />
+                  ) : (
+                    <Avatar
+                      name={auction.seller}
+                      image={auction.sellerAvatarUrl ?? undefined}
+                      size={26}
+                    />
+                  )}
+                  {auction.isBlackMarket ? (
+                    <span className="font-semibold">
+                      {t("blackMarket.seller")}
+                    </span>
+                  ) : auction.sellerId === null ? (
                     <span className="font-semibold">
                       {t("profileUi.deletedPlayer")}
                     </span>
@@ -1843,6 +1916,12 @@ export function AuctionView({
               {t("profileUi.auctionExtended")}{" "}
             </p>
           )}
+          {auction.isBlackMarket && !auction.finished && (
+            <p className="yk-auction-hint">
+              <HourglassIcon />
+              {t("blackMarket.lateBids")}
+            </p>
+          )}
           {!auction.extended &&
             auction.antiSnipeMessage &&
             !auction.finished && (
@@ -1887,7 +1966,14 @@ export function AuctionView({
                 aria-busy={pending || undefined}
                 onClick={() => void bid(auction.nextBid!)}
               >
-                +10 Karas<span>· {formatKaras(auction.nextBid)}</span>
+                {auction.isBlackMarket
+                  ? auction.bidIncrement
+                    ? t("blackMarket.raiseBid", {
+                        amount: auction.bidIncrement
+                      })
+                    : t("profileUi.placeBid")
+                  : "+10 Karas"}
+                <span>· {formatKaras(auction.nextBid)}</span>
               </Button>
               <form
                 className="yk-auction-offer"
@@ -1942,12 +2028,16 @@ export function AuctionView({
                     ? t("profileUi.bidAtLeast", {
                         amount: formatKaras(auction.minimumBid)
                       })
-                    : t("profileUi.bidMinimumHint", {
-                        amount:
-                          auction.minimumBid != null
-                            ? formatKaras(auction.minimumBid)
-                            : "—"
-                      })}
+                    : auction.isBlackMarket && auction.minimumBid != null
+                      ? t("blackMarket.minimumBid", {
+                          amount: auction.minimumBid
+                        })
+                      : t("profileUi.bidMinimumHint", {
+                          amount:
+                            auction.minimumBid != null
+                              ? formatKaras(auction.minimumBid)
+                              : "—"
+                        })}
                 </p>
               </form>
               <div className="yk-auction-balance">
@@ -2903,113 +2993,7 @@ export function WishlistView({
   );
 }
 
-const remaining = (endsAt: string) => {
-  const seconds = Math.max(
-    0,
-    Math.ceil((Date.parse(endsAt) - Date.now()) / 1000)
-  );
-  return {
-    seconds,
-    text: `${Math.floor(seconds / 3600)
-      .toString()
-      .padStart(2, "0")}:${Math.floor((seconds % 3600) / 60)
-      .toString()
-      .padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`
-  };
-};
-export function presentAuction(
-  raw: AuctionData | AuctionDetail,
-  viewer?: string
-): AuctionPresentation {
-  const left = remaining(raw.endsAt);
-  const finished = raw.status !== "active" || left.seconds === 0;
-  const detail = raw as AuctionDetail;
-  const bidder = !!raw.hasBid || !!detail.history?.some(b => b.mine);
-  const status =
-    raw.status === "sold"
-      ? raw.buyerId === viewer
-        ? "won"
-        : raw.sellerId === viewer
-          ? "sold"
-          : bidder
-            ? "lost"
-            : undefined
-      : raw.status === "expired"
-        ? raw.sellerId === viewer
-          ? "unsold"
-          : bidder
-            ? "lost"
-            : undefined
-        : raw.sellerId === viewer
-          ? "mine"
-          : raw.buyerId === viewer
-            ? "leading"
-            : bidder
-              ? "outbid"
-              : undefined;
-  return {
-    id: raw.id,
-    isMystery: raw.isMystery,
-    mysteryHidden: raw.mysteryHidden,
-    mysteryLrChance: raw.mysteryLrChance,
-    mysteryMisses: raw.mysteryMisses,
-    ...(raw.ownedCount !== undefined ? { ownedCount: raw.ownedCount } : {}),
-    card: { ...raw.card, image: raw.card.catalogueImage ?? raw.card.image },
-    amount: raw.amount,
-    remaining: left.text,
-    remainingSeconds: left.seconds,
-    seller: raw.seller || "Deleted player",
-    sellerId: raw.sellerId,
-    sellerAvatarUrl: raw.sellerAvatarUrl,
-    bids: raw.bids ?? detail.history?.length ?? 0,
-    popularity: raw.popularity,
-    status,
-    finished,
-    endsAt: raw.endsAt,
-    buyer:
-      raw.status === "sold" && raw.buyer !== undefined
-        ? raw.buyer || "Deleted player"
-        : undefined,
-    winner: detail.winner ?? undefined,
-    balance: detail.balance,
-    nextBid: !finished && raw.sellerId !== viewer ? raw.amount + 10 : undefined,
-    minimumBid: raw.amount + 10,
-    wishlist: raw.watched,
-    antiSnipeMessage:
-      !raw.isMystery && left.seconds < 300 && !finished
-        ? "Each bid adds one minute to the end time."
-        : undefined,
-    history: detail.history?.map(b => ({
-      id: b.id,
-      name: b.name,
-      avatarUrl: b.avatarUrl,
-      amount: b.amount,
-      createdAt: b.createdAt,
-      time: new Date(b.createdAt).toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit"
-      }),
-      mine: b.mine
-    }))
-  };
-}
-
-export function buildAuctionLists(market: AuctionData[], viewer: string) {
-  return {
-    active: market
-      .filter(a => a.status === "active")
-      .map(a => presentAuction(a, viewer)),
-    mine: market
-      .filter(a => a.status === "active" && (a.sellerId === viewer || a.hasBid))
-      .map(a => presentAuction(a, viewer)),
-    won: market
-      .filter(a => a.status === "sold" && a.buyerId === viewer)
-      .map(a => presentAuction(a, viewer)),
-    sold: market
-      .filter(a => a.status !== "active" && a.sellerId === viewer)
-      .map(a => presentAuction(a, viewer))
-  };
-}
+export { buildAuctionLists, presentAuction };
 
 const subscribeToStaticSnapshot = () => () => {};
 
@@ -3236,7 +3220,11 @@ export function CommunityView({
   return (
     <>
       <Topbar
-        view={screen === "auction" && auction?.isMystery ? "events" : screen}
+        view={
+          screen === "auction" && (auction?.isMystery || auction?.isBlackMarket)
+            ? "events"
+            : screen
+        }
         account={account}
         name={isMe ? name : undefined}
         karas={karas}
@@ -3265,14 +3253,22 @@ export function CommunityView({
             <div>
               {screen === "auction" && (
                 <Link
-                  href="/market"
+                  href={auction?.isBlackMarket ? "/black-market" : "/market"}
                   scroll={!returningToMarket}
                   className="yk-back-link"
                 >
-                  {tError("market.back")}
+                  {tError(
+                    auction?.isBlackMarket
+                      ? "blackMarket.backToMarket"
+                      : "market.back"
+                  )}
                 </Link>
               )}
-              <p className="eyebrow">{overline}</p>
+              <p className="eyebrow">
+                {screen === "auction" && auction?.isBlackMarket
+                  ? tError("blackMarket.title")
+                  : overline}
+              </p>
               <h1 className="yk-title mt-3">
                 {screen === "profile" && !isMe
                   ? tError("profileUi.playerProfile")
@@ -3338,6 +3334,7 @@ export function CommunityView({
               onCancel={
                 auction &&
                 auction.status === "active" &&
+                !auction.isBlackMarket &&
                 auction.sellerId === viewer
                   ? async () => {
                       await cancelAuction(auction.id);

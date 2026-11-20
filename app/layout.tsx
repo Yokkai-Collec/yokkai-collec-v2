@@ -17,6 +17,7 @@ import { DiscordPromo } from "@/components/discord-promo";
 import { FloatingMessenger } from "@/components/floating-messenger";
 import { LinkedAccountNotice } from "@/components/linked-account-notice";
 import { AccountSanctionNotice } from "@/components/account-sanction-notice";
+import { PlayerWarningNotice } from "@/components/player-warning-notice";
 import { NetworkSecurityObserver } from "@/components/network-security-observer";
 import "./globals.css";
 import "../styles/ui.css";
@@ -150,6 +151,7 @@ export default async function RootLayout({
       "rankingProgress",
       "mysteryAnnouncement",
       "accountSanctions",
+      "playerWarnings",
       "sanctionAppeals",
       "boosters",
       "packs",
@@ -174,6 +176,7 @@ export default async function RootLayout({
       "market",
       "events",
       "mysteryAuction",
+      "blackMarket",
       "siteFooter",
       "error",
       "adminReportedCard",
@@ -222,6 +225,7 @@ export default async function RootLayout({
                 <PushInvitation />
                 <LinkedAccountNotice />
                 <AccountSanctionNotice />
+                <PlayerWarningNotice />
                 <ReferralReminder />
                 <Suspense fallback={null}>
                   <DiscordPromo enabled />

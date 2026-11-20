@@ -1,0 +1,22 @@
+# Le marché noir — développement local
+
+Branche : `ad/black-market`. Aucune migration appliquée sur le VPS et aucun déploiement.
+
+- Événement : `/black-market`, accessible depuis `/events` et l’accueil lorsqu’il contient des enchères ouvertes.
+- Administration : `/admin/black-market`.
+- La liste reprend les vignettes, la grille de six cartes sur grand écran et le panneau de filtres du marché classique. Recherche par nom/licence, rareté SSR/LR, catégorie et tris partagent le même composant. Sur mobile, les filtres s’ouvrent dans le panneau habituel.
+- Aperçu sans connexion : `/design-system/black-market-preview` (développement uniquement). Cartes de démonstration, aucune requête vers Supabase. `?empty=1` pour l’état vide et `?locale=en` pour l’anglais.
+
+L’événement est désactivé à l’installation. L’activation de la récupération quotidienne et de la programmation utilise la RPC admin `admin_configure_black_market(boolean)`. La migration `20261120005000_black_market_private_stock.sql` déplace l’ancien stock encore disponible vers l’inventaire privé du Marché noir et conserve les enchères programmées, leurs identifiants et leurs mises.
+
+Après activation, le job privé `black-market-recovery` s’exécute une fois par jour (`0 0 * * *`, selon le fuseau configuré pour pg_cron). Il récupère les exemplaires SSR et LR encore détenus par les comptes bannis définitivement depuis au moins 14 jours complets. Une suspension temporaire ou un compte débanni n’est pas concerné. Un nouveau bannissement après débannissement repart de zéro.
+
+Pour les bannissements existants, la dernière entrée ban/unban du journal fournit la date lorsqu’elle établit le bannissement courant. Sans date fiable, l’installation ouvre une nouvelle période d’attente de 14 jours. Un transfert n’est jamais antidaté pour accélérer la récupération.
+
+Les cartes actuellement aux enchères, dans une offre en attente ou réservées pour une enquête sont laissées en place et réévaluées au passage quotidien suivant. Les exemplaires ne sont ni créés ni détruits : identifiant, rareté et variantes restent attachés à la carte. Les transferts et l’origine sont consignés dans des tables privées et le journal d’administration.
+
+Les cartes récupérées rejoignent l’inventaire privé du Marché noir, accessible depuis le panneau admin. L’administrateur choisit le jour et les exemplaires de la prochaine édition (1 à 60). Le formulaire permet de modifier le jour et les lots avant l’ouverture. Les enchères ouvrent à midi et leur clôture est prévue à minuit, heure de Paris. La première offre peut égaler le prix de départ à tout moment. Pour une LR, le prix de départ et le palier normal sont de 1 000 Karas. Pour une SSR, les deux montants sont de 500 Karas. Chaque mise acceptée lorsqu’il reste au plus trois minutes repousse la clôture du lot d’une minute. Dans cette fenêtre, le premier palier de surenchère vaut deux fois le prix de départ. Chaque surenchère acceptée dans cette fenêtre augmente le palier suivant d’un prix de départ. La progression est conservée si le compteur repasse temporairement au-dessus de trois minutes.
+
+Les lots sont visibles dans l’événement à partir de son ouverture. Le gagnant reçoit l’exemplaire d’origine et les Karas du prix final sont retirés de la circulation. Sans enchérisseur, la carte reste dans le stock admin et peut être reproposée. La migration `20261118150000_black_market_editions.sql` ferme l’accès aux anciennes annonces ouvertes hors édition et laisse le règlement des anciennes mises à leur échéance initiale.
+
+Validation sans production : `node --test tests/black-market-db.test.mjs tests/events-hub.test.mjs tests/mystery-auction-db.test.mjs tests/migration-security.test.mjs tests/banned-account-guard-db.test.mjs`. Le moteur PGlite est jetable et le cron y est seulement enregistré, jamais exécuté automatiquement.

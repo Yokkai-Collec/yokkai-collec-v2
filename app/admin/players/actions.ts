@@ -6,6 +6,35 @@ import { requireAdminAction } from "@/lib/auth/admin";
 import { createClient } from "@/utils/supabase/server";
 
 export type PlayerAdminActionState = { ok: boolean; message: string };
+export type PlayerWarningState =
+  "idle" | "sent" | "invalidReason" | "sendError";
+
+export async function sendPlayerWarningAction(
+  userId: string,
+  warningId: string,
+  _previous: PlayerWarningState,
+  form: FormData
+): Promise<PlayerWarningState> {
+  try {
+    await requireAdminAction();
+    const field = form.get("reason");
+    const reason =
+      typeof field === "string" ? field.replace(/\r\n?/g, "\n") : "";
+    if (!reason.trim() || reason.length > 500) return "invalidReason";
+    const uuid = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
+    if (!uuid.test(userId) || !uuid.test(warningId)) return "sendError";
+
+    const client = createClient(await cookies());
+    const { error } = await client.rpc("admin_send_player_warning", {
+      p_id: warningId,
+      p_user_id: userId,
+      p_reason: reason
+    });
+    return error ? "sendError" : "sent";
+  } catch {
+    return "sendError";
+  }
+}
 
 export async function removePlayerCardAction(
   instanceId: string

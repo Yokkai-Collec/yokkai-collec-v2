@@ -12,7 +12,8 @@ const items = [
   { href: "/admin/reports", label: "reports" },
   { href: "/admin/security", label: "security" },
   { href: "/admin/monitoring", label: "monitoring" },
-  { href: "/admin/gift-codes", label: "giftCodes" }
+  { href: "/admin/gift-codes", label: "giftCodes" },
+  { href: "/admin/black-market", label: "blackMarket" }
 ];
 
 export function AdminNavigation() {

@@ -9,6 +9,7 @@ import {
   type CollectionPresentation
 } from "@/components/collection";
 import type { CollectedCard } from "@/lib/data/cards";
+import { PlayerWarningControl } from "./player-warning-control";
 import {
   removePlayerCardAction,
   setPlayerBanAction,
@@ -204,6 +205,13 @@ export function PlayerDetailPanel({
                 </p>
               </div>
               <BanControl player={selected} />
+            </div>
+            <div className="mt-4">
+              <PlayerWarningControl
+                key={selected.userId}
+                userId={selected.userId}
+                pseudo={selected.pseudo}
+              />
             </div>
             <dl className="mt-5 grid grid-cols-2 gap-3 text-sm">
               <div className="rounded-xl bg-slate-950 p-3">
