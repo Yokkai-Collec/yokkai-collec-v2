@@ -31,6 +31,7 @@ export type AuctionData = {
   ownedCount?: number;
 };
 export type AuctionDetail = AuctionData & {
+  startingPrice?: number | null;
   bidIncrement?: number | null;
   lateBidIncrement?: number | null;
   winner?: string | null;
