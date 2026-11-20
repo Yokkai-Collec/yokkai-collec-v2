@@ -18,6 +18,10 @@ import {
   EventBannerArrow,
   EventsEmptyArt
 } from "@/components/event-banner";
+import {
+  BlackMarketHubCard,
+  useBlackMarketEvent
+} from "@/components/black-market";
 import "@/styles/events.css";
 
 export function EventsHub({ home = false }: { home?: boolean }) {
@@ -31,6 +35,23 @@ export function EventsHub({ home = false }: { home?: boolean }) {
   const status = event ? (live ? "live" : "upcoming") : undefined;
   const visible = home ? !!live : filter === "all" || filter === status;
   const referral = useReferralEvent();
+  const blackMarket = useBlackMarketEvent();
+  const blackMarketUpcoming =
+    !!blackMarket.event?.startsAt &&
+    (blackMarket.now ?? 0) < Date.parse(blackMarket.event.startsAt);
+  const blackMarketLive =
+    !blackMarketUpcoming &&
+    !!blackMarket.event?.auctions.length &&
+    (!blackMarket.event.endsAt ||
+      (blackMarket.now ?? 0) < Date.parse(blackMarket.event.endsAt));
+  const blackMarketLoaded = blackMarket.event !== undefined;
+  const blackMarketVisible =
+    blackMarketLoaded &&
+    (home
+      ? blackMarketLive
+      : filter === "all" ||
+        (filter === "live" && blackMarketLive) ||
+        (filter === "upcoming" && blackMarketUpcoming));
   const referralStatus = referral.event
     ? referral.now < Date.parse(referral.event.startsAt)
       ? "upcoming"
@@ -45,16 +66,35 @@ export function EventsHub({ home = false }: { home?: boolean }) {
       : filter === "all" || filter === referralStatus);
   const deadline = live ? auction.endsAt : event?.nextStartsAt;
   const counts = {
-    all: 1 + Number(!!referral.event),
-    live: Number(!!live) + Number(referralStatus === "live"),
+    all: 1 + Number(!!referral.event) + Number(blackMarketLoaded),
+    live:
+      Number(!!live) +
+      Number(referralStatus === "live") +
+      Number(blackMarketLive),
     upcoming:
-      Number(status === "upcoming") + Number(referralStatus === "upcoming")
+      Number(status === "upcoming") +
+      Number(referralStatus === "upcoming") +
+      Number(blackMarketUpcoming)
   };
-  if (home && !visible && !referralVisible) return null;
+  if (home && !visible && !referralVisible && !blackMarketVisible) return null;
   if (home)
     return (
       <section className="yk-home-events-strip" aria-label={t("title")}>
         {[
+          ...(blackMarketVisible
+            ? [
+                {
+                  kind: "black-market",
+                  href: "/black-market",
+                  title: t("blackMarket"),
+                  end:
+                    blackMarket.event!.endsAt ??
+                    blackMarket.event!.auctions[0].endsAt,
+                  clock: blackMarket.now,
+                  image: "/assets/events/mystery-card.png"
+                }
+              ]
+            : []),
           ...(live && auction
             ? [
                 {
@@ -130,8 +170,14 @@ export function EventsHub({ home = false }: { home?: boolean }) {
         <h2 id="events-list-title" className="sr-only">
           {t("explore")}
         </h2>
-        {visible || referralVisible ? (
+        {visible || referralVisible || blackMarketVisible ? (
           <ul className="yk-events-grid">
+            {blackMarketVisible && (
+              <BlackMarketHubCard
+                event={blackMarket.event ?? null}
+                now={blackMarket.now}
+              />
+            )}
             {visible && (
               <li className="yk-event-card" data-event="mystery">
                 <EventBannerFrame
@@ -213,13 +259,15 @@ export function EventsHub({ home = false }: { home?: boolean }) {
           </div>
         )}
       </section>
-      {!home && filter === "all" && (visible || referralVisible) && (
-        <aside className="yk-events-empty yk-events-coming-soon">
-          <EventsEmptyArt />
-          <h3>{t("moreEventsTitle")}</h3>
-          <p>{t("emptyHint")}</p>
-        </aside>
-      )}
+      {!home &&
+        filter === "all" &&
+        (visible || referralVisible || blackMarketVisible) && (
+          <aside className="yk-events-empty yk-events-coming-soon">
+            <EventsEmptyArt />
+            <h3>{t("moreEventsTitle")}</h3>
+            <p>{t("emptyHint")}</p>
+          </aside>
+        )}
     </div>
   );
 }

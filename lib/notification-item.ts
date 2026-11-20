@@ -318,6 +318,16 @@ export function notificationItem(
       kind: "mission"
     };
   }
+  if (notification.type === "black_market_card_open")
+    return {
+      ...common,
+      title: t("notificationBlackMarketTitle"),
+      text: t("notificationBlackMarketText", {
+        cardName: notification.cardName ?? t("notificationWishlistCardFallback")
+      }),
+      href: `/market/${notification.referenceId}`,
+      kind: "wishlist"
+    };
   if (notification.type === "wishlist_card_on_auction")
     return {
       ...common,

@@ -208,11 +208,14 @@
   white-space: nowrap;
 }
 .yk-event-banner-content h3 {
-  width: fit-content;
   max-width: 9ch;
   margin: 18px 0 0 2px;
+}
+.yk-event-banner-content h3,
+.yk-black-market-event-title h3 {
+  width: fit-content;
   font-family: var(--font-display);
-  font-size: clamp(1.4rem, 7.15cqi, 2.8rem);
+  font-size: clamp(1.4rem, var(--event-banner-title-scale, 7.15cqi), 2.8rem);
   font-weight: 800;
   font-style: italic;
   line-height: 0.98;
@@ -220,15 +223,18 @@
   text-transform: uppercase;
   transform: skewX(-7deg);
   color: #e8edff;
-  background: linear-gradient(
-    180deg,
-    #fff 0%,
-    #e9edff 26%,
-    #b6c6e4 45%,
-    #fff 49%,
-    #8a9dc8 57%,
-    #e8edff 78%,
-    #f7f9ff
+  background: var(
+    --event-banner-title-fill,
+    linear-gradient(
+      180deg,
+      #fff 0%,
+      #e9edff 26%,
+      #b6c6e4 45%,
+      #fff 49%,
+      #8a9dc8 57%,
+      #e8edff 78%,
+      #f7f9ff
+    )
   );
   background-clip: text;
   -webkit-background-clip: text;
@@ -620,7 +626,8 @@
   margin-top: 20px;
 }
 @media (forced-colors: active) {
-  .yk-event-banner-content h3 {
+  .yk-event-banner-content h3,
+  .yk-black-market-event-title h3 {
     -webkit-text-fill-color: CanvasText;
     -webkit-text-stroke: 0;
     background: none;

@@ -18,7 +18,7 @@ import { LocaleSelector } from "@/components/locale-controls";
 import Image from "next/image";
 import { useEffect, useState, type ReactNode } from "react";
 import type { CollectedCard } from "@/lib/data/cards";
-import { Avatar, Karas } from "@/components/ui";
+import { Avatar, Karas, NotificationBellIcon } from "@/components/ui";
 import "@/styles/topbar.css";
 import {
   markNotificationRead,
@@ -396,17 +396,7 @@ export function Topbar({
               aria-controls="notifications-panel"
               onClick={toggleNotifications}
             >
-              <svg
-                aria-hidden="true"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-              >
-                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
-              </svg>
+              <NotificationBellIcon />
               {!!unread && (
                 <span className="absolute -top-1 -right-1 min-w-4 rounded-full bg-danger px-1 text-[10px] text-void">
                   {unread}

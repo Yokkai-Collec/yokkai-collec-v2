@@ -24,6 +24,7 @@ test("the events hub lists the real event, filters its status, and keeps results
     let filter = "all";
     let state = { failed: false };
     let referral = { event: null, now: 1 };
+    let blackMarket = { event: undefined, now: 1 };
     const exports = {};
     vm.runInNewContext(source, {
       exports,
@@ -55,6 +56,18 @@ test("the events hub lists the real event, filters its status, and keeps results
           };
         if (name.endsWith("/event-scene"))
           return { EventCardShowcase: ({ children }) => children };
+        if (name.endsWith("/black-market"))
+          return {
+            useBlackMarketEvent: () => blackMarket,
+            BlackMarketHubCard: () =>
+              jsx.jsx("li", {
+                className: "yk-event-card",
+                children: jsx.jsx("a", {
+                  href: "/black-market",
+                  children: messages.blackMarket.title
+                })
+              })
+          };
         if (name.endsWith("/referral-event"))
           return {
             useReferralEvent: () => referral,
@@ -152,5 +165,30 @@ test("the events hub lists the real event, filters its status, and keeps results
     assert.match(home(), /href="\/market\/auction"/);
     assert.match(home(), /href="\/referral-event"/);
     assert.doesNotMatch(home(), /yk-event-card|yk-event-description/);
+    blackMarket = {
+      event: { auctions: [{ endsAt: "2099-01-07T20:00:00Z" }] },
+      now: 1
+    };
+    filter = "all";
+    assert.match(render(), /href="\/black-market"/);
+    assert.match(home(), /href="\/black-market"/);
+    assert.match(render(), /aria-pressed="true"[^>]*>[^<]+<span>3<\/span>/);
+    filter = "upcoming";
+    assert.doesNotMatch(render(), /href="\/black-market"/);
+    filter = "live";
+    assert.match(render(), /href="\/black-market"/);
+    blackMarket.event.auctions = [];
+    assert.doesNotMatch(home(), /href="\/black-market"/);
+    assert.doesNotMatch(render(), /href="\/black-market"/);
+    filter = "all";
+    assert.match(render(), /href="\/black-market"/);
+    blackMarket.event.startsAt = "2099-01-07T12:00:00Z";
+    filter = "upcoming";
+    assert.match(render(), /href="\/black-market"/);
+    assert.doesNotMatch(home(), /href="\/black-market"/);
+    blackMarket.event = null;
+    assert.doesNotMatch(render(), /href="\/black-market"/);
+    filter = "all";
+    assert.match(render(), /href="\/black-market"/);
   }
 });

@@ -86,15 +86,17 @@ export function FilterGroup({
 export function RarityChips({
   selected,
   count,
-  onToggle
+  onToggle,
+  options = chipOrder
 }: {
   selected: readonly Rarity[];
   count?: (rarity: Rarity) => number;
   onToggle: (rarity: Rarity) => void;
+  options?: readonly Rarity[];
 }) {
   return (
     <div className="yk-rarity-chips">
-      {chipOrder.map(r => (
+      {options.map(r => (
         <button
           type="button"
           key={r}

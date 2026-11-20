@@ -1,5 +1,10 @@
 // Exact overloads and roles only. Every addition requires an access justification.
 export const ownerOnly = [
+  "public.track_black_market_ban()", // Trigger-only permanent ban clock; private Auth history.
+  "public.recover_black_market_cards(uuid, uuid)", // Private 14-day recovery shared only by the owner cron worker.
+  "public.recover_due_black_market_cards()", // Owner cron only; never callable by players or service role.
+  "public.guard_black_market_card()", // Trigger-only custody guard on recovered copies.
+  "public.guard_black_market_listing()", // Trigger-only admission to official auctions.
   "public.referral_event_leaderboard(uuid)", // Aggregate event rankings, called only by the existing guarded progression RPC.
   "public.referral_event_candidates(uuid)", // Private eligibility includes Auth dates and existing anti-abuse approval; never exposed to players.
   "public.referral_event_qualified(uuid)", // Private qualification/deadline query; only the protected DTO and worker consume it.
@@ -103,6 +108,15 @@ export const serverOnly = {
 };
 
 const allowlist = {
+  "public.admin_configure_black_market(boolean)": ["authenticated"], // Admin-only event and automatic recovery switch.
+  "public.admin_schedule_black_market_edition(date, uuid[])": ["authenticated"], // Admin-only scheduling of recovered copies with fixed edition terms.
+  "public.admin_get_black_market_stock()": ["authenticated"], // Admin-only bounded recovered inventory.
+  "public.admin_get_black_market_recovery_queue(integer, uuid)": [
+    "authenticated"
+  ], // Admin-only pending cards and their recovery blockers.
+  "public.get_black_market_event()": ["authenticated"], // Authenticated public event DTO; no source identities or recovery records.
+  "public.get_black_market_activity()": ["authenticated"], // Public final sale prices and winner profile visuals, plus own wins and pending reminders.
+  "public.set_black_market_reminder(uuid, boolean)": ["authenticated"], // Changes only the current user's reminders for scheduled cards.
   "public.get_referral_event()": ["authenticated"], // Own progression and pending pseudos only; read-only, cannot award tiers.
   "public.update_catalogue_card_announced(uuid, jsonb, uuid)": [
     "authenticated"
@@ -120,6 +134,7 @@ const allowlist = {
     "authenticated"
   ], // Admin authorization, server-generated gift code with an admin-selected usage mode.
   "public.redeem_karas_gift_code(text)": ["authenticated"], // Own balance, one-time credit under the gift row lock.
+  "public.admin_get_karas_gift_history(integer, uuid)": ["authenticated"], // Admin-only masked issuance and recipient history.
   "public.get_missions()": ["authenticated"], // Own fixed missions; settles only the caller's earned historical milestones.
   "public.claim_mission_milestone(text, timestamp with time zone, integer)": [
     "authenticated"
@@ -185,6 +200,8 @@ const allowlist = {
   "public.admin_list_anticheat_appeals()": ["authenticated"], // Admin-only bounded appeal inbox.
   "public.admin_review_anticheat_appeal(uuid, text, text)": ["authenticated"], // Admin-only one terminal review per appeal.
   "public.admin_void_anticheat_warning(uuid, text)": ["authenticated"], // Admin-only correction of a zero-asset warning after review.
+  "public.admin_send_player_warning(uuid, uuid, text)": ["authenticated"], // Administrators alone can issue manual warnings.
+  "public.acknowledge_player_warning(uuid)": ["authenticated"], // Only the recipient can acknowledge their own warning.
   "public.admin_review_anticheat_farm(uuid, text, text, text)": [
     "authenticated"
   ], // Admin-only append-only review; applies no sanctions.

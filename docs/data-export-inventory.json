@@ -1,4 +1,8 @@
 {
+  "public.player_warnings": {
+    "sections": ["player_warnings"],
+    "note": "Own moderation warning text and send and acknowledgement dates. Moderator identity is private."
+  },
   "public.player_title_catalog": {
     "excluded": "Global title identifiers shared by all players; no player-specific records or personal data."
   },
@@ -600,5 +604,24 @@
   },
   "public.event_runtime_config": {
     "excluded": "Global operator-controlled event activation switch; no player-specific records or personal data."
+  },
+  "public.black_market_config": {
+    "excluded": "Global event activation switch; no private player records."
+  },
+  "public.black_market_bans": {
+    "excluded": "Private moderation timing used for the 14-day recovery delay; security records require separate manual privacy review."
+  },
+  "public.black_market_stock": {
+    "excluded": "Private event inventory and recovered-asset provenance, including source identifiers; security records require separate manual privacy review."
+  },
+  "public.black_market_editions": {
+    "excluded": "Event dates shared by all players; no player-specific records."
+  },
+  "public.black_market_recovery_runs": {
+    "excluded": "Operational journal of aggregate recovery counts, without player identifiers."
+  },
+  "public.black_market_reminders": {
+    "sections": ["black_market_reminders"],
+    "note": "The player's own pending reminder settings."
   }
 }
