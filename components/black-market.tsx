@@ -5,7 +5,6 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
-import type { Card } from "@/lib/data/cards";
 import type { AuctionDetail } from "@/lib/data/market";
 import type { AvatarFrame } from "@/lib/ui/profile-style";
 import {
@@ -18,7 +17,7 @@ import "@/styles/black-market.css";
 
 export type BlackMarketEvent = {
   auctions: AuctionDetail[];
-  upcomingCards?: Card[];
+  upcomingCards?: AuctionDetail["card"][];
   startsAt?: string | null;
   endsAt?: string | null;
 };

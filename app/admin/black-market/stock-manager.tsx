@@ -14,7 +14,14 @@ import "@/styles/black-market.css";
 
 type StockItem = Pick<
   YokaiCardProps,
-  "name" | "rarity" | "image" | "category" | "anime" | "shiny" | "isEvolved"
+  | "name"
+  | "rarity"
+  | "image"
+  | "category"
+  | "anime"
+  | "shiny"
+  | "isEvolved"
+  | "firstLrCopy"
 > & { instanceId: string; startingPrice?: number | null };
 
 type Stock = {
@@ -59,6 +66,7 @@ function validPrice(value: string) {
 export function BlackMarketAdmin({ previewStock }: { previewStock?: Stock }) {
   const t = useTranslations("blackMarket");
   const tm = useTranslations("market");
+  const collection = useTranslations("collectionShared");
   const format = useFormatter();
   const [stock, setStock] = useState(previewStock);
   const [day, setDay] = useState(previewStock?.scheduledDay ?? "");
@@ -186,6 +194,9 @@ export function BlackMarketAdmin({ previewStock }: { previewStock?: Stock }) {
             {!stock.enabled && <p role="status">{t("scheduleDisabled")}</p>}
             <fieldset disabled={busy}>
               <legend>{t("stock")}</legend>
+              <span id="black-market-first-copy-label" hidden>
+                {collection("firstLrBadge")}
+              </span>
               {stock.items.length ? (
                 <>
                   <div className="yk-black-market-stock-filters">
@@ -243,6 +254,11 @@ export function BlackMarketAdmin({ previewStock }: { previewStock?: Stock }) {
                                   rarity: card.rarity,
                                   id: shortId
                                 })}
+                                aria-describedby={
+                                  card.firstLrCopy
+                                    ? "black-market-first-copy-label"
+                                    : undefined
+                                }
                                 checked={checked}
                                 disabled={
                                   !checked && selected.length >= maxLots
@@ -271,6 +287,7 @@ export function BlackMarketAdmin({ previewStock }: { previewStock?: Stock }) {
                             <div aria-hidden="true">
                               <YokaiCard
                                 {...card}
+                                instanceId={instanceId}
                                 animated={false}
                                 imageSizes={GRID_CARD_IMAGE_SIZES}
                               />

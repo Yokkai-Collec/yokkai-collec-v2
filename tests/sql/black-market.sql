@@ -74,6 +74,9 @@ begin
  delete from public.trade_offers where id=pending_trade;
  assert not exists(select 1 from public.user_cards where id=copy), 'Recovered copy still in a player inventory';
  assert (select is_shiny from public.black_market_stock where card_instance_id=copy), 'Variant lost in recovery';
+ assert public.get_first_lr_copy_badges(array[copy]) =
+   jsonb_build_array(jsonb_build_object('instanceId',copy,'source','mint')),
+   'The first LR copy badge lookup stopped resolving the recovered instance';
  assert (select user_id=banned from public.user_cards where id=protected_copy), 'Investigation hold bypassed';
  assert (select count(*)=1 from public.user_cards where user_id=banned and rarity='SR'), 'Lower rarity confiscated';
  assert (select count(*)=1 from public.user_cards where user_id=temporary), 'Temporary suspension confiscated';
@@ -103,9 +106,9 @@ begin
  assert (select opening_day=day from public.black_market_editions),'Invalid prices changed edition';
  perform public.admin_schedule_black_market_edition(day,array[copy,ssr_copy]);
  assert public.admin_get_black_market_stock()->'items' @> jsonb_build_array(
-   jsonb_build_object('instanceId',ssr_copy,'startingPrice',700),
-   jsonb_build_object('instanceId',copy,'startingPrice',1000)
- ),'Admin stock did not restore the saved prices per copy';
+   jsonb_build_object('instanceId',ssr_copy,'startingPrice',700,'firstLrCopy',null),
+   jsonb_build_object('instanceId',copy,'startingPrice',1000,'firstLrCopy','mint')
+ ),'Admin stock did not include the saved prices and first LR badge per copy';
  assert exists (select 1 from public.admin_audit_logs where action='black_market.open'
    and metadata->'startingPrices'->>ssr_copy::text='700'),'Saved starting price missing in the audit log';
  assert (select count(*)=1 from public.black_market_editions),'Rescheduling left a duplicate edition';
@@ -131,10 +134,15 @@ begin
  assert jsonb_array_length(public.get_black_market_event()->'upcomingCards')=2,'Missing upcoming cards';
  assert (public.get_black_market_event()->'upcomingCards') @> jsonb_build_array(jsonb_build_object('id',lr,'rarity','LR')),'Missing selected LR preview';
  assert (public.get_black_market_event()->'upcomingCards') @> '[{"rarity":"SSR"}]'::jsonb,'Missing selected SSR preview';
+ assert (public.get_black_market_event()->'upcomingCards') @> jsonb_build_array(
+   jsonb_build_object('id',lr,'firstLrCopy','mint','shiny',true,'isEvolved',false)
+ ),'The announced card lost its first LR copy badge';
  assert not exists (
    select 1 from jsonb_array_elements(public.get_black_market_event()->'upcomingCards') as preview(card)
    cross join lateral jsonb_object_keys(preview.card) as field(key)
    where field.key not in ('id','name','category','anime','image','rarity')
+     and (field.key in ('firstLrCopy','shiny','isEvolved') and preview.card->>'rarity'='LR'
+       and preview.card->>'firstLrCopy' in ('legacy','mint')) is not true
  ),'Upcoming cards exposed auction or ownership fields';
  assert (public.get_black_market_event()->>'startsAt')::timestamptz=opens,'Opening countdown missing';
  begin perform public.set_black_market_reminder(sr,true); raise exception 'Unscheduled reminder accepted';
@@ -180,6 +188,10 @@ begin
  assert public.get_black_market_activity()->'reminderCardIds'='[]'::jsonb,'Delivered reminder was not consumed';
  assert public.get_black_market_event()->'auctions'->0->>'isBlackMarket'='true','Missing event identity';
  assert jsonb_array_length(public.get_black_market_event()->'auctions')=2,'Wrong event lots';
+ assert (public.get_black_market_event()->'auctions') @>
+   jsonb_build_array(jsonb_build_object('id',sale,'card',jsonb_build_object('firstLrCopy','mint','shiny',true))),
+   'The live Black Market lost the first LR copy badge';
+ assert public.get_auction(sale)->'card'->>'firstLrCopy'='mint','Auction detail lost the first LR copy badge';
  assert public.get_black_market_event()->'upcomingCards'='[]'::jsonb,'Preview still present after opening';
  assert public.get_black_market_event()->'auctions'->0 ? 'popularity','Popularity sorting data missing';
  assert public.get_black_market_event()->'auctions'->0->>'ownedCount'='0','Ownership badge data missing';
@@ -262,6 +274,9 @@ begin
  assert (select status='sold' from public.auctions where id=sale),'Lot not sold';
  assert (select user_id=player from public.user_cards where id=copy),'Original instance not awarded';
  assert (select is_shiny from public.user_cards where id=copy),'Winner lost shiny variant';
+ assert public.get_first_lr_copy_badges(array[copy]) =
+   jsonb_build_array(jsonb_build_object('instanceId',copy,'source','mint')),
+   'The winner collection could not resolve the awarded first LR copy badge';
  assert (select count(*) from public.user_cards)+(select count(*) from public.black_market_stock where card_id is not null)=before_count,'Settlement minted copies';
  assert (select card_id is null from public.black_market_stock where card_instance_id=copy),'Sold instance is still available in admin stock';
  assert (select karas_balance=5000 from public.user_profiles where user_id=admin),'System sale credited a player';
@@ -277,8 +292,9 @@ begin
    'Unsold card appeared in the archive after a bid';
  assert (public.get_black_market_activity()->'lastEdition'->'lots') @>
    jsonb_build_array(jsonb_build_object('id',sale,'amount',11000,'sold',true,'bidStatus','won',
+     'card',jsonb_build_object('firstLrCopy','mint'),
      'winnerName',(select pseudo from public.user_profiles where user_id=player))),
-   'Winner did not see their name, final price and winning status';
+   'Winner did not see their name, final price, winning status and first LR copy badge';
  perform set_config('request.jwt.claim.sub',buyer::text,true);
  assert (public.get_black_market_activity()->'lastEdition'->'lots') @>
    jsonb_build_array(jsonb_build_object('id',sale,'amount',11000,'sold',true,'bidStatus',null,
