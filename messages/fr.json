@@ -3477,6 +3477,26 @@
     "acknowledging": "Enregistrement…",
     "acknowledgeError": "Ta confirmation n’a pas pu être enregistrée. Réessaie."
   },
+  "playerModerationHistory": {
+    "title": "Historique de modération",
+    "unavailable": "Impossible de charger l’historique de modération.",
+    "empty": "Aucun avertissement ni sanction enregistré pour ce joueur.",
+    "permanentRestriction": "Bannissement définitif en cours",
+    "temporaryRestriction": "Suspendu jusqu’au {date}",
+    "actor": "Par {name}",
+    "acknowledged": "Confirmé par le joueur le {date}",
+    "pending": "En attente de confirmation",
+    "endsAt": "Fin prévue le {date}",
+    "cardsRemoved": "{count, plural, one {# carte retirée} other {# cartes retirées}}",
+    "karasRemoved": "{amount, number} Karas retirés",
+    "kind": {
+      "warning": "Avertissement",
+      "ban": "Bannissement",
+      "unban": "Bannissement levé",
+      "sanction": "Sanction de compte",
+      "smurf": "Récupération anti-triche"
+    }
+  },
   "accountSanctions": {
     "sharedTradeWarning": {
       "title": "Avertissement après annulation d’un échange",
