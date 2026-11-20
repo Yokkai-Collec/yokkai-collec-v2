@@ -110,6 +110,9 @@ export const serverOnly = {
 const allowlist = {
   "public.admin_configure_black_market(boolean)": ["authenticated"], // Admin-only event and automatic recovery switch.
   "public.admin_schedule_black_market_edition(date, uuid[])": ["authenticated"], // Admin-only scheduling of recovered copies with fixed edition terms.
+  "public.admin_schedule_black_market_edition(date, uuid[], integer[])": [
+    "authenticated"
+  ], // Admin-only scheduling with a validated starting price for each lot.
   "public.admin_get_black_market_stock()": ["authenticated"], // Admin-only bounded recovered inventory.
   "public.admin_get_black_market_recovery_queue(integer, uuid)": [
     "authenticated"

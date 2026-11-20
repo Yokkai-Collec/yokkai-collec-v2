@@ -634,6 +634,22 @@ a.yk-black-market-result-winner:hover {
   font-size: 0.65rem;
   text-align: center;
 }
+.yk-black-market-lot-price {
+  position: relative;
+  z-index: 2;
+  padding: 0.25rem;
+  color: #dfd6f5;
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+.yk-black-market-admin .yk-black-market-lot-price input {
+  min-height: 44px;
+  padding: 0.45rem;
+  font-size: max(16px, 1rem);
+}
+.yk-black-market-admin .yk-black-market-lot-price input[aria-invalid="true"] {
+  border-color: var(--color-danger-ink);
+}
 .yk-black-market-edition-actions {
   display: flex;
   flex-wrap: wrap;

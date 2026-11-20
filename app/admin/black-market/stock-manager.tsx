@@ -15,7 +15,7 @@ import "@/styles/black-market.css";
 type StockItem = Pick<
   YokaiCardProps,
   "name" | "rarity" | "image" | "category" | "anime" | "shiny" | "isEvolved"
-> & { instanceId: string };
+> & { instanceId: string; startingPrice?: number | null };
 
 type Stock = {
   enabled: boolean;
@@ -34,6 +34,27 @@ type Stock = {
 };
 
 const maxLots = 60;
+const minPrice = 10;
+const maxPrice = 2_147_483_647;
+
+function defaultPrice(card: Pick<StockItem, "startingPrice" | "rarity">) {
+  return String(card.startingPrice ?? (card.rarity === "LR" ? 1000 : 500));
+}
+
+function savedPrices(stock?: Stock) {
+  const prices: Record<string, string> = {};
+  for (const card of stock?.items ?? []) {
+    if (stock?.selectedIds.includes(card.instanceId)) {
+      prices[card.instanceId] = defaultPrice(card);
+    }
+  }
+  return prices;
+}
+
+function validPrice(value: string) {
+  const price = Number(value);
+  return Number.isInteger(price) && price >= minPrice && price <= maxPrice;
+}
 
 export function BlackMarketAdmin({ previewStock }: { previewStock?: Stock }) {
   const t = useTranslations("blackMarket");
@@ -41,13 +62,15 @@ export function BlackMarketAdmin({ previewStock }: { previewStock?: Stock }) {
   const format = useFormatter();
   const [stock, setStock] = useState(previewStock);
   const [day, setDay] = useState(previewStock?.scheduledDay ?? "");
-  const [selected, setSelected] = useState(previewStock?.selectedIds ?? []);
+  const [prices, setPrices] = useState(() => savedPrices(previewStock));
   const [query, setQuery] = useState("");
   const [rarity, setRarity] = useState("");
   const [category, setCategory] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [failed, setFailed] = useState(false);
+  const selected = Object.keys(prices);
+  const invalidPrice = Object.values(prices).some(value => !validPrice(value));
 
   useEffect(() => {
     if (previewStock) return;
@@ -59,7 +82,7 @@ export function BlackMarketAdmin({ previewStock }: { previewStock?: Stock }) {
         const next = data as Stock;
         setStock(next);
         setDay(next.scheduledDay ?? "");
-        setSelected(next.selectedIds);
+        setPrices(savedPrices(next));
       })
       .catch(() => {
         if (active) {
@@ -74,7 +97,7 @@ export function BlackMarketAdmin({ previewStock }: { previewStock?: Stock }) {
 
   async function scheduleEdition(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (previewStock || busy) return;
+    if (previewStock || busy || invalidPrice) return;
     setBusy(true);
     setMessage("");
     setFailed(false);
@@ -82,7 +105,8 @@ export function BlackMarketAdmin({ previewStock }: { previewStock?: Stock }) {
       const db = createClient();
       const { error } = await db.rpc("admin_schedule_black_market_edition", {
         p_day: day,
-        p_card_ids: selected
+        p_card_ids: selected,
+        p_starting_prices: selected.map(id => Number(prices[id]))
       });
       if (error) throw error;
       const { data, error: refreshError } = await db.rpc(
@@ -92,7 +116,7 @@ export function BlackMarketAdmin({ previewStock }: { previewStock?: Stock }) {
       const next = data as Stock;
       setStock(next);
       setDay(next.scheduledDay ?? "");
-      setSelected(next.selectedIds);
+      setPrices(savedPrices(next));
       setMessage(t("editionSaved"));
     } catch (error) {
       const code =
@@ -104,6 +128,7 @@ export function BlackMarketAdmin({ previewStock }: { previewStock?: Stock }) {
         BLACK_MARKET_CARD_UNAVAILABLE: "cardUnavailable",
         BLACK_MARKET_INVALID_DAY: "invalidDay",
         BLACK_MARKET_INVALID_SELECTION: "invalidSelection",
+        BLACK_MARKET_INVALID_STARTING_PRICE: "invalidStartingPrice",
         BLACK_MARKET_EDITION_STARTED: "editionStarted"
       };
       setFailed(true);
@@ -200,8 +225,9 @@ export function BlackMarketAdmin({ previewStock }: { previewStock?: Stock }) {
                   </div>
                   {matches?.length ? (
                     <ul className="yk-black-market-edition-stock">
-                      {matches.map(({ instanceId, ...card }) => {
-                        const checked = selected.includes(instanceId);
+                      {matches.map(item => {
+                        const { instanceId, startingPrice, ...card } = item;
+                        const checked = Object.hasOwn(prices, instanceId);
                         const shortId = instanceId.slice(-6);
                         return (
                           <li
@@ -222,13 +248,23 @@ export function BlackMarketAdmin({ previewStock }: { previewStock?: Stock }) {
                                   !checked && selected.length >= maxLots
                                 }
                                 onChange={() => {
-                                  setSelected(previous =>
-                                    previous.includes(instanceId)
-                                      ? previous.filter(id => id !== instanceId)
-                                      : previous.length < maxLots
-                                        ? [...previous, instanceId]
-                                        : previous
-                                  );
+                                  setPrices(previous => {
+                                    if (Object.hasOwn(previous, instanceId)) {
+                                      const next = { ...previous };
+                                      delete next[instanceId];
+                                      return next;
+                                    }
+                                    return Object.keys(previous).length <
+                                      maxLots
+                                      ? {
+                                          ...previous,
+                                          [instanceId]: defaultPrice({
+                                            startingPrice,
+                                            rarity: card.rarity
+                                          })
+                                        }
+                                      : previous;
+                                  });
                                 }}
                               />
                             </label>
@@ -250,6 +286,34 @@ export function BlackMarketAdmin({ previewStock }: { previewStock?: Stock }) {
                                 </span>
                               )}
                             </div>
+                            {checked && (
+                              <label className="yk-black-market-lot-price">
+                                {t("startingPrice")}
+                                <input
+                                  type="number"
+                                  inputMode="numeric"
+                                  min={minPrice}
+                                  max={maxPrice}
+                                  step={1}
+                                  required
+                                  value={prices[instanceId]}
+                                  aria-label={t("startingPriceFor", {
+                                    name: card.name,
+                                    id: shortId
+                                  })}
+                                  aria-invalid={
+                                    !validPrice(prices[instanceId]) || undefined
+                                  }
+                                  onChange={event => {
+                                    const value = event.target.value;
+                                    setPrices(previous => ({
+                                      ...previous,
+                                      [instanceId]: value
+                                    }));
+                                  }}
+                                />
+                              </label>
+                            )}
                           </li>
                         );
                       })}
@@ -262,12 +326,19 @@ export function BlackMarketAdmin({ previewStock }: { previewStock?: Stock }) {
                 <p>{t("emptyStock")}</p>
               )}
             </fieldset>
+            {invalidPrice && <p role="status">{t("invalidStartingPrice")}</p>}
             <div className="yk-black-market-edition-actions">
               <p role="status">
                 {t("selectedLots", { count: selected.length })}
               </p>
               <button
-                disabled={busy || !stock.enabled || !day || !selected.length}
+                disabled={
+                  busy ||
+                  !stock.enabled ||
+                  !day ||
+                  !selected.length ||
+                  invalidPrice
+                }
                 type="submit"
               >
                 {t(stock.scheduledDay ? "updateEdition" : "scheduleEdition")}

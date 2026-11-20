@@ -26,7 +26,9 @@ export function presentAuction(
       ? (detail.lateBidIncrement ?? baseBid * 2)
       : baseBid;
   const minimumBid =
-    baseBid && !raw.buyerId ? baseBid : raw.amount + (bidIncrement ?? 10);
+    baseBid && !raw.buyerId
+      ? (detail.startingPrice ?? baseBid)
+      : raw.amount + (bidIncrement ?? 10);
   const bidder = !!raw.hasBid || !!detail.history?.some(b => b.mine);
   const status =
     raw.status === "sold"

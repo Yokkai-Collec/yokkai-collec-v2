@@ -91,6 +91,23 @@ begin
  insert into public.wishlists(user_id,card_id) values(buyer,lr);
  perform public.admin_schedule_black_market_edition(day-1,array[copy]);
  perform public.admin_schedule_black_market_edition(day,array[copy,ssr_copy]);
+ assert (select starting_price=500 and current_price=500 from public.auctions
+   where black_market_stock_id=ssr_copy and black_market_day=day),'Wrong default SSR opening price';
+ perform public.admin_schedule_black_market_edition(day,array[ssr_copy,copy],array[700,1000]);
+ begin perform public.admin_schedule_black_market_edition(day+1,array[ssr_copy,copy],array[700]); raise exception 'Mismatched price list accepted';
+ exception when raise_exception then assert sqlerrm='BLACK_MARKET_INVALID_STARTING_PRICE',sqlerrm; end;
+ begin perform public.admin_schedule_black_market_edition(day+1,array[ssr_copy,copy],array[9,1000]); raise exception 'Starting price below minimum accepted';
+ exception when raise_exception then assert sqlerrm='BLACK_MARKET_INVALID_STARTING_PRICE',sqlerrm; end;
+ begin perform public.admin_schedule_black_market_edition(day+1,array[ssr_copy,copy],array[null,1000]); raise exception 'Missing starting price accepted';
+ exception when raise_exception then assert sqlerrm='BLACK_MARKET_INVALID_STARTING_PRICE',sqlerrm; end;
+ assert (select opening_day=day from public.black_market_editions),'Invalid prices changed edition';
+ perform public.admin_schedule_black_market_edition(day,array[copy,ssr_copy]);
+ assert public.admin_get_black_market_stock()->'items' @> jsonb_build_array(
+   jsonb_build_object('instanceId',ssr_copy,'startingPrice',700),
+   jsonb_build_object('instanceId',copy,'startingPrice',1000)
+ ),'Admin stock did not restore the saved prices per copy';
+ assert exists (select 1 from public.admin_audit_logs where action='black_market.open'
+   and metadata->'startingPrices'->>ssr_copy::text='700'),'Saved starting price missing in the audit log';
  assert (select count(*)=1 from public.black_market_editions),'Rescheduling left a duplicate edition';
  assert jsonb_array_length(public.admin_get_black_market_stock()->'selectedIds')=2,'Admin could not reopen selection';
  assert jsonb_array_length(public.admin_get_black_market_stock()->'recoveryRuns')>0,'Admin recovery journal missing';
@@ -108,7 +125,7 @@ begin
  select id into strict unsold from public.auctions where black_market_stock_id=ssr_copy and black_market_day=day;
  assert (select seller_id is null and card_instance_id is null from public.auctions where id=sale), 'A scheduled card has a player owner';
  assert (select starting_price=1000 and current_price=1000 and duration_minutes=720 from public.auctions where id=sale),'Wrong LR opening price';
- assert (select starting_price=500 and current_price=500 and duration_minutes=720 from public.auctions where id=unsold),'Wrong SSR opening price';
+ assert (select starting_price=700 and current_price=700 and duration_minutes=720 from public.auctions where id=unsold),'Wrong custom SSR opening price';
  perform set_config('request.jwt.claim.sub',buyer::text,true);
  assert public.get_black_market_event()->'auctions'='[]'::jsonb,'Upcoming lots exposed';
  assert jsonb_array_length(public.get_black_market_event()->'upcomingCards')=2,'Missing upcoming cards';
@@ -171,8 +188,11 @@ begin
  assert public.list_auctions_page()->'items'='[]'::jsonb,'Event in paged market';
  begin perform public.admin_configure_black_market(true); raise exception 'Non-admin configured';
  exception when raise_exception then assert sqlerrm='ADMIN_REQUIRED',sqlerrm; end;
+ begin perform public.admin_schedule_black_market_edition(day+1,array[ssr_copy],array[700]); raise exception 'Non-admin scheduled custom prices';
+ exception when raise_exception then assert sqlerrm='ADMIN_REQUIRED',sqlerrm; end;
  update public.user_profiles set karas_balance=5000 where user_id in(player,buyer,admin);
  assert public.get_auction(sale)->>'bidIncrement'='1000','LR step missing';
+ assert public.get_auction(unsold)->>'startingPrice'='700','Custom opening price missing';
  assert public.get_auction(unsold)->>'bidIncrement'='500','SSR step missing';
  assert public.get_auction(sale)->>'lateBidIncrement'='2000','Initial late LR step missing';
  begin perform public.place_bid(sale,999); raise exception 'Underpriced first bid accepted';
@@ -183,23 +203,25 @@ begin
  perform public.place_bid(sale,2000);
  assert (select ends_at=closes from public.auctions where id=sale),'Bid before final three minutes extended the lot';
  execute replace(bid_definition,'clock_timestamp()',quote_literal(closes-interval '3 minutes')||'::timestamptz');
- perform public.place_bid(unsold,500);
+ begin perform public.place_bid(unsold,699); raise exception 'Bid below custom opening price accepted';
+ exception when raise_exception then assert sqlerrm='BLACK_MARKET_BID_TOO_LOW',sqlerrm; end;
+ perform public.place_bid(unsold,700);
  assert (select ends_at=closes+interval '1 minute' from public.auctions where id=unsold),'Late first bid at the opening price did not extend the lot';
  assert public.get_auction(unsold)->>'lateBidIncrement'='1000','Opening bid consumed the first SSR late raise';
- begin perform public.place_bid(unsold,999); raise exception 'SSR raise below 500 accepted';
+ begin perform public.place_bid(unsold,1199); raise exception 'SSR raise below 500 accepted';
  exception when raise_exception then assert sqlerrm='BLACK_MARKET_BID_TOO_LOW',sqlerrm; end;
- perform public.place_bid(unsold,1000);
+ perform public.place_bid(unsold,1200);
  assert (select ends_at=closes+interval '1 minute' from public.auctions where id=unsold),'Once more than three minutes remain, the regular bid does not extend the lot';
  execute replace(bid_definition,'clock_timestamp()',quote_literal(closes-interval '2 minutes')||'::timestamptz');
- begin perform public.place_bid(unsold,1999); raise exception 'Late SSR raise below 1000 accepted';
+ begin perform public.place_bid(unsold,2199); raise exception 'Late SSR raise below 1000 accepted';
  exception when raise_exception then assert sqlerrm='BLACK_MARKET_BID_TOO_LOW',sqlerrm; end;
- perform public.place_bid(unsold,2000);
+ perform public.place_bid(unsold,2200);
  assert (select ends_at=closes+interval '2 minutes' from public.auctions where id=unsold),'Late SSR raise did not extend the lot';
- perform public.place_bid(unsold,2500);
+ perform public.place_bid(unsold,2700);
  assert public.get_auction(unsold)->>'lateBidIncrement'='1500','Regular bid changed the next late SSR increment';
  assert (select ends_at=closes+interval '2 minutes' from public.auctions where id=unsold),'Regular SSR raise extended the lot';
  update public.auctions set buyer_id=null,current_price=starting_price,ends_at=closes where id=unsold;
- perform public.credit_karas(buyer,2500);
+ perform public.credit_karas(buyer,2700);
  perform set_config('request.jwt.claim.sub',player::text,true);
  begin perform public.place_bid(sale,3999); raise exception 'Late LR raise below 2000 accepted';
  exception when raise_exception then assert sqlerrm='BLACK_MARKET_BID_TOO_LOW',sqlerrm; end;
