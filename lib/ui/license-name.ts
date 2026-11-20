@@ -91,9 +91,17 @@ const acronyms = new Set([
   "XX"
 ]);
 
+// These catalogue titles were imported with the letter L in their sequel numbers.
+const legacySequelNumber =
+  /^(\s*(?:Assassin['’]s Creed|Baldur['’]s Gate|Red Dead Redemption)\s+)([il]{2,3})(?![\p{L}\p{N}\p{M}])/iu;
+
 export function formatLicenseName(value: string | null | undefined): string {
   if (!value) return "";
-  return value.replace(
+  const label = value.replace(
+    legacySequelNumber,
+    (_, prefix: string, number: string) => prefix + "I".repeat(number.length)
+  );
+  return label.replace(
     /[\p{L}\p{N}\p{M}]+(?:['’\-][\p{L}\p{N}\p{M}]+)*/gu,
     word => {
       const upper = word.toLocaleUpperCase("en-US");

@@ -12,7 +12,10 @@ import { CardShell } from "@/components/card-shell";
 import { StyledPlayerAvatar } from "@/components/styled-player-avatar";
 import { GRID_CARD_IMAGE_SIZES, YokaiCard } from "@/components/yokai-card";
 import { Button, Karas, NotificationBellIcon } from "@/components/ui";
-import type { BlackMarketActivity } from "@/components/black-market";
+import type {
+  BlackMarketActivity,
+  BlackMarketEvent
+} from "@/components/black-market";
 import type { Card } from "@/lib/data/cards";
 import type { AuctionDetail } from "@/lib/data/market";
 
@@ -185,7 +188,7 @@ export default function BlackMarketListings({
   upcoming
 }: {
   auctions?: AuctionDetail[];
-  upcomingCards?: Card[];
+  upcomingCards?: BlackMarketEvent["upcomingCards"];
   open: boolean;
   now?: number;
   viewerId?: string;

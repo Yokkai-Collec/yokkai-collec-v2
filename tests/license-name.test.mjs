@@ -18,6 +18,13 @@ test("license display uses word initials and preserves acronyms, accents and pun
     ["POKÉMON", "Pokémon"],
     ["ÉCOLE DES HÉROS", "École Des Héros"],
     ["ASSASSIN'S CREED", "Assassin's Creed"],
+    ["Assassin's Creed ll", "Assassin's Creed II"],
+    ["Assassin's Creed lll", "Assassin's Creed III"],
+    ["ASSASSIN’S CREED LII: LIBERATION", "Assassin’s Creed III: Liberation"],
+    ["Baldur's Gate lll", "Baldur's Gate III"],
+    ["Red Dead Redemption ll", "Red Dead Redemption II"],
+    ["MUSHOKU TENSEI III: ISEKAI", "Mushoku Tensei III: Isekai"],
+    ["ASSEMBLY LL", "Assembly Ll"],
     [
       "Re:ZERO -STARTING LIFE IN ANOTHER WORLD-",
       "Re:Zero -Starting Life In Another World-"
