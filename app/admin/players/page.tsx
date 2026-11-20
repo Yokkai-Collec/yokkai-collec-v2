@@ -10,6 +10,10 @@ import { createClient } from "@/utils/supabase/server";
 import { AdminNavigation } from "../admin-navigation";
 import { PlayerManager } from "./player-manager";
 import { playerDetailFromRpc, playerFromRpc } from "./player-data";
+import {
+  ModerationHistory,
+  type ModerationHistoryData
+} from "./moderation-history";
 
 export const metadata: Metadata = { title: "Admin · Players" };
 
@@ -19,7 +23,12 @@ const PAGE_SIZE = 50;
 export default async function AdminPlayersPage({
   searchParams
 }: {
-  searchParams: Promise<{ q?: string; page?: string; player?: string }>;
+  searchParams: Promise<{
+    q?: string;
+    page?: string;
+    player?: string;
+    history?: string;
+  }>;
 }) {
   const admin = await requireAdminPage();
   const client = createClient(await cookies());
@@ -29,18 +38,29 @@ export default async function AdminPlayersPage({
   const playerId = /^[0-9a-f-]{36}$/i.test(params.player ?? "")
     ? params.player!
     : null;
-  const [name, karas, listResult, detailResult] = await Promise.all([
-    getCurrentPseudo(admin.id),
-    getCurrentKarasBalance(client),
-    client.rpc("admin_list_players", {
-      p_query: query,
-      p_limit: PAGE_SIZE,
-      p_offset: (page - 1) * PAGE_SIZE
-    }),
-    playerId
-      ? client.rpc("admin_get_player", { p_user_id: playerId })
-      : Promise.resolve({ data: null, error: null })
-  ]);
+  const historyPage = Math.min(
+    2_147_483_647,
+    Math.max(1, Number.parseInt(params.history ?? "1", 10) || 1)
+  );
+  const [name, karas, listResult, detailResult, historyResult] =
+    await Promise.all([
+      getCurrentPseudo(admin.id),
+      getCurrentKarasBalance(client),
+      client.rpc("admin_list_players", {
+        p_query: query,
+        p_limit: PAGE_SIZE,
+        p_offset: (page - 1) * PAGE_SIZE
+      }),
+      playerId
+        ? client.rpc("admin_get_player", { p_user_id: playerId })
+        : Promise.resolve({ data: null, error: null }),
+      playerId
+        ? client.rpc("admin_get_player_moderation_history", {
+            p_user_id: playerId,
+            p_page: historyPage
+          })
+        : Promise.resolve({ data: null, error: null })
+    ]);
   if (listResult.error) throw new Error(listResult.error.message);
   if (detailResult.error) throw new Error(detailResult.error.message);
   const payload = (listResult.data ?? {}) as Record<string, unknown>;
@@ -99,7 +119,21 @@ export default async function AdminPlayersPage({
             </p>
           </section>
           <div id="admin-players-list" tabIndex={0}>
-            <PlayerManager players={players} selected={selected} />
+            <PlayerManager
+              players={players}
+              selected={selected}
+              moderationHistory={
+                selected && (
+                  <ModerationHistory
+                    history={
+                      historyResult.error
+                        ? null
+                        : (historyResult.data as ModerationHistoryData | null)
+                    }
+                  />
+                )
+              }
+            />
           </div>
           <UrlPagination
             page={page}
