@@ -30,7 +30,9 @@ export async function sendPlayerWarningAction(
       p_user_id: userId,
       p_reason: reason
     });
-    return error ? "sendError" : "sent";
+    if (error) return "sendError";
+    revalidatePath("/admin/players");
+    return "sent";
   } catch {
     return "sendError";
   }

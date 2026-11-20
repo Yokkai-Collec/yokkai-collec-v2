@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui";
@@ -283,10 +283,12 @@ export function PlayerDetailPanel({
 
 export function PlayerManager({
   players,
-  selected
+  selected,
+  moderationHistory
 }: {
   players: AdminPlayer[];
   selected: AdminPlayerDetail | null;
+  moderationHistory?: ReactNode;
 }) {
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,.85fr)]">
@@ -332,8 +334,15 @@ export function PlayerManager({
           <p className="p-8 text-center text-slate-400">No players found.</p>
         )}
       </section>
-      <aside className="xl:sticky xl:top-24 xl:self-start">
+      <aside
+        className={
+          selected
+            ? "order-first min-w-0 space-y-4 xl:order-none xl:self-start"
+            : "xl:sticky xl:top-24 xl:self-start"
+        }
+      >
         <PlayerDetailPanel selected={selected} />
+        {moderationHistory}
       </aside>
     </div>
   );

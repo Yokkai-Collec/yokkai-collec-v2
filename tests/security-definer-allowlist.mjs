@@ -204,6 +204,9 @@ const allowlist = {
   "public.admin_review_anticheat_appeal(uuid, text, text)": ["authenticated"], // Admin-only one terminal review per appeal.
   "public.admin_void_anticheat_warning(uuid, text)": ["authenticated"], // Admin-only correction of a zero-asset warning after review.
   "public.admin_send_player_warning(uuid, uuid, text)": ["authenticated"], // Administrators alone can issue manual warnings.
+  "public.admin_get_player_moderation_history(uuid, integer)": [
+    "authenticated"
+  ], // Admin-checked, per-player warning and sanction summaries.
   "public.acknowledge_player_warning(uuid)": ["authenticated"], // Only the recipient can acknowledge their own warning.
   "public.admin_review_anticheat_farm(uuid, text, text, text)": [
     "authenticated"

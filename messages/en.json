@@ -3477,6 +3477,26 @@
     "acknowledging": "Saving…",
     "acknowledgeError": "Your acknowledgement could not be saved. Try again."
   },
+  "playerModerationHistory": {
+    "title": "Moderation history",
+    "unavailable": "The moderation history could not be loaded.",
+    "empty": "No warnings or sanctions recorded for this player.",
+    "permanentRestriction": "Permanent ban in effect",
+    "temporaryRestriction": "Suspended until {date}",
+    "actor": "Issued by {name}",
+    "acknowledged": "Acknowledged on {date}",
+    "pending": "Awaiting acknowledgement",
+    "endsAt": "Scheduled end {date}",
+    "cardsRemoved": "{count, plural, one {# card removed} other {# cards removed}}",
+    "karasRemoved": "{amount, number} Karas removed",
+    "kind": {
+      "warning": "Warning",
+      "ban": "Ban",
+      "unban": "Ban lifted",
+      "sanction": "Account sanction",
+      "smurf": "Anti-cheat recovery"
+    }
+  },
   "accountSanctions": {
     "sharedTradeWarning": {
       "title": "Warning after a trade cancellation",
