@@ -14,6 +14,8 @@ declare
  bid_definition text; detail_definition text; feed_definition text;
  reminder_definition text; activity_definition text; event_notice_count integer;
  protected_copy uuid; hold_case uuid; pending_trade uuid;
+ stale_trade uuid; unrelated_trade uuid; stale_sale uuid;
+ recovery_command text; slot record; runs_at_slot boolean;
  winner_avatar text:='https://api.yokkai-collec.com/storage/v1/object/public/avatars/'||player||'/avatar.png';
 begin
  assert not (select enabled from public.black_market_config), 'Must install disabled';
@@ -32,7 +34,7 @@ begin
  ('bm-sr','Protected SR','Anime','Test','SR','https://example.test/card.png','test') returning id into sr;
  insert into public.user_cards(user_id,card_id,rarity,is_locked,is_shiny) values(banned,lr,'LR',true,true) returning id into copy;
  insert into public.user_cards(user_id,card_id,rarity) values(banned,lr,'LR') returning id into protected_copy;
- insert into public.friendships(user_id,friend_id,status) values(banned,player,'accepted');
+ insert into public.friendships(user_id,friend_id,status) values(banned,player,'accepted'),(player,buyer,'accepted');
  perform set_config('request.jwt.claim.sub',banned::text,true);
  insert into public.trade_offers(from_user,to_user,offered_card_ids)
    values(banned,player,array[protected_copy]) returning id into pending_trade;
@@ -40,7 +42,8 @@ begin
  insert into public.anticheat_quarantines(subject_type,subject_id,status,sender_user_id,recipient_user_id,evidence_confidence,economic_severity,expires_at)
    values('trade',gen_random_uuid(),'AWAITING_REVIEW',banned,player,'CORROBORATED','MEDIUM',now()+interval '1 hour') returning id into hold_case;
  insert into public.anticheat_trade_card_holds(card_id,quarantine_id) values(protected_copy,hold_case);
- insert into public.user_cards(user_id,card_id,rarity) values(banned,ssr,'SSR'),(banned,sr,'SR'),(temporary,lr,'LR'),(player,lr,'LR');
+ insert into public.user_cards(user_id,card_id,rarity) values(banned,ssr,'SSR') returning id into ssr_copy;
+ insert into public.user_cards(user_id,card_id,rarity) values(banned,sr,'SR'),(temporary,lr,'LR'),(player,lr,'LR');
  perform public.admin_set_user_ban(banned,true);
  update auth.users set banned_until=clock_timestamp()+interval '30 days' where id=temporary;
  stamp:=(select banned_at from public.black_market_bans where user_id=banned);
@@ -48,6 +51,18 @@ begin
  assert (public.admin_get_black_market_recovery_queue(2147483647)->'items') @>
    jsonb_build_array(jsonb_build_object('userId',banned,'eligibleAt',stamp+interval '14 days',
      'eligible',false,'pendingLR',2,'pendingSSR',1,'blockedCount',1)), 'Wrong pending recovery counts or eligibility date';
+ -- Reproduce an old offer and auction left open after the account ban.
+ perform set_config('request.jwt.claim.sub',player::text,true);
+ insert into public.trade_offers(from_user,to_user,requested_card_ids)
+   values(player,banned,array[ssr_copy]) returning id into stale_trade;
+ insert into public.trade_offers(from_user,to_user,offered_karas)
+   values(player,buyer,1) returning id into unrelated_trade;
+ perform set_config('request.jwt.claim.sub',admin::text,true);
+ update public.user_profiles set karas_balance=1000 where user_id=buyer;
+ perform public.debit_karas(buyer,120);
+ insert into public.auctions(card_instance_id,seller_id,buyer_id,starting_price,current_price,duration_minutes,ends_at)
+   values(copy,banned,buyer,100,120,30,clock_timestamp()+interval '30 minutes') returning id into stale_sale;
+ insert into public.bids(auction_id,bidder_id,amount) values(stale_sale,buyer,120);
  update auth.users set updated_at=clock_timestamp() where id=banned;
  assert (select banned_at=stamp from public.black_market_bans where user_id=banned), 'Unrelated Auth write resets ban clock';
  perform public.recover_due_black_market_cards();
@@ -55,14 +70,26 @@ begin
  update public.black_market_bans set banned_at=clock_timestamp()-interval '14 days'+interval '1 minute' where user_id=banned;
  perform public.recover_due_black_market_cards();
  assert (select user_id=banned from public.user_cards where id=copy), 'Rounded up waiting period';
+ assert (select status='active' from public.auctions where id=stale_sale), 'Auction cancelled before 14 days';
+ assert (select status='pending' from public.trade_offers where id=stale_trade), 'Trade cancelled before 14 days';
  update public.black_market_bans set banned_at=clock_timestamp()-interval '14 days' where user_id=banned;
  perform public.admin_configure_black_market(false);
  perform public.recover_due_black_market_cards();
  assert (select user_id=banned from public.user_cards where id=copy), 'Disabled event moved assets';
+ assert (select karas_balance=880 from public.user_profiles where user_id=buyer), 'Disabled event refunded escrow';
  perform public.admin_configure_black_market(true);
  select count(*) into before_count from public.user_cards;
  perform public.recover_due_black_market_cards();
  assert (select count(*)=2 from public.black_market_stock where source_user_id=banned and card_id is not null), 'SSR and LR not recovered into private stock';
+ assert (select status='cancelled' from public.trade_offers where id=stale_trade), 'Pending trade did not release the recovered SSR';
+ assert (select status='pending' from public.trade_offers where id=unrelated_trade), 'Unrelated pending trade was cancelled';
+ assert (select status='expired' and buyer_id is null and current_price=starting_price and card_snapshot is not null
+   from public.auctions where id=stale_sale), 'Stale auction was not closed with its history';
+ assert exists(select 1 from public.bids where auction_id=stale_sale and bidder_id=buyer and amount=120), 'Historical bid was deleted';
+ assert (select karas_balance=1000 from public.user_profiles where user_id=buyer), 'Bidder did not get the held Karas back';
+ assert exists(select 1 from public.admin_audit_logs where action='black_market.recover' and metadata @>
+   jsonb_build_object('cancelledAuctionIds',jsonb_build_array(stale_sale),
+     'cancelledTradeIds',jsonb_build_array(stale_trade),'refundedKaras',120)), 'Recovery cancellations missing from audit';
  assert (select recovered_lr=1 and recovered_ssr=1 and checked_accounts=1 and deferred_accounts=1
    from public.black_market_recovery_runs order by id desc limit 1), 'Daily recovery counts are incorrect';
  assert (public.admin_get_black_market_recovery_queue()->'items') @>
@@ -84,6 +111,8 @@ begin
  assert (select count(*) from public.user_cards)+(select count(*) from public.black_market_stock where card_id is not null)=before_count, 'Recovery minted or destroyed copies';
  perform public.recover_due_black_market_cards();
  assert (select count(*)=2 from public.black_market_stock), 'Duplicate recovery';
+ assert (select karas_balance=1000 from public.user_profiles where user_id=buyer), 'Bidder was refunded twice';
+ delete from public.auctions where id=stale_sale;
  assert not has_table_privilege('authenticated','public.black_market_stock','select,insert,update,delete'), 'Private stock is exposed';
  begin insert into public.user_cards(id,user_id,card_id,rarity) values(copy,buyer,lr,'LR');
    raise exception 'An instance in stock could be duplicated in a player inventory';
@@ -328,6 +357,17 @@ begin
  assert not has_function_privilege('authenticated','public.recover_due_black_market_cards()','execute'),'Player can run worker';
  assert not has_function_privilege('service_role','public.recover_black_market_cards(uuid,uuid)','execute'),'Recovery helper exposed';
  assert not has_table_privilege('authenticated','public.black_market_bans','select'),'Private ban data exposed';
- assert exists(select 1 from cron.job where jobname='black-market-recovery' and schedule='0 0 * * *' and active),'Daily recovery schedule missing';
+ select command into strict recovery_command from cron.job
+ where jobname='black-market-recovery' and schedule='0 18,19 * * *' and active;
+ for slot in select * from (values
+   ('2026-03-28 18:00:00+00'::timestamptz,false), ('2026-03-28 19:00:00+00'::timestamptz,true),
+   ('2026-03-29 18:00:00+00'::timestamptz,true), ('2026-03-29 19:00:00+00'::timestamptz,false),
+   ('2026-10-24 18:00:00+00'::timestamptz,true), ('2026-10-24 19:00:00+00'::timestamptz,false),
+   ('2026-10-25 18:00:00+00'::timestamptz,false), ('2026-10-25 19:00:00+00'::timestamptz,true)
+ ) slots(utc_time, should_run) loop
+   execute replace(replace(recovery_command,'public.recover_due_black_market_cards()','true'),
+     'statement_timestamp()',quote_literal(slot.utc_time)||'::timestamptz') into runs_at_slot;
+   assert coalesce(runs_at_slot,false)=slot.should_run,'Recovery did not run only at 20:00 Paris time';
+ end loop;
 end $$;
 rollback;
