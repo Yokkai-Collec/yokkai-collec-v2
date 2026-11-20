@@ -424,7 +424,32 @@ test("drift detects changed, missing and extra cron jobs", async t => {
       ["* * * * *", "run_anticheat_referral_farms"]
     ]
   ]);
-  const existingJobs = jobs.filter(job => !anticheatJobs.has(job.name));
+  const blackMarketJobs = new Map([
+    [
+      "black-market-opening-reminders@postgres",
+      ["* * * * *", "send_black_market_reminders"]
+    ],
+    [
+      "black-market-recovery@postgres",
+      ["0 0 * * *", "recover_due_black_market_cards"]
+    ]
+  ]);
+  assert.deepEqual(
+    jobs.filter(job => blackMarketJobs.has(job.name)).map(job => job.name),
+    [...blackMarketJobs.keys()]
+  );
+  for (const [name, [schedule, fn]] of blackMarketJobs) {
+    assert.deepEqual(jobs.find(job => job.name === name).value, {
+      schedule,
+      command: `select public.${fn}();`,
+      username: "postgres",
+      database: "postgres",
+      active: true
+    });
+  }
+  const existingJobs = jobs.filter(
+    job => !anticheatJobs.has(job.name) && !blackMarketJobs.has(job.name)
+  );
   assert.deepEqual(
     jobs.filter(job => anticheatJobs.has(job.name)).map(job => job.name),
     [...anticheatJobs.keys()]

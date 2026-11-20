@@ -2881,7 +2881,7 @@ test("Phase 6 : liste du marché, suivi et Mes enchères", () => {
   assert.match(
     normalizeWhitespace(source),
     normalizeWhitespace(
-      /<div className="yk-market-filter-scroll">\{section==="browse"&&\(?<FilterGroup title=\{tm\("sort"\)\}>/
+      /<div className="yk-market-filter-scroll">\{section==="browse"&&!cardPreview&&\(?<FilterGroup title=\{tm\("sort"\)\}>/
     )
   );
   // Same layout as Collection/Catalogue: the sidebar stays in normal page flow without its own scroll area.

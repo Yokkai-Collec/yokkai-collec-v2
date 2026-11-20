@@ -27,8 +27,8 @@ declare
   issuer uuid := auth.uid();
   trimmed text := regexp_replace(p_reason, '^[[:space:]]+|[[:space:]]+$', '', 'g');
 begin
-  if not public.is_current_user_admin() then raise exception 'ADMIN_REQUIRED'; end if;
   perform public.assert_player_not_banned();
+  if not public.is_current_user_admin() then raise exception 'ADMIN_REQUIRED'; end if;
   if p_id is null or p_user_id is null or p_reason is null or char_length(p_reason) > 500 or trimmed = ''
   then raise exception 'INVALID_PLAYER_WARNING'; end if;
 
