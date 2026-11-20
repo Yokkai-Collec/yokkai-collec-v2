@@ -25,7 +25,10 @@ import {
   type ReactNode
 } from "react";
 import { animation } from "@/lib/ui/animations";
-import { presentAuction } from "@/lib/ui/auction-presentation";
+import {
+  buildAuctionLists,
+  presentAuction
+} from "@/lib/ui/auction-presentation";
 import {
   getCataloguePage,
   getGameInfo,
@@ -2990,10 +2993,7 @@ export function WishlistView({
   );
 }
 
-export {
-  buildAuctionLists,
-  presentAuction
-} from "@/lib/ui/auction-presentation";
+export { buildAuctionLists, presentAuction };
 
 const subscribeToStaticSnapshot = () => () => {};
 
