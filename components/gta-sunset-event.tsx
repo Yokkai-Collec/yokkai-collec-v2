@@ -23,7 +23,7 @@ type SunsetEvent = {
   serverNow: number;
   startsAt: string;
   endsAt: string;
-  nextResetAt: string;
+  nextResetAt: string | null;
   lrRatePerCard?: number;
   featured: Card[];
   availableDays: string[];
@@ -31,12 +31,14 @@ type SunsetEvent = {
   openedCards: CollectedCard[] | null;
 };
 
-function canEarnAnotherPack(event: SunsetEvent, status: SunsetStatus) {
-  return (
-    !event.unlimited &&
+function nextSunsetCredit(event: SunsetEvent, status: SunsetStatus) {
+  const next = event.nextResetAt;
+  return !event.unlimited &&
     status === "live" &&
-    Date.parse(event.nextResetAt) < Date.parse(event.endsAt)
-  );
+    next &&
+    Date.parse(next) <= Date.parse(event.endsAt)
+    ? next
+    : null;
 }
 
 export function useGtaSunsetEvent(enabled = true) {
@@ -73,10 +75,14 @@ export function useGtaSunsetEvent(enabled = true) {
   const nextReset = event?.nextResetAt;
   const endsAt = event?.endsAt;
   useEffect(() => {
-    if (!nextReset || !endsAt || Date.parse(endsAt) <= Date.now() + offset)
-      return;
+    const now = Date.now() + offset;
+    if (!endsAt || Date.parse(endsAt) <= now) return;
     const interval = window.setInterval(() => setClock(Date.now()), 1000);
-    const nextBoundary = Date.parse(nextReset) - Date.now() - offset;
+    const nextBoundary =
+      Math.min(
+        Date.parse(endsAt),
+        nextReset ? Date.parse(nextReset) : Infinity
+      ) - now;
     const reset = window.setTimeout(
       () => setRefresh(value => value + 1),
       Math.max(1000, nextBoundary + 250)
@@ -128,13 +134,9 @@ export function GtaSunsetHomeBanner() {
   const hasPacks = event.availableDays.length > 0;
   if (status === "ended" && !hasPacks) return null;
 
-  const nextPack = canEarnAnotherPack(event, status);
+  const nextPack = nextSunsetCredit(event, status);
   const upcoming = status === "upcoming";
-  const deadline = upcoming
-    ? event.startsAt
-    : nextPack
-      ? event.nextResetAt
-      : event.endsAt;
+  const deadline = upcoming ? event.startsAt : (nextPack ?? event.endsAt);
 
   return (
     <Link className="yk-home-sunset-banner" href="/boosters#gta-sunset">
@@ -255,13 +257,8 @@ export function GtaSunsetBooster({
   if (!event || !status) return null;
   const { availableDays, unlimited } = event;
   const nextPackDay = availableDays[0];
-  const canEarnMore = canEarnAnotherPack(event, status);
-  const deadline =
-    status === "upcoming"
-      ? event.startsAt
-      : canEarnMore
-        ? event.nextResetAt
-        : undefined;
+  const nextCredit = nextSunsetCredit(event, status);
+  const deadline = status === "upcoming" ? event.startsAt : nextCredit;
 
   return (
     <article
