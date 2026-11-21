@@ -91,6 +91,9 @@ function harness(locale = "en") {
       "next/dynamic": { default: () => () => null },
       "@/components/referral-reminder": { ReferralReminder: () => null },
       "@/components/ambient-glow": { AmbientGlow: () => null },
+      "@/components/gta-sunset-event": {
+        useGtaSunsetEvent: () => ({ event: null })
+      },
       "@/components/card-sharing": { CardShareButton: () => null },
       "@/components/ui": ui,
       "@/components/yokai-card": {

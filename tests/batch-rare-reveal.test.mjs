@@ -129,6 +129,9 @@ function revealHarness(
       "@/lib/ui/animations": {},
       "@/components/referral-reminder": { ReferralReminder: "Reminder" },
       "@/components/ambient-glow": { AmbientGlow: "AmbientGlow" },
+      "@/components/gta-sunset-event": {
+        useGtaSunsetEvent: () => ({ event: null })
+      },
       "@/components/card-sharing": { CardShareButton: "CardShareButton" },
       "@/components/ui": {
         Button: "Button",

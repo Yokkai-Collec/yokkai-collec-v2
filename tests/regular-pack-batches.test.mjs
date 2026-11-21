@@ -80,7 +80,9 @@ function hooks() {
         return (refs[refIndex++] ??= { current: initial });
       },
       useEffect() {},
-      useCallback: fn => fn
+      useCallback: fn => fn,
+      useSyncExternalStore: (_subscribe, _snapshot, serverSnapshot) =>
+        serverSnapshot()
     }
   };
 }
@@ -181,6 +183,9 @@ function boostersHarness(available = 10) {
       "next/link": { default: "Link" },
       "@/components/referral-reminder": { ReferralReminder: "Reminder" },
       "@/components/ambient-glow": { AmbientGlow: "AmbientGlow" },
+      "@/components/gta-sunset-event": {
+        useGtaSunsetEvent: () => ({ event: null })
+      },
       "@/components/card-sharing": {},
       "@/lib/ui/pack-opening": pack,
       "@/lib/ui/animations": { animation },
