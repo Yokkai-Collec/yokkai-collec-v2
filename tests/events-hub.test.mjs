@@ -25,6 +25,7 @@ test("the events hub lists the real event, filters its status, and keeps results
     let state = { failed: false };
     let referral = { event: null, now: 1 };
     let blackMarket = { event: undefined, now: 1 };
+    let sunset = { event: null, now: 1 };
     const exports = {};
     vm.runInNewContext(source, {
       exports,
@@ -77,6 +78,18 @@ test("the events hub lists the real event, filters its status, and keeps results
                 children: jsx.jsx("a", {
                   href: "/referral-event",
                   children: "Referral Event"
+                })
+              })
+          };
+        if (name.endsWith("/gta-sunset-event"))
+          return {
+            useGtaSunsetEvent: () => sunset,
+            GtaSunsetHubCard: () =>
+              jsx.jsx("li", {
+                className: "yk-event-card",
+                children: jsx.jsx("a", {
+                  href: "/boosters#gta-sunset",
+                  children: messages.gtaSunset.title
                 })
               })
           };
@@ -190,5 +203,13 @@ test("the events hub lists the real event, filters its status, and keeps results
     assert.doesNotMatch(render(), /href="\/black-market"/);
     filter = "all";
     assert.match(render(), /href="\/black-market"/);
+    sunset = { event: {}, now: 1, status: "live" };
+    assert.match(render(), /href="\/boosters#gta-sunset"/);
+    filter = "live";
+    assert.match(render(), /href="\/boosters#gta-sunset"/);
+    filter = "upcoming";
+    assert.doesNotMatch(render(), /href="\/boosters#gta-sunset"/);
+    sunset.status = "upcoming";
+    assert.match(render(), /href="\/boosters#gta-sunset"/);
   }
 });
