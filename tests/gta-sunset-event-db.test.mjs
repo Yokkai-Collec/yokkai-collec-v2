@@ -81,7 +81,7 @@ test("Sunset Edition import keeps the classic LR cards and reuses its own IDs", 
   );
 });
 
-test("Sunset credits stack by Paris day and opening retries keep the same cards", async t => {
+test("Sunset credits stack at 20:00 in Paris and opening retries keep the same cards", async t => {
   const { db } = await replayMigrations();
   t.after(() => db.close());
   await db.exec(`
@@ -136,6 +136,8 @@ test("Sunset credits stack by Paris day and opening retries keep the same cards"
       (${today} - 1)::text as yesterday,
       ${today}::text as today,
       (${today} + 1)::text as tomorrow,
+      to_jsonb((${today} + time '20:00') at time zone 'Europe/Paris') #>> '{}' as today_credit_at,
+      to_jsonb(((${today} + 1) + time '20:00') at time zone 'Europe/Paris') #>> '{}' as tomorrow_credit_at,
       to_jsonb(((${today} + 3) + time '20:00') at time zone 'Europe/Paris') #>> '{}' as ends_at
   `)
   ).rows[0];
@@ -145,14 +147,54 @@ test("Sunset credits stack by Paris day and opening retries keep the same cards"
   });
 
   await db.exec(`
-    insert into public.gta_sunset_event (starts_on, ends_at, jason_card_id, lucia_card_id)
-    select ${today} - 1, ((${today} + 3) + time '20:00') at time zone 'Europe/Paris', j.id, l.id
+    insert into public.gta_sunset_event (starts_on, ends_at, jason_card_id, lucia_card_id, midnight_credits_through)
+    select ${today} - 1, ((${today} + 3) + time '20:00') at time zone 'Europe/Paris', j.id, l.id, ${today} - 1
     from public.cards j cross join public.cards l
     where j.source_id = 'jason' and l.source_id = 'lucia'
   `);
+  const functionDefinition = async signature =>
+    (
+      await db.query(
+        "select pg_get_functiondef($1::regprocedure) as definition",
+        [signature]
+      )
+    ).rows[0].definition;
+  const readDefinition = await functionDefinition(
+    "public.get_gta_sunset_event()"
+  );
+  const openDefinition = await functionDefinition(
+    "public.open_gta_sunset_booster(date)"
+  );
+  const atParisTime = async (day, time) => {
+    const stamp = `(timestamp '${day} ${time}' at time zone 'Europe/Paris')`;
+    const read = readDefinition.replace(
+      "stamp timestamptz := statement_timestamp();",
+      `stamp timestamptz := ${stamp};`
+    );
+    const draw = openDefinition.replace(
+      "stamp := clock_timestamp();",
+      `stamp := ${stamp};`
+    );
+    assert.notEqual(read, readDefinition);
+    assert.notEqual(draw, openDefinition);
+    await db.exec(read);
+    await db.exec(draw);
+  };
+
+  await atParisTime(dates.today, "19:59:59.999999");
+  const beforeCredit = await getEvent(players[0]);
+  assert.equal(beforeCredit.nextResetAt, dates.today_credit_at);
+  assert.deepEqual(beforeCredit.availableDays, [dates.yesterday]);
+  assert.deepEqual((await getEvent(players[2])).availableDays, []);
+  await assert.rejects(open(players[0], dates.today), {
+    message: "GTA_SUNSET_PACK_UNAVAILABLE"
+  });
+
+  await atParisTime(dates.today, "20:00:00");
   const initialEvent = await getEvent(players[0]);
   assert.equal(initialEvent.lrRatePerCard, 0.025);
   assert.equal(initialEvent.endsAt, dates.ends_at);
+  assert.equal(initialEvent.nextResetAt, dates.tomorrow_credit_at);
   assert.deepEqual(initialEvent.availableDays, [dates.yesterday, dates.today]);
   assert.deepEqual((await getEvent(players[2])).availableDays, [dates.today]);
   await assert.rejects(open(players[0], dates.tomorrow), {
@@ -162,11 +204,9 @@ test("Sunset credits stack by Paris day and opening retries keep the same cards"
     message: "GTA_SUNSET_PACK_UNAVAILABLE"
   });
 
-  const { definition } = (
-    await db.query(
-      "select pg_get_functiondef('public.open_gta_sunset_booster(date)'::regprocedure) as definition"
-    )
-  ).rows[0];
+  const definition = await functionDefinition(
+    "public.open_gta_sunset_booster(date)"
+  );
   const forceRoll = async roll => {
     const patched = definition.replace(
       "roll := random();",
@@ -206,10 +246,22 @@ test("Sunset credits stack by Paris day and opening retries keep the same cards"
   // Move the five-day edition into the past while preserving its opening history.
   await db.exec(`
     update public.gta_sunset_openings set event_start = event_start - 4, opening_day = opening_day - 4;
-    update public.gta_sunset_event set starts_on = starts_on - 4,
+    update public.gta_sunset_event set starts_on = starts_on - 4, midnight_credits_through = midnight_credits_through - 4,
       ends_at = ((${today} - 1) + time '20:00') at time zone 'Europe/Paris';
   `);
   const remaining = [dates.three_days_ago, dates.two_days_ago, dates.yesterday];
+  await atParisTime(dates.yesterday, "19:59:59.999999");
+  const beforeClose = await getEvent(players[0]);
+  assert.equal(beforeClose.nextResetAt, beforeClose.endsAt);
+  assert.deepEqual(beforeClose.availableDays, remaining.slice(0, -1));
+  await assert.rejects(open(players[0], dates.yesterday), {
+    message: "GTA_SUNSET_PACK_UNAVAILABLE"
+  });
+  await atParisTime(dates.yesterday, "20:00:00");
+  const atClose = await getEvent(players[0]);
+  assert.equal(atClose.nextResetAt, null);
+  assert.deepEqual(atClose.availableDays, remaining);
+  await atParisTime(dates.today, "20:00:00");
   assert.deepEqual((await getEvent(players[0])).availableDays, remaining);
   assert.deepEqual((await getEvent(players[2])).availableDays, []);
   await assert.rejects(open(players[0], dates.today), {
