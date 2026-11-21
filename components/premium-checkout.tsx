@@ -79,14 +79,33 @@ export function PremiumCheckout({
     <aside id="membership" className="yk-premium-price-card" aria-busy={busy}>
       <p className="eyebrow">{tPr5("yourMembership")}</p>
       <h2>Yokkai Pro</h2>
-      <p className="yk-premium-price">
-        {tPr5.rich(displayWhop ? "whopPriceEvery30Days" : "priceMonth", {
-          price: fmt.number(4.99, { style: "currency", currency: "EUR" }),
-          small0: chunks => <small>{chunks}</small>
-        })}
-      </p>
-      {displayWhop && !active && <p>{tPr5("whopTrial")}</p>}
-      <p>{tPr5("monthlySubscriptionCancelFromYourAccountSettings")}</p>
+      {displayWhop ? (
+        <p className="yk-premium-whop-price">
+          <span className="yk-premium-whop-amount">
+            {fmt.number(4.99, { style: "currency", currency: "EUR" })}
+          </span>{" "}
+          <span className="yk-premium-whop-terms">
+            <span>{tPr5("whopRenewalInterval")}</span>{" "}
+            <span>{tPr5("whopBeforeTax")}</span>
+          </span>
+        </p>
+      ) : (
+        <p className="yk-premium-price">
+          {tPr5.rich("priceMonth", {
+            price: fmt.number(4.99, { style: "currency", currency: "EUR" }),
+            small0: chunks => <small>{chunks}</small>
+          })}
+        </p>
+      )}
+      {displayWhop && !active && (
+        <div className="yk-premium-whop-trial">
+          <strong>{tPr5("whopTrialTitle")}</strong>
+          <p>{tPr5("whopTrialConditions")}</p>
+        </div>
+      )}
+      {!displayWhop && (
+        <p>{tPr5("monthlySubscriptionCancelFromYourAccountSettings")}</p>
+      )}
       {active && (
         <p className="text-success" role="status">
           {tPr5("proActive")}
@@ -130,6 +149,11 @@ export function PremiumCheckout({
         >
           {tPr5("gETPRO")}
         </Link>
+      )}
+      {displayWhop && (
+        <p className="yk-premium-whop-cancellation">
+          {tPr5("whopCancelInSettings")}
+        </p>
       )}
       <p className="yk-pro-offer-footnote">
         {tPr5.rich(
