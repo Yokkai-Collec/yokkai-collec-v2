@@ -12,7 +12,6 @@ import {
   EventBannerClockIcon,
   EventBannerCountdown
 } from "@/components/event-banner";
-import { YokaiCard, type YokaiCardProps } from "@/components/yokai-card";
 import "@/styles/black-market.css";
 
 export type BlackMarketIdleStatus = "closed" | "upcoming";
@@ -45,30 +44,6 @@ export type BlackMarketActivity = {
 const BlackMarketListings = dynamic(
   () => import("@/components/black-market-listings")
 );
-const blackMarketShowcaseCards: YokaiCardProps[] = [
-  {
-    name: "Levi",
-    anime: "Attack on Titan",
-    image: "/assets/landing/levi.webp",
-    category: "ANIME/MANGA",
-    rarity: "LR"
-  },
-  {
-    name: "Satoru Gojo",
-    anime: "Jujutsu Kaisen",
-    image: "/assets/landing/gojou.webp",
-    category: "ANIME/MANGA",
-    rarity: "LR"
-  },
-  {
-    name: "Monkey D. Luffy",
-    anime: "One Piece",
-    image: "/assets/landing/luffy.webp",
-    category: "ANIME/MANGA",
-    rarity: "LR"
-  }
-];
-
 export function useBlackMarketEvent(enabled = true, includeActivity = false) {
   const [event, setEvent] = useState<BlackMarketEvent | null>();
   const [failed, setFailed] = useState(false);
@@ -191,11 +166,6 @@ export function BlackMarketHubCard({
         className="yk-event-banner-link yk-black-market-event-link"
       >
         <div className="yk-black-market-event-body">
-          <div className="yk-black-market-event-cards" aria-hidden="true">
-            {blackMarketShowcaseCards.map(card => (
-              <YokaiCard key={card.name} {...card} />
-            ))}
-          </div>
           <div className="yk-black-market-event-title">
             <h3>{t("title")}</h3>
             <p>{t("tagline")}</p>
