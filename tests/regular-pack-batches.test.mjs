@@ -394,7 +394,10 @@ test("batch layout keeps both Open controls aligned and progress bounded on smal
     css,
     /\.yk-reveal-progress\.yk-reveal-progress-batch\s*\{[^}]*max-width: 100%;[^}]*flex-wrap: wrap;/
   );
-  assert.doesNotMatch(css, /\.yk-pack-grid:has\(\.yk-pack-batch-picker\)[^{]*\.yk-pack-art-stage\s*\{/);
+  assert.doesNotMatch(
+    css,
+    /\.yk-pack-grid:has\(\.yk-pack-batch-picker\)[^{]*\.yk-pack-art-stage\s*\{/
+  );
   assert.match(
     read("components/game.tsx").replace(/\s+/g, " "),
     /onOpenMany=\{\s*previewData \? undefined : count => open\("regular", count\)\s*\}/
