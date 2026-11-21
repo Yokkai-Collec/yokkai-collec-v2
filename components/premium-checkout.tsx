@@ -84,9 +84,8 @@ export function PremiumCheckout({
           <span className="yk-premium-whop-amount">
             {fmt.number(4.99, { style: "currency", currency: "EUR" })}
           </span>{" "}
-          <span className="yk-premium-whop-terms">
-            <span>{tPr5("whopRenewalInterval")}</span>{" "}
-            <span>{tPr5("whopBeforeTax")}</span>
+          <span className="yk-premium-whop-interval">
+            {tPr5("whopRenewalInterval")}
           </span>
         </p>
       ) : (

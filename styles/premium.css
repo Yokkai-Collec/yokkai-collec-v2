@@ -704,18 +704,11 @@
   color: #f3edf9;
   white-space: nowrap;
 }
-.yk-premium-whop-terms {
-  display: grid;
-  gap: 3px;
-  font-size: 13px;
+.yk-premium-whop-interval {
+  font-size: 14px;
   font-weight: 600;
   line-height: 1.3;
   color: #cbd5e9;
-}
-.yk-premium-whop-terms > span:last-child {
-  color: #aeb9d0;
-  font-size: 12px;
-  font-weight: 400;
 }
 .yk-premium-whop-trial {
   display: grid;
