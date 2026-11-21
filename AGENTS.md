@@ -59,6 +59,10 @@ Rules:
 - Le français reste caché derrière le flag, désactivé par défaut jusqu'au merge des PR 1 et 2 et à la validation de PhyesGG. Relecture du français par PhyesGG, zone par zone.
 - PR, commits et documentation interne peuvent rester en français.
 
+## Événements à packs
+
+Pour un nouvel événement à packs, reprendre le [modèle d’événement Sunset](docs/modele-evenement-packs.md).
+
 ## Responsive obligatoire pour les interfaces web
 
 - Toute création ou modification de site, page ou composant doit fonctionner sur mobile, tablette et ordinateur dès son ajout. Le responsive fait partie des critères de réalisation, même sans demande explicite.
