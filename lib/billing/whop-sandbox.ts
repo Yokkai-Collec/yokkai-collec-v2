@@ -5,7 +5,7 @@ import { BillingError } from "./config";
 const apiOrigin = "https://sandbox-api.whop.com";
 const checkoutOrigin = "https://sandbox.whop.com";
 const previewPath = "/design-system/whop-preview";
-const apiVersion = "2026-11-20";
+export const whopApiVersion = "2026-11-20";
 const membershipStatuses = [
   "trialing",
   "active",
@@ -117,7 +117,7 @@ export function whopSandboxService(config: Config, request = fetch) {
         headers: {
           Accept: "application/json",
           Authorization: "Bearer " + config.key,
-          "Api-Version-Date": apiVersion,
+          "Api-Version-Date": whopApiVersion,
           ...init?.headers
         }
       });
@@ -224,7 +224,61 @@ export function whopSandboxService(config: Config, request = fetch) {
     return matches[0] ?? null;
   }
 
+  async function saveMembership(
+    account: Account,
+    membership: Membership,
+    stamp: Date
+  ) {
+    if (
+      !membershipStatuses.includes(membership.status) ||
+      !Number.isFinite(Date.parse(membership.updated_at)) ||
+      (membership.current_period_end !== null &&
+        !Number.isFinite(Date.parse(membership.current_period_end)))
+    )
+      throw notReady();
+    const { error } = await db.rpc("whop_sandbox_save_membership", {
+      p_ref: account.checkout_ref,
+      p_membership: membership.id,
+      p_status: membership.status,
+      p_period_end: membership.current_period_end,
+      p_updated_at: membership.updated_at,
+      p_verified_at: stamp.toISOString()
+    });
+    if (error) throw unavailable();
+  }
+
   return {
+    async refreshFromWebhook(membershipId: string) {
+      if (!/^mem_[A-Za-z0-9]{1,100}$/.test(membershipId)) throw notReady();
+      const stamp = new Date();
+      const membership = await provider<Membership>(
+        `memberships/${membershipId}`
+      );
+      if (membership.id !== membershipId) throw notReady();
+      const ref = membership.metadata?.yokkai_checkout_ref;
+      if (
+        membership.account?.id !== config.account ||
+        membership.variant_id !== config.plan ||
+        typeof ref !== "string" ||
+        !/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(ref)
+      )
+        return;
+      const { data: account, error } = await db
+        .from("whop_sandbox_accounts")
+        .select(fields)
+        .eq("scope", config.scope)
+        .eq("checkout_ref", ref)
+        .maybeSingle<Account>();
+      if (error) throw unavailable();
+      if (!account) return;
+      if (
+        !account.checkout_id ||
+        !membershipMatches(membership, account) ||
+        (account.membership_id && account.membership_id !== membershipId)
+      )
+        throw notReady();
+      await saveMembership(account, membership, stamp);
+    },
     async checkout(userId: string) {
       await requireEnabled(userId);
       const insert = await db
@@ -308,22 +362,7 @@ export function whopSandboxService(config: Config, request = fetch) {
       if (await claim(account, stamp)) {
         const membership = await readMembership(account);
         if (membership) {
-          if (
-            !membershipStatuses.includes(membership.status) ||
-            !Number.isFinite(Date.parse(membership.updated_at)) ||
-            (membership.current_period_end !== null &&
-              !Number.isFinite(Date.parse(membership.current_period_end)))
-          )
-            throw notReady();
-          const { error } = await db.rpc("whop_sandbox_save_membership", {
-            p_ref: account.checkout_ref,
-            p_membership: membership.id,
-            p_status: membership.status,
-            p_period_end: membership.current_period_end,
-            p_updated_at: membership.updated_at,
-            p_verified_at: stamp.toISOString()
-          });
-          if (error) throw unavailable();
+          await saveMembership(account, membership, stamp);
           account = await accountFor(userId);
         }
       }

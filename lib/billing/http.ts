@@ -51,9 +51,9 @@ export async function billingUser(request: Request, mutate = false) {
   if (!user) throw new BillingError("BILLING_AUTH_REQUIRED", 401);
   return user;
 }
-export async function billingBody(request: Request, limit = 262144) {
+export async function billingBytes(request: Request, limit = 262144) {
   const reader = request.body?.getReader();
-  if (!reader) return "";
+  if (!reader) return Buffer.alloc(0);
   const chunks: Uint8Array[] = [];
   let size = 0;
   while (true) {
@@ -66,7 +66,10 @@ export async function billingBody(request: Request, limit = 262144) {
     }
     chunks.push(value);
   }
-  return Buffer.concat(chunks).toString("utf8");
+  return Buffer.concat(chunks);
+}
+export async function billingBody(request: Request, limit = 262144) {
+  return (await billingBytes(request, limit)).toString("utf8");
 }
 export async function emptyBillingInput(request: Request) {
   if (
