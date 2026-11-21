@@ -16,6 +16,7 @@
     "endsIn": "Se termine dans",
     "ended": "Événement terminé",
     "endedBadge": "Terminé",
+    "expiresIn": "Les packs expirent dans",
     "availablePacks": "{count, number} en réserve",
     "unlimitedPacks": "Réserve illimitée",
     "switchToSunset": "Passer au pack Sunset",

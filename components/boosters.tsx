@@ -1504,7 +1504,7 @@ export function Boosters({
   const linkedToSunset = useSyncExternalStore(subscribePackHash, getSunsetHash, getServerSunsetHash);
   const [sunsetSelected, setSunsetSelected] = useState<boolean | null>(null);
   const wantsSunset = sunsetSelected ?? linkedToSunset;
-  const hasSunset = Boolean(sunset.event && (
+  const hasSunset = Boolean(!sunset.packsExpired && sunset.event && (
     sunset.status !== "ended" || sunset.event.availableDays.length > 0 ||
     (wantsSunset && sunset.event.openedCards)
   ));

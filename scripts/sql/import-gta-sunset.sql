@@ -27,12 +27,18 @@ begin
     and nom = 'LUCIA CAMINOS (SUNSET EDITION)' and rarete_base = 'LR'
     and event_only and image_url = '/assets/events/gta-sunset/lucia.png';
 
-  insert into public.gta_sunset_event (starts_on, ends_at, jason_card_id, lucia_card_id)
+  insert into public.gta_sunset_event (
+    starts_on, ends_at, jason_card_id, lucia_card_id, midnight_credits_through,
+    bonus_credit_at, lr_rate_per_card
+  )
   values (
     date '2026-11-21',
     timestamp '2026-11-25 20:00:00' at time zone 'Europe/Paris',
     jason_id,
-    lucia_id
+    lucia_id,
+    date '2026-11-21',
+    timestamp '2026-11-21 20:00:00' at time zone 'Europe/Paris',
+    (1 - power(0.8::numeric, 1::numeric / 6)) / 2
   )
   on conflict (singleton) do nothing;
 
