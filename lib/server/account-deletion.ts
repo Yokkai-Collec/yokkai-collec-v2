@@ -3,7 +3,6 @@ import { deleteAccount as deleteAccountCore } from "./account-deletion-core.mjs"
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { getVerifiedUser } from "@/lib/auth/session";
 import { getSupabaseConfig } from "@/utils/supabase/config";
-import { cancelLinkedWhopAccount } from "@/lib/billing/whop-live.mjs";
 
 function serviceClient() {
   const key =
@@ -36,6 +35,8 @@ export async function deleteAccount(
     const { cancelDeletedAccountBilling } =
       await import("@/lib/billing/deletion");
     await cancelDeletedAccountBilling(userId);
+    const { cancelLinkedWhopAccount } =
+      await import("@/lib/billing/whop-live.mjs");
     await cancelLinkedWhopAccount(userId, admin);
   });
 }
