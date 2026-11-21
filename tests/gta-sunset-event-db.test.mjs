@@ -33,12 +33,36 @@ test("Sunset Edition import keeps the classic LR cards and reuses its own IDs", 
   const event = async () =>
     (
       await db.query(
-        "select jason_card_id, lucia_card_id, starts_on::text, (ends_at at time zone 'Europe/Paris')::text as closing from public.gta_sunset_event"
+        `select jason_card_id, lucia_card_id, starts_on::text,
+          (ends_at at time zone 'Europe/Paris')::text as closing,
+          (bonus_credit_at at time zone 'Europe/Paris')::text as bonus,
+          (1 - power(1 - 2 * lr_rate_per_card, 6))::float8 as six_pack_rate
+        from public.gta_sunset_event`
       )
     ).rows[0];
   const imported = await event();
   assert.equal(imported.starts_on, "2026-11-21");
   assert.equal(imported.closing, "2026-11-25 20:00:00");
+  assert.equal(imported.bonus, "2026-11-21 20:00:00");
+  assert.ok(Math.abs(imported.six_pack_rate - 0.2) < 1e-10);
+  assert.deepEqual(
+    (
+      await db.query(`
+      select (credit_at at time zone 'Europe/Paris')::text as credit
+      from public.gta_sunset_event e
+      cross join lateral public.gta_sunset_pack_schedule(e)
+      order by credit_at
+    `)
+    ).rows.map(row => row.credit),
+    [
+      "2026-11-21 00:00:00",
+      "2026-11-21 20:00:00",
+      "2026-11-22 20:00:00",
+      "2026-11-23 20:00:00",
+      "2026-11-24 20:00:00",
+      "2026-11-25 20:00:00"
+    ]
+  );
   const previewCards = async () =>
     (
       await db.query(
@@ -181,6 +205,27 @@ test("Sunset credits stack at 20:00 in Paris and opening retries keep the same c
     await db.exec(draw);
   };
 
+  await db.exec(`
+    update public.gta_sunset_event
+    set bonus_credit_at = (starts_on + time '20:00') at time zone 'Europe/Paris';
+  `);
+  await atParisTime(dates.yesterday, "19:59:59.999999");
+  assert.deepEqual((await getEvent(players[0])).availableDays, [
+    dates.yesterday
+  ]);
+  await assert.rejects(open(players[0], dates.two_days_ago), {
+    message: "GTA_SUNSET_PACK_UNAVAILABLE"
+  });
+  await atParisTime(dates.yesterday, "20:00:00");
+  const bonusEvent = await getEvent(players[0]);
+  assert.deepEqual(bonusEvent.availableDays, [
+    dates.yesterday,
+    dates.two_days_ago
+  ]);
+  assert.equal(bonusEvent.nextResetAt, dates.today_credit_at);
+  assert.deepEqual((await getEvent(players[2])).availableDays, []);
+  await db.exec("update public.gta_sunset_event set bonus_credit_at = null");
+
   await atParisTime(dates.today, "19:59:59.999999");
   const beforeCredit = await getEvent(players[0]);
   assert.equal(beforeCredit.nextResetAt, dates.today_credit_at);
@@ -207,12 +252,12 @@ test("Sunset credits stack at 20:00 in Paris and opening retries keep the same c
   const definition = await functionDefinition(
     "public.open_gta_sunset_booster(date)"
   );
-  const forceRoll = async roll => {
-    const patched = definition.replace(
+  const forceRoll = async (roll, drawDefinition = definition) => {
+    const patched = drawDefinition.replace(
       "roll := random();",
       "roll := " + roll + ";"
     );
-    assert.notEqual(patched, definition);
+    assert.notEqual(patched, drawDefinition);
     await db.exec(patched);
   };
   await forceRoll(0.024999);
@@ -261,19 +306,38 @@ test("Sunset credits stack at 20:00 in Paris and opening retries keep the same c
   const atClose = await getEvent(players[0]);
   assert.equal(atClose.nextResetAt, null);
   assert.deepEqual(atClose.availableDays, remaining);
-  await atParisTime(dates.today, "20:00:00");
+  await atParisTime(dates.today, "19:59:59.999999");
   assert.deepEqual((await getEvent(players[0])).availableDays, remaining);
   assert.deepEqual((await getEvent(players[2])).availableDays, []);
   await assert.rejects(open(players[0], dates.today), {
     message: "GTA_SUNSET_PACK_UNAVAILABLE"
   });
-  await forceRoll(0.05);
+  await forceRoll(
+    0.05,
+    await functionDefinition("public.open_gta_sunset_booster(date)")
+  );
   for (const day of remaining) {
     const pack = await open(players[0], day);
     assert.equal(pack.length, 3);
     assert.ok(pack.every(card => card.rarity !== "LR"));
   }
   assert.deepEqual((await getEvent(players[0])).availableDays, []);
+  assert.equal(
+    (await db.query("select count(*)::int as count from public.user_cards"))
+      .rows[0].count,
+    15
+  );
+  await atParisTime(dates.today, "20:00:00");
+  const expired = await getEvent(players[1]);
+  assert.deepEqual(expired.availableDays, []);
+  assert.equal(
+    Date.parse(expired.packsExpireAt),
+    Date.parse(expired.endsAt) + 86_400_000
+  );
+  await assert.rejects(open(players[1], dates.yesterday), {
+    message: "GTA_SUNSET_PACK_UNAVAILABLE"
+  });
+  assert.equal((await getEvent(players[0])).openedCards.length, 3);
   assert.equal(
     (await db.query("select count(*)::int as count from public.user_cards"))
       .rows[0].count,

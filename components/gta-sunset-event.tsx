@@ -23,6 +23,7 @@ type SunsetEvent = {
   serverNow: number;
   startsAt: string;
   endsAt: string;
+  packsExpireAt?: string;
   nextResetAt: string | null;
   lrRatePerCard?: number;
   featured: Card[];
@@ -72,26 +73,27 @@ export function useGtaSunsetEvent(enabled = true) {
     };
   }, [enabled, refresh]);
 
-  const nextReset = event?.nextResetAt;
-  const endsAt = event?.endsAt;
+  const nextBoundary = event
+    ? [event.startsAt, event.endsAt, event.nextResetAt, event.packsExpireAt]
+        .map(value => Date.parse(value ?? ""))
+        .filter(deadline => deadline > event.serverNow)
+        .reduce((earliest, deadline) => Math.min(earliest, deadline), Infinity)
+    : Infinity;
   useEffect(() => {
-    const now = Date.now() + offset;
-    if (!endsAt || Date.parse(endsAt) <= now) return;
+    if (!Number.isFinite(nextBoundary)) return;
     const interval = window.setInterval(() => setClock(Date.now()), 1000);
-    const nextBoundary =
-      Math.min(
-        Date.parse(endsAt),
-        nextReset ? Date.parse(nextReset) : Infinity
-      ) - now;
     const reset = window.setTimeout(
-      () => setRefresh(value => value + 1),
-      Math.max(1000, nextBoundary + 250)
+      () => {
+        setClock(Date.now());
+        setRefresh(value => value + 1);
+      },
+      Math.max(250, nextBoundary - Date.now() - offset + 250)
     );
     return () => {
       window.clearInterval(interval);
       window.clearTimeout(reset);
     };
-  }, [endsAt, nextReset, offset]);
+  }, [nextBoundary, offset]);
 
   const now = clock + offset;
   const status: SunsetStatus | undefined = event
@@ -105,6 +107,7 @@ export function useGtaSunsetEvent(enabled = true) {
     event,
     now,
     status,
+    packsExpired: now >= Date.parse(event?.packsExpireAt ?? ""),
     recordOpening(packDay: string, cards: CollectedCard[]) {
       setEvent(current =>
         current
@@ -127,9 +130,9 @@ export function useGtaSunsetEvent(enabled = true) {
 
 export function GtaSunsetHomeBanner() {
   const t = useTranslations("gtaSunset");
-  const { event, now, status } = useGtaSunsetEvent();
+  const { event, now, status, packsExpired } = useGtaSunsetEvent();
 
-  if (!event || !status) return null;
+  if (!event || !status || packsExpired) return null;
 
   const hasPacks = event.availableDays.length > 0;
   if (status === "ended" && !hasPacks) return null;
@@ -302,7 +305,7 @@ export function GtaSunsetBooster({
                   <dd>
                     {format.number(event.lrRatePerCard ?? 0.05, {
                       style: "percent",
-                      maximumFractionDigits: 1
+                      maximumFractionDigits: 2
                     })}
                   </dd>
                 </div>
@@ -320,6 +323,12 @@ export function GtaSunsetBooster({
               ? t("unlimitedPacks")
               : t("availablePacks", { count: availableDays.length })}
           </p>
+          {status === "ended" && nextPackDay && event.packsExpireAt && (
+            <p>
+              {t("expiresIn")}{" "}
+              <EventBannerCountdown end={event.packsExpireAt} now={now} />
+            </p>
+          )}
         </div>
         <Button
           className="w-full"

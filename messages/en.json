@@ -16,6 +16,7 @@
     "endsIn": "Ends in",
     "ended": "Event ended",
     "endedBadge": "Ended",
+    "expiresIn": "Packs expire in",
     "availablePacks": "{count, number} in reserve",
     "unlimitedPacks": "Unlimited reserve",
     "switchToSunset": "Switch to the Sunset booster",
