@@ -19,9 +19,15 @@ node --env-file=.env.whop-sandbox.local scripts/check-whop-setup.mjs
 
 Le script appelle uniquement `GET /variants/{id}` sur l’hôte de l’environnement choisi. Il vérifie le compte, le tarif, la devise, la récurrence, le montant, l’essai et le traitement des taxes. Pour lire l’offre réelle, utiliser `WHOP_MODE=production`, le tarif `plan_9Kh2sFBJpQR9Q` et les secrets de cet environnement. Le résultat contient uniquement des informations de configuration et des codes d’erreur, sans clé ni donnée client.
 
-## Intégrer et tester l’achat
+## Tester l’achat en local
 
-- Créer le checkout côté serveur avec le tarif vérifié et une preuve de rattachement à la session Yokkai. Utiliser une référence créée et conservée par le serveur dans les métadonnées de la [configuration de checkout](https://docs.whop.com/api-reference/checkout-configurations/create-a-checkout-configuration).
+- Appliquer la migration `20261121190000_whop_sandbox_entitlements.sql` à la base locale. Sur cette base, renseigner `billing_entitlement_config.whop_sandbox_scope` avec `sandbox:<WHOP_ACCOUNT_ID>:<WHOP_PRO_PLAN_ID>`. Cette colonne est vide par défaut. La clé de test doit pouvoir créer les configurations de checkout et lire les abonnements (`checkout_configuration:create` et `member:basic:read`).
+- Démarrer Next.js en développement avec les variables de Supabase local et de Whop Sandbox. Charger `.env.whop-sandbox.local` dans le processus qui lance Next lorsque les variables ne sont pas déjà définies. Un lancement reproductible est `node -e "process.loadEnvFile('.env.whop-sandbox.local'); require('node:child_process').spawn(process.execPath, ['node_modules/next/dist/bin/next', 'dev', '--hostname', '127.0.0.1'], { stdio: 'inherit' })"`.
+- Ouvrir `/design-system/whop-preview` avec un compte Yokkai local. Le serveur crée une [session de paiement](https://docs.whop.com/api-reference/checkout-configurations/create-a-checkout-configuration) avec une référence privée propre à ce compte. Utiliser la [carte de test Whop](https://docs.whop.com/developer/guides/sandbox) et attendre la confirmation sur l’aperçu après le retour. Vérifier ensuite les limites Pro dans `/boosters`.
+- Sur cet aperçu local, Yokkai lit l’état courant de l’abonnement dans Whop. La référence sauvegardée, le compte Whop et le tarif doivent correspondre. Seuls les états essai et actif avec une période valide ouvrent les avantages. Rafraîchir la page de test après un changement dans Whop pour vérifier son effet.
+
+## Préparer l’intégration de production
+
 - Vérifier la signature des [webhooks Whop](https://docs.whop.com/developer/guides/webhooks). Vérifier auprès de l’API le compte, le tarif, l’abonnement et sa période avant de mettre à jour l’accès Pro. Tester les erreurs, les notifications répétées ou désordonnées, l’essai et son expiration, le renouvellement, la résiliation et le remboursement dans le sandbox.
 - Relier le statut Whop aux contrôles Pro existants, à la gestion de l’abonnement et à la suppression de compte. Afficher l’essai et le prix hors taxes selon l’offre confirmée.
 

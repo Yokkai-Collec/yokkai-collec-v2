@@ -3244,6 +3244,22 @@
     "emailReuseCooldownNotice": "After you request account deletion, the same email address cannot be used to create a new account for {days} days. This temporary restriction helps prevent deletion and re-registration from being used to evade account protections.",
     "deletedEmailCooldownRetention": "Email reuse prevention: a non-reversible keyed digest of the email address is kept for up to {days} days after a self-requested deletion, then automatically purged. The email address itself is not stored in this cooldown record."
   },
+  "whopSandbox": {
+    "offer": "3-day free trial, then {price} per month before tax. No real charge.",
+    "signIn": "Sign in with a local account",
+    "checking": "Checking your test subscription…",
+    "notStarted": "No test subscription yet.",
+    "pending": "Waiting for Whop to confirm your subscription.",
+    "trialActive": "Test trial active. Pro benefits are unlocked.",
+    "active": "Test subscription active. Pro benefits are unlocked.",
+    "inactive": "The test subscription is inactive.",
+    "startCheckout": "Open test checkout",
+    "resumeCheckout": "Resume test checkout",
+    "openPacks": "See my packs",
+    "checkoutError": "Unable to open the test checkout. Try again.",
+    "statusError": "Unable to verify test billing. Retrying automatically.",
+    "testCard": "Test card {card}. Use a future expiration date and any three-digit CVC."
+  },
   "premiumUi": {
     "premium": "Premium",
     "yokkaiCollecHome": "Yokkai Collec’, home",

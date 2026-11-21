@@ -3244,6 +3244,22 @@
     "emailReuseCooldownNotice": "Après une demande de suppression de ton compte, la même adresse e-mail ne peut pas servir à créer un nouveau compte pendant {days} jours. Cette restriction temporaire empêche d’utiliser la suppression puis la réinscription pour contourner les protections du compte.",
     "deletedEmailCooldownRetention": "Prévention de la réutilisation d’e-mail : une empreinte à clé non réversible de l’adresse est conservée au maximum {days} jours après une suppression demandée par le joueur, puis automatiquement purgée. L’adresse e-mail elle-même n’est pas stockée dans cet historique temporaire."
   },
+  "whopSandbox": {
+    "offer": "3 jours d’essai gratuit, puis {price} HT par mois. Aucun débit réel.",
+    "signIn": "Se connecter avec un compte local",
+    "checking": "Vérification de l’abonnement de test…",
+    "notStarted": "Aucun abonnement de test pour le moment.",
+    "pending": "En attente de confirmation par Whop.",
+    "trialActive": "Essai de test actif. Les avantages Pro sont débloqués.",
+    "active": "Abonnement de test actif. Les avantages Pro sont débloqués.",
+    "inactive": "L’abonnement de test est inactif.",
+    "startCheckout": "Ouvrir le paiement de test",
+    "resumeCheckout": "Reprendre le paiement de test",
+    "openPacks": "Voir mes packs",
+    "checkoutError": "Impossible d’ouvrir le paiement de test. Réessaie.",
+    "statusError": "Impossible de vérifier l’abonnement. Nouvelle tentative automatique.",
+    "testCard": "Carte de test {card}. Utilise une date future et un CVC à trois chiffres."
+  },
   "premiumUi": {
     "premium": "Abonnement Pro",
     "yokkaiCollecHome": "Yokkai Collec’, accueil",
