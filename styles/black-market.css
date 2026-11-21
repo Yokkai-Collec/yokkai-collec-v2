@@ -387,6 +387,7 @@ a.yk-black-market-result-winner:hover {
   background: linear-gradient(180deg, #151518, #09090b);
 }
 .yk-black-market-event-link .yk-event-status[data-status="upcoming"] {
+  max-width: none;
   color: #f6d9de;
   border-color: #a8556499;
   background: #371a20;
