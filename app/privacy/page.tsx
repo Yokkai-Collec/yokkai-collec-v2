@@ -15,6 +15,8 @@ import {
   SERVER_LOG_RETENTION_DAYS
 } from "@/lib/legal/privacy";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("legalUi");
   return {
@@ -164,7 +166,29 @@ export default async function PrivacyPage() {
       </InfoSection>
 
       <InfoSection number="05" title={t("payments")}>
-        <p>{t("proSubscriptionsAreProcessedByStripeThrough")}</p>
+        <p>
+          {t(
+            process.env.WHOP_LIVE_PLAN_ID
+              ? "stripePaymentsExisting"
+              : "proSubscriptionsAreProcessedByStripeThrough"
+          )}
+        </p>
+        {process.env.WHOP_LIVE_PLAN_ID && (
+          <p>
+            {t.rich("whopBillingPrivacy", {
+              link1: chunks => (
+                <a
+                  href="https://whop.com/privacy/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={linkClass}
+                >
+                  {chunks}
+                </a>
+              )
+            })}
+          </p>
+        )}
         <p>
           {t.rich("weSendStripeOnlyYourYokkaiAccount", {
             link1: chunks => (

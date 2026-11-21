@@ -277,6 +277,9 @@
   "public.bids": {
     "sections": ["bids"]
   },
+  "public.whop_live_checkouts": {
+    "excluded": "Opaque checkout references and provider configuration identifiers are operational billing data subject to manual privacy review."
+  },
   "public.whop_live_accounts": {
     "excluded": "Private Stripe-to-Whop account mappings, provider status and payment verification timestamps follow the same manual privacy review as Stripe billing records."
   },

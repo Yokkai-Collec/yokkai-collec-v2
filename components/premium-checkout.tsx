@@ -31,6 +31,10 @@ export function PremiumCheckout({
       billing.status.status
     );
   const manageSubscription = active || (hasCustomer && !canCheckout);
+  const checkoutWithWhop = billing?.checkoutProvider === "whop";
+  const displayWhop =
+    billing?.status?.provider === "whop" ||
+    (checkoutWithWhop && (!signedIn || canCheckout || !hasCustomer));
 
   async function openCheckout() {
     if (!canCheckout || pending.current) return;
@@ -54,7 +58,10 @@ export function PremiumCheckout({
       }
       const url = new URL(result.url);
       if (
-        url.origin !== "https://checkout.stripe.com" ||
+        url.origin !==
+          (checkoutWithWhop
+            ? "https://whop.com"
+            : "https://checkout.stripe.com") ||
         url.username ||
         url.password
       )
@@ -73,11 +80,12 @@ export function PremiumCheckout({
       <p className="eyebrow">{tPr5("yourMembership")}</p>
       <h2>Yokkai Pro</h2>
       <p className="yk-premium-price">
-        {tPr5.rich("priceMonth", {
+        {tPr5.rich(displayWhop ? "whopPriceEvery30Days" : "priceMonth", {
           price: fmt.number(4.99, { style: "currency", currency: "EUR" }),
           small0: chunks => <small>{chunks}</small>
         })}
       </p>
+      {displayWhop && !active && <p>{tPr5("whopTrial")}</p>}
       <p>{tPr5("monthlySubscriptionCancelFromYourAccountSettings")}</p>
       {active && (
         <p className="text-success" role="status">
@@ -111,7 +119,9 @@ export function PremiumCheckout({
           aria-busy={busy}
           onClick={() => void openCheckout()}
         >
-          {busy ? tPr5("openingStripe") : tPr5("getPro")}
+          {busy
+            ? tPr5(checkoutWithWhop ? "openingWhop" : "openingStripe")
+            : tPr5("getPro")}
         </button>
       ) : (
         <Link
@@ -122,13 +132,18 @@ export function PremiumCheckout({
         </Link>
       )}
       <p className="yk-pro-offer-footnote">
-        {tPr5.rich("securePaymentsAndInvoicesWithStripeSee", {
-          link1: chunks => (
-            <Link href="/privacy" className="underline underline-offset-4">
-              {chunks}
-            </Link>
-          )
-        })}
+        {tPr5.rich(
+          displayWhop
+            ? "whopPayments"
+            : "securePaymentsAndInvoicesWithStripeSee",
+          {
+            link1: chunks => (
+              <Link href="/privacy" className="underline underline-offset-4">
+                {chunks}
+              </Link>
+            )
+          }
+        )}
       </p>
     </aside>
   );

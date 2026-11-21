@@ -18,7 +18,19 @@ export const dynamic = "force-dynamic";
 export default async function PremiumPage() {
   const tPr5 = await getTranslations("premiumUi");
   const user = await getCurrentUser();
-  const billing = user ? await getBillingSettings(user.id) : null;
+  const billing = user
+    ? await getBillingSettings(user.id)
+    : process.env.WHOP_LIVE_CHECKOUT_ENABLED === "true" &&
+        process.env.WHOP_LIVE_SYNC_ENABLED === "true"
+      ? {
+          checkoutProvider: "whop" as const,
+          checkoutEnabled: true,
+          enabled: false,
+          sandbox: false,
+          status: null,
+          unavailable: false
+        }
+      : null;
   return (
     <div className="yk-premium-page">
       <header className="yk-premium-nav">
@@ -41,6 +53,7 @@ export default async function PremiumPage() {
         <PremiumOffer
           signedIn={!!user}
           billing={billing}
+
           profilePreview={<PremiumProfileEmbed />}
         />
       </main>

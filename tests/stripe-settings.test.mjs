@@ -98,7 +98,7 @@ test("settings expose only safe billing presentation, keep purchases closed and 
         quotaCalls++;
       }
     },
-    "./server": {
+    "./checkout-service": {
       configuredBillingService: () => ({
         status: async id => {
           calls++;
