@@ -476,3 +476,35 @@ test("an eligible Whop trial grants access for its verified period and cannot be
     null
   );
 });
+
+test("a localized Whop renewal must still match the paid membership and its EUR offer", async () => {
+  const newUser = { ...row, stripe_paid_until: null };
+  const eurOffer = {
+    ...membership,
+    renewal_price: { currency: "eur", amount: "4.99" }
+  };
+  const localized = {
+    ...paid,
+    member_id: row.member_id,
+    subtotal: { currency: "usd", amount: "6.17" },
+    line_items: [{ product_id: row.product_id, variant_id: row.variant_id }]
+  };
+  const status = (offer, payment) =>
+    verifyWhopLiveAccess(
+      newUser,
+      config,
+      provider(offer, [payment]).fetch,
+      now
+    );
+  assert.equal((await status(eurOffer, localized)).accessUntil, time(29.9));
+  assert.equal(
+    (await status(eurOffer, { ...localized, line_items: [] })).accessUntil,
+    null
+  );
+  assert.equal((await status(membership, localized)).accessUntil, null);
+  assert.equal(
+    (await status(eurOffer, { ...localized, member_id: "mber_other" }))
+      .accessUntil,
+    null
+  );
+});
