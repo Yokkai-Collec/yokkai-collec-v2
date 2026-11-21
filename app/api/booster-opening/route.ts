@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     );
   const url = new URL(request.url);
   const kind = url.searchParams.get("kind");
-  if (kind !== "regular" && kind !== "decision")
+  if (kind !== "regular" && kind !== "decision" && kind !== "sunset")
     return new Response(
       (await getTranslations("openingErrors"))("invalidKind"),
       { status: 400, headers }
@@ -28,10 +28,19 @@ export async function GET(request: Request) {
   try {
     // Next's internal request URL can be localhost behind the production proxy.
     // Use the configured public origin, never an untrusted forwarded header.
-    const parentOrigin =
+    let parentOrigin =
       process.env?.NODE_ENV === "production" && process.env.NEXT_PUBLIC_SITE_URL
         ? new URL(process.env.NEXT_PUBLIC_SITE_URL).origin
         : url.origin;
+    // Next can normalize a local 127.0.0.1 request to localhost internally.
+    // The sandbox handshake needs the actual browser origin.
+    if (process.env?.NODE_ENV === "development" && url.protocol === "http:") {
+      const host = request.headers.get("host") ?? "";
+      if (/^(?:localhost|127\.0\.0\.1|\[::1\])(?::\d{1,5})?$/.test(host)) {
+        const localOrigin = new URL(`http://${host}`);
+        if (localOrigin.port === url.port) parentOrigin = localOrigin.origin;
+      }
+    }
     asset ??= readFile(
       join(process.cwd(), "data/booster-opening/reveal.html"),
       "utf8"

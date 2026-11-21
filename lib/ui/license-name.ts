@@ -49,6 +49,7 @@ const acronyms = new Set([
   "SSSS",
   "SS",
   "GT",
+  "GTA",
   "DBZ",
   "DBS",
   "DBGT",

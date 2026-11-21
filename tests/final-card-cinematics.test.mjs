@@ -113,6 +113,9 @@ test("SSR opt-in opens the cinematic without progressing or changing production 
         "next/dynamic": { default: () => "Cinematic" },
         "next/link": { default: "Link" },
         "@/components/ambient-glow": { AmbientGlow: "AmbientGlow" },
+        "@/components/gta-sunset-event": {
+          useGtaSunsetEvent: () => ({ event: null })
+        },
         "@/components/referral-reminder": {},
         "@/lib/ui/pack-opening": {},
         "@/components/card-sharing": {},

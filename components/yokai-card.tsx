@@ -15,6 +15,7 @@ export type YokaiCardProps = {
   instanceId?: string;
   copyInstanceIds?: readonly string[];
   firstLrCopy?: FirstLrCopySource | null;
+  hideFirstLrBadge?: boolean;
   shiny?: boolean;
   isEvolved?: boolean;
   name: string;
@@ -113,11 +114,15 @@ function FirstLrCopyBadge({
   instanceId,
   copyInstanceIds,
   shiny,
+  sunset,
+  hidden,
   source: override
 }: {
   instanceId?: string;
   copyInstanceIds?: readonly string[];
   shiny: boolean;
+  sunset: boolean;
+  hidden: boolean;
   source?: FirstLrCopySource | null;
 }) {
   const t = useTranslations("collectionShared");
@@ -153,25 +158,32 @@ function FirstLrCopyBadge({
         : undefined
       : override;
   if (!source) return null;
-  const badgeImage = "/images/first-copy-shiny-pearl";
+  const badgeImage = sunset
+    ? "/assets/events/gta-sunset/first-copy"
+    : "/images/first-copy-shiny-pearl";
+  const badgeStyle = sunset
+    ? " yk-first-copy-sunset"
+    : shiny
+      ? " yk-first-copy-shiny"
+      : "";
   return (
     <span
-      className={`yk-card-copy-status yk-card-first-lr${shiny ? " yk-first-copy-shiny" : ""}`}
+      className={`yk-card-copy-status yk-card-first-lr${badgeStyle}`}
+      style={hidden ? { visibility: "hidden" } : undefined}
       title={t("firstLrBadge")}
       role="note"
       aria-label={t(source === "legacy" ? "firstLrLegacy" : "firstLrMint")}
       data-first-lr-copy={source}
     >
-      <picture className="yk-first-copy-picture" aria-hidden="true">
+      <picture className="yk-first-copy-picture">
         <source
           media="(prefers-reduced-motion: reduce)"
           srcSet={`${badgeImage}-still.png`}
         />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={`${badgeImage}.webp`}
-          width={295}
-          height={225}
+          width={sunset ? 132 : 295}
+          height={sunset ? 99 : 225}
           alt=""
           loading="lazy"
           decoding="async"
@@ -187,6 +199,7 @@ export function YokaiCard({
   instanceId,
   copyInstanceIds,
   firstLrCopy,
+  hideFirstLrBadge = false,
   shiny = false,
   isEvolved = false,
   name,
@@ -203,6 +216,9 @@ export function YokaiCard({
   rarityAccessory
 }: YokaiCardProps) {
   const t = useTranslations("collectionShared");
+  const sunset = /^\/assets\/events\/gta-sunset\/(?:jason|lucia)\.png$/.test(
+    catalogueImage ?? image ?? ""
+  );
   const holo = shiny && (rarity === "SSR" || rarity === "LR");
   const evolved =
     (isEvolved || (shiny && rarity === "SSR")) &&
@@ -265,6 +281,7 @@ export function YokaiCard({
   };
   return (
     <div
+      data-sunset={sunset || undefined}
       className={`yk-card yk-rarity-${rarity} ${evolvedStyle ? "yk-evolved" : holo ? "yk-shiny" : ""} ${animated ? "yk-animated" : ""} ${className}`}
     >
       <div
@@ -275,7 +292,7 @@ export function YokaiCard({
         <div className="yk-card-frame" />
         {special && <div className="yk-shiny-frame" />}
         <div className="yk-card-interior">
-          {rarity === "LR" && <div className="yk-card-line" />}
+          {rarity === "LR" && !sunset && <div className="yk-card-line" />}
           {image && (
             <div
               className="yk-card-art"
@@ -427,6 +444,8 @@ export function YokaiCard({
             instanceId={instanceId}
             copyInstanceIds={copyInstanceIds}
             shiny={holo && !evolvedStyle}
+            sunset={sunset}
+            hidden={hideFirstLrBadge}
             source={firstLrCopy}
           />
         )}

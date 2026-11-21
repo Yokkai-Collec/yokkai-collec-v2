@@ -511,6 +511,30 @@ export async function getDecisionPackStatus(includeCardDetails = true): Promise<
     remaining: status.remaining, maximum: status.maximum,
     resetAt: status.resetAt, resetTimeZone: status.resetTimeZone };
 }
+async function prepareOwnedPack(cards: CollectedCard[]): Promise<CollectedCard[]> {
+  const [franchised, valued] = await Promise.all([
+    withLiveCardFranchises(cards),
+    withPackDestructionValues(cards)
+  ]);
+  return valued
+    .map((card, index) => ({ ...card, anime: franchised[index].anime }))
+    .sort((a, b) => rank[a.rarity] - rank[b.rarity]);
+}
+
+export async function openSunsetBooster(packDay: string): Promise<CollectedCard[]> {
+  const id = await playerId();
+  try {
+    const { data, error } = await db().rpc("open_gta_sunset_booster", {
+      p_pack_day: packDay
+    });
+    if (error) throw failure(error);
+    await assertPlayer(id);
+    return await prepareOwnedPack(data as CollectedCard[]);
+  } finally {
+    invalidatePlayerSnapshots(["collection", "profile"]);
+  }
+}
+
 export async function openBooster(): Promise<CollectedCard[]> {
   const id = await playerId();
   try {
@@ -518,9 +542,7 @@ export async function openBooster(): Promise<CollectedCard[]> {
     const { data, error } = await db().rpc("open_regular_pack");
     if (error) throw failure(error);
     await assertPlayer(id);
-    const cards = data as CollectedCard[];
-    const [franchised, valued] = await Promise.all([withLiveCardFranchises(cards), withPackDestructionValues(cards)]);
-    return valued.map((card, index) => ({ ...card, anime: franchised[index].anime })).sort((a, b) => rank[a.rarity] - rank[b.rarity]);
+    return await prepareOwnedPack(data as CollectedCard[]);
   } finally {
     // The server may have committed even if the response was lost.
     invalidatePlayerSnapshots(["collection"]);
@@ -536,9 +558,7 @@ export async function openBoosters(count: 1 | 5 | 10): Promise<CollectedCard[]> 
     const { data, error } = await db().rpc("open_regular_packs", { p_count: count });
     if (error) throw failure(error);
     await assertPlayer(id);
-    const cards = data as CollectedCard[];
-    const [franchised, valued] = await Promise.all([withLiveCardFranchises(cards), withPackDestructionValues(cards)]);
-    return valued.map((card, index) => ({ ...card, anime: franchised[index].anime })).sort((a, b) => rank[a.rarity] - rank[b.rarity]);
+    return await prepareOwnedPack(data as CollectedCard[]);
   } finally {
     // The whole batch may have committed even when its response was lost.
     invalidatePlayerSnapshots(["collection"]);

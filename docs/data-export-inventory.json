@@ -605,6 +605,12 @@
   "public.event_runtime_config": {
     "excluded": "Global operator-controlled event activation switch; no player-specific records or personal data."
   },
+  "public.gta_sunset_event": {
+    "excluded": "Global event schedule, reward rates and catalogue references shared by every player; no individual account records."
+  },
+  "public.gta_sunset_openings": {
+    "excluded": "Private pack-credit receipts and stored results used to replay opening requests without awarding copies twice. Owned cards are already in the collection export, and opening receipts cascade on account deletion. Historical receipts are available for manual account-data review."
+  },
   "public.black_market_config": {
     "excluded": "Global event activation switch; no private player records."
   },

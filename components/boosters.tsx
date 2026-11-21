@@ -5,10 +5,11 @@ import { useTranslations, useFormatter } from "next-intl";
 import { cardRarityLabel } from "@/lib/ui/card-rarity-label";
 import { ReferralReminder } from "@/components/referral-reminder";
 import { AmbientGlow } from "@/components/ambient-glow";
+import { GtaSunsetBooster, useGtaSunsetEvent } from "@/components/gta-sunset-event";
 import { packCopySnapshot, packCopyLabels, packRevealWindow, packRareRevealQueue } from "@/lib/ui/pack-opening";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { CSSProperties } from "react";
 import type {
   Card,
@@ -31,6 +32,7 @@ import { CardBack, YokaiCard } from "@/components/yokai-card";
 import type { SfxName } from "@/hooks/use-sfx";
 import { animation } from "@/lib/ui/animations";
 import { runFinalBoosterOpening } from "@/lib/ui/pack-opening";
+import type { BoosterKind } from "@/lib/ui/booster-opening-document";
 
 const PackBinderProgress = dynamic(
   () => import("@/components/pack-binder-progress").then(module => module.PackBinderProgress),
@@ -166,7 +168,7 @@ export function BoosterReveal({
   previewOnly?: boolean;
   packCount?: number;
   packLabel?: string;
-  packKind?: "regular" | "decision";
+  packKind?: BoosterKind;
   cards: RevealCard[];
   revealed: number;
   onReveal: (index: number) => void;
@@ -1188,6 +1190,14 @@ export function BoosterReveal({
   );
 }
 
+function subscribePackHash(notify: () => void) {
+  window.addEventListener("hashchange", notify);
+  return () => window.removeEventListener("hashchange", notify);
+}
+
+const getSunsetHash = () => window.location.hash === "#gta-sunset";
+const getServerSunsetHash = () => false;
+
 export function Boosters({
   previewOnly = false,
   simulateActions = false,
@@ -1213,6 +1223,7 @@ export function Boosters({
   revealed,
   onOpen,
   onOpenMany,
+  onOpenSunset,
   onKeepDecision,
   onSellDecisionAll,
   onDiscard,
@@ -1244,12 +1255,13 @@ export function Boosters({
   decisionDropRates?: DropRate[];
   shinyRate?: number;
   draw: RevealCard[];
-  drawKind: "regular" | "decision";
+  drawKind: BoosterKind;
   collection: CollectedCard[];
   folders?: Folder[];
   revealed: number;
   onOpen: (kind: "regular" | "decision") => Promise<RevealCard[] | undefined>;
   onOpenMany?: (count: 1 | 5 | 10) => Promise<RevealCard[] | undefined>;
+  onOpenSunset?: (packDay: string) => Promise<CollectedCard[] | undefined>;
   onKeepDecision: (instanceId: string) => Promise<number>;
   onSellDecisionAll?: () => Promise<number>;
   onDiscard: (instanceId: string) => Promise<void>;
@@ -1277,9 +1289,7 @@ export function Boosters({
   const [openingPhase, setOpeningPhase] = useState<"idle" | "tension" | "seal" | "fan">(
     "idle"
   );
-  const [openingKind, setOpeningKind] = useState<"regular" | "decision">(
-    "regular"
-  );
+  const [openingKind, setOpeningKind] = useState<BoosterKind>("regular");
   const [waiting, setWaiting] = useState(false);
   const [showDraw, setShowDraw] = useState(false);
   const [priorCopies, setPriorCopies] = useState<Record<string, number> | null>(
@@ -1373,13 +1383,30 @@ export function Boosters({
       void decoding.then(() => { window.clearTimeout(preloadTimer.current); resolve(); });
     });
   }
-  function start(kind: "regular" | "decision", trigger?: HTMLElement) {
+  function start(kind: BoosterKind, trigger?: HTMLElement) {
     if (openingLock.current) return;
+    const count = kind === "regular" ? selectedCount : 1;
+    const packDay = sunset.event?.availableDays[0];
+    const openCards: (() => Promise<RevealCard[] | undefined>) | undefined =
+      kind === "sunset"
+        ? onOpenSunset && packDay
+          ? async () => {
+              try {
+                const cards = await onOpenSunset(packDay);
+                if (cards?.length) sunset.recordOpening(packDay, cards);
+                return cards;
+              } catch (error) {
+                sunset.reload();
+                throw error;
+              }
+            }
+          : undefined
+        : () => count > 1 && onOpenMany ? onOpenMany(count) : onOpen(kind);
+    if (!openCards) return;
     openingTrigger.current = trigger ?? (document.activeElement instanceof HTMLElement && document.activeElement.tabIndex >= 0 ? document.activeElement : null);
     openingLock.current = true;
     const controller = new AbortController();
     openingAbort.current = controller;
-    const count = kind === "regular" ? selectedCount : 1;
     setActivePackCount(count);
     setOpeningKind(kind);
     setPriorCopies(packCopySnapshot(collection, collectionReady));
@@ -1402,7 +1429,7 @@ export function Boosters({
     );
       const finished = new Promise<void>(resolve => { finishOpening.current = resolve; });
       void runFinalBoosterOpening({
-        open: count > 1 && onOpenMany ? () => onOpenMany(count) : () => onOpen(kind),
+        open: openCards,
         finished,
         onResponse: cards => {
           if (controller.signal.aborted) return;
@@ -1472,6 +1499,28 @@ export function Boosters({
     finishPreload.current?.();
     finishOpening.current?.();
   }, []);
+  const tSunset = useTranslations("gtaSunset");
+  const sunset = useGtaSunsetEvent(!previewOnly && !!onOpenSunset);
+  const linkedToSunset = useSyncExternalStore(subscribePackHash, getSunsetHash, getServerSunsetHash);
+  const [sunsetSelected, setSunsetSelected] = useState<boolean | null>(null);
+  const wantsSunset = sunsetSelected ?? linkedToSunset;
+  const hasSunset = Boolean(sunset.event && (
+    sunset.status !== "ended" || sunset.event.availableDays.length > 0 ||
+    (wantsSunset && sunset.event.openedCards)
+  ));
+  const showSunset = hasSunset && wantsSunset;
+  const sunsetDraw = drawKind === "sunset";
+  const collectionDraw = drawKind !== "decision";
+  const sunsetRemaining = sunset.event?.availableDays.length ?? 0;
+
+  function switchPack(selected: boolean) {
+    closeRates();
+    setSunsetSelected(selected);
+    const url = new URL(window.location.href);
+    url.hash = selected ? "gta-sunset" : "";
+    window.history.replaceState(window.history.state, "", url);
+  }
+
   const shownRates = ratesKind === "decision" ? decisionDropRates : dropRates;
   const rateDetails = <>
         <p className="text-sm leading-6 text-ink-2">
@@ -1557,6 +1606,8 @@ export function Boosters({
       ) : revealing ? (
         <BoosterReveal
           packCount={drawKind === "regular" ? activePackCount : 1}
+          packKind={drawKind}
+          packLabel={sunsetDraw ? tSunset("boosterTitle") : undefined}
           previewOnly={localPreview}
           onComplete={localPreview ? () => setShowDraw(false) : undefined}
           key={draw[0].instanceId}
@@ -1567,25 +1618,23 @@ export function Boosters({
           revealed={revealed}
           onReveal={onReveal}
           onReturn={() => setShowDraw(false)}
-          onNext={drawKind === "regular" ? () => start("regular") : undefined}
-          nextDisabled={!status || status.available < selectedCount || busy}
-          nextRemaining={status?.available}
+          onNext={collectionDraw ? () => start(drawKind) : undefined}
+          nextDisabled={busy || (sunsetDraw ? sunsetRemaining === 0 : !status || status.available < selectedCount)}
+          nextRemaining={sunsetDraw ? (sunset.event?.unlimited ? undefined : sunsetRemaining) : status?.available}
           nextLabel={
-            status?.available === 0 ? tp("nextIn", { time: countdown }) : selectedCount > 1 ? tp("nextPacks", { count: selectedCount }) : tp("nextPack")
+            sunsetDraw ? tp("nextPack") : status?.available === 0 ? tp("nextIn", { time: countdown }) : selectedCount > 1 ? tp("nextPacks", { count: selectedCount }) : tp("nextPack")
           }
-          onDiscard={(!localPreview || simulateActions) && drawKind === "regular" ? onDiscard : undefined}
+          onDiscard={(!localPreview || simulateActions) && collectionDraw ? onDiscard : undefined}
           onDiscardMany={
-            (!localPreview || simulateActions) && drawKind === "regular"
+            (!localPreview || simulateActions) && collectionDraw
               ? onDiscardMany
               : undefined
           }
-          onAuction={drawKind === "regular" ? onAuction : undefined}
-          onMoveCard={drawKind === "regular" ? onMoveCard : undefined}
-          onSetLocked={drawKind === "regular" ? onSetLocked : undefined}
-          onEvolve={drawKind === "regular" ? onEvolve : undefined}
-          onSetCustomImage={
-            drawKind === "regular" ? onSetCustomImage : undefined
-          }
+          onAuction={collectionDraw ? onAuction : undefined}
+          onMoveCard={collectionDraw ? onMoveCard : undefined}
+          onSetLocked={collectionDraw ? onSetLocked : undefined}
+          onEvolve={collectionDraw ? onEvolve : undefined}
+          onSetCustomImage={collectionDraw ? onSetCustomImage : undefined}
           decision={
             drawKind === "decision"
               ? {
@@ -1616,6 +1665,14 @@ export function Boosters({
       ) : (
         <div className="yk-pack-grid">
           <AmbientGlow />
+          <div className="yk-pack-carousel-slot" id={hasSunset ? "gta-sunset" : undefined}>
+          {showSunset ? (
+            <GtaSunsetBooster
+              snapshot={sunset}
+              busy={busy}
+              onOpen={trigger => start("sunset", trigger)}
+            />
+          ) : (
           <article
             className="yk-pack-panel"
             data-unavailable={!status || status.available === 0}
@@ -1735,6 +1792,22 @@ export function Boosters({
               </Button>
             </div>
           </article>
+          )}
+          {hasSunset && (
+            <button
+              type="button"
+              className="yk-pack-carousel-arrow"
+              aria-label={tSunset(showSunset ? "switchToRegular" : "switchToSunset")}
+              title={tSunset(showSunset ? "switchToRegular" : "switchToSunset")}
+              data-direction={showSunset ? "back" : "next"}
+              onClick={() => switchPack(!showSunset)}
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14m-6-6 6 6-6 6" />
+              </svg>
+            </button>
+          )}
+          </div>
           <article
             className="yk-pack-panel yk-decision-panel"
             data-unavailable={

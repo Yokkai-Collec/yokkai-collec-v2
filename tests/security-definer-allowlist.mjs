@@ -117,6 +117,7 @@ const allowlist = {
   "public.admin_get_black_market_recovery_queue(integer, uuid)": [
     "authenticated"
   ], // Admin-only pending cards and their recovery blockers.
+  "public.get_gta_sunset_event()": ["authenticated"], // Public event and only the current player’s opening.
   "public.get_black_market_event()": ["authenticated"], // Authenticated public event DTO; no source identities or recovery records.
   "public.get_black_market_activity()": ["authenticated"], // Public final sale prices and winner profile visuals, plus own wins and pending reminders.
   "public.set_black_market_reminder(uuid, boolean)": ["authenticated"], // Changes only the current user's reminders for scheduled cards.
@@ -447,6 +448,7 @@ const allowlist = {
   "public.lock_collection_cards(uuid[])": ["authenticated"], // Atomically locks the current player's selected cards that are not at auction.
   "public.move_cards_to_folder(uuid[], uuid)": ["authenticated"], // Atomically moves the current player's selected cards to an owned folder.
   "public.open_decision_pack()": ["authenticated"], // Opens the current player's available decision pack.
+  "public.open_gta_sunset_booster(date)": ["authenticated"], // Opens one automatically earned credit per Paris calendar day.
   "public.open_regular_pack()": ["authenticated"], // Opens the current player's available regular pack.
   "public.place_bid(uuid, integer)": ["authenticated"], // Player bids with validated funds and auction state.
   "public.remove_friend(uuid)": ["authenticated"], // Player removes their own friendship.

@@ -1,4 +1,5 @@
 import { EventsHub } from "@/components/events-hub";
+import { GtaSunsetHomeBanner } from "@/components/gta-sunset-event";
 import { MysteryAuctionAnnouncement } from "@/components/mystery-auction-announcement";
 import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
@@ -257,6 +258,7 @@ export function HomeDashboard({
       <HomeRefresh />
       <main id="main-content" className="yk-home-main">
         <HomeHero />
+        <GtaSunsetHomeBanner />
         <EventsHub home />
         <HomePacks>
           <Suspense fallback={<HomeSkeleton />}>

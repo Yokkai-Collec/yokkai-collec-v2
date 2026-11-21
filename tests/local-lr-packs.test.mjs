@@ -115,6 +115,8 @@ function stateHooks() {
       },
       useEffect: () => {},
       useCallback: fn => fn,
+      useSyncExternalStore: (_subscribe, _snapshot, serverSnapshot) =>
+        serverSnapshot(),
       useRef: value => ({ current: value })
     }
   };
@@ -180,6 +182,9 @@ function boostersMocks(react) {
     "next/dynamic": { default: () => "LazyPreview" },
     "next/link": { default: "Link" },
     "@/components/ambient-glow": { AmbientGlow: "AmbientGlow" },
+    "@/components/gta-sunset-event": {
+      useGtaSunsetEvent: () => ({ event: null })
+    },
     "@/components/referral-reminder": { ReferralReminder: "ReferralReminder" },
     "@/lib/ui/pack-opening": { packCopyLabels: cards => cards },
     "@/components/card-sharing": { CardShareButton: "CardShareButton" },

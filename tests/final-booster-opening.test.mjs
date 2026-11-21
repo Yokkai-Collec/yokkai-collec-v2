@@ -97,7 +97,9 @@ function hooks() {
         refs[position] ??= { current: initial };
         return refs[position];
       },
-      useCallback: fn => fn
+      useCallback: fn => fn,
+      useSyncExternalStore: (_subscribe, _snapshot, serverSnapshot) =>
+        serverSnapshot()
     }
   };
 }
@@ -135,6 +137,14 @@ test("replacement booster sequence is pinned; only known real pack images enter 
       /\.scene:not\(\.running\) \*[^}]*animation-name:none!important/
     );
   }
+  const sunset = documentFor("sunset");
+  assert.match(sunset, /\/assets\/events\/gta-sunset\/booster\.png/);
+  assert.match(sunset, /\/assets\/events\/gta-sunset\/opening-nebula\.webp/);
+  assert.equal((sunset.match(/<div class="opening-card" /g) ?? []).length, 3);
+  assert.equal(
+    (documentFor("regular").match(/<div class="opening-card" /g) ?? []).length,
+    5
+  );
   for (const kind of ["../../secret", "LR", "", "Regular"])
     assert.throws(() =>
       boosterOpeningDocument(asset, "https://yokkai-collec.com", kind)
@@ -413,7 +423,12 @@ test("sandbox player scopes messages and cleans up; failure/timeout/completion r
     const child = { postMessage() {} };
     const { BoosterOpening } = load(
       "components/booster-opening.tsx",
-      { react: state.react },
+      {
+        react: state.react,
+        "@/lib/ui/booster-opening-document": {
+          SUNSET_BOOSTER_IMAGE: "/assets/events/gta-sunset/booster.png"
+        }
+      },
       {
         AbortController,
         window: {
@@ -497,8 +512,9 @@ test("the real Game and safe simulated packs opt in; the legacy renderer and SSR
   assert.match(source, /type: "yokkai-booster-next-step"/);
   assert.match(
     source,
-    /open: count > 1 && onOpenMany \? \(\) => onOpenMany\(count\) : \(\) => onOpen\(kind\)/
+    /\(\) => count > 1 && onOpenMany \? onOpenMany\(count\) : onOpen\(kind\)/
   );
+  assert.match(source, /open: openCards/);
   assert.match(source, /kind=\{openingKind\}/);
   assert.match(source, /<CardCinematic/);
   assert.match(source, /role="button" tabIndex=\{0\}/);
@@ -530,6 +546,9 @@ test("live Boosters locks double clicks, permits keyboard skip and cannot reveal
       "next/dynamic": { default: () => "Dynamic" },
       "next/link": { default: "Link" },
       "@/components/ambient-glow": { AmbientGlow: "AmbientGlow" },
+      "@/components/gta-sunset-event": {
+        useGtaSunsetEvent: () => ({ event: null })
+      },
       "@/components/referral-reminder": { ReferralReminder: "Reminder" },
       "@/components/card-sharing": {},
       "@/lib/ui/pack-opening": {
@@ -664,6 +683,26 @@ test("production proxy origins use configured public site, not localhost or atta
       openingHtml.includes(expected + "/assets/chrome-regular-booster-v1.png")
     );
     assert.doesNotMatch(openingHtml, /evil\.example/);
+    const localRequest = new Request(
+      "http://localhost:3000/api/booster-opening?kind=sunset",
+      {
+        headers: { host: "127.0.0.1:3000", "x-forwarded-host": "evil.example" }
+      }
+    );
+    const sunsetResponse = await opening.GET(localRequest);
+    assert.equal(sunsetResponse.status, 200);
+    const sunsetHtml = await sunsetResponse.text();
+    const sunsetOrigin =
+      environment === "development" ? "http://127.0.0.1:3000" : expected;
+    assert.ok(
+      sunsetHtml.includes(`const hostOrigin=${JSON.stringify(sunsetOrigin)};`)
+    );
+    assert.ok(
+      sunsetHtml.includes(
+        sunsetOrigin + "/assets/events/gta-sunset/booster.png"
+      )
+    );
+    assert.doesNotMatch(sunsetHtml, /evil\.example/);
   }
 });
 

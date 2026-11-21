@@ -169,7 +169,10 @@ export function BlackMarketHubCard({
   const status = upcoming ? "upcoming" : closed ? "closed" : "live";
   return (
     <li className="yk-black-market-event-row" data-event="black-market">
-      <Link href="/black-market" className="yk-black-market-event-link">
+      <Link
+        href="/black-market"
+        className="yk-event-banner-link yk-black-market-event-link"
+      >
         <div className="yk-black-market-event-body">
           <div className="yk-black-market-event-cards" aria-hidden="true">
             {blackMarketShowcaseCards.map(card => (

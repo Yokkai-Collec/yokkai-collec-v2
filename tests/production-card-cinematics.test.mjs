@@ -155,6 +155,9 @@ test("released real-pack reveals use final SSR/LR without reward calls or summar
         },
         "next/link": { default: "Link" },
         "@/components/ambient-glow": { AmbientGlow: "AmbientGlow" },
+        "@/components/gta-sunset-event": {
+          useGtaSunsetEvent: () => ({ event: null })
+        },
         "@/components/referral-reminder": {},
         "@/lib/ui/pack-opening": {},
         "@/components/card-sharing": {},
