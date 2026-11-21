@@ -1,4 +1,6 @@
-export type BoosterKind = "regular" | "decision";
+export type BoosterKind = "regular" | "decision" | "sunset";
+
+export const SUNSET_BOOSTER_IMAGE = "/assets/events/gta-sunset/booster.png";
 
 // Preserve the supplied artwork; adapt startup and composite-only playback.
 export function boosterOpeningDocument(
@@ -7,7 +9,7 @@ export function boosterOpeningDocument(
   kind: BoosterKind,
   waitForClick = false
 ) {
-  if (kind !== "regular" && kind !== "decision")
+  if (kind !== "regular" && kind !== "decision" && kind !== "sunset")
     throw new Error("Invalid pack kind");
   const origin = new URL(parentOrigin);
   if (
@@ -24,11 +26,22 @@ export function boosterOpeningDocument(
       /[<>&\u2028\u2029]/g,
       character => `\\u${character.charCodeAt(0).toString(16).padStart(4, "0")}`
     );
+  const sunset = kind === "sunset";
   const booster = {
-    boosterImage: new URL(`/assets/chrome-${kind}-booster-v1.png`, origin).href,
+    boosterImage: new URL(
+      sunset ? SUNSET_BOOSTER_IMAGE : `/assets/chrome-${kind}-booster-v1.png`,
+      origin
+    ).href,
     tearAt: 17.3,
-    accentColor: kind === "decision" ? "#ff69be" : "#8dbdff"
+    accentColor: sunset
+      ? "#ffa5d2"
+      : kind === "decision"
+        ? "#ff69be"
+        : "#8dbdff"
   };
+  const nebula = sunset
+    ? "/assets/events/gta-sunset/opening-nebula.webp"
+    : `/assets/${kind}-opening-nebula.webp`;
   if (
     !source.includes('data-yokkai-opening="tear-and-fan"') ||
     !source.includes("window.setYokkaiBooster = setYokkaiBooster;")
@@ -38,6 +51,19 @@ export function boosterOpeningDocument(
     "__CARD_BACK__",
     new URL("/assets/bubble-card-back-v1.png", origin).href
   );
+  if (sunset) {
+    const fan =
+      /<div class="opening-cards">(?:\s*<div class="opening-card"[^>]*><\/div>){5}<\/div>/;
+    if (!fan.test(document)) throw new Error("Invalid booster fan");
+    const cards = [-1, 0, 1].map(
+      (index, order) =>
+        `<div class="opening-card" style="--order:${order};--index:${index};--distance:${Math.abs(index)}"></div>`
+    );
+    document = document.replace(
+      fan,
+      `<div class="opening-cards">${cards.join("")}</div>`
+    );
+  }
   document = document
     .replace('<html lang="fr">', '<html lang="en" class="yokkai-wait-booster">')
     .replace(/<title>[^<]*<\/title>/, "<title>Yokkai booster opening</title>");
@@ -189,7 +215,7 @@ export function boosterOpeningDocument(
         if(!loaded)throw new Error('Booster unavailable');
         document.documentElement.classList.remove('yokkai-wait-booster');
         hostState='YOKKAI_BOOSTER_READY';notify(hostState);
-        // Reference handoff: five cards settle before the 2.94s completion.
+        // The fan settles before the 2.94s completion.
         beginOpening();
       }catch{if(stage!=='disposed'){hostState='YOKKAI_BOOSTER_ERROR';notify(hostState);}}
     }
@@ -204,7 +230,7 @@ export function boosterOpeningDocument(
     .replace(
       "</head>",
       `<style>
-      body{background:#070b13 url(${json(new URL(`/assets/${kind}-opening-nebula.webp`, origin).href)}) center / cover no-repeat}
+      body{background:#070b13 url(${json(new URL(nebula, origin).href)}) center / cover no-repeat}
       html,body,.scene{-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
       .pack-position,.opening-cards{transform-style:preserve-3d}
       .yokkai-wait-booster .scene{visibility:hidden}

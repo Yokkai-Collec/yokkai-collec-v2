@@ -407,6 +407,9 @@
 .yk-reveal-screen[data-pack-kind="regular"] {
   --reveal-background: url("/assets/regular-opening-nebula.webp");
 }
+.yk-reveal-screen[data-pack-kind="sunset"] {
+  --reveal-background: url("/assets/events/gta-sunset/opening-nebula.webp");
+}
 .yk-reveal-screen[data-pack-kind="decision"] {
   --reveal-background: url("/assets/decision-opening-nebula.webp");
 }
@@ -495,6 +498,14 @@
   gap: var(--layout-gutter-compact) var(--booster-reveal-gap);
   max-width: var(--booster-reveal-max);
   margin: var(--layout-gutter-compact) auto 0;
+}
+@media (width > 40rem) {
+  .yk-reveal-screen[data-pack-kind="sunset"] > .yk-reveal-grid {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: calc((100% - 4 * var(--booster-reveal-gap)) / 5);
+    justify-content: center;
+  }
 }
 .yk-reveal-slot {
   position: relative;
@@ -827,33 +838,51 @@
   top: var(--layout-gutter-compact);
   right: var(--layout-gutter-compact);
 }
+.yk-pack-art-stage:has(
+  .yk-pack-info-trigger:not(details) > .yk-pack-info-popover,
+  .yk-pack-info-trigger[open]
+) {
+  z-index: 6;
+}
 .yk-pack-info-popover {
   position: absolute;
-  top: 100%;
-  right: 0;
-  width: min(300px, calc(100vw - 80px));
-  padding: var(--layout-gutter-compact);
+  inset-block-start: 0;
+  inset-inline-end: calc(100% + 12px);
+  width: min(15rem, calc(100cqi - 5.25rem));
+  max-height: calc(100cqh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 12px;
   border: 1px solid var(--color-veil-strong);
   border-radius: var(--radius-panel);
   background: var(--color-night);
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-hover);
 }
-@media (min-width: 40.0625rem) {
-  .yk-pack-panel:has(.yk-pack-info-popover) {
-    transform: none;
+.yk-pack-info-popover > p {
+  line-height: 1.35;
+}
+.yk-pack-info-popover > p + p {
+  margin-top: 8px;
+}
+.yk-pack-info-popover .yk-drop-rates {
+  gap: 3px;
+  margin-top: 10px;
+}
+.yk-pack-info-popover .yk-drop-rates > div {
+  gap: 8px;
+  padding-bottom: 3px;
+}
+.yk-pack-info-popover .yk-drop-shiny {
+  margin-top: 10px;
+}
+@media (min-width: 1024px) {
+  .yk-pack-panel:not(.yk-decision-panel) .yk-pack-info-popover {
+    inset-inline: calc(100% + 12px) auto;
   }
-  .yk-pack-info-popover {
-    position: fixed;
-    z-index: 20;
-    top: 50%;
-    right: auto;
-    left: 50%;
-    width: min(360px, calc(100vw - 2rem));
-    max-height: calc(100dvh - 2rem);
-    overflow-y: auto;
-    padding: clamp(16px, 2vw, 24px);
-    transform: translate(-50%, -50%);
-    box-shadow: var(--shadow-hover);
+}
+@media (min-width: 1440px) {
+  .yk-decision-panel .yk-pack-info-popover {
+    inset-inline: calc(100% + 12px) auto;
   }
 }
 .yk-pack-info {

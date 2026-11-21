@@ -7,6 +7,33 @@
   box-shadow: var(--card-glow);
   isolation: isolate;
 }
+.yk-card.yk-rarity-LR[data-sunset] {
+  --card-inset: 3px;
+  --card-frame: conic-gradient(
+    from 10deg,
+    #ffae73,
+    #ff648a,
+    #ff42bd,
+    #9a52f7,
+    #ed83e9,
+    #ffae73
+  );
+  --card-spin: yk-spin 7s linear infinite;
+  --card-glow: 0 0 0 1px #ffb0d1a6, 0 8px 22px #ed4ea953;
+  --card-badge: #261126;
+  --card-badge-border: #ffb8c9;
+  --card-badge-ink: #ffe2b9;
+  --card-foil: none;
+  --card-spark: #ffd2ac;
+}
+.yk-card[data-sunset] .yk-card-art {
+  mask-image: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .yk-card[data-sunset] .yk-card-frame {
+    animation: none;
+  }
+}
 .yk-card-clip {
   position: absolute;
   inset: 0;
@@ -132,6 +159,9 @@
   width: clamp(20px, 13cqw, 32px);
   aspect-ratio: 1.4;
 }
+.yk-first-copy-sunset {
+  aspect-ratio: 132 / 99;
+}
 .yk-first-copy-picture {
   display: block;
   width: 100%;
@@ -143,7 +173,7 @@
   height: 100%;
   object-fit: contain;
 }
-.yk-card-first-lr:not(.yk-first-copy-shiny) img {
+.yk-card-first-lr:not(.yk-first-copy-shiny, .yk-first-copy-sunset) img {
   filter: grayscale(1) brightness(0.65) contrast(3.3) sepia(0.85) saturate(1.6);
 }
 .yk-card:has(.yk-card-copy-status) .yk-card-category-accessory {

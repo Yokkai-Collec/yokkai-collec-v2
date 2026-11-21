@@ -490,6 +490,7 @@ export function LrCardReveal({
               {...card}
               rarity={ssr ? "SSR" : "LR"}
               animated={false}
+              hideFirstLrBadge={!ready}
               imageLoading={shiny ? "eager" : undefined}
             />
             <div className="yk-lr-glass" aria-hidden="true" />

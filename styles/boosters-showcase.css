@@ -204,6 +204,9 @@
 }
 .yk-pack-panel[data-unavailable="true"] .yk-pack-image {
   opacity: 0.55;
+}
+.yk-pack-panel[data-unavailable="true"]:not(.yk-sunset-pack-panel)
+  .yk-pack-image {
   animation: none;
 }
 .yk-pack-panel[data-unavailable="true"] .yk-pack-floor {

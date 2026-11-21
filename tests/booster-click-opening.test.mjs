@@ -93,7 +93,9 @@ function hooks() {
       useEffect(fn) {
         effects.push(fn);
       },
-      useCallback: fn => fn
+      useCallback: fn => fn,
+      useSyncExternalStore: (_subscribe, _snapshot, serverSnapshot) =>
+        serverSnapshot()
     }
   };
 }
@@ -245,7 +247,12 @@ test("player queues early clicks, keeps failures/timeouts closed until clicked, 
     const child = { postMessage: data => sent.push(data.type) };
     const { BoosterOpening } = load(
       "components/booster-opening.tsx",
-      { react: state.react },
+      {
+        react: state.react,
+        "@/lib/ui/booster-opening-document": {
+          SUNSET_BOOSTER_IMAGE: "/assets/events/gta-sunset/booster.png"
+        }
+      },
       {
         AbortController,
         window: {
@@ -356,6 +363,9 @@ test("the real pack stage requires a first pointer/keyboard gesture; repeated ke
         "next/link": { default: "Link" },
         "@/components/referral-reminder": { ReferralReminder: "Reminder" },
         "@/components/ambient-glow": { AmbientGlow: "AmbientGlow" },
+        "@/components/gta-sunset-event": {
+          useGtaSunsetEvent: () => ({ event: null })
+        },
         "@/components/card-sharing": {},
         "@/lib/ui/pack-opening": packOpening,
         "@/lib/ui/animations": { animation },

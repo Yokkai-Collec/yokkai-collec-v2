@@ -35,6 +35,7 @@ import {
   openBooster,
   openBoosters,
   openDecisionPack,
+  openSunsetBooster,
   setPaniniAlbumFavorite,
   setCardCustomImage,
   setCollectionCardLocked,
@@ -49,6 +50,7 @@ import { getWishlist } from "@/lib/data/wishlist";
 import { subscribePlayerSnapshotInvalidation } from "@/lib/data/player-state";
 import { useSfx } from "@/hooks/use-sfx";
 import { runPackOpeningOnce } from "@/lib/ui/pack-opening";
+import type { BoosterKind } from "@/lib/ui/booster-opening-document";
 import { releaseBoostersBackground } from "@/components/boosters-load-priority";
 import { startVisiblePolling } from "@/lib/ui/visible-polling";
 import { liveCollectionPages } from "@/lib/data/collection-pages";
@@ -116,7 +118,7 @@ export function Game({
   const [folders, setFolders] = useState<Folder[]>([]);
   const [draw, setDraw] = useState<CollectedCard[]>([]);
   const [revealed, setRevealed] = useState(0);
-  const [drawKind, setDrawKind] = useState<"regular" | "decision">("regular");
+  const [drawKind, setDrawKind] = useState<BoosterKind>("regular");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [now, setNow] = useState(0);
@@ -375,18 +377,28 @@ export function Game({
       unsubscribe();
     };
   }, [previewData, setCollection]);
-  async function open(kind: "regular" | "decision", count: 1 | 5 | 10 = 1) {
+  function open(kind: "regular" | "decision", count: 1 | 5 | 10 = 1) {
+    return openPack(
+      kind,
+      kind === "decision"
+        ? openDecisionPack
+        : count > 1
+          ? () => openBoosters(count)
+          : openBooster,
+      count > 1
+    );
+  }
+  async function openPack(
+    kind: BoosterKind,
+    requestCards: () => Promise<CollectedCard[]>,
+    batch = false
+  ) {
     if (draw.length > 0 && revealed < draw.length) return [];
     return await runPackOpeningOnce(opening, async () => {
       setBusy(true);
       setError("");
       try {
-        const cards =
-          kind === "regular" && count > 1
-            ? await openBoosters(count)
-            : kind === "regular"
-              ? await openBooster()
-              : await openDecisionPack();
+        const cards = await requestCards();
         setDraw(cards);
         setDrawKind(kind);
         setRevealed(0);
@@ -412,7 +424,7 @@ export function Game({
         throw e;
       } finally {
         setBusy(false);
-        if (count > 1) void getPackStatus().then(setStatus, () => undefined);
+        if (batch) void getPackStatus().then(setStatus, () => undefined);
       }
     });
   }
@@ -456,8 +468,9 @@ export function Game({
     return reward;
   }
   async function discard(instanceId: string) {
-    const balance = await discardPackCard(instanceId, drawKind);
-    if (drawKind === "regular") {
+    const kind = drawKind === "decision" ? "decision" : "regular";
+    const balance = await discardPackCard(instanceId, kind);
+    if (kind === "regular") {
       setCollection(await getUserCollection(false));
       setInfo(current =>
         current && balance !== null
@@ -711,6 +724,12 @@ export function Game({
                     return cards;
                   }
                 : open
+            }
+            onOpenSunset={
+              previewData
+                ? undefined
+                : packDay =>
+                    openPack("sunset", () => openSunsetBooster(packDay))
             }
             onKeepDecision={previewData ? async () => 0 : keepDecision}
             onSellDecisionAll={previewData ? undefined : discardDecision}

@@ -177,6 +177,7 @@ export default async function RootLayout({
       "events",
       "mysteryAuction",
       "blackMarket",
+      "gtaSunset",
       "siteFooter",
       "error",
       "adminReportedCard",

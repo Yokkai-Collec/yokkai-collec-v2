@@ -1,0 +1,230 @@
+.yk-home-sunset-banner {
+  display: grid;
+  grid-template:
+    "pack copy arrow" auto
+    "pack time arrow" auto / auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px 10px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #a9567c;
+  border-radius: 16px;
+  background:
+    linear-gradient(100deg, #241024 5%, #2d1029ef 45%, #2d1029bb 100%),
+    #2d1029 url("/assets/events/gta-sunset/opening-nebula.webp") right center /
+      68% auto no-repeat;
+  color: #fff2ed;
+}
+.yk-home-sunset-banner:hover {
+  border-color: #ffc09a;
+}
+.yk-home-sunset-banner:focus-visible {
+  outline: 2px solid #ffc09a;
+  outline-offset: 2px;
+}
+.yk-home-sunset-pack {
+  grid-area: pack;
+  width: 32px;
+  height: 58px;
+  object-fit: contain;
+  rotate: -8deg;
+}
+.yk-home-sunset-copy {
+  grid-area: copy;
+  display: grid;
+  gap: 2px;
+  font-size: 13px;
+  line-height: 1.35;
+}
+.yk-home-sunset-copy strong {
+  color: #ffe2bf;
+  font-size: clamp(16px, 2vw, 20px);
+}
+.yk-home-sunset-time {
+  grid-area: time;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  color: #ffd5df;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.yk-home-sunset-action {
+  grid-area: time;
+  justify-self: start;
+  border-radius: 6px;
+  padding: 4px 7px;
+  background: #ffd3aa;
+  color: #361229;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.yk-home-sunset-banner:hover .yk-home-sunset-action {
+  background: #ffe3c6;
+}
+.yk-home-sunset-cards {
+  display: none;
+}
+.yk-home-sunset-time svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+}
+.yk-home-sunset-banner .yk-event-banner-arrow {
+  grid-area: arrow;
+  width: 24px;
+  height: 24px;
+  margin-left: 0;
+  color: #ffe2bf;
+}
+@media (min-width: 640px) {
+  .yk-home-sunset-banner {
+    grid-template: "pack copy time arrow" auto / auto minmax(0, 1fr) auto auto;
+    gap: 16px;
+    padding: 10px 18px;
+  }
+}
+@media (min-width: 900px) {
+  .yk-home-sunset-banner {
+    grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+    grid-template-areas: "pack copy cards time arrow";
+  }
+  .yk-home-sunset-cards {
+    grid-area: cards;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding-inline: 6px;
+  }
+  .yk-home-sunset-cards > div {
+    width: 38px;
+    rotate: -7deg;
+  }
+  .yk-home-sunset-cards > div + div {
+    rotate: 7deg;
+  }
+}
+
+.yk-event-card[data-event="gta-sunset"] {
+  --banner-accent: #ff9eaa;
+  --banner-light: #ffdfeb;
+  --banner-glow: #f756a7;
+  --event-banner-title-fill: linear-gradient(
+    180deg,
+    #fff0c6,
+    #ffafac 56%,
+    #ff9ede
+  );
+  border-color: #aa6286;
+  background: linear-gradient(112deg, #190f23 28%, #411d40 71%, #672945);
+}
+.yk-event-card[data-event="gta-sunset"] .yk-event-banner-content {
+  width: 58%;
+}
+.yk-event-card[data-event="gta-sunset"] .yk-event-banner-content h3 {
+  max-width: none;
+}
+.yk-event-card[data-event="gta-sunset"] .yk-event-status {
+  max-width: none;
+}
+.yk-sunset-hub-art {
+  position: absolute;
+  right: 5%;
+  top: 9%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 39%;
+  pointer-events: none;
+}
+.yk-sunset-hub-art > div {
+  width: min(55%, 120px);
+  flex: none;
+}
+.yk-sunset-hub-art > div:first-child {
+  z-index: 1;
+  rotate: -11deg;
+}
+.yk-sunset-hub-art > div + div {
+  margin-inline-start: -12%;
+  translate: 0 10%;
+  rotate: 10deg;
+}
+.yk-sunset-featured-cards .yk-card-content {
+  visibility: hidden;
+}
+.yk-pack-carousel-slot {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  scroll-margin-top: 85px;
+}
+.yk-pack-carousel-arrow {
+  position: absolute;
+  z-index: 5;
+  inset-inline-end: max(4px, calc(19% - 38px));
+  top: clamp(102px, 19dvh, 180px);
+  display: grid;
+  place-items: center;
+  width: calc(44px / var(--desktop-layout-scale, 1));
+  height: calc(44px / var(--desktop-layout-scale, 1));
+  border: 1px solid #a8bff177;
+  border-radius: 50%;
+  color: #e3edff;
+  background: #101b2be8;
+  transition:
+    background-color 160ms,
+    border-color 160ms;
+}
+.yk-pack-carousel-arrow:hover {
+  border-color: #c2d3fd;
+  background: #203451;
+}
+.yk-pack-carousel-arrow:focus-visible {
+  outline: 2px solid #e9dcff;
+  outline-offset: 3px;
+}
+.yk-pack-carousel-arrow svg {
+  width: 20px;
+  height: 20px;
+}
+.yk-pack-carousel-arrow[data-direction="back"] svg {
+  rotate: 180deg;
+}
+.yk-pack-grid .yk-sunset-pack-panel {
+  --pack-accent: #ffb6ce;
+  --color-pack-glow: #cb53ad72;
+  --color-pack-shadow: #13081c;
+}
+.yk-pack-grid .yk-sunset-pack-panel .yk-pack-image {
+  /* The Sunset artwork fills more of its transparent canvas. Match the sachets' visible bounds. */
+  scale: 0.844 0.969;
+  translate: 0.6% -1.4%;
+  filter: drop-shadow(0 12px 18px #13081c) drop-shadow(0 0 18px #ab67d288);
+}
+.yk-pack-grid .yk-sunset-pack-panel .yk-sunset-pack-reserve {
+  color: #ffd0e4;
+  font-weight: 700;
+}
+.yk-pack-grid .yk-sunset-pack-panel .yk-pack-status {
+  min-height: 0;
+  margin-bottom: 12px;
+}
+.yk-sunset-pack-info[open] {
+  z-index: 6;
+}
+.yk-sunset-pack-info summary::-webkit-details-marker {
+  display: none;
+}
+@media (max-width: 1023px) {
+  .yk-pack-carousel-arrow {
+    inset-inline-end: var(--layout-gutter-compact);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .yk-pack-carousel-arrow {
+    transition: none;
+  }
+}

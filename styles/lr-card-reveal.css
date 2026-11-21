@@ -223,16 +223,17 @@
 }
 .yk-lr-end-controls {
   position: absolute;
-  left: 50%;
+  inset-inline: 0;
   bottom: max(18px, env(safe-area-inset-bottom, 0px) + 18px);
   width: min(calc(100% - 28px), 560px);
+  margin-inline: auto;
   display: flex;
   justify-content: center;
   gap: 12px;
   z-index: 4;
   opacity: 0;
   pointer-events: none;
-  transform: translate(-50%, 18px);
+  transform: translateY(18px);
   transition:
     opacity 0.28s ease,
     transform 0.28s ease;
@@ -240,7 +241,7 @@
 .yk-lr-end-controls.yk-lr-ready {
   opacity: 1;
   pointer-events: auto;
-  transform: translate(-50%, 0);
+  transform: translateY(0);
 }
 .yk-lr-end-controls button {
   appearance: none;
@@ -302,15 +303,16 @@
   .yk-lr-end-controls {
     left: auto;
     right: max(12px, env(safe-area-inset-right, 0px) + 12px);
-    top: 50%;
-    bottom: auto;
+    inset-block: 0;
     width: min(176px, 22vw);
+    height: max-content;
+    margin-block: auto;
     flex-direction: column;
     gap: 11px;
-    transform: translate(18px, -50%);
+    transform: translateX(18px);
   }
   .yk-lr-end-controls.yk-lr-ready {
-    transform: translate(0, -50%);
+    transform: translateX(0);
   }
   .yk-lr-end-controls button {
     min-width: 0;
@@ -1028,4 +1030,130 @@
     inset 0 0 0 1px #ffd7ef1a,
     0 0 18px #ff4fb630,
     0 8px 26px #00000057;
+}
+
+/* Sunset LR takes its colors from the event booster. */
+.yk-lr-reveal:has(> .yk-lr-stage .yk-rarity-LR[data-sunset]) .yk-lr-world {
+  background:
+    radial-gradient(
+      ellipse at 47% 62%,
+      #ffb344a8,
+      #ff642e48 34%,
+      transparent 65%
+    ),
+    url("/assets/card-reveals/lr-gold-world.webp") center/cover no-repeat,
+    linear-gradient(
+        145deg,
+        #3b1469 5%,
+        #e81b75 30%,
+        #ff791c 54%,
+        #e4660b 68%,
+        #bd145e 86%,
+        #3b1469
+      )
+      #3b1469;
+  background-blend-mode: normal, luminosity, normal;
+}
+.yk-lr-reveal:has(> .yk-lr-stage .yk-rarity-LR[data-sunset])
+  .yk-lr-world::before {
+  background:
+    radial-gradient(ellipse at center, transparent 20%, #1608298c 92%),
+    linear-gradient(0deg, #180a224f, transparent 30%);
+}
+.yk-lr-reveal:has(> .yk-lr-stage .yk-rarity-LR[data-sunset])
+  .yk-lr-world::after {
+  background:
+    repeating-linear-gradient(0deg, transparent 0 3px, #0002 4px),
+    repeating-linear-gradient(90deg, transparent 0 3px, #ffbc7f0a 4px);
+}
+.yk-lr-reveal:has(> .yk-lr-stage .yk-rarity-LR[data-sunset])
+  .yk-lr-intro::before {
+  background:
+    radial-gradient(ellipse at 28% 24%, #af309446, transparent 34%),
+    radial-gradient(ellipse at 75% 72%, #e76a4346, transparent 36%);
+}
+.yk-lr-reveal:has(> .yk-lr-stage .yk-rarity-LR[data-sunset]) .yk-lr-stroke {
+  background: linear-gradient(90deg, transparent, #ffe1a9, transparent);
+}
+.yk-lr-reveal:has(> .yk-lr-stage .yk-rarity-LR[data-sunset])
+  :is(.yk-lr-phase-1, .yk-lr-phase-3)
+  .yk-lr-stroke {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #ff3884b8,
+    #ffe8ac,
+    #ff7528b8,
+    transparent
+  );
+}
+.yk-lr-reveal:has(> .yk-lr-stage .yk-rarity-LR[data-sunset]) .yk-lr-streak {
+  background: linear-gradient(
+    90deg,
+    transparent 16%,
+    #ff408b59 35%,
+    #fff0bbeb 52%,
+    #ff763799 62%,
+    transparent 90%
+  );
+}
+.yk-lr-reveal:has(> .yk-lr-stage .yk-rarity-LR[data-sunset])
+  :is(.yk-lr-dot, .yk-lr-glitter, .yk-lr-corner) {
+  background: #ffdb99;
+  box-shadow: 0 0 10px #ff8b359c;
+}
+.yk-lr-reveal:has(> .yk-lr-stage .yk-rarity-LR[data-sunset])
+  :is(.yk-lr-confetti, .yk-lr-floor i) {
+  background: #ff9a45;
+}
+.yk-lr-reveal:has(> .yk-lr-stage .yk-rarity-LR[data-sunset])
+  .yk-lr-confetti:nth-child(3n) {
+  background: #ff78b1;
+}
+.yk-lr-reveal:has(> .yk-lr-stage .yk-rarity-LR[data-sunset])
+  .yk-lr-confetti:nth-child(3n + 1) {
+  background: #ffeaba;
+}
+.yk-lr-reveal:has(> .yk-lr-stage .yk-rarity-LR[data-sunset]) .yk-lr-edge {
+  box-shadow:
+    0 0 15px #ffd28c9c,
+    0 0 37px #ff7b285e,
+    0 0 75px #ff408b66;
+}
+.yk-lr-reveal:has(> .yk-lr-stage .yk-rarity-LR[data-sunset])
+  .yk-lr-stage::before {
+  border-color: #ffdc9bb3;
+  box-shadow:
+    0 0 18px #ff913b72,
+    inset 0 0 20px #ff5f8b48;
+}
+.yk-lr-reveal:has(> .yk-lr-stage .yk-rarity-LR[data-sunset])
+  .yk-lr-stage::after {
+  background: radial-gradient(
+    circle,
+    #fff1aa62,
+    #ff7d304f 32%,
+    transparent 73%
+  );
+}
+.yk-lr-reveal:has(> .yk-lr-stage .yk-rarity-LR[data-sunset]) .yk-lr-glass {
+  --yk-lr-glass-1: 255 112 162;
+  --yk-lr-glass-2: 255 222 153;
+}
+.yk-lr-reveal:has(> .yk-lr-stage .yk-rarity-LR[data-sunset])
+  .yk-lr-end-controls
+  button {
+  border-color: #ffb277eb;
+  color: #fff3de;
+  background:
+    radial-gradient(120% 140% at 50% 0%, #ff9b6638, transparent 46%),
+    linear-gradient(180deg, #38162cfa, #1e102cfa);
+  box-shadow:
+    inset 0 0 0 1px #ffd39c26,
+    0 0 18px #ff774a46,
+    0 8px 26px #00000057;
+}
+.yk-lr-reveal:has(> .yk-lr-stage .yk-rarity-LR[data-sunset])
+  :is(.yk-lr-skip, .yk-lr-end-controls button):focus-visible {
+  outline-color: #ffe1a9;
 }

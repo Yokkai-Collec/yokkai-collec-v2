@@ -2,7 +2,10 @@
 import { useTranslations } from "next-intl";
 
 import { useEffect, useRef, useState } from "react";
-import type { BoosterKind } from "@/lib/ui/booster-opening-document";
+import {
+  SUNSET_BOOSTER_IMAGE,
+  type BoosterKind
+} from "@/lib/ui/booster-opening-document";
 import "@/styles/booster-opening.css";
 
 export function BoosterOpening({
@@ -28,6 +31,7 @@ export function BoosterOpening({
   onFanReady?: () => void;
 }) {
   const tp = useTranslations("packs");
+  const tSunset = useTranslations("gtaSunset");
   const [html, setHtml] = useState("");
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -183,7 +187,12 @@ export function BoosterOpening({
           ref={frame}
           data-ready={ready}
           title={tp("openingPack", {
-            pack: kind === "decision" ? "Decision Pack" : "Regular Pack"
+            pack:
+              kind === "sunset"
+                ? tSunset("boosterTitle")
+                : kind === "decision"
+                  ? "Decision Pack"
+                  : "Regular Pack"
           })}
           sandbox="allow-scripts"
           referrerPolicy="no-referrer"
@@ -204,7 +213,11 @@ export function BoosterOpening({
         <img
           draggable={false}
           className="yk-booster-opening-fallback"
-          src={`/assets/chrome-${kind}-booster-v1.png`}
+          src={
+            kind === "sunset"
+              ? SUNSET_BOOSTER_IMAGE
+              : `/assets/chrome-${kind}-booster-v1.png`
+          }
           alt=""
         />
       )}

@@ -284,13 +284,14 @@ a.yk-black-market-result-winner:hover {
   }
 }
 .yk-black-market-event-row {
-  grid-column: 1 / -1;
+  display: grid;
   min-width: 0;
   container-type: inline-size;
 }
-.yk-black-market-event-link {
+.yk-event-banner-link.yk-black-market-event-link {
   --black-market-event-accent: #f0a4ad;
-  display: block;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   border: 1px solid #c498a0;
   border-radius: 18px;
@@ -311,35 +312,34 @@ a.yk-black-market-result-winner:hover {
   isolation: isolate;
   display: grid;
   align-items: center;
-  min-height: 10.5rem;
-  padding: 1rem clamp(0.875rem, 2.5cqi, 1.5rem);
+  flex: 1;
+  grid-template-columns: minmax(0, 55%);
+  padding: 1rem clamp(0.875rem, 4cqi, 1.5rem);
 }
 .yk-black-market-event-body::before {
   position: absolute;
   z-index: -1;
-  inset: 0;
-  width: min(100%, 36rem);
-  left: clamp(7rem, 18%, 21rem);
+  inset: 0 0 0 36%;
   border-radius: inherit;
   background: url("/assets/events/black-market-merchant.webp") 53% 47% / cover
     no-repeat;
   filter: grayscale(1) contrast(1.08) brightness(1.15);
-  mask-image: linear-gradient(90deg, transparent, #000 23% 82%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 34%);
   content: "";
 }
 .yk-black-market-event-cards {
   position: absolute;
   z-index: -1;
-  inset-inline-start: 58%;
+  inset-inline-end: 6%;
   top: 50%;
   display: flex;
   align-items: center;
-  gap: 0.3rem;
-  translate: -50% -50%;
+  gap: 0.2rem;
+  translate: 0 -50%;
   pointer-events: none;
 }
 .yk-black-market-event-cards > .yk-card {
-  width: clamp(2.75rem, 5.7cqi, 4.625rem);
+  width: clamp(1.75rem, 11cqi, 4.625rem);
   border-radius: 7px;
 }
 .yk-black-market-event-cards > .yk-card:first-child {
@@ -357,7 +357,7 @@ a.yk-black-market-result-winner:hover {
   box-shadow: 0 0 20px #be3a4a30;
 }
 .yk-black-market-event-title h3 {
-  --event-banner-title-scale: 4.2cqi;
+  --event-banner-title-scale: 7.15cqi;
   --event-banner-title-fill: linear-gradient(
     180deg,
     #fff 15%,
@@ -375,10 +375,10 @@ a.yk-black-market-result-winner:hover {
   word-spacing: 0.08em;
 }
 .yk-black-market-event-title p {
-  max-width: 46ch;
-  margin-top: 0.25rem;
+  max-width: 29ch;
+  margin-top: 0.5rem;
   color: #d2d2d7;
-  font-size: 0.8125rem;
+  font-size: clamp(0.65rem, 2.4cqi, 0.85rem);
 }
 .yk-black-market-event-link > .yk-event-banner-footer {
   position: static;
@@ -403,27 +403,6 @@ a.yk-black-market-result-winner:hover {
   border-color: #bf6776b0;
   color: #f5dce1;
   box-shadow: none;
-}
-@container (width < 46rem) {
-  .yk-black-market-event-body {
-    padding-block-start: 7.25rem;
-  }
-  .yk-black-market-event-body::before {
-    left: 0;
-    width: min(100%, 28rem);
-    height: 8rem;
-    background-position: right 47%;
-    mask-image: linear-gradient(#000 74%, transparent);
-  }
-  .yk-black-market-event-cards {
-    inset-inline-start: auto;
-    inset-inline-end: clamp(0.875rem, 15cqi - 2rem, 5rem);
-    top: 3.85rem;
-    translate: 0 -50%;
-  }
-  .yk-black-market-event-cards > .yk-card {
-    width: clamp(2.5rem, 11.5cqi, 3.25rem);
-  }
 }
 .yk-black-market-back:focus-visible {
   outline: 2px solid var(--black-market-cyan);
