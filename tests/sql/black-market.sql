@@ -25,6 +25,21 @@ begin
  (player,'{"pseudo":"BlackMarketPlayer"}'),(buyer,'{"pseudo":"BlackMarketBuyer"}');
  insert into public.admin_users(user_id) values(admin);
  perform set_config('request.jwt.claim.sub',admin::text,true);
+ assert public.admin_get_black_market_stock()->>'idleStatus'='upcoming', 'Idle status is not upcoming by default';
+ assert public.get_black_market_event()->>'idleStatus'='upcoming', 'Default status missing from the feed';
+ perform public.admin_set_black_market_idle_status('closed');
+ assert public.admin_get_black_market_stock()->>'idleStatus'='closed', 'Closed status was not saved';
+ assert public.get_black_market_event()->>'idleStatus'='closed', 'Closed status missing from the feed';
+ assert public.get_black_market_event()->'auctions'='[]'::jsonb, 'Idle feed exposed auctions';
+ assert not (select enabled from public.black_market_config), 'Idle setting enabled recovery';
+ begin perform public.admin_set_black_market_idle_status(null); raise exception 'Invalid status accepted';
+ exception when raise_exception then assert sqlerrm='BLACK_MARKET_INVALID_IDLE_STATUS',sqlerrm; end;
+ perform set_config('request.jwt.claim.sub',player::text,true);
+ begin perform public.admin_set_black_market_idle_status('upcoming'); raise exception 'Non-admin set idle status';
+ exception when raise_exception then assert sqlerrm='ADMIN_REQUIRED',sqlerrm; end;
+ perform set_config('request.jwt.claim.sub',admin::text,true);
+ perform public.admin_set_black_market_idle_status('upcoming');
+ assert public.get_black_market_event()->>'idleStatus'='upcoming', 'Status could not be switched back';
  perform public.admin_configure_black_market(true);
  insert into public.cards(source_id,nom,categorie,franchise,rarete_base,image_url,source) values
  ('bm-lr','Recovered LR','Anime','Test','LR','https://example.test/card.png','test') returning id into lr;

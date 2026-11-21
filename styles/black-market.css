@@ -493,6 +493,10 @@ a.yk-black-market-result-winner:hover {
   color: var(--color-ink-2);
   line-height: 1.5;
 }
+.yk-black-market-idle-settings > p {
+  flex-basis: 100%;
+  color: var(--color-ink-2);
+}
 .yk-black-market-edition-rules {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
