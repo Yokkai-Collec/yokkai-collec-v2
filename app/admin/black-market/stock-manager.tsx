@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { useFormatter, useTranslations } from "next-intl";
+import type { BlackMarketIdleStatus } from "@/components/black-market";
 import {
   GRID_CARD_IMAGE_SIZES,
   YokaiCard,
@@ -26,6 +27,7 @@ type StockItem = Pick<
 
 type Stock = {
   enabled: boolean;
+  idleStatus?: BlackMarketIdleStatus;
   minDay: string;
   scheduledDay: string | null;
   selectedIds: string[];
@@ -69,6 +71,8 @@ export function BlackMarketAdmin({ previewStock }: { previewStock?: Stock }) {
   const collection = useTranslations("collectionShared");
   const format = useFormatter();
   const [stock, setStock] = useState(previewStock);
+  const [selectedIdleStatus, setSelectedIdleStatus] =
+    useState<BlackMarketIdleStatus>();
   const [day, setDay] = useState(previewStock?.scheduledDay ?? "");
   const [prices, setPrices] = useState(() => savedPrices(previewStock));
   const [query, setQuery] = useState("");
@@ -79,6 +83,8 @@ export function BlackMarketAdmin({ previewStock }: { previewStock?: Stock }) {
   const [failed, setFailed] = useState(false);
   const selected = Object.keys(prices);
   const invalidPrice = Object.values(prices).some(value => !validPrice(value));
+  const idleStatus = stock?.idleStatus ?? "upcoming";
+  const editedIdleStatus = selectedIdleStatus ?? idleStatus;
 
   useEffect(() => {
     if (previewStock) return;
@@ -102,6 +108,31 @@ export function BlackMarketAdmin({ previewStock }: { previewStock?: Stock }) {
       active = false;
     };
   }, [t, previewStock]);
+
+  async function saveIdleStatus(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (previewStock || busy || editedIdleStatus === idleStatus) return;
+    setBusy(true);
+    setMessage("");
+    setFailed(false);
+    try {
+      const { error } = await createClient().rpc(
+        "admin_set_black_market_idle_status",
+        { p_status: editedIdleStatus }
+      );
+      if (error) throw error;
+      setStock(
+        previous => previous && { ...previous, idleStatus: editedIdleStatus }
+      );
+      setSelectedIdleStatus(undefined);
+      setMessage(t("idleStatusSaved"));
+    } catch {
+      setFailed(true);
+      setMessage(t("unavailable"));
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function scheduleEdition(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -167,6 +198,36 @@ export function BlackMarketAdmin({ previewStock }: { previewStock?: Stock }) {
       {!stock && !failed && <p role="status">{t("loading")}</p>}
       {stock && (
         <>
+          <form
+            className="yk-black-market-idle-settings"
+            onSubmit={event => void saveIdleStatus(event)}
+          >
+            <p id="black-market-idle-status-hint">{t("idleStatusHint")}</p>
+            <label>
+              {t("idleStatus")}
+              <select
+                aria-describedby="black-market-idle-status-hint"
+                value={editedIdleStatus}
+                onChange={event =>
+                  setSelectedIdleStatus(
+                    event.target.value === "closed" ? "closed" : "upcoming"
+                  )
+                }
+                disabled={busy}
+              >
+                <option value="closed">{t("closed")}</option>
+                <option value="upcoming">{t("comingSoon")}</option>
+              </select>
+            </label>
+            <button
+              type="submit"
+              disabled={
+                busy || !!previewStock || editedIdleStatus === idleStatus
+              }
+            >
+              {t("saveIdleStatus")}
+            </button>
+          </form>
           <form
             className="yk-black-market-edition"
             onSubmit={event => void scheduleEdition(event)}

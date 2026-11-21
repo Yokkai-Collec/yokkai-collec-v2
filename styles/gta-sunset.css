@@ -125,6 +125,8 @@
 }
 .yk-event-card[data-event="gta-sunset"] .yk-event-banner-content h3 {
   max-width: none;
+  /* The italic T overhangs its advance width. Keep the gradient under it. */
+  padding-inline-end: 0.2em;
 }
 .yk-event-card[data-event="gta-sunset"] .yk-event-status {
   max-width: none;

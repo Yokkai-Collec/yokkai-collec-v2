@@ -7,16 +7,18 @@ import * as jsx from "react/jsx-runtime";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createTranslator } from "next-intl";
 
-test("the events hub lists the real event, filters its status, and keeps results separate from the next edition", () => {
-  const source = ts.transpileModule(
-    readFileSync("components/events-hub.tsx", "utf8"),
-    {
-      compilerOptions: {
-        module: ts.ModuleKind.CommonJS,
-        jsx: ts.JsxEmit.ReactJSX
-      }
+function transpileComponent(path) {
+  return ts.transpileModule(readFileSync(path, "utf8"), {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      jsx: ts.JsxEmit.ReactJSX
     }
-  ).outputText;
+  }).outputText;
+}
+
+test("the events hub lists the real event, filters its status, and keeps results separate from the next edition", () => {
+  const source = transpileComponent("components/events-hub.tsx");
+  const blackMarketSource = transpileComponent("components/black-market.tsx");
   for (const locale of ["en", "fr"]) {
     const messages = JSON.parse(
       readFileSync(`messages/${locale}.json`, "utf8")
@@ -27,8 +29,8 @@ test("the events hub lists the real event, filters its status, and keeps results
     let blackMarket = { event: undefined, now: 1 };
     let sunset = { event: null, now: 1 };
     const exports = {};
-    vm.runInNewContext(source, {
-      exports,
+    const blackMarketExports = {};
+    const dependencies = {
       require: name => {
         if (name === "react/jsx-runtime") return jsx;
         if (name === "react") return { useState: () => [filter, () => {}] };
@@ -39,6 +41,8 @@ test("the events hub lists the real event, filters its status, and keeps results
           };
         if (name === "next/link") return { default: "a" };
         if (name === "next/image") return { default: () => null };
+        if (name === "next/dynamic") return { default: () => () => null };
+        if (name === "@/utils/supabase/client") return {};
         if (name.endsWith("/event-banner"))
           return {
             EventBannerFrame: ({ href, label, children }) =>
@@ -59,15 +63,8 @@ test("the events hub lists the real event, filters its status, and keeps results
           return { EventCardShowcase: ({ children }) => children };
         if (name.endsWith("/black-market"))
           return {
-            useBlackMarketEvent: () => blackMarket,
-            BlackMarketHubCard: () =>
-              jsx.jsx("li", {
-                className: "yk-event-card",
-                children: jsx.jsx("a", {
-                  href: "/black-market",
-                  children: messages.blackMarket.title
-                })
-              })
+            ...blackMarketExports,
+            useBlackMarketEvent: () => blackMarket
           };
         if (name.endsWith("/referral-event"))
           return {
@@ -112,7 +109,12 @@ test("the events hub lists the real event, filters its status, and keeps results
         if (name.endsWith(".css")) return {};
         throw Error(name);
       }
+    };
+    vm.runInNewContext(blackMarketSource, {
+      ...dependencies,
+      exports: blackMarketExports
     });
+    vm.runInNewContext(source, { ...dependencies, exports });
     const render = () => renderToStaticMarkup(jsx.jsx(exports.EventsHub, {}));
     const home = () =>
       renderToStaticMarkup(jsx.jsx(exports.EventsHub, { home: true }));
@@ -179,7 +181,10 @@ test("the events hub lists the real event, filters its status, and keeps results
     assert.match(home(), /href="\/referral-event"/);
     assert.doesNotMatch(home(), /yk-event-card|yk-event-description/);
     blackMarket = {
-      event: { auctions: [{ endsAt: "2099-01-07T20:00:00Z" }] },
+      event: {
+        auctions: [{ endsAt: "2099-01-07T20:00:00Z" }],
+        idleStatus: "closed"
+      },
       now: 1
     };
     filter = "all";
@@ -193,16 +198,42 @@ test("the events hub lists the real event, filters its status, and keeps results
     blackMarket.event.auctions = [];
     assert.doesNotMatch(home(), /href="\/black-market"/);
     assert.doesNotMatch(render(), /href="\/black-market"/);
+    blackMarket.event.idleStatus = "upcoming";
     filter = "all";
     assert.match(render(), /href="\/black-market"/);
-    blackMarket.event.startsAt = "2099-01-07T12:00:00Z";
     filter = "upcoming";
     assert.match(render(), /href="\/black-market"/);
+    blackMarket.event.startsAt = "2099-01-07T12:00:00Z";
+    assert.match(render(), /href="\/black-market"/);
+    assert.match(render(), /01:00:00/);
     assert.doesNotMatch(home(), /href="\/black-market"/);
     blackMarket.event = null;
+    assert.match(render(), /href="\/black-market"/);
+    assert.match(render(), /aria-pressed="true"[^>]*>[^<]+<span>1<\/span>/);
+    assert.match(
+      render(),
+      new RegExp(
+        `data-status="upcoming">${messages.blackMarket.comingSoon}</span>`
+      )
+    );
+    assert.match(render(), new RegExp(`${messages.blackMarket.soon}</span>`));
+    assert.doesNotMatch(home(), /href="\/black-market"/);
+    filter = "live";
     assert.doesNotMatch(render(), /href="\/black-market"/);
+    blackMarket.event = { auctions: [], idleStatus: "closed" };
+    filter = "upcoming";
+    assert.doesNotMatch(render(), /href="\/black-market"/);
+    assert.match(render(), /aria-pressed="true"[^>]*>[^<]+<span>0<\/span>/);
+    blackMarket.event.startsAt = "2099-01-07T12:00:00Z";
+    assert.match(render(), /href="\/black-market"/);
+    blackMarket.event.startsAt = null;
     filter = "all";
     assert.match(render(), /href="\/black-market"/);
+    assert.match(
+      render(),
+      new RegExp(`data-status="closed">${messages.blackMarket.closed}</span>`)
+    );
+    assert.match(render(), new RegExp(`${messages.blackMarket.noDate}</span>`));
     sunset = { event: {}, now: 1, status: "live" };
     assert.match(render(), /href="\/boosters#gta-sunset"/);
     filter = "live";

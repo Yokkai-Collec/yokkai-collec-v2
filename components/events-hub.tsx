@@ -20,6 +20,7 @@ import {
 } from "@/components/event-banner";
 import {
   BlackMarketHubCard,
+  getBlackMarketHubTiming,
   useBlackMarketEvent
 } from "@/components/black-market";
 import {
@@ -43,22 +44,16 @@ export function EventsHub({ home = false }: { home?: boolean }) {
   const sunset = useGtaSunsetEvent(!home);
   const sunsetVisible =
     !!sunset.event && (filter === "all" || filter === sunset.status);
-  const blackMarketUpcoming =
-    !!blackMarket.event?.startsAt &&
-    (blackMarket.now ?? 0) < Date.parse(blackMarket.event.startsAt);
-  const blackMarketLive =
-    !blackMarketUpcoming &&
-    !!blackMarket.event?.auctions.length &&
-    (!blackMarket.event.endsAt ||
-      (blackMarket.now ?? 0) < Date.parse(blackMarket.event.endsAt));
-  const blackMarketLoaded = blackMarket.event !== undefined;
+  const blackMarketTiming =
+    blackMarket.event === undefined
+      ? undefined
+      : getBlackMarketHubTiming(blackMarket.event, blackMarket.now);
+  const blackMarketLive = blackMarketTiming?.status === "live";
   const blackMarketVisible =
-    blackMarketLoaded &&
+    !!blackMarketTiming &&
     (home
       ? blackMarketLive
-      : filter === "all" ||
-        (filter === "live" && blackMarketLive) ||
-        (filter === "upcoming" && blackMarketUpcoming));
+      : filter === "all" || filter === blackMarketTiming.status);
   const referralStatus = referral.event
     ? referral.now < Date.parse(referral.event.startsAt)
       ? "upcoming"
@@ -76,7 +71,7 @@ export function EventsHub({ home = false }: { home?: boolean }) {
     all:
       1 +
       Number(!!referral.event) +
-      Number(blackMarketLoaded) +
+      Number(!!blackMarketTiming) +
       Number(!!sunset.event),
     live:
       Number(!!live) +
@@ -86,7 +81,7 @@ export function EventsHub({ home = false }: { home?: boolean }) {
     upcoming:
       Number(status === "upcoming") +
       Number(referralStatus === "upcoming") +
-      Number(blackMarketUpcoming) +
+      Number(blackMarketTiming?.status === "upcoming") +
       Number(sunset.status === "upcoming")
   };
   if (home && !visible && !referralVisible && !blackMarketVisible) return null;
@@ -94,15 +89,13 @@ export function EventsHub({ home = false }: { home?: boolean }) {
     return (
       <section className="yk-home-events-strip" aria-label={t("title")}>
         {[
-          ...(blackMarketVisible
+          ...(blackMarketLive
             ? [
                 {
                   kind: "black-market",
                   href: "/black-market",
                   title: t("blackMarket"),
-                  end:
-                    blackMarket.event!.endsAt ??
-                    blackMarket.event!.auctions[0].endsAt,
+                  end: blackMarketTiming.deadline,
                   clock: blackMarket.now,
                   image: "/assets/events/mystery-card.png"
                 }
