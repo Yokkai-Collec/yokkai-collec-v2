@@ -82,10 +82,13 @@ export async function exportJournal(admin, url) {
   return journal;
 }
 
-async function cancelRestoredAccountBilling(userId) {
+async function cancelRestoredAccountBilling(userId, admin) {
   const { loadRestorationBilling } = await import("./restoration-billing.mjs");
   const cancel = await loadRestorationBilling();
   await cancel(userId);
+  const { cancelLinkedWhopAccount } =
+    await import("../lib/billing/whop-live.mjs");
+  await cancelLinkedWhopAccount(userId, admin);
 }
 
 export async function reapplyJournal(
@@ -95,7 +98,7 @@ export async function reapplyJournal(
 ) {
   for (const { user_id, deleted_at } of entries) {
     try {
-      await deleteAccount(user_id, admin, () => cancelBilling(user_id));
+      await deleteAccount(user_id, admin, () => cancelBilling(user_id, admin));
       const { error } = await admin
         .from("account_deletion_log")
         .update({ deleted_at })

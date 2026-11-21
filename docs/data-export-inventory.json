@@ -277,6 +277,15 @@
   "public.bids": {
     "sections": ["bids"]
   },
+  "public.whop_live_accounts": {
+    "excluded": "Private Stripe-to-Whop account mappings, provider status and payment verification timestamps follow the same manual privacy review as Stripe billing records."
+  },
+  "public.whop_sandbox_accounts": {
+    "excluded": "Developer sandbox account mappings and test membership verification data are private provider records subject to manual privacy review."
+  },
+  "public.whop_sandbox_webhook_jobs": {
+    "excluded": "Developer sandbox provider event identifiers, worker leases and retry metadata are operational records subject to manual privacy review."
+  },
   "public.billing_accounts": {
     "excluded": "Provider linkage, anti-fraud holds and operational leases require manual privacy review; never export nonces or lease tokens."
   },

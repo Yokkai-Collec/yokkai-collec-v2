@@ -35,6 +35,9 @@ export async function deleteAccount(
     const { cancelDeletedAccountBilling } =
       await import("@/lib/billing/deletion");
     await cancelDeletedAccountBilling(userId);
+    const { cancelLinkedWhopAccount } =
+      await import("@/lib/billing/whop-live.mjs");
+    await cancelLinkedWhopAccount(userId, admin);
   });
 }
 

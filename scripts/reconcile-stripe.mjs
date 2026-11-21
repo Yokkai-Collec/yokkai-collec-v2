@@ -131,4 +131,20 @@ if (
   } catch {
     process.exitCode = 1;
   }
+  if (process.env.WHOP_LIVE_SYNC_ENABLED === "true") {
+    try {
+      const { reconcileWhopLive } =
+        await import("../lib/billing/whop-live.mjs");
+      const result = await reconcileWhopLive(process.env);
+      console.error(
+        JSON.stringify({ event: "billing.whop_live_reconciled", ...result })
+      );
+      if (result.failed) process.exitCode = 1;
+    } catch {
+      console.error(
+        JSON.stringify({ event: "billing.whop_live_reconciliation_failed" })
+      );
+      process.exitCode = 1;
+    }
+  }
 }
