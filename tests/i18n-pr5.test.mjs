@@ -266,7 +266,7 @@ test("Checkout derives locale on the server after Auth, input and quota validati
                 calls.push("quota");
               }
             };
-          if (id === "@/lib/billing/server")
+          if (id === "@/lib/billing/checkout-service")
             return {
               configuredBillingService: () => ({
                 checkout: async (id, language) => {

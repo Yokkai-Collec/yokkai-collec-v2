@@ -692,6 +692,16 @@ test("actual route handlers enforce Auth/Origin and never select billing account
       },
       "@/lib/billing/server": {
         configuredBillingService: () => ({
+          webhook: async (body, signature) => {
+            calls.push(["webhook", body, signature]);
+          },
+          reconcile: async () => {
+            throw new Error("must not reconcile without secret");
+          }
+        })
+      },
+      "@/lib/billing/checkout-service": {
+        configuredBillingService: () => ({
           checkout: async id => {
             calls.push(["checkout", id]);
             return "https://checkout.stripe.com/example";
@@ -703,12 +713,6 @@ test("actual route handlers enforce Auth/Origin and never select billing account
           status: async id => {
             calls.push(["status", id]);
             return { active: false };
-          },
-          webhook: async (body, signature) => {
-            calls.push(["webhook", body, signature]);
-          },
-          reconcile: async () => {
-            throw new Error("must not reconcile without secret");
           }
         })
       }
@@ -807,7 +811,7 @@ test("quota denial returns a safe retry delay and stops the actual billing route
           throw new BillingRateLimitError(60);
         }
       },
-      "@/lib/billing/server": {
+      "@/lib/billing/checkout-service": {
         configuredBillingService: () => {
           providerCalls++;
           throw new Error("must not reach Stripe");

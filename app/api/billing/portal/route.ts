@@ -1,4 +1,4 @@
-import { configuredBillingService } from "@/lib/billing/server";
+import { configuredBillingService } from "@/lib/billing/checkout-service";
 import { consumeBillingRequest } from "@/lib/billing/rate-limit";
 import {
   billingUser,

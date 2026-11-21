@@ -379,7 +379,14 @@ export function PremiumOffer({
         </details>
         <details>
           <summary>{tPr5("canICancelMySubscription")}</summary>
-          <p>{tPr5("yesUseManageSubscriptionToOpenThe")}</p>
+          <p>
+            {tPr5(
+              billing?.checkoutProvider === "whop" ||
+                billing?.status?.provider === "whop"
+                ? "manageSubscriptionInBillingPortal"
+                : "yesUseManageSubscriptionToOpenThe"
+            )}
+          </p>
         </details>
         <details>
           <summary>{tPr5("whereDoIManageMyMembership")}</summary>

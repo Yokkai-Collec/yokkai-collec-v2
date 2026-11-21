@@ -4,6 +4,7 @@ import test from "node:test";
 import { PGlite } from "@electric-sql/pglite";
 import {
   verifyWhopLiveAccess,
+  openWhopCheckout,
   reconcileWhopLive,
   liveWhopConfig,
   cancelLinkedWhopAccount
@@ -279,5 +280,231 @@ test("production entitlements preserve Stripe access and reject stale, unauthori
       ])
     ).rows[0].objects,
     []
+  );
+
+  await db.exec(
+    readFileSync(
+      new URL(
+        "../supabase/migrations/20261121220000_whop_live_checkout.sql",
+        import.meta.url
+      ),
+      "utf8"
+    )
+  );
+  await assert.rejects(
+    db.query("select public.billing_begin_whop_checkout($1)", [uid]),
+    /BILLING_USE_PORTAL/
+  );
+  const newcomer = "00000000-0000-0000-0000-000000000002";
+  await db.query("insert into auth.users values($1)", [newcomer]);
+  const begin = async () =>
+    (
+      await db.query(
+        "select public.billing_begin_whop_checkout($1) as checkout",
+        [newcomer]
+      )
+    ).rows[0].checkout;
+  await db.exec("set role authenticated");
+  await assert.rejects(begin(), /permission denied/);
+  await db.exec("reset role");
+  const { checkout_ref: ref } = await begin();
+  assert.equal((await begin()).checkout_ref, ref);
+  const bind = async () =>
+    (
+      await db.query(
+        "select public.billing_attach_whop_checkout($1,'biz_live','mem_new','mber_new','prod_pro','plan_live') as ok",
+        [ref]
+      )
+    ).rows[0].ok;
+  assert.equal(await bind(), false);
+  await db.query("select public.billing_save_whop_checkout($1,$2,'ch_new')", [
+    newcomer,
+    ref
+  ]);
+  assert.equal(await bind(), true);
+  assert.equal(await bind(), true);
+  const newPro = async () =>
+    (
+      await db.query("select public.billing_has_game_pro($1) as pro", [
+        newcomer
+      ])
+    ).rows[0].pro;
+  assert.equal(await newPro(), false);
+  await db.exec(
+    "select public.billing_save_whop_checkout_state('mem_new','trialing',now()+interval '3 days',now(),now(),true)"
+  );
+  assert.equal(await newPro(), true);
+  assert.equal(
+    (
+      await db.exec(
+        "select cancel_at_period_end from public.whop_live_accounts where membership_id='mem_new'"
+      )
+    )[0].rows[0].cancel_at_period_end,
+    true
+  );
+  assert.equal(await pro(), false);
+});
+
+test("new Whop checkouts reuse the same server-owned reference and reject changes to the offer", async () => {
+  const ref = "b82f91cf-4900-4ae9-ab38-2a13a54c103a";
+  const env = {
+    NODE_ENV: "production",
+    NEXT_PUBLIC_SITE_URL: "https://yokkai-collec.com",
+    WHOP_LIVE_SYNC_ENABLED: "true",
+    WHOP_LIVE_CHECKOUT_ENABLED: "true",
+    WHOP_LIVE_ACCOUNT_ID: config.account,
+    WHOP_LIVE_API_KEY: config.key,
+    WHOP_LIVE_PLAN_ID: "plan_live"
+  };
+  const checkout = {
+    id: "ch_server",
+    account_id: config.account,
+    mode: "payment",
+    purchase_url: "https://whop.com/checkout/ch_server/",
+    metadata: { yokkai_checkout_ref: ref },
+    variant: {
+      id: env.WHOP_LIVE_PLAN_ID,
+      currency: "eur",
+      billing_type: "renewal",
+      billing_period: 30,
+      initial_price: 0,
+      renewal_price: 4.99,
+      trial_period_days: 3
+    }
+  };
+  const attempt = {
+    checkout_ref: ref,
+    checkout_id: null,
+    created_at: new Date().toISOString()
+  };
+  const calls = [];
+  const db = {
+    rpc: async (name, args) => {
+      calls.push([name, args]);
+      if (name === "billing_begin_whop_checkout") return { data: attempt };
+      attempt.checkout_id = args.p_checkout;
+      return {};
+    }
+  };
+  const request = async (url, options) => {
+    assert.equal(url, "https://api.whop.com/api/v1/checkout_configurations");
+    assert.equal(options.method, "POST");
+    assert.equal(options.redirect, "error");
+    assert.equal(options.headers["Idempotency-Key"], "yokkai-live:" + ref);
+    assert.deepEqual(JSON.parse(options.body), {
+      account_id: config.account,
+      variant_id: env.WHOP_LIVE_PLAN_ID,
+      mode: "payment",
+      redirect_url:
+        "https://yokkai-collec.com/settings?checkout=returned#subscription",
+      metadata: { yokkai_checkout_ref: ref }
+    });
+    return Response.json(checkout);
+  };
+  assert.equal(
+    await openWhopCheckout("player", env, request, db),
+    "https://whop.com/checkout/ch_server"
+  );
+  assert.deepEqual(
+    calls.map(c => c[0]),
+    ["billing_begin_whop_checkout", "billing_save_whop_checkout"]
+  );
+  await openWhopCheckout(
+    "player",
+    env,
+    () => assert.fail("must reuse link"),
+    db
+  );
+  attempt.checkout_id = null;
+  await assert.rejects(
+    openWhopCheckout(
+      "player",
+      env,
+      async () =>
+        Response.json({
+          ...checkout,
+          variant: { ...checkout.variant, renewal_price: 9.99 }
+        }),
+      db
+    ),
+    /CHECKOUT_MISMATCH/
+  );
+  assert.equal(attempt.checkout_id, null);
+});
+
+test("an eligible Whop trial grants access for its verified period and cannot be extended indefinitely", async () => {
+  const trial = {
+    ...membership,
+    status: "trialing",
+    created_at: time(-0.1),
+    current_period_end: time(2.9),
+    initial_price: { amount: "0", currency: "eur" }
+  };
+  const newUser = { ...row, stripe_paid_until: null };
+  assert.equal(
+    (
+      await verifyWhopLiveAccess(
+        newUser,
+        config,
+        provider(trial, []).fetch,
+        now
+      )
+    ).accessUntil,
+    time(2.9)
+  );
+  const extended = { ...trial, current_period_end: time(29.9) };
+  assert.equal(
+    (
+      await verifyWhopLiveAccess(
+        newUser,
+        config,
+        provider(extended, []).fetch,
+        now
+      )
+    ).accessUntil,
+    null
+  );
+  assert.equal(
+    (
+      await verifyWhopLiveAccess(
+        newUser,
+        config,
+        provider(membership, []).fetch,
+        now
+      )
+    ).accessUntil,
+    null
+  );
+});
+
+test("a localized Whop renewal must still match the paid membership and its EUR offer", async () => {
+  const newUser = { ...row, stripe_paid_until: null };
+  const eurOffer = {
+    ...membership,
+    renewal_price: { currency: "eur", amount: "4.99" }
+  };
+  const localized = {
+    ...paid,
+    member_id: row.member_id,
+    subtotal: { currency: "usd", amount: "6.17" },
+    line_items: [{ product_id: row.product_id, variant_id: row.variant_id }]
+  };
+  const status = (offer, payment) =>
+    verifyWhopLiveAccess(
+      newUser,
+      config,
+      provider(offer, [payment]).fetch,
+      now
+    );
+  assert.equal((await status(eurOffer, localized)).accessUntil, time(29.9));
+  assert.equal(
+    (await status(eurOffer, { ...localized, line_items: [] })).accessUntil,
+    null
+  );
+  assert.equal((await status(membership, localized)).accessUntil, null);
+  assert.equal(
+    (await status(eurOffer, { ...localized, member_id: "mber_other" }))
+      .accessUntil,
+    null
   );
 });

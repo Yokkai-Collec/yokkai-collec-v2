@@ -54,6 +54,10 @@ export function SubscriptionSettings({
     ["not_subscribed", "canceled", "incomplete_expired"].includes(
       status.status
     );
+  const managesInWhop = status?.provider === "whop";
+  const offersWhop =
+    billing.checkoutProvider === "whop" &&
+    (canSubscribe || !status?.hasCustomer);
   const label = !billing.enabled
     ? billing.unavailable
       ? t("profileUi.statusUnavailable")
@@ -95,8 +99,12 @@ export function SubscriptionSettings({
       const url = new URL(result.url);
       const allowed =
         action === "checkout"
-          ? "https://checkout.stripe.com"
-          : "https://billing.stripe.com";
+          ? billing.checkoutProvider === "whop"
+            ? "https://whop.com"
+            : "https://checkout.stripe.com"
+          : managesInWhop
+            ? "https://whop.com"
+            : "https://billing.stripe.com";
       if (url.origin !== allowed || url.username || url.password)
         throw Error("Invalid destination");
       window.location.assign(url.href);
@@ -121,7 +129,15 @@ export function SubscriptionSettings({
           <h2 id="subscription-title" className="mt-2 font-display text-xl">
             {t("settingsUi.yokkaiProSubscription")}{" "}
           </h2>
-          <p className="mt-3 text-sm text-ink-2">{t("settingsUi.499Month")}</p>
+          <p className="mt-3 text-sm text-ink-2">
+            {t(
+              managesInWhop
+                ? "settingsUi.whopRecurring"
+                : offersWhop
+                  ? "settingsUi.whopOffer"
+                  : "settingsUi.499Month"
+            )}
+          </p>
         </div>
         <span
           className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium sm:text-sm ${billing.enabled && status?.active && !syncError ? "border-success/30 bg-success/10 text-success" : "border-veil text-ink-2"}`}
@@ -171,13 +187,18 @@ export function SubscriptionSettings({
         </div>
       )}
       <p className="mt-5 max-w-2xl text-sm leading-6 text-ink-2">
-        {t.rich("settingsUi.manageWithStripe", {
-          privacy: chunks => (
-            <Link href="/privacy" className="underline underline-offset-4">
-              {chunks}
-            </Link>
-          )
-        })}
+        {t.rich(
+          managesInWhop || offersWhop
+            ? "settingsUi.manageWithWhop"
+            : "settingsUi.manageWithStripe",
+          {
+            privacy: chunks => (
+              <Link href="/privacy" className="underline underline-offset-4">
+                {chunks}
+              </Link>
+            )
+          }
+        )}
       </p>
       {!billing.enabled && !billing.unavailable && (
         <p className="mt-3 text-sm text-ink-3">
@@ -209,7 +230,11 @@ export function SubscriptionSettings({
         {status?.hasCustomer && (
           <Button disabled={busy !== null} onClick={() => void act("portal")}>
             {busy === "portal"
-              ? t("settingsUi.openingStripe")
+              ? t(
+                  managesInWhop
+                    ? "settingsUi.openingWhop"
+                    : "settingsUi.openingStripe"
+                )
               : t("settingsUi.manageSubscription")}
           </Button>
         )}

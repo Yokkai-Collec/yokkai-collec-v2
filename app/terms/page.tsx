@@ -4,6 +4,8 @@ import Link from "next/link";
 import { InfoSection, PublicInfoPage } from "@/components/public-info-page";
 import { getDiscordInviteUrl } from "@/lib/discord-invite";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("legalUi");
   return {
@@ -91,7 +93,13 @@ export default async function TermsPage() {
       </InfoSection>
 
       <InfoSection number="06" title={t("optionalPaidFeatures")}>
-        <p>{t("someFeaturesSuchAsProSubscriptionsMay")}</p>
+        <p>
+          {t(
+            process.env.WHOP_LIVE_CHECKOUT_ENABLED === "true"
+              ? "proPaymentsTerms"
+              : "someFeaturesSuchAsProSubscriptionsMay"
+          )}
+        </p>
         <p>{t("useTheSubscriptionControlsProvidedInYour")}</p>
       </InfoSection>
 
