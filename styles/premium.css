@@ -688,6 +688,50 @@
   width: 100%;
   margin: 7px 0;
 }
+.yk-premium-price-card > .yk-premium-whop-price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  margin: 20px 0 16px;
+}
+.yk-premium-whop-amount {
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(2.375rem, 5vw, 3.375rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.055em;
+  color: #f3edf9;
+  white-space: nowrap;
+}
+.yk-premium-whop-interval {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #cbd5e9;
+}
+.yk-premium-whop-trial {
+  display: grid;
+  gap: 3px;
+  margin-bottom: 8px;
+  padding: 11px 13px;
+  border: 1px solid #9abcff29;
+  border-radius: 10px;
+  background: #9abcff0d;
+  color: #cbd5e9;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.yk-premium-whop-trial > strong {
+  color: #dee8ff;
+  font-size: 14px;
+  font-weight: 650;
+}
+.yk-premium-price-card > .yk-premium-whop-cancellation {
+  margin: 4px 0 6px;
+  color: #cbd5e9;
+  font-size: 12px;
+}
 .yk-premium-price-card > .yk-premium-text-button {
   display: block;
   margin: 14px auto;
