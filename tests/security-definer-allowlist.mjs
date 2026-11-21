@@ -114,6 +114,7 @@ const allowlist = {
     "authenticated"
   ], // Admin-only scheduling with a validated starting price for each lot.
   "public.admin_get_black_market_stock()": ["authenticated"], // Admin-only bounded recovered inventory.
+  "public.admin_set_black_market_idle_status(text)": ["authenticated"], // Admin-only between-editions status.
   "public.admin_get_black_market_recovery_queue(integer, uuid)": [
     "authenticated"
   ], // Admin-only pending cards and their recovery blockers.
