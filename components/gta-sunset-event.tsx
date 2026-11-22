@@ -340,6 +340,55 @@ export function GtaSunsetBooster({
     ? blackFridayTerms.lrRatePerPack / event.featured.length
     : (event.lrRatePerCard ?? 0.05);
 
+  const rates = (
+    <details
+      className={
+        isBlackout
+          ? "yk-pack-info-trigger yk-sunset-pack-info yk-blackout-pack-info"
+          : "yk-pack-info-trigger yk-sunset-pack-info"
+      }
+      onKeyDown={event => {
+        if (event.key !== "Escape" || !event.currentTarget.open) return;
+        event.currentTarget.open = false;
+        event.currentTarget.querySelector("summary")?.focus();
+      }}
+    >
+      <summary className="yk-pack-info" aria-label={t("viewRates")}>
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 11v6M12 7h.01" />
+        </svg>
+      </summary>
+      <div className="yk-pack-info-popover">
+        <p>
+          {isBlackout
+            ? t("lrChancePerPack", {
+                rate: format.number(blackFridayTerms.lrRatePerPack, {
+                  style: "percent",
+                  maximumFractionDigits: 2
+                })
+              })
+            : t("cardsPerPack")}
+        </p>
+        <dl className="yk-drop-rates">
+          {event.featured.map(card => (
+            <div key={card.id}>
+              <dt>
+                {card.name} · {card.rarity}
+              </dt>
+              <dd>
+                {format.number(lrRatePerCard, {
+                  style: "percent",
+                  maximumFractionDigits: isBlackout ? 3 : 2
+                })}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </details>
+  );
+
   return (
     <article
       className="yk-pack-panel yk-sunset-pack-panel"
@@ -358,49 +407,9 @@ export function GtaSunsetBooster({
           sizes="(max-width: 700px) 55vw, 340px"
           alt=""
         />
-        <details
-          className="yk-pack-info-trigger yk-sunset-pack-info"
-          onKeyDown={event => {
-            if (event.key !== "Escape" || !event.currentTarget.open) return;
-            event.currentTarget.open = false;
-            event.currentTarget.querySelector("summary")?.focus();
-          }}
-        >
-          <summary className="yk-pack-info" aria-label={t("viewRates")}>
-            <svg aria-hidden="true" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="9" />
-              <path d="M12 11v6M12 7h.01" />
-            </svg>
-          </summary>
-          <div className="yk-pack-info-popover">
-            <p>
-              {isBlackout
-                ? t("lrChancePerPack", {
-                    rate: format.number(blackFridayTerms.lrRatePerPack, {
-                      style: "percent",
-                      maximumFractionDigits: 2
-                    })
-                  })
-                : t("cardsPerPack")}
-            </p>
-            <dl className="yk-drop-rates">
-              {event.featured.map(card => (
-                <div key={card.id}>
-                  <dt>
-                    {card.name} · {card.rarity}
-                  </dt>
-                  <dd>
-                    {format.number(lrRatePerCard, {
-                      style: "percent",
-                      maximumFractionDigits: isBlackout ? 3 : 2
-                    })}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        </details>
+        {!isBlackout && rates}
       </div>
+      {isBlackout && rates}
       <div className="yk-pack-body">
         <h2 id={`${appearance.slug}-title`}>{t("boosterTitle")}</h2>
         <div className="yk-pack-status">

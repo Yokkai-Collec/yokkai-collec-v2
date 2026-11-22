@@ -285,6 +285,42 @@
   .yk-sunset-pack-reserve {
   color: #d9cefa;
 }
+.yk-pack-panel[data-pack-theme="blackout"] .yk-blackout-pack-info {
+  position: static;
+  align-self: center;
+  width: min(100%, 23rem);
+}
+.yk-pack-panel[data-pack-theme="blackout"] .yk-blackout-pack-info > summary {
+  position: absolute;
+  z-index: 5;
+  inset-inline: auto var(--layout-gutter-compact);
+}
+.yk-blackout-pack-info .yk-pack-info-popover {
+  position: static;
+  width: 100%;
+  max-height: min(20rem, 50svh);
+  margin-bottom: 12px;
+}
+@media (min-width: 1024px) {
+  .yk-pack-grid:has(.yk-blackout-pack-info) {
+    --blackout-pack-gap: clamp(17rem, 20vw, 22rem);
+    column-gap: var(--blackout-pack-gap);
+  }
+  .yk-pack-panel[data-pack-theme="blackout"] .yk-blackout-pack-info {
+    position: absolute;
+    inset-inline-end: 0;
+    width: auto;
+  }
+  .yk-pack-panel[data-pack-theme="blackout"] .yk-blackout-pack-info > summary {
+    position: static;
+  }
+  .yk-blackout-pack-info .yk-pack-info-popover {
+    position: absolute;
+    inset-inline: calc(100% + 12px) auto;
+    width: calc(var(--blackout-pack-gap) - 24px);
+    margin-bottom: 0;
+  }
+}
 @media (prefers-reduced-motion: no-preference) {
   .yk-pack-carousel-slot:has([data-pack-theme="blackout"]) > .yk-pack-panel {
     animation: yk-blackout-slide-in 220ms var(--ease-standard) both;
