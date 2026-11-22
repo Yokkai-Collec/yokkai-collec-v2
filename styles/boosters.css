@@ -868,7 +868,8 @@
   margin-top: 10px;
 }
 @media (min-width: 1024px) {
-  .yk-pack-panel:not(.yk-decision-panel) .yk-pack-info-popover {
+  .yk-pack-panel:not(.yk-decision-panel, [data-pack-theme="blackout"])
+    .yk-pack-info-popover {
     inset-inline: calc(100% + 12px) auto;
   }
 }
