@@ -189,6 +189,11 @@
   margin-top: 14px;
 }
 
+.yk-blackout-roster .yk-catalogue-card:focus-visible {
+  outline: 2px solid #d3c0f9;
+  outline-offset: 4px;
+}
+
 @media (min-width: 700px) {
   .yk-blackout-storefront {
     grid-template-columns: 0.88fr 1fr;

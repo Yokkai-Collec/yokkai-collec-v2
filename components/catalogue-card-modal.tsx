@@ -55,22 +55,28 @@ function CardOwnerList({
   );
 }
 
+type Owners = Pick<CardDiscovery, "owners" | "ownerCount">;
+type Discovery = Owners & Partial<Omit<CardDiscovery, keyof Owners>>;
+type LoadOwners = (card: Card, offset: number) => Promise<Owners>;
+
 export function CatalogueCardModal({
   selected,
   onClose,
   onWishlistChange,
-  ownedCopies
+  ownedCopies,
+  loadOwners
 }: {
   selected: Card | null;
   onClose: () => void;
   ownedCopies?: number;
+  loadOwners?: LoadOwners;
   onWishlistChange?: (cardId: string, wishlisted: boolean) => void;
 }) {
   const tError = useTranslations();
   const tv = useTranslations("catalogueUi");
   const [discovery, setDiscovery] = useState<{
     key: string;
-    detail?: CardDiscovery;
+    detail?: Discovery;
     error?: string;
   }>();
   const [busy, setBusy] = useState(false);
@@ -91,7 +97,10 @@ export function CatalogueCardModal({
     let active = true;
     const cardId = selected.id;
     const key = selectionKey!;
-    void getCardDiscovery(cardId, 0, 12, !!selected.shiny).then(
+    const request = loadOwners
+      ? loadOwners(selected, 0)
+      : getCardDiscovery(cardId, 0, 12, !!selected.shiny);
+    void request.then(
       value => {
         if (active) setDiscovery({ key, detail: value });
       },
@@ -109,7 +118,7 @@ export function CatalogueCardModal({
     return () => {
       active = false;
     };
-  }, [selected, selectionKey]);
+  }, [selected, selectionKey, loadOwners]);
 
   async function toggle() {
     if (!selected || busy) return;
@@ -144,12 +153,14 @@ export function CatalogueCardModal({
     if (!selected || !detail) return;
     const key = selectionKey!;
     try {
-      const next = await getCardDiscovery(
-        selected.id,
-        detail.owners.length,
-        12,
-        !!selected.shiny
-      );
+      const next = loadOwners
+        ? await loadOwners(selected, detail.owners.length)
+        : await getCardDiscovery(
+            selected.id,
+            detail.owners.length,
+            12,
+            !!selected.shiny
+          );
       setDiscovery({
         key,
         detail: { ...next, owners: [...detail.owners, ...next.owners] }
@@ -197,38 +208,44 @@ export function CatalogueCardModal({
                   : tv("notInYourCollection")}
               </p>
             )}
-            <p className="mt-7 text-xs text-ink-3">{tv("marketValue")}</p>
-            {detail?.marketValue != null ? (
-              <Karas
-                amount={Math.round(detail.marketValue)}
-                className="mt-2 text-xl"
-              />
-            ) : (
-              <p className="mt-2 text-sm text-ink-3">{tv("noSalesRecorded")}</p>
+            {!loadOwners && (
+              <>
+                <p className="mt-7 text-xs text-ink-3">{tv("marketValue")}</p>
+                {detail?.marketValue != null ? (
+                  <Karas
+                    amount={Math.round(detail.marketValue)}
+                    className="mt-2 text-xl"
+                  />
+                ) : (
+                  <p className="mt-2 text-sm text-ink-3">
+                    {tv("noSalesRecorded")}
+                  </p>
+                )}
+                {detail?.activeAuctionId ? (
+                  <Link
+                    className="yk-button mt-5 flex w-full justify-center"
+                    href={`/market/${detail.activeAuctionId}`}
+                  >
+                    {tv("viewAuction")}
+                  </Link>
+                ) : null}
+                <Button
+                  variant="secondary"
+                  disabled={!detail || busy}
+                  className="mt-3 w-full"
+                  onClick={() => void toggle()}
+                >
+                  {detail?.wishlisted
+                    ? tv("removeFromMyWishlist")
+                    : tv("addToMyWishlist")}
+                </Button>
+                <CardReportButton
+                  cardId={selected.id}
+                  cardName={selected.name}
+                  className="mt-3 w-full"
+                />
+              </>
             )}
-            {detail?.activeAuctionId ? (
-              <Link
-                className="yk-button mt-5 flex w-full justify-center"
-                href={`/market/${detail.activeAuctionId}`}
-              >
-                {tv("viewAuction")}
-              </Link>
-            ) : null}
-            <Button
-              variant="secondary"
-              disabled={!detail || busy}
-              className="mt-3 w-full"
-              onClick={() => void toggle()}
-            >
-              {detail?.wishlisted
-                ? tv("removeFromMyWishlist")
-                : tv("addToMyWishlist")}
-            </Button>
-            <CardReportButton
-              cardId={selected.id}
-              cardName={selected.name}
-              className="mt-3 w-full"
-            />
             {error && (
               <p role="alert" className="mt-3 text-sm text-danger">
                 {tError(gameErrorKey(error))}
@@ -249,7 +266,7 @@ export function CatalogueCardModal({
                 </div>
               ) : detail ? (
                 <p>{tv("noCurrentOwners")}</p>
-              ) : (
+              ) : error ? null : (
                 <p>{tv("loading")}</p>
               )}
               {detail && detail.owners.length < detail.ownerCount ? (

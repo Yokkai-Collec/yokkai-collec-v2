@@ -6,12 +6,11 @@ import { getFormatter, getTranslations } from "next-intl/server";
 import { AccountMenu } from "@/components/account-menu";
 import { BlackoutPreviewShop } from "@/components/blackout-preview-shop";
 import { LeaderboardTopbar } from "@/components/leaderboard-topbar";
-import { YokaiCard } from "@/components/yokai-card";
+import { BlackoutRoster } from "@/components/blackout-roster";
 import { getCurrentUser } from "@/lib/auth/session";
 import {
   BLACKOUT_EVENT_PATH,
   blackFridayTerms,
-  blackoutCards,
   blackoutPreviewEnabled
 } from "@/lib/data/blackout-preview";
 import { BLACKOUT_BOOSTER_IMAGE } from "@/lib/ui/booster-opening-document";
@@ -88,24 +87,7 @@ export default async function BlackFridayPage() {
           <h2 className="font-bold">Yokkai Pro</h2>
           <p className="text-sm text-ink-2">{offer}</p>
         </section>
-        <section
-          className="yk-blackout-roster"
-          aria-labelledby="blackout-roster-title"
-        >
-          <h2
-            id="blackout-roster-title"
-            className="font-display text-xl font-bold"
-          >
-            {t("roster")}
-          </h2>
-          <ul>
-            {blackoutCards.map(card => (
-              <li key={card.id}>
-                <YokaiCard {...card} />
-              </li>
-            ))}
-          </ul>
-        </section>
+        <BlackoutRoster />
       </main>
     </div>
   );
