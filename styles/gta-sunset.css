@@ -339,7 +339,7 @@
   line-height: 1.35;
   overflow-wrap: anywhere;
 }
-.yk-pack-grid:has(.yk-blackout-pack-info) {
+.yk-pack-grid[data-blackout-carousel] {
   position: relative;
   inset-block-start: 10px;
 }
@@ -349,9 +349,13 @@
       64px + max(12px, env(safe-area-inset-bottom))
     );
   }
+  /* Keep the stacked Decision Pack below the Regular Pack's batch controls. */
+  .yk-pack-grid[data-blackout-carousel] .yk-pack-carousel-slot .yk-pack-body {
+    min-block-size: 17rem;
+  }
 }
 @media (min-width: 1024px) {
-  .yk-pack-grid:has(.yk-blackout-pack-info) {
+  .yk-pack-grid[data-blackout-carousel] {
     --blackout-pack-gap: clamp(17rem, 20vw, 22rem);
     column-gap: var(--blackout-pack-gap);
   }
@@ -371,7 +375,7 @@
   }
 }
 @media (min-width: 1024px) and (min-height: 701px) {
-  .yk-pack-grid:has(.yk-blackout-pack-info) {
+  .yk-pack-grid[data-blackout-carousel] {
     inset-block-start: clamp(10px, calc(8svh - 40px), 36px);
   }
 }

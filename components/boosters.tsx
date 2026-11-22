@@ -1703,7 +1703,7 @@ export function Boosters({
           onStopSound={onStopSound}
         />
       ) : (
-        <div className="yk-pack-grid">
+        <div className="yk-pack-grid" data-blackout-carousel={hasBlackout || undefined}>
           <AmbientGlow />
           <div className="yk-pack-carousel-slot" id={showBlackout ? BLACKOUT_SLUG : hasSunset ? "gta-sunset" : undefined}>
           {showBlackout ? (
