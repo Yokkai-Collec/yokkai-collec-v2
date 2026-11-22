@@ -14,7 +14,6 @@ export function PremiumCheckout({
 }) {
   const tPr5 = useTranslations("premiumUi");
   const fmt = useFormatter();
-  const tBlackout = useTranslations("blackout");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const pending = useRef(false);
@@ -33,7 +32,6 @@ export function PremiumCheckout({
     );
   const manageSubscription = active || (hasCustomer && !canCheckout);
   const checkoutWithWhop = billing?.checkoutProvider === "whop";
-  const discounted = billing?.blackoutOffer && (!signedIn || canCheckout);
   const displayWhop =
     billing?.status?.provider === "whop" ||
     (checkoutWithWhop && (!signedIn || canCheckout || !hasCustomer));
@@ -84,13 +82,10 @@ export function PremiumCheckout({
       {displayWhop ? (
         <p className="yk-premium-whop-price">
           <span className="yk-premium-whop-amount">
-            {fmt.number(discounted ? 2.99 : 4.99, {
-              style: "currency",
-              currency: "EUR"
-            })}
+            {fmt.number(4.99, { style: "currency", currency: "EUR" })}
           </span>{" "}
           <span className="yk-premium-whop-interval">
-            {discounted ? tBlackout("firstMonth") : tPr5("whopRenewalInterval")}
+            {tPr5("whopRenewalInterval")}
           </span>
         </p>
       ) : (
@@ -101,15 +96,7 @@ export function PremiumCheckout({
           })}
         </p>
       )}
-      {discounted && (
-        <p>
-          {tBlackout("proPrice", {
-            first: fmt.number(2.99, { style: "currency", currency: "EUR" }),
-            renewal: fmt.number(4.99, { style: "currency", currency: "EUR" })
-          })}
-        </p>
-      )}
-      {displayWhop && !active && !discounted && (
+      {displayWhop && !active && (
         <div className="yk-premium-whop-trial">
           <strong>{tPr5("whopTrialTitle")}</strong>
           <p>{tPr5("whopTrialConditions")}</p>

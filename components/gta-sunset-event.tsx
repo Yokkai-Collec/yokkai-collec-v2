@@ -113,7 +113,7 @@ export function useGtaSunsetEvent(
           );
           return;
         }
-        if (now >= Date.parse(blackFridayTerms.packsExpireAt)) {
+        if (now >= Date.parse(blackFridayTerms.endsAt)) {
           setEvent(null);
           return;
         }

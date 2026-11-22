@@ -303,6 +303,7 @@ test("trusted bridge completes once after the last effect, respects reduced moti
 
 test("production route bounds requests and serves one fixed inert template, never arbitrary paths or media", async () => {
   let reads = 0;
+  let now = Date.parse("2026-11-26T19:59:59+01:00");
   const { GET } = load(
     "app/api/booster-opening/route.ts",
     {
@@ -318,7 +319,10 @@ test("production route bounds requests and serves one fixed inert template, neve
       },
       "@/lib/ui/booster-opening-document": { boosterOpeningDocument }
     },
-    { process: { env: { NODE_ENV: "production" }, cwd: () => "/workspace" } }
+    {
+      Date: { now: () => now, parse: Date.parse },
+      process: { env: { NODE_ENV: "production" }, cwd: () => "/workspace" }
+    }
   );
   for (const query of [
     "kind=../../secret",
@@ -354,6 +358,12 @@ test("production route bounds requests and serves one fixed inert template, neve
     assert.match(html, new RegExp(`/assets/chrome-${kind}-booster-v1\\.png`));
     assert.doesNotMatch(html, /javascript:alert/);
   }
+  const blackoutRequest = () =>
+    new Request("https://yokkai-collec.com/api/booster-opening?kind=blackout");
+  now = Date.parse("2026-11-30T20:59:59+01:00");
+  assert.equal((await GET(blackoutRequest())).status, 200);
+  now = Date.parse("2026-11-30T21:00:00+01:00");
+  assert.equal((await GET(blackoutRequest())).status, 400);
   assert.equal(reads, 1);
 });
 

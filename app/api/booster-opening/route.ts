@@ -28,7 +28,7 @@ export async function GET(request: Request) {
   const blackoutAvailable =
     blackoutPreviewEnabled ||
     (now >= Date.parse(blackFridayTerms.startsAt) &&
-      now < Date.parse(blackFridayTerms.packsExpireAt));
+      now < Date.parse(blackFridayTerms.endsAt));
   if (
     kind !== "regular" &&
     kind !== "decision" &&

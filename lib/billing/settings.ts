@@ -12,7 +12,6 @@ export type BillingSettings = {
   enabled: boolean;
   checkoutEnabled: boolean;
   checkoutProvider?: "whop";
-  blackoutOffer?: boolean;
   sandbox: boolean;
   status: BillingStatus | null;
   unavailable: boolean;
@@ -36,11 +35,8 @@ export async function getBillingSettings(
       config.live &&
       process.env.WHOP_LIVE_SYNC_ENABLED === "true" &&
       process.env.WHOP_LIVE_CHECKOUT_ENABLED === "true"
-    ) {
+    )
       result.checkoutProvider = "whop";
-      const { blackoutWhopOfferActive } = await import("./whop-live.mjs");
-      result.blackoutOffer = blackoutWhopOfferActive();
-    }
     result.checkoutEnabled =
       result.checkoutProvider === "whop" || config.checkoutEnabled;
     result.sandbox = !config.live;

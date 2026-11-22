@@ -4,7 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
 import { Button, Karas } from "@/components/ui";
-import { BLACKOUT_SLUG } from "@/lib/data/blackout-preview";
+import {
+  BLACKOUT_SLUG,
+  blackoutPreviewEnabled,
+  blackFridayTerms
+} from "@/lib/data/blackout-preview";
 import {
   requestBlackoutWallet,
   type BlackoutPreviewWallet
@@ -56,12 +60,27 @@ export function BlackoutPreviewShop() {
   const t = useTranslations("blackout");
   const format = useFormatter();
   const { wallet, setWallet, failed } = useBlackoutWallet();
+  const [closed, setClosed] = useState(false);
+  useEffect(() => {
+    if (blackoutPreviewEnabled) return;
+    const timeout = window.setTimeout(
+      () => setClosed(true),
+      Math.max(0, Date.parse(blackFridayTerms.endsAt) - Date.now())
+    );
+    return () => window.clearTimeout(timeout);
+  }, []);
   const [purchasing, setPurchasing] = useState(false);
   const purchaseInProgress = useRef(false);
   const [purchaseError, setPurchaseError] = useState<
     "notEnoughKaras" | "dailyLimitReached" | "purchaseUnavailable"
   >();
   const [selection, setSelection] = useState(1);
+  if (closed)
+    return (
+      <p className="mt-3 text-sm text-ink-2" role="status">
+        {t("shopClosed")}
+      </p>
+    );
   if (!wallet)
     return (
       <p className="mt-3 text-sm text-ink-2" role="status">

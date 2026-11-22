@@ -69,11 +69,10 @@ revoke all on public.blackout_purchases, public.blackout_openings
   from public, anon, authenticated, service_role;
 
 create function public.blackout_schedule()
-returns table (opens_at timestamptz, closes_at timestamptz, expires_at timestamptz)
+returns table (opens_at timestamptz, closes_at timestamptz)
 language sql immutable set search_path = '' as $$
   select timestamptz '2026-11-26 20:00:00 Europe/Paris',
-         timestamptz '2026-12-01 00:00:00 Europe/Paris',
-         timestamptz '2026-12-02 00:00:00 Europe/Paris';
+         timestamptz '2026-11-30 21:00:00 Europe/Paris';
 $$;
 
 create function public.blackout_free_slots(p_player uuid, p_at timestamptz)
@@ -101,7 +100,7 @@ returns jsonb language sql stable set search_path = '' as $$
   select jsonb_build_object(
     'balance', p.karas_balance,
     'boughtToday', purchased.today,
-    'reserve', case when p_at >= s.opens_at and p_at < s.expires_at
+    'reserve', case when p_at >= s.opens_at and p_at < s.closes_at
       then purchased.total - used.total + cardinality(public.blackout_free_slots(p_player, p_at))
       else 0 end,
     'purchasesOpen', p_at >= s.opens_at and p_at < s.closes_at,
@@ -137,7 +136,7 @@ create function public.get_blackout_event()
 returns jsonb language sql stable security definer set search_path = '' as $$
   select jsonb_build_object(
     'serverNow', extract(epoch from statement_timestamp()) * 1000,
-    'startsAt', s.opens_at, 'endsAt', s.closes_at, 'packsExpireAt', s.expires_at,
+    'startsAt', s.opens_at, 'endsAt', s.closes_at, 'packsExpireAt', s.closes_at,
     'nextResetAt', (select min(s.opens_at + make_interval(days => n))
       from generate_series(0, 4) n where s.opens_at + make_interval(days => n) > statement_timestamp()),
     'lrRatePerPack', public.blackout_lr_rate(),
@@ -153,7 +152,7 @@ returns jsonb language sql stable security definer set search_path = '' as $$
   from public.blackout_schedule() s
   cross join lateral public.blackout_wallet(auth.uid(), statement_timestamp()) wallet
   where auth.uid() is not null and wallet is not null
-    and statement_timestamp() >= s.opens_at and statement_timestamp() < s.expires_at;
+    and statement_timestamp() >= s.opens_at and statement_timestamp() < s.closes_at;
 $$;
 
 create function public.buy_blackout_packs(p_quantity integer, p_request uuid)
