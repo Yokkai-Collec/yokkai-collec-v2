@@ -6,7 +6,9 @@ const cards = JSON.parse(
   readFileSync(new URL("../data/blackout-cards.json", import.meta.url), "utf8")
 ).map(card => ({
   ...card,
-  image: `/assets/events/blackout/cards/${card.id.slice("blackout-".length)}.webp`
+  image:
+    card.artwork ??
+    `/assets/events/blackout/cards/${card.id.slice("blackout-".length)}.webp`
 }));
 
 const artwork = await Promise.allSettled(

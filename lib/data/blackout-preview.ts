@@ -23,7 +23,7 @@ function previewCard(
   name: string,
   anime: string,
   rarity: Card["rarity"],
-  imageKey: string
+  image: string
 ): Card {
   return {
     id,
@@ -31,17 +31,18 @@ function previewCard(
     anime,
     category: "ANIME/MANGA",
     rarity,
-    image: cardImages + imageKey
+    image
   };
 }
 
-export const blackoutCards = blackoutRoster.map(({ id, name, anime, imageKey }) =>
-  previewCard(id, name, anime, "LR", imageKey)
+export const blackoutCards = blackoutRoster.map(
+  ({ id, name, anime, imageKey, artwork }) =>
+    previewCard(id, name, anime, "LR", artwork ?? cardImages + imageKey)
 );
 
 const standardCards = [
-  previewCard("preview-tenin", "Tenin", "Vampire Dormitory", "C", "b31eb9154251bd668b1c6c384108d917561375b218d6900a68a2f4df7bb2a504"),
-  previewCard("preview-aaduo", "Aaduo", "The Apothecary Diaries", "R", "b28d9f990bbbb43f34b97d66613f9c04dd34ceb70c3f098222196c93de0d316b-c402cb940a3f644d")
+  previewCard("preview-tenin", "Tenin", "Vampire Dormitory", "C", cardImages + "b31eb9154251bd668b1c6c384108d917561375b218d6900a68a2f4df7bb2a504"),
+  previewCard("preview-aaduo", "Aaduo", "The Apothecary Diaries", "R", cardImages + "b28d9f990bbbb43f34b97d66613f9c04dd34ceb70c3f098222196c93de0d316b-c402cb940a3f644d")
 ];
 
 
