@@ -10,12 +10,14 @@ import {
 } from "@/components/mystery-auction";
 
 export function MysteryAuctionStage({
+  auctionId,
   card,
   hidden,
   chance,
   misses,
   finished
 }: {
+  auctionId?: string;
   card: Card;
   hidden?: boolean;
   chance?: number | null;
@@ -26,7 +28,11 @@ export function MysteryAuctionStage({
   const format = useFormatter();
   return (
     <>
-      <MysteryEventHeader finished={finished} progressive={chance != null} />
+      <MysteryEventHeader
+        auctionId={auctionId}
+        finished={finished}
+        progressive={chance != null}
+      />
       {chance != null && (
         <section className="yk-mystery-odds" aria-label={t("lrChanceLabel")}>
           <div className="yk-mystery-odds-heading">

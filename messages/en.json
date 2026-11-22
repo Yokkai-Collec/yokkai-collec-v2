@@ -4737,6 +4737,7 @@
     "leaderboardRemaining": "Remaining event rankings"
   },
   "mysteryAuction": {
+    "nextEditionLabel": "Next mystery auction in",
     "lrRulesTitle": "How the LR chance works",
     "legacyIntro": "A new mystery auction begins every day, followed by a one-hour break before the next edition. Every card in the catalogue has exactly the same chance of being drawn, regardless of rarity. The card is drawn at closing, in its normal edition only, then revealed to everyone. The highest bidder wins it.",
     "lrChanceLabel": "LR chance this edition",

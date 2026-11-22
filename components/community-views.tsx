@@ -1801,6 +1801,7 @@ export function AuctionView({
     >
       {auction.isMystery ? (
         <MysteryAuctionStage
+          auctionId={auction.id}
           card={auction.card}
           hidden={auction.mysteryHidden}
           chance={auction.mysteryLrChance}
