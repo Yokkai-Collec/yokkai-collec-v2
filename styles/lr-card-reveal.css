@@ -1034,6 +1034,26 @@
 
 /* Blackout LR shares the reveal timing and uses the colors of its metallic frame. */
 .yk-lr-reveal:has(> .yk-lr-stage .yk-rarity-LR[data-blackout]) {
+  /* Keep both badges on the card timeline, even if the #1 lookup resolves later. */
+  .yk-card[data-blackout] {
+    animation: yk-lr-blackout-badges 9.2s step-end both;
+  }
+
+  .yk-card-event-label {
+    visibility: var(--yk-blackout-badge-visibility, hidden);
+  }
+
+  .yk-card-first-lr {
+    /* The standard LR badge is hidden inline until the controls unlock. */
+    visibility: var(--yk-blackout-badge-visibility, hidden) !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .yk-card[data-blackout] {
+      animation: yk-lr-blackout-badges 0.3s step-end both !important;
+    }
+  }
+
   .yk-lr-world {
     background: #080611 url("/assets/events/blackout/opening-nebula.webp")
       center / cover no-repeat;
@@ -1153,6 +1173,15 @@
 
   :is(.yk-lr-skip, .yk-lr-end-controls button):focus-visible {
     outline-color: #e4cdff;
+  }
+}
+
+@keyframes yk-lr-blackout-badges {
+  from {
+    --yk-blackout-badge-visibility: hidden;
+  }
+  to {
+    --yk-blackout-badge-visibility: visible;
   }
 }
 
