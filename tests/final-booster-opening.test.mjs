@@ -713,11 +713,16 @@ test("production proxy origins use configured public site, not localhost or atta
   }
 });
 
-test("opening keeps the matching nebula behind both pack animations", () => {
-  for (const kind of ["regular", "decision"]) {
+test("opening keeps the matching background behind each pack animation", () => {
+  for (const [kind, background] of Object.entries({
+    regular: "/assets/regular-opening-nebula.webp",
+    decision: "/assets/decision-opening-nebula.webp",
+    sunset: "/assets/events/gta-sunset/opening-nebula.webp",
+    blackout: "/assets/events/blackout/opening-nebula.webp"
+  })) {
     assert.ok(
       documentFor(kind).includes(
-        `body{background:#070b13 url("https://yokkai-collec.com/assets/${kind}-opening-nebula.webp") center / cover no-repeat}`
+        `body{background:#070b13 url("https://yokkai-collec.com${background}") center / cover no-repeat}`
       )
     );
   }

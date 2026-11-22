@@ -399,9 +399,7 @@
   --reveal-background: url("/assets/events/gta-sunset/opening-nebula.webp");
 }
 .yk-reveal-screen[data-pack-kind="blackout"] {
-  --reveal-background:
-    linear-gradient(#160b2fa0, #080611c9),
-    url("/assets/regular-opening-nebula.webp");
+  --reveal-background: url("/assets/events/blackout/opening-nebula.webp");
 }
 .yk-reveal-screen[data-pack-kind="decision"] {
   --reveal-background: url("/assets/decision-opening-nebula.webp");

@@ -2,6 +2,12 @@
   "blackout": {
     "title": "Black Friday",
     "dailyPacks": "{basic, plural, one {# free pack per day} other {# free packs per day}} for Basic players and {pro, plural, one {# free pack per day} other {# free packs per day}} for Pro members.",
+    "buyPack": "Buy a pack · {price, number} Karas",
+    "previewBalance": "Test balance {balance, number} Karas",
+    "dailyPurchases": "{boughtToday}/{dailyLimit} bought today",
+    "purchasedReserve": "{reserve, plural, one {# purchased pack in reserve} other {# purchased packs in reserve}}",
+    "dailyLimitReached": "Daily limit reached",
+    "notEnoughKaras": "Not enough test Karas",
     "karasPacks": "Extra packs available for Karas during the event.",
     "proPrice": "{first} for the first month, then {renewal} per month. Billed from day one.",
     "preview": "Local preview",

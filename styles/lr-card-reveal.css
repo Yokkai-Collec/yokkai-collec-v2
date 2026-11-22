@@ -1032,6 +1032,15 @@
     0 8px 26px #00000057;
 }
 
+.yk-lr-reveal:has(> .yk-lr-stage .yk-rarity-LR[data-blackout]) .yk-lr-world {
+  background: #080611 url("/assets/events/blackout/opening-nebula.webp")
+    center / cover no-repeat;
+}
+.yk-lr-reveal:has(> .yk-lr-stage .yk-rarity-LR[data-blackout])
+  .yk-lr-world::before {
+  background: linear-gradient(0deg, #08061180, transparent 26%);
+}
+
 /* Sunset LR takes its colors from the event booster. */
 .yk-lr-reveal:has(> .yk-lr-stage .yk-rarity-LR[data-sunset]) .yk-lr-world {
   background:

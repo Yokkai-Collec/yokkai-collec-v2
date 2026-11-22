@@ -55,7 +55,9 @@ export function boosterOpeningDocument(
   };
   const nebula = sunset
     ? "/assets/events/gta-sunset/opening-nebula.webp"
-    : `/assets/${blackout ? "regular" : kind}-opening-nebula.webp`;
+    : blackout
+      ? "/assets/events/blackout/opening-nebula.webp"
+      : `/assets/${kind}-opening-nebula.webp`;
   if (
     !source.includes('data-yokkai-opening="tear-and-fan"') ||
     !source.includes("window.setYokkaiBooster = setYokkaiBooster;")
@@ -245,7 +247,7 @@ export function boosterOpeningDocument(
       "</head>",
       `<style>
       body{background:#070b13 url(${json(new URL(nebula, origin).href)}) center / cover no-repeat}
-      ${blackout ? "body::after{content:'';position:fixed;inset:0;background:#170d2980;pointer-events:none;z-index:-1}.pack-position{filter:saturate(.34) brightness(.72)}" : ""}
+      ${blackout ? ".pack-position{filter:saturate(.34) brightness(.72)}" : ""}
       html,body,.scene{-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
       .pack-position,.opening-cards{transform-style:preserve-3d}
       .yokkai-wait-booster .scene{visibility:hidden}

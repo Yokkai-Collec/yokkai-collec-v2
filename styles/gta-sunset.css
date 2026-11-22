@@ -305,3 +305,20 @@
     translate: 12px 0;
   }
 }
+
+.yk-blackout-shop {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+}
+.yk-blackout-shop > .yk-button {
+  justify-self: center;
+  width: min(100%, 280px);
+  min-height: 44px;
+  border-radius: 999px;
+}
+.yk-blackout-shop-status {
+  color: var(--color-ink-2);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
