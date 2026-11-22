@@ -61,7 +61,7 @@ const walletUpdated = "yokkai-blackout-preview-wallet";
 const parisDay = new Intl.DateTimeFormat("fr-CA", { timeZone: "Europe/Paris" });
 
 const initialWallet = { day: "", boughtToday: 0, reserve: 0, balance: 5000 };
-type BlackoutPreviewWallet = typeof initialWallet;
+export type BlackoutPreviewWallet = typeof initialWallet;
 
 function readPreviewWallet(): BlackoutPreviewWallet {
   const day = parisDay.format(new Date());

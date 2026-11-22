@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { AccountMenu } from "@/components/account-menu";
+import { BlackoutPreviewShop } from "@/components/blackout-preview-shop";
 import { LeaderboardTopbar } from "@/components/leaderboard-topbar";
 import { YokaiCard } from "@/components/yokai-card";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -60,10 +61,10 @@ export default async function BlackFridayPage() {
             <p className="mt-2 text-sm text-ink-2">{dates}</p>
           </div>
           <Link
-            className="yk-button yk-button-primary"
+            className="yk-button yk-button-secondary"
             href={`/boosters#${BLACKOUT_SLUG}`}
           >
-            {t("viewBooster")}
+            {t("openMyPacks")}
           </Link>
         </header>
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -72,7 +73,7 @@ export default async function BlackFridayPage() {
             <p className="mt-1 text-sm text-ink-2">
               {t("dailyPacks", freePacks)}
             </p>
-            <p className="mt-1 text-sm text-ink-2">{t("karasPacks")}</p>
+            <BlackoutPreviewShop />
           </section>
           <section className="rounded-card border border-veil bg-surface p-4">
             <h2 className="font-bold">Yokkai Pro</h2>
@@ -92,7 +93,7 @@ export default async function BlackFridayPage() {
           <ul>
             {blackoutCards.map(card => (
               <li key={card.id}>
-                <YokaiCard {...card} animated={false} />
+                <YokaiCard {...card} />
               </li>
             ))}
           </ul>

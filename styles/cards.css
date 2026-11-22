@@ -27,16 +27,6 @@
   --card-spark: #ffd2ac;
 }
 .yk-card.yk-rarity-LR[data-blackout] {
-  --card-frame: conic-gradient(
-    from 10deg,
-    #726180,
-    #221b2b,
-    #b1a1c4,
-    #4d405e,
-    #292333,
-    #726180
-  );
-  --card-glow: 0 0 0 1px #b0a1c899, 0 8px 22px #8568ae45;
   --card-badge: #20182a;
   --card-badge-border: #ab97bd;
   --card-badge-ink: #e9def2;

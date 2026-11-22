@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui";
+import { BlackoutPreviewReserve } from "@/components/blackout-preview-shop";
 import { useFormatter, useTranslations } from "next-intl";
 import {
   EventBannerArrow,
@@ -16,12 +17,7 @@ import {
   BLACKOUT_EVENT_PATH,
   BLACKOUT_SLUG,
   blackoutCards,
-  blackoutPreviewEnabled,
-  blackoutPreviewShop,
-  buyBlackoutPreviewPack,
-  getBlackoutPreviewWallet,
-  getInitialBlackoutPreviewWallet,
-  subscribeBlackoutPreviewWallet
+  blackoutPreviewEnabled
 } from "@/lib/data/blackout-preview";
 import type { Card, CollectedCard } from "@/lib/data/cards";
 import {
@@ -421,43 +417,8 @@ export function GtaSunsetBooster({
             t(busy ? "opening" : "open")
           )}
         </Button>
-        {edition === "blackout" && <BlackoutPreviewShop busy={busy} />}
+        {edition === "blackout" && <BlackoutPreviewReserve />}
       </div>
     </article>
-  );
-}
-
-function BlackoutPreviewShop({ busy }: { busy: boolean }) {
-  const t = useTranslations("blackout");
-  const state = useSyncExternalStore(
-    subscribeBlackoutPreviewWallet,
-    getBlackoutPreviewWallet,
-    getInitialBlackoutPreviewWallet
-  );
-  const { boughtToday, reserve, balance } = JSON.parse(state);
-  const { price, dailyLimit } = blackoutPreviewShop;
-  const atLimit = boughtToday >= dailyLimit;
-  const insufficient = balance < price;
-
-  return (
-    <div className="yk-blackout-shop">
-      <Button
-        variant="secondary"
-        className="w-full"
-        disabled={busy || atLimit || insufficient}
-        onClick={buyBlackoutPreviewPack}
-      >
-        {t("buyPack", { price })}
-      </Button>
-      <div className="yk-blackout-shop-status" role="status">
-        <p>
-          {t("previewBalance", { balance })} ·{" "}
-          {t("dailyPurchases", { boughtToday, dailyLimit })}
-        </p>
-        <p>{t("purchasedReserve", { reserve })}</p>
-        {atLimit && <p>{t("dailyLimitReached")}</p>}
-        {!atLimit && insufficient && <p>{t("notEnoughKaras")}</p>}
-      </div>
-    </div>
   );
 }

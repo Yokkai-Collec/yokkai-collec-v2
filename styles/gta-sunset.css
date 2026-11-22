@@ -312,10 +312,8 @@
   margin-top: 10px;
 }
 .yk-blackout-shop > .yk-button {
-  justify-self: center;
-  width: min(100%, 280px);
   min-height: 44px;
-  border-radius: 999px;
+  white-space: normal;
 }
 .yk-blackout-shop-status {
   color: var(--color-ink-2);

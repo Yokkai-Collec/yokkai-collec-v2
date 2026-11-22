@@ -226,8 +226,9 @@ export function YokaiCard({
   const evolved =
     (isEvolved || (shiny && rarity === "SSR")) &&
     (rarity === "SSR" || rarity === "LR");
-  const evolvedStyle = evolved && !(shiny && rarity === "LR");
-  const special = holo || evolved;
+  const evolvedStyle =
+    (evolved || (blackout && rarity === "LR")) && !(shiny && rarity === "LR");
+  const special = holo || evolvedStyle;
   const franchise = formatLicenseName(anime?.trim());
   const sparkCount = !animated
     ? 0
@@ -393,7 +394,7 @@ export function YokaiCard({
                     ✧
                   </span>
                 )}
-                {special && (
+                {(holo || evolved) && (
                   <span
                     className={`yk-shiny-badge${evolved ? " yk-evolved-badge" : ""}`}
                     title={cardRarityLabel(rarity, shiny, isEvolved)}
