@@ -424,9 +424,6 @@ export function YokaiCard({
                   </span>
                 )}
               </span>
-              {blackoutLabel && (
-                <span className="yk-card-event-label">{blackoutLabel}</span>
-              )}
             </div>
             {categoryAccessory && (
               <div className="yk-card-category-accessory">
@@ -447,6 +444,9 @@ export function YokaiCard({
                 <span className="yk-card-anime" title={franchise}>
                   {franchise}
                 </span>
+              )}
+              {blackoutLabel && (
+                <span className="yk-card-event-label">{blackoutLabel}</span>
               )}
             </div>
           </div>
