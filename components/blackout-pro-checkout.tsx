@@ -57,7 +57,6 @@ export function BlackoutProCheckout() {
         onClick={openCheckout}
       >
         {busy ? premium("openingWhop") : t("checkoutOnWhop")}
-        {!busy && <span aria-hidden="true"> ↗</span>}
       </Button>
       {error && (
         <p className="text-sm text-ink-2" role="alert">
