@@ -35,9 +35,8 @@ function previewCard(
   };
 }
 
-export const blackoutCards = blackoutRoster.map(
-  ({ id, name, anime, imageKey, artwork }) =>
-    previewCard(id, name, anime, "LR", artwork ?? cardImages + imageKey)
+export const blackoutCards = blackoutRoster.map(({ id, name, anime, artwork }) =>
+  previewCard(id, name, anime, "LR", artwork)
 );
 
 const standardCards = [

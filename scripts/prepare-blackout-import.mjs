@@ -4,15 +4,10 @@ import sharp from "sharp";
 
 const cards = JSON.parse(
   readFileSync(new URL("../data/blackout-cards.json", import.meta.url), "utf8")
-).map(card => ({
-  ...card,
-  image:
-    card.artwork ??
-    `/assets/events/blackout/cards/${card.id.slice("blackout-".length)}.webp`
-}));
+);
 
 const artwork = await Promise.allSettled(
-  cards.map(async ({ image }) => {
+  cards.map(async ({ artwork: image }) => {
     const metadata = await sharp(
       fileURLToPath(new URL(`../public${image}`, import.meta.url))
     ).metadata();
@@ -25,20 +20,20 @@ const missing = cards.filter(
 
 if (missing.length > 0) {
   process.stderr.write(
-    `Illustrations Blackout manquantes ou invalides :\n${missing.map(card => `public${card.image}`).join("\n")}\n`
+    `Illustrations Blackout manquantes ou invalides :\n${missing.map(card => `public${card.artwork}`).join("\n")}\n`
   );
   process.exitCode = 1;
 } else {
   const literal = value => "'" + value.replaceAll("'", "''") + "'";
   const values = cards
     .map(
-      ({ id, name, anime, image }) =>
+      ({ id, name, anime, artwork: image }) =>
         `  ('manual', ${literal(id)}, ${literal(name)}, 'ANIME/MANGA', ${literal(anime)}, 'LR', ${literal(image)}, true)`
     )
     .join(",\n");
   const expected = cards
     .map(
-      ({ id, name, image }) =>
+      ({ id, name, artwork: image }) =>
         `    (${literal(id)}, ${literal(name)}, ${literal(image)})`
     )
     .join(",\n");
