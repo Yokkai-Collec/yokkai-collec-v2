@@ -23,6 +23,8 @@ Les noms et identifiants source des cartes sont dans [le fichier des éditions B
 
 La commande `node scripts/prepare-blackout-import.mjs` vérifie toutes les illustrations et écrit le SQL d’import sur la sortie standard. Exécuter ce SQL au moment où les illustrations seront servies en production. L’import crée les cartes exclusives avec le suffixe `(Blackout)` et conserve leurs identifiants de catalogue lors des relances.
 
+Pour tester les achats Blackout avec le solde du compte connecté, appliquer la [recette du portefeuille Blackout](../supabase/recipes/blackout_preview_wallet.sql) sur Supabase local, y compris après une réinitialisation de la base. Le débit et la réserve sont enregistrés sur ce compte local. L’ouverture utilise les cartes de démonstration de l’aperçu.
+
 ## Références dans le dépôt
 
 - [Bandeau d’accueil, carte Événements, états de réserve et panneau du pack](../components/gta-sunset-event.tsx)

@@ -54,6 +54,7 @@ import {
   blackoutPreviewEnabled,
   openBlackoutPreview
 } from "@/lib/data/blackout-preview";
+import { requestBlackoutPreviewWallet } from "@/lib/data/blackout-preview-wallet";
 import type { BoosterKind } from "@/lib/ui/booster-opening-document";
 import { releaseBoostersBackground } from "@/components/boosters-load-priority";
 import { startVisiblePolling } from "@/lib/ui/visible-polling";
@@ -738,6 +739,7 @@ export function Game({
             onOpenBlackout={
               blackoutPreviewEnabled
                 ? async () => {
+                    await requestBlackoutPreviewWallet({ action: "open" });
                     const cards = await openBlackoutPreview();
                     setDraw(cards);
                     setDrawKind("blackout");

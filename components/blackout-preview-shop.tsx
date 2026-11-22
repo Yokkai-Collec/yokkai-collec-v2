@@ -1,45 +1,111 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
 import { Button, Karas } from "@/components/ui";
+import { BLACKOUT_SLUG } from "@/lib/data/blackout-preview";
 import {
-  BLACKOUT_SLUG,
-  blackoutPreviewShop,
-  buyBlackoutPreviewPacks,
-  getBlackoutPreviewWallet,
-  getInitialBlackoutPreviewWallet,
-  subscribeBlackoutPreviewWallet,
+  requestBlackoutPreviewWallet,
   type BlackoutPreviewWallet
-} from "@/lib/data/blackout-preview";
+} from "@/lib/data/blackout-preview-wallet";
+import { invalidatePlayerSnapshots } from "@/lib/data/cards";
+import { subscribePlayerSnapshotInvalidation } from "@/lib/data/player-state";
 
 function usePreviewWallet() {
-  const state = useSyncExternalStore(
-    subscribeBlackoutPreviewWallet,
-    getBlackoutPreviewWallet,
-    getInitialBlackoutPreviewWallet
-  );
-  return JSON.parse(state) as BlackoutPreviewWallet;
+  const [wallet, setWallet] = useState<BlackoutPreviewWallet>();
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    let request: AbortController | undefined;
+    const refresh = async () => {
+      request?.abort();
+      const controller = new AbortController();
+      request = controller;
+      try {
+        const current = await requestBlackoutPreviewWallet(
+          undefined,
+          controller.signal
+        );
+        if (!controller.signal.aborted) {
+          setWallet(current);
+          setFailed(false);
+        }
+      } catch {
+        if (!controller.signal.aborted) setFailed(true);
+      }
+    };
+    void refresh();
+    const unsubscribe = subscribePlayerSnapshotInvalidation(scopes => {
+      if (scopes.includes("balance")) void refresh();
+    });
+    window.addEventListener("focus", refresh);
+    const timer = window.setInterval(refresh, 30_000);
+    return () => {
+      request?.abort();
+      unsubscribe();
+      window.removeEventListener("focus", refresh);
+      window.clearInterval(timer);
+    };
+  }, []);
+
+  return { wallet, setWallet, failed };
 }
 
 export function BlackoutPreviewShop() {
   const t = useTranslations("blackout");
   const format = useFormatter();
-  const { boughtToday, reserve, balance } = usePreviewWallet();
-  const { price, dailyLimit } = blackoutPreviewShop;
+  const { wallet, setWallet, failed } = usePreviewWallet();
+  const [purchasing, setPurchasing] = useState(false);
+  const purchaseInProgress = useRef(false);
+  const [purchaseError, setPurchaseError] = useState<
+    "notEnoughKaras" | "dailyLimitReached" | "purchaseUnavailable"
+  >();
   const [selection, setSelection] = useState(1);
+  if (!wallet)
+    return (
+      <p className="mt-3 text-sm text-ink-2" role="status">
+        {t(failed ? "walletUnavailable" : "walletLoading")}
+      </p>
+    );
+  const { boughtToday, reserve, balance, price, dailyLimit } = wallet;
   const maxQuantity = Math.max(
     0,
     Math.min(dailyLimit - boughtToday, Math.floor(balance / price))
   );
   const quantity = Math.min(selection, maxQuantity);
-  const action =
-    boughtToday >= dailyLimit
+  const action = purchasing
+    ? t("purchasing")
+    : boughtToday >= dailyLimit
       ? t("dailyLimitReached")
       : quantity === 0
         ? t("notEnoughKaras")
         : t("buyPacks", { quantity, total: quantity * price });
+  const errorMessage = failed ? "walletUnavailable" : purchaseError;
+
+  async function buyPacks() {
+    if (quantity === 0 || failed || purchaseInProgress.current) return;
+    purchaseInProgress.current = true;
+    setPurchasing(true);
+    setPurchaseError(undefined);
+    try {
+      setWallet(
+        await requestBlackoutPreviewWallet({ action: "buy", quantity })
+      );
+      setSelection(1);
+    } catch (error) {
+      const code = error instanceof Error ? error.message : "";
+      setPurchaseError(
+        code === "notEnoughKaras" || code === "dailyLimitReached"
+          ? code
+          : "purchaseUnavailable"
+      );
+    } finally {
+      invalidatePlayerSnapshots(["balance"]);
+      purchaseInProgress.current = false;
+      setPurchasing(false);
+    }
+  }
 
   return (
     <div className="yk-blackout-shop">
@@ -48,7 +114,7 @@ export function BlackoutPreviewShop() {
       </div>
       <dl className="yk-blackout-shop-status" aria-live="polite">
         <div>
-          <dt>{t("previewBalance")}</dt>
+          <dt>{t("accountBalance")}</dt>
           <dd>
             <Karas amount={balance} />
           </dd>
@@ -73,7 +139,7 @@ export function BlackoutPreviewShop() {
           <button
             type="button"
             aria-label={t("decreaseQuantity")}
-            disabled={quantity <= 1}
+            disabled={quantity <= 1 || purchasing || failed}
             onClick={() => setSelection(quantity - 1)}
           >
             −
@@ -82,7 +148,7 @@ export function BlackoutPreviewShop() {
           <button
             type="button"
             aria-label={t("increaseQuantity")}
-            disabled={quantity >= maxQuantity}
+            disabled={quantity >= maxQuantity || purchasing || failed}
             onClick={() => setSelection(quantity + 1)}
           >
             +
@@ -90,15 +156,17 @@ export function BlackoutPreviewShop() {
         </div>
         <Button
           className="yk-blackout-buy"
-          disabled={quantity === 0}
-          onClick={() => {
-            buyBlackoutPreviewPacks(quantity);
-            setSelection(1);
-          }}
+          disabled={quantity === 0 || purchasing || failed}
+          onClick={buyPacks}
         >
           {action}
         </Button>
       </div>
+      {errorMessage && (
+        <p className="text-sm text-ink-2" role="alert">
+          {t(errorMessage)}
+        </p>
+      )}
       <Link
         className="yk-blackout-open-link"
         href={`/boosters#${BLACKOUT_SLUG}`}
@@ -111,7 +179,8 @@ export function BlackoutPreviewShop() {
 
 export function BlackoutPreviewReserve() {
   const t = useTranslations("blackout");
-  const { reserve } = usePreviewWallet();
+  const { wallet } = usePreviewWallet();
+  const reserve = wallet?.reserve ?? 0;
   return reserve > 0 ? (
     <p className="mt-2 text-sm text-ink-2">
       {t("purchasedReserve", { reserve })}

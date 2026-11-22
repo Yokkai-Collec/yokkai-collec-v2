@@ -44,88 +44,8 @@ const standardCards = [
   previewCard("preview-aaduo", "Aaduo", "The Apothecary Diaries", "R", cardImages + "b28d9f990bbbb43f34b97d66613f9c04dd34ceb70c3f098222196c93de0d316b-c402cb940a3f644d")
 ];
 
-
-export const blackoutPreviewShop = {
-  price: 750,
-  dailyLimit: 3
-} as const;
-
-const walletKey = "yokkai.blackout.preview-wallet";
-const walletUpdated = "yokkai-blackout-preview-wallet";
-const parisDay = new Intl.DateTimeFormat("fr-CA", { timeZone: "Europe/Paris" });
-
-const initialWallet = { day: "", boughtToday: 0, reserve: 0, balance: 5000 };
-export type BlackoutPreviewWallet = typeof initialWallet;
-
-function readPreviewWallet(): BlackoutPreviewWallet {
-  const day = parisDay.format(new Date());
-  let wallet = initialWallet;
-  try {
-    const saved = JSON.parse(window.localStorage.getItem(walletKey) ?? "null");
-    if (
-      typeof saved?.day === "string" &&
-      [saved.boughtToday, saved.reserve, saved.balance].every(
-        amount => Number.isSafeInteger(amount) && amount >= 0
-      )
-    ) {
-      wallet = saved;
-    }
-  } catch {
-    // A fresh preview can start without a stored wallet.
-  }
-  return wallet.day === day ? wallet : { ...wallet, day, boughtToday: 0 };
-}
-
-function savePreviewWallet(wallet: BlackoutPreviewWallet) {
-  window.localStorage.setItem(walletKey, JSON.stringify(wallet));
-  window.dispatchEvent(new Event(walletUpdated));
-}
-
-export function getBlackoutPreviewWallet() {
-  return JSON.stringify(readPreviewWallet());
-}
-
-export function getInitialBlackoutPreviewWallet() {
-  return JSON.stringify(initialWallet);
-}
-
-export function subscribeBlackoutPreviewWallet(notify: () => void) {
-  window.addEventListener(walletUpdated, notify);
-  window.addEventListener("storage", notify);
-  window.addEventListener("focus", notify);
-  const timer = window.setInterval(notify, 30_000);
-  return () => {
-    window.removeEventListener(walletUpdated, notify);
-    window.removeEventListener("storage", notify);
-    window.removeEventListener("focus", notify);
-    window.clearInterval(timer);
-  };
-}
-
-export function buyBlackoutPreviewPacks(quantity: number) {
-  if (!blackoutPreviewEnabled) return;
-  const wallet = readPreviewWallet();
-  const { price, dailyLimit } = blackoutPreviewShop;
-  const total = quantity * price;
-  if (
-    !Number.isSafeInteger(quantity) ||
-    quantity < 1 ||
-    wallet.boughtToday + quantity > dailyLimit ||
-    wallet.balance < total
-  ) return;
-
-  savePreviewWallet({
-    ...wallet,
-    balance: wallet.balance - total,
-    boughtToday: wallet.boughtToday + quantity,
-    reserve: wallet.reserve + quantity
-  });
-}
-
 export async function openBlackoutPreview(): Promise<CollectedCard[]> {
   if (!blackoutPreviewEnabled) return [];
-  const wallet = readPreviewWallet();
-  if (wallet.reserve > 0) savePreviewWallet({ ...wallet, reserve: wallet.reserve - 1 });
   const legendary = blackoutCards[Math.floor(Math.random() * blackoutCards.length)];
   return [...standardCards, legendary].map(card => ({
     ...card,
