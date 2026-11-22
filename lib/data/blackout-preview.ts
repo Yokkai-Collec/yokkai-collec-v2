@@ -5,6 +5,7 @@ export const blackoutPreviewEnabled =
   process.env.NEXT_PUBLIC_BLACKOUT_PREVIEW === "true";
 
 export const BLACKOUT_SLUG = "black-friday";
+export const BLACKOUT_EVENT_PATH = `/events/${BLACKOUT_SLUG}`;
 
 const cardImages = "https://api.yokkai-collec.com/storage/v1/object/public/card-images/";
 

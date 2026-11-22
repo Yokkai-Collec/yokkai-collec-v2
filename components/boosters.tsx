@@ -10,7 +10,6 @@ import {
   blackoutPreviewEnabled
 } from "@/lib/data/blackout-preview";
 import {
-  BlackoutRoster,
   GtaSunsetBooster,
   useGtaSunsetEvent
 } from "@/components/gta-sunset-event";
@@ -1963,7 +1962,6 @@ export function Boosters({
           </article>
         </div>
       )}
-      {!opening && !revealing && showBlackout && <BlackoutRoster />}
       {!opening && !revealing && !localPreview && (
         <ReferralReminder packChoices />
       )}

@@ -13,6 +13,7 @@ import {
 } from "@/components/event-banner";
 import { YokaiCard } from "@/components/yokai-card";
 import {
+  BLACKOUT_EVENT_PATH,
   BLACKOUT_SLUG,
   blackoutCards,
   blackoutPreviewEnabled
@@ -266,8 +267,12 @@ export function GtaSunsetHubCard({
   return (
     <li className="yk-event-card" data-event={appearance.slug}>
       <EventBannerFrame
-        href={`/boosters#${appearance.slug}`}
-        label={t("viewBooster")}
+        href={
+          edition === "blackout"
+            ? BLACKOUT_EVENT_PATH
+            : `/boosters#${appearance.slug}`
+        }
+        label={t(edition === "blackout" ? "viewEvent" : "viewBooster")}
       >
         <div className="yk-event-banner-content">
           <span className="yk-event-frequency">{t("limitedEdition")}</span>
@@ -413,26 +418,5 @@ export function GtaSunsetBooster({
         </Button>
       </div>
     </article>
-  );
-}
-
-export function BlackoutRoster() {
-  const t = useTranslations("blackout");
-  return (
-    <section
-      className="yk-blackout-roster"
-      aria-labelledby="blackout-roster-title"
-    >
-      <h2 id="blackout-roster-title" className="yk-title">
-        {t("roster")}
-      </h2>
-      <ul>
-        {blackoutCards.map(card => (
-          <li key={card.id}>
-            <YokaiCard {...card} animated={false} />
-          </li>
-        ))}
-      </ul>
-    </section>
   );
 }
