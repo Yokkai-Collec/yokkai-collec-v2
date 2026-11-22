@@ -21,9 +21,17 @@ Une édition exclusive d’une carte existante a son propre nom, son propre iden
 
 Les noms et identifiants source des cartes sont dans [le fichier des éditions Blackout](../data/blackout-cards.json). Déposer les illustrations finales dans `public/assets/events/blackout/cards/`, au format WebP, avec le nom de l’identifiant sans le préfixe `blackout-`. Par exemple, l’illustration de Sung Jin-Woo s’appelle `sung-jinwoo.webp`.
 
-La commande `node scripts/prepare-blackout-import.mjs` vérifie toutes les illustrations et écrit le SQL d’import sur la sortie standard. Exécuter ce SQL au moment où les illustrations seront servies en production. L’import crée les cartes exclusives avec le suffixe `(Blackout)` et conserve leurs identifiants de catalogue lors des relances.
+La commande `node scripts/prepare-blackout-import.mjs` vérifie toutes les illustrations et écrit le SQL d’import sur la sortie standard. Intégrer les lignes générées à la migration qui publie les cartes. L’import crée les cartes exclusives avec le suffixe `(Blackout)` et conserve leurs identifiants de catalogue lors des relances.
 
 Pour tester les achats Blackout avec le solde du compte connecté, appliquer la [recette du portefeuille Blackout](../supabase/recipes/blackout_preview_wallet.sql) sur Supabase local, y compris après une réinitialisation de la base. Le débit et la réserve sont enregistrés sur ce compte local. L’ouverture utilise les cartes de démonstration de l’aperçu.
+
+## Lancement du Black Friday 2026
+
+- Le lancement est automatique le 26 novembre à 20 h, heure de Paris. Les crédits gratuits arrivent à 20 h chaque jour, jusqu’au 30 novembre inclus. La réserve gratuite dépend du statut Basic ou Pro au moment de l’ouverture et des journées pour lesquelles le compte existait. Les achats à 750 Karas, limités à 3 par date de Paris, et les ouvertures gratuites se terminent le 1er décembre à minuit. Les packs achetés restent ouvrables 24 h de plus.
+- Appliquer les migrations `20261122200000_black_friday_blackout.sql` et `20261122201000_whop_blackout_checkout.sql` avec `scripts/deploy-migrations.sh` avant le déploiement de l’application. La première importe les dix cartes et installe la boutique et le tirage. Vérifier que la version déployée sert leurs illustrations dès l’import. Le SQL émis par `prepare-blackout-import.mjs` sert à vérifier l’import et n’est pas une étape de production supplémentaire.
+- Dans le produit Whop de production, préparer un plan dédié récurrent à 4,99 EUR sur le même cycle de 30 jours que le plan habituel, sans frais initiaux ni essai. Désactiver la tarification adaptative pour ce plan. Créer un code de réduction de 2 EUR, valable uniquement sur le premier paiement du plan dédié, à raison d’une utilisation par client, et expirant à minuit le 1er décembre à Paris (30 novembre à 23 h UTC). Vérifier le montant de la première échéance et celui du renouvellement sur le checkout avant le lancement.
+- Renseigner `WHOP_BLACKOUT_PLAN_ID` et `WHOP_BLACKOUT_PROMO_CODE` dans l’environnement serveur Coolify. L’application sélectionne le plan dédié pendant la fenêtre de l’événement et préremplit le code sur Whop. Laisser l’identifiant du plan en place après l’événement pour la vérification des abonnements. Une session Whop déjà créée reste associée à son plan pour éviter une seconde facturation. Les sessions envoyées par Yokkai pendant la promo ne remontent pas un ancien lien d’essai.
+- Après déploiement, vérifier le bandeau, la réserve Basic et Pro, et l’ouverture des packs. Pour la facturation, vérifier l’affichage des conditions dans Whop et la remontée de l’accès Pro sur un paiement de test contrôlé.
 
 ## Références dans le dépôt
 

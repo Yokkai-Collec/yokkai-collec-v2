@@ -1,5 +1,17 @@
 {
   "blackout": {
+    "startsIn": "Disponible dans",
+    "endsIn": "Se termine dans",
+    "endedBadge": "Terminé",
+    "homeNextBooster": "Prochain pack dans",
+    "homeOpenRemaining": "Ouvrir mes packs restants",
+    "unlimitedPacks": "Réserve illimitée",
+    "availablePacks": "{count, number} en réserve",
+    "expiresIn": "Les packs expirent dans",
+    "nextBooster": "Prochain dans",
+    "shopClosed": "Les achats sont terminés",
+    "firstMonth": "le premier mois",
+    "seePro": "Découvrir Yokkai Pro",
     "title": "Black Friday",
     "dailyPacks": "{basic, plural, one {# pack gratuit par jour} other {# packs gratuits par jour}} en Basic et {pro, plural, one {# pack gratuit par jour} other {# packs gratuits par jour}} en Pro.",
     "buyPacks": "{quantity, plural, one {Acheter # pack} other {Acheter # packs}} · {total, number} Karas",

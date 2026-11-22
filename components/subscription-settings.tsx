@@ -130,13 +130,24 @@ export function SubscriptionSettings({
             {t("settingsUi.yokkaiProSubscription")}{" "}
           </h2>
           <p className="mt-3 text-sm text-ink-2">
-            {t(
-              managesInWhop
-                ? "settingsUi.whopRecurring"
-                : offersWhop
-                  ? "settingsUi.whopOffer"
-                  : "settingsUi.499Month"
-            )}
+            {billing.blackoutOffer && canSubscribe
+              ? t("blackout.proPrice", {
+                  first: fmt.number(2.99, {
+                    style: "currency",
+                    currency: "EUR"
+                  }),
+                  renewal: fmt.number(4.99, {
+                    style: "currency",
+                    currency: "EUR"
+                  })
+                })
+              : t(
+                  managesInWhop
+                    ? "settingsUi.whopRecurring"
+                    : offersWhop
+                      ? "settingsUi.whopOffer"
+                      : "settingsUi.499Month"
+                )}
           </p>
         </div>
         <span

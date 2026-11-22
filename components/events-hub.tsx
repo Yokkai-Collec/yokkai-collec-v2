@@ -27,7 +27,6 @@ import {
   GtaSunsetHubCard,
   useGtaSunsetEvent
 } from "@/components/gta-sunset-event";
-import { blackoutPreviewEnabled } from "@/lib/data/blackout-preview";
 import "@/styles/events.css";
 
 export function EventsHub({ home = false }: { home?: boolean }) {
@@ -43,14 +42,9 @@ export function EventsHub({ home = false }: { home?: boolean }) {
   const referral = useReferralEvent();
   const blackMarket = useBlackMarketEvent();
   const sunset = useGtaSunsetEvent(!home);
-  const blackout = useGtaSunsetEvent(
-    !home && blackoutPreviewEnabled,
-    "blackout"
-  );
+  const blackout = useGtaSunsetEvent(!home, "blackout");
   const blackoutVisible =
-    blackoutPreviewEnabled &&
-    !!blackout.event &&
-    (filter === "all" || filter === blackout.status);
+    !!blackout.event && (filter === "all" || filter === blackout.status);
   const sunsetVisible =
     !!sunset.event && (filter === "all" || filter === sunset.status);
   const blackMarketTiming =
@@ -82,19 +76,19 @@ export function EventsHub({ home = false }: { home?: boolean }) {
       Number(!!referral.event) +
       Number(!!blackMarketTiming) +
       Number(!!sunset.event) +
-      Number(blackoutPreviewEnabled && !!blackout.event),
+      Number(!!blackout.event),
     live:
       Number(!!live) +
       Number(referralStatus === "live") +
       Number(blackMarketLive) +
       Number(sunset.status === "live") +
-      Number(blackoutPreviewEnabled && blackout.status === "live"),
+      Number(blackout.status === "live"),
     upcoming:
       Number(status === "upcoming") +
       Number(referralStatus === "upcoming") +
       Number(blackMarketTiming?.status === "upcoming") +
       Number(sunset.status === "upcoming") +
-      Number(blackoutPreviewEnabled && blackout.status === "upcoming")
+      Number(blackout.status === "upcoming")
   };
   if (home && !visible && !referralVisible && !blackMarketVisible) return null;
   if (home)

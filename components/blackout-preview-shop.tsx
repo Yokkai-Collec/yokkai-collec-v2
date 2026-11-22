@@ -6,13 +6,13 @@ import { useFormatter, useTranslations } from "next-intl";
 import { Button, Karas } from "@/components/ui";
 import { BLACKOUT_SLUG } from "@/lib/data/blackout-preview";
 import {
-  requestBlackoutPreviewWallet,
+  requestBlackoutWallet,
   type BlackoutPreviewWallet
 } from "@/lib/data/blackout-preview-wallet";
 import { invalidatePlayerSnapshots } from "@/lib/data/cards";
 import { subscribePlayerSnapshotInvalidation } from "@/lib/data/player-state";
 
-function usePreviewWallet() {
+function useBlackoutWallet() {
   const [wallet, setWallet] = useState<BlackoutPreviewWallet>();
   const [failed, setFailed] = useState(false);
 
@@ -23,7 +23,7 @@ function usePreviewWallet() {
       const controller = new AbortController();
       request = controller;
       try {
-        const current = await requestBlackoutPreviewWallet(
+        const current = await requestBlackoutWallet(
           undefined,
           controller.signal
         );
@@ -55,7 +55,7 @@ function usePreviewWallet() {
 export function BlackoutPreviewShop() {
   const t = useTranslations("blackout");
   const format = useFormatter();
-  const { wallet, setWallet, failed } = usePreviewWallet();
+  const { wallet, setWallet, failed } = useBlackoutWallet();
   const [purchasing, setPurchasing] = useState(false);
   const purchaseInProgress = useRef(false);
   const [purchaseError, setPurchaseError] = useState<
@@ -68,19 +68,30 @@ export function BlackoutPreviewShop() {
         {t(failed ? "walletUnavailable" : "walletLoading")}
       </p>
     );
-  const { boughtToday, reserve, balance, price, dailyLimit } = wallet;
-  const maxQuantity = Math.max(
-    0,
-    Math.min(dailyLimit - boughtToday, Math.floor(balance / price))
-  );
+  const {
+    boughtToday,
+    reserve,
+    balance,
+    price,
+    dailyLimit,
+    purchasesOpen = true
+  } = wallet;
+  const maxQuantity = purchasesOpen
+    ? Math.max(
+        0,
+        Math.min(dailyLimit - boughtToday, Math.floor(balance / price))
+      )
+    : 0;
   const quantity = Math.min(selection, maxQuantity);
-  const action = purchasing
-    ? t("purchasing")
-    : boughtToday >= dailyLimit
-      ? t("dailyLimitReached")
-      : quantity === 0
-        ? t("notEnoughKaras")
-        : t("buyPacks", { quantity, total: quantity * price });
+  const action = !purchasesOpen
+    ? t("shopClosed")
+    : purchasing
+      ? t("purchasing")
+      : boughtToday >= dailyLimit
+        ? t("dailyLimitReached")
+        : quantity === 0
+          ? t("notEnoughKaras")
+          : t("buyPacks", { quantity, total: quantity * price });
   const errorMessage = failed ? "walletUnavailable" : purchaseError;
 
   async function buyPacks() {
@@ -89,9 +100,7 @@ export function BlackoutPreviewShop() {
     setPurchasing(true);
     setPurchaseError(undefined);
     try {
-      setWallet(
-        await requestBlackoutPreviewWallet({ action: "buy", quantity })
-      );
+      setWallet(await requestBlackoutWallet({ action: "buy", quantity }));
       setSelection(1);
     } catch (error) {
       const code = error instanceof Error ? error.message : "";
@@ -173,7 +182,7 @@ export function BlackoutPreviewShop() {
 
 export function BlackoutPreviewReserve() {
   const t = useTranslations("blackout");
-  const { wallet } = usePreviewWallet();
+  const { wallet } = useBlackoutWallet();
   return wallet ? (
     <p className="yk-pack-reserve yk-sunset-pack-reserve" role="status">
       {t("purchasedReserve", { reserve: wallet.reserve })}

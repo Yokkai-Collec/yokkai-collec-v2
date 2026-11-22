@@ -36,6 +36,7 @@ import {
   openBoosters,
   openDecisionPack,
   openSunsetBooster,
+  openBlackoutBooster,
   setPaniniAlbumFavorite,
   setCardCustomImage,
   setCollectionCardLocked,
@@ -743,7 +744,9 @@ export function Game({
                     setRevealed(0);
                     return cards;
                   }
-                : undefined
+                : previewData
+                  ? undefined
+                  : () => openPack("blackout", openBlackoutBooster)
             }
             onKeepDecision={previewData ? async () => 0 : keepDecision}
             onSellDecisionAll={previewData ? undefined : discardDecision}

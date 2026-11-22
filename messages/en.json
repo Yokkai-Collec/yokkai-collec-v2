@@ -1,5 +1,17 @@
 {
   "blackout": {
+    "startsIn": "Available in",
+    "endsIn": "Ends in",
+    "endedBadge": "Ended",
+    "homeNextBooster": "Next booster in",
+    "homeOpenRemaining": "Open my remaining boosters",
+    "unlimitedPacks": "Unlimited reserve",
+    "availablePacks": "{count, number} in reserve",
+    "expiresIn": "Packs expire in",
+    "nextBooster": "Next in",
+    "shopClosed": "Purchases have ended",
+    "firstMonth": "for the first month",
+    "seePro": "Explore Yokkai Pro",
     "title": "Black Friday",
     "dailyPacks": "{basic, plural, one {# free pack per day} other {# free packs per day}} for Basic players and {pro, plural, one {# free pack per day} other {# free packs per day}} for Pro members.",
     "buyPacks": "{quantity, plural, one {Buy # pack} other {Buy # packs}} · {total, number} Karas",

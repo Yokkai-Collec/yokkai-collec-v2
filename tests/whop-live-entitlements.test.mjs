@@ -508,3 +508,88 @@ test("a localized Whop renewal must still match the paid membership and its EUR 
     null
   );
 });
+
+test("Blackout verifies the discounted first payment and requires the normal renewal", async () => {
+  const offer = { ...config, blackoutPlan: row.variant_id };
+  const player = { ...row, stripe_paid_until: null };
+  const firstPeriod = { ...membership, created_at: time(-0.1) };
+  const discount = { ...paid, subtotal: { amount: "2.99", currency: "eur" } };
+  const access = (state, payment, at = now) =>
+    verifyWhopLiveAccess(player, offer, provider(state, [payment]).fetch, at);
+  assert.equal(
+    (await access(firstPeriod, discount)).accessUntil,
+    firstPeriod.current_period_end
+  );
+  assert.equal(
+    (await access({ ...firstPeriod, created_at: time(-31) }, discount))
+      .accessUntil,
+    null
+  );
+  assert.equal(
+    (await access({ ...firstPeriod, status: "trialing" }, discount))
+      .accessUntil,
+    null
+  );
+});
+
+test("Blackout creates a no-trial Whop checkout and prefills its first-month code", async t => {
+  t.mock.method(Date, "now", () => now);
+  const env = {
+    NODE_ENV: "production",
+    NEXT_PUBLIC_SITE_URL: "https://yokkai-collec.com",
+    WHOP_LIVE_SYNC_ENABLED: "true",
+    WHOP_LIVE_CHECKOUT_ENABLED: "true",
+    WHOP_LIVE_ACCOUNT_ID: config.account,
+    WHOP_LIVE_API_KEY: config.key,
+    WHOP_LIVE_PLAN_ID: "plan_regular",
+    WHOP_BLACKOUT_PLAN_ID: "plan_blackout",
+    WHOP_BLACKOUT_PROMO_CODE: "BLACKOUT"
+  };
+  const ref = "b82f91cf-4900-4ae9-ab38-2a13a54c103a";
+  const offer = {
+    id: "ch_blackout",
+    account_id: config.account,
+    mode: "payment",
+    purchase_url: "https://whop.com/checkout/ch_blackout/",
+    metadata: { yokkai_checkout_ref: ref },
+    variant: {
+      id: "plan_blackout",
+      currency: "eur",
+      billing_type: "renewal",
+      billing_period: 30,
+      initial_price: 0,
+      renewal_price: 4.99,
+      trial_period_days: null
+    }
+  };
+  const db = {
+    async rpc(name, args) {
+      if (name === "billing_save_whop_checkout") {
+        assert.equal(args.p_checkout, offer.id);
+        return {};
+      }
+      assert.equal(name, "billing_begin_blackout_whop_checkout");
+      assert.equal(args.p_variant, offer.variant.id);
+      return {
+        data: {
+          variant_id: args.p_variant,
+          checkout_ref: ref,
+          created_at: time(0)
+        }
+      };
+    }
+  };
+  const request = async (_, options) => {
+    assert.equal(JSON.parse(options.body).variant_id, offer.variant.id);
+    return Response.json(offer);
+  };
+  assert.equal(
+    await openWhopCheckout("player", env, request, db),
+    "https://whop.com/checkout/ch_blackout?promoCode=BLACKOUT"
+  );
+  offer.variant.trial_period_days = 3;
+  await assert.rejects(
+    openWhopCheckout("player", env, request, db),
+    /CHECKOUT_MISMATCH/
+  );
+});

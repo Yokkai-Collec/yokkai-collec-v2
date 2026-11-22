@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { getCurrentUser } from "@/lib/auth/session";
+import { blackoutWhopOfferActive } from "@/lib/billing/whop-live.mjs";
 import { getBillingSettings } from "@/lib/billing/settings";
 import { PremiumOffer } from "@/components/premium-offer";
 import { PremiumProfileEmbed } from "@/components/premium-profile-embed";
@@ -25,6 +26,7 @@ export default async function PremiumPage() {
       ? {
           checkoutProvider: "whop" as const,
           checkoutEnabled: true,
+          blackoutOffer: blackoutWhopOfferActive(),
           enabled: false,
           sandbox: false,
           status: null,

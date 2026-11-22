@@ -1278,7 +1278,7 @@ export function Boosters({
   onOpen: (kind: "regular" | "decision") => Promise<RevealCard[] | undefined>;
   onOpenMany?: (count: 1 | 5 | 10) => Promise<RevealCard[] | undefined>;
   onOpenSunset?: (packDay: string) => Promise<CollectedCard[] | undefined>;
-  onOpenBlackout?: () => Promise<CollectedCard[]>;
+  onOpenBlackout?: () => Promise<CollectedCard[] | undefined>;
   onKeepDecision: (instanceId: string) => Promise<number>;
   onSellDecisionAll?: () => Promise<number>;
   onDiscard: (instanceId: string) => Promise<void>;
@@ -1435,7 +1435,15 @@ export function Boosters({
             }
           : undefined
         : kind === "blackout"
-          ? blackoutPreviewEnabled ? onOpenBlackout : undefined
+          ? onOpenBlackout && (blackoutPreviewEnabled || blackout.event?.availableDays.length)
+            ? async () => {
+                try {
+                  return await onOpenBlackout();
+                } finally {
+                  blackout.reload();
+                }
+              }
+            : undefined
           : () => count > 1 && onOpenMany ? onOpenMany(count) : onOpen(kind);
     if (!openCards) return;
     openingTrigger.current = trigger ?? (document.activeElement instanceof HTMLElement && document.activeElement.tabIndex >= 0 ? document.activeElement : null);
@@ -1538,7 +1546,7 @@ export function Boosters({
   const sunset = useGtaSunsetEvent(!previewOnly && !!onOpenSunset);
   const tBlackout = useTranslations("blackout");
   const blackout = useGtaSunsetEvent(
-    blackoutPreviewEnabled && !!onOpenBlackout,
+    !!onOpenBlackout,
     "blackout"
   );
   const linkedPack = useSyncExternalStore(
@@ -1551,7 +1559,7 @@ export function Boosters({
     sunset.status !== "ended" || sunset.event.availableDays.length > 0 ||
     (wantsSunset && sunset.event.openedCards)
   ));
-  const hasBlackout = blackoutPreviewEnabled && !!blackout.event && !!onOpenBlackout;
+  const hasBlackout = !!blackout.event && !!onOpenBlackout && !blackout.packsExpired;
   const carouselPacks: CarouselPack[] = ["regular"];
   if (hasSunset) carouselPacks.push("sunset");
   if (hasBlackout) carouselPacks.push("blackout");
@@ -1563,6 +1571,7 @@ export function Boosters({
   const showBlackout = selectedPack === "blackout";
   const showSunset = selectedPack === "sunset";
   const blackoutDraw = drawKind === "blackout";
+  const previewBlackoutDraw = blackoutDraw && blackoutPreviewEnabled;
   const sunsetDraw = drawKind === "sunset";
   const collectionDraw = drawKind !== "decision";
   const sunsetRemaining = sunset.event?.availableDays.length ?? 0;
@@ -1694,8 +1703,8 @@ export function Boosters({
           packCount={drawKind === "regular" ? activePackCount : 1}
           packKind={drawKind}
           packLabel={blackoutDraw ? tBlackout("boosterTitle") : sunsetDraw ? tSunset("boosterTitle") : undefined}
-          previewOnly={localPreview || blackoutDraw}
-          onComplete={localPreview || blackoutDraw ? () => setShowDraw(false) : undefined}
+          previewOnly={localPreview || previewBlackoutDraw}
+          onComplete={localPreview || previewBlackoutDraw ? () => setShowDraw(false) : undefined}
           key={draw[0].instanceId}
           cards={revealCards}
           collection={collection}
@@ -1705,22 +1714,22 @@ export function Boosters({
           onReveal={onReveal}
           onReturn={() => setShowDraw(false)}
           onNext={collectionDraw ? () => start(drawKind) : undefined}
-          nextDisabled={busy || (!blackoutDraw && (sunsetDraw ? sunsetRemaining === 0 : !status || status.available < selectedCount))}
-          nextRemaining={blackoutDraw ? undefined : sunsetDraw ? (sunset.event?.unlimited ? undefined : sunsetRemaining) : status?.available}
+          nextDisabled={busy || (blackoutDraw ? !previewBlackoutDraw && !(blackout.event?.availableDays.length) : (sunsetDraw ? sunsetRemaining === 0 : !status || status.available < selectedCount))}
+          nextRemaining={blackoutDraw ? (previewBlackoutDraw ? undefined : blackout.event?.availableDays.length ?? 0) : sunsetDraw ? (sunset.event?.unlimited ? undefined : sunsetRemaining) : status?.available}
           nextLabel={
             blackoutDraw || sunsetDraw ? tp("nextPack") : status?.available === 0 ? tp("nextIn", { time: countdown }) : selectedCount > 1 ? tp("nextPacks", { count: selectedCount }) : tp("nextPack")
           }
-          onDiscard={!blackoutDraw && (!localPreview || simulateActions) && collectionDraw ? onDiscard : undefined}
+          onDiscard={!previewBlackoutDraw && (!localPreview || simulateActions) && collectionDraw ? onDiscard : undefined}
           onDiscardMany={
-            !blackoutDraw && (!localPreview || simulateActions) && collectionDraw
+            !previewBlackoutDraw && (!localPreview || simulateActions) && collectionDraw
               ? onDiscardMany
               : undefined
           }
-          onAuction={collectionDraw && !blackoutDraw ? onAuction : undefined}
-          onMoveCard={collectionDraw && !blackoutDraw ? onMoveCard : undefined}
-          onSetLocked={collectionDraw && !blackoutDraw ? onSetLocked : undefined}
-          onEvolve={collectionDraw && !blackoutDraw ? onEvolve : undefined}
-          onSetCustomImage={collectionDraw && !blackoutDraw ? onSetCustomImage : undefined}
+          onAuction={collectionDraw && !previewBlackoutDraw ? onAuction : undefined}
+          onMoveCard={collectionDraw && !previewBlackoutDraw ? onMoveCard : undefined}
+          onSetLocked={collectionDraw && !previewBlackoutDraw ? onSetLocked : undefined}
+          onEvolve={collectionDraw && !previewBlackoutDraw ? onEvolve : undefined}
+          onSetCustomImage={collectionDraw && !previewBlackoutDraw ? onSetCustomImage : undefined}
           decision={
             drawKind === "decision"
               ? {

@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { createClient } from "@/utils/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { AccountMenu } from "@/components/account-menu";
 import { BlackoutPreviewShop } from "@/components/blackout-preview-shop";
 import { LeaderboardTopbar } from "@/components/leaderboard-topbar";
 import { BlackoutRoster } from "@/components/blackout-roster";
+import { blackoutWhopOfferActive } from "@/lib/billing/whop-live.mjs";
 import { getCurrentUser } from "@/lib/auth/session";
 import {
   BLACKOUT_EVENT_PATH,
@@ -22,8 +25,20 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function BlackFridayPage() {
-  if (!blackoutPreviewEnabled) notFound();
+  const now = Date.now();
+  if (
+    !blackoutPreviewEnabled &&
+    (now < Date.parse(blackFridayTerms.startsAt) ||
+      now >= Date.parse(blackFridayTerms.packsExpireAt))
+  )
+    notFound();
   if (!(await getCurrentUser())) redirect(`/login?next=${BLACKOUT_EVENT_PATH}`);
+  if (!blackoutPreviewEnabled) {
+    const { data, error } = await createClient(await cookies()).rpc(
+      "get_blackout_event"
+    );
+    if (error || !data) notFound();
+  }
   const [t, format] = await Promise.all([
     getTranslations("blackout"),
     getFormatter()
@@ -56,7 +71,9 @@ export default async function BlackFridayPage() {
         </Link>
         <header className="mt-2 mb-4 flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
           <div>
-            <p className="eyebrow">{t("preview")}</p>
+            {blackoutPreviewEnabled && (
+              <p className="eyebrow">{t("preview")}</p>
+            )}
             <h1 className="yk-title yk-blackout-title mt-1">{t("title")}</h1>
           </div>
           <p className="text-sm text-ink-2">{dates}</p>
@@ -86,10 +103,23 @@ export default async function BlackFridayPage() {
                 <BlackoutPreviewShop />
               </div>
             </section>
-            <section className="yk-blackout-pro-offer" aria-label="Yokkai Pro">
-              <h2 className="font-bold">Yokkai Pro</h2>
-              <p className="text-sm text-ink-2">{offer}</p>
-            </section>
+            {(blackoutPreviewEnabled || blackoutWhopOfferActive()) && (
+              <section
+                className="yk-blackout-pro-offer"
+                aria-label="Yokkai Pro"
+              >
+                <h2 className="font-bold">Yokkai Pro</h2>
+                <p className="text-sm text-ink-2">{offer}</p>
+                {!blackoutPreviewEnabled && (
+                  <Link
+                    className="yk-blackout-open-link"
+                    href="/premium#membership"
+                  >
+                    {t("seePro")}
+                  </Link>
+                )}
+              </section>
+            )}
           </div>
         </div>
       </main>
