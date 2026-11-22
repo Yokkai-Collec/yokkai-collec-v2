@@ -224,6 +224,7 @@ export function YokaiCard({
       catalogueImage ?? image ?? ""
     );
   const t = useTranslations("collectionShared");
+  const blackoutLabel = blackout ? t("blackFriday2026") : null;
   const sunset = /^\/assets\/events\/gta-sunset\/(?:jason|lucia)\.png$/.test(
     catalogueImage ?? image ?? ""
   );
@@ -297,7 +298,7 @@ export function YokaiCard({
       <div
         className="yk-card-clip"
         role="img"
-        aria-label={`${name}, ${cardRarityLabel(rarity, shiny, isEvolved)}, ${franchise || category}`}
+        aria-label={`${name}, ${cardRarityLabel(rarity, shiny, isEvolved)}, ${franchise || category}${blackoutLabel ? `, ${blackoutLabel}` : ""}`}
       >
         <div className="yk-card-frame" />
         {special && <div className="yk-shiny-frame" />}
@@ -423,6 +424,9 @@ export function YokaiCard({
                   </span>
                 )}
               </span>
+              {blackoutLabel && (
+                <span className="yk-card-event-label">{blackoutLabel}</span>
+              )}
             </div>
             {categoryAccessory && (
               <div className="yk-card-category-accessory">

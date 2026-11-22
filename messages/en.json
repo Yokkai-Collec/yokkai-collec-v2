@@ -611,6 +611,7 @@
     "removeWishlistCard": "Remove {name} from your wishlist"
   },
   "collectionShared": {
+    "blackFriday2026": "Black Friday 2026",
     "firstLrBadge": "First copy",
     "firstLrLegacy": "First copy · Oldest known surviving LR when awarded",
     "firstLrMint": "First LR copy",
