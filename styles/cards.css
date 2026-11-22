@@ -460,6 +460,39 @@
   --evolution-mid: #191307;
 }
 
+.yk-evolved.yk-rarity-LR[data-blackout] {
+  --evolved-frame: linear-gradient(
+    135deg,
+    #dfd4eb 0%,
+    #b1a1c4 13%,
+    #4d405e 25%,
+    #d7cbe1 36%,
+    #8b779e 48%,
+    #292333 59%,
+    #d8cee3 71%,
+    #a18cb2 83%,
+    #51435f 92%,
+    #bfb1d0 100%
+  );
+  --evolved-glow: #8568ae45;
+  --evolution-rgb: 139, 113, 171;
+  --evolution-light-rgb: 209, 193, 224;
+  --evolution-dark-rgb: 67, 52, 83;
+  --evolution-edge: #d8cbe4;
+  --evolution-accent: #ac91c3;
+  --evolution-base: #292333;
+  --evolution-mid: #160f21;
+  --card-line: #b1a1c466;
+  --evolved-foil: linear-gradient(
+    115deg,
+    transparent 35%,
+    #b1a1c41a 44%,
+    #eadff23d 49%,
+    #66537d1f 54%,
+    transparent 64%
+  );
+}
+
 .yk-shiny.yk-rarity-LR {
   --card-frame: var(--holo-frame);
   --card-inset: clamp(3px, 1.7cqw, 5px);

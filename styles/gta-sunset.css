@@ -285,15 +285,6 @@
   .yk-sunset-pack-reserve {
   color: #d9cefa;
 }
-.yk-blackout-roster {
-  margin-block: 28px;
-}
-.yk-blackout-roster ul {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 118px), 1fr));
-  gap: var(--layout-gutter-compact);
-  margin-top: 14px;
-}
 @media (prefers-reduced-motion: no-preference) {
   .yk-pack-carousel-slot:has([data-pack-theme="blackout"]) > .yk-pack-panel {
     animation: yk-blackout-slide-in 220ms var(--ease-standard) both;
@@ -304,19 +295,4 @@
     opacity: 0;
     translate: 12px 0;
   }
-}
-
-.yk-blackout-shop {
-  display: grid;
-  gap: 6px;
-  margin-top: 10px;
-}
-.yk-blackout-shop > .yk-button {
-  min-height: 44px;
-  white-space: normal;
-}
-.yk-blackout-shop-status {
-  color: var(--color-ink-2);
-  font-size: 0.8125rem;
-  line-height: 1.45;
 }

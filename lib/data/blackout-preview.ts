@@ -108,17 +108,23 @@ export function subscribeBlackoutPreviewWallet(notify: () => void) {
   };
 }
 
-export function buyBlackoutPreviewPack() {
+export function buyBlackoutPreviewPacks(quantity: number) {
   if (!blackoutPreviewEnabled) return;
   const wallet = readPreviewWallet();
   const { price, dailyLimit } = blackoutPreviewShop;
-  if (wallet.balance < price || wallet.boughtToday >= dailyLimit) return;
+  const total = quantity * price;
+  if (
+    !Number.isSafeInteger(quantity) ||
+    quantity < 1 ||
+    wallet.boughtToday + quantity > dailyLimit ||
+    wallet.balance < total
+  ) return;
 
   savePreviewWallet({
     ...wallet,
-    balance: wallet.balance - price,
-    boughtToday: wallet.boughtToday + 1,
-    reserve: wallet.reserve + 1
+    balance: wallet.balance - total,
+    boughtToday: wallet.boughtToday + quantity,
+    reserve: wallet.reserve + quantity
   });
 }
 

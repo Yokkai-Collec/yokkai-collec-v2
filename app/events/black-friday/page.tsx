@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
@@ -9,12 +10,12 @@ import { YokaiCard } from "@/components/yokai-card";
 import { getCurrentUser } from "@/lib/auth/session";
 import {
   BLACKOUT_EVENT_PATH,
-  BLACKOUT_SLUG,
   blackFridayTerms,
   blackoutCards,
   blackoutPreviewEnabled
 } from "@/lib/data/blackout-preview";
-import "@/styles/gta-sunset.css";
+import { BLACKOUT_BOOSTER_IMAGE } from "@/lib/ui/booster-opening-document";
+import "@/styles/blackout-shop.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("blackout");
@@ -54,32 +55,39 @@ export default async function BlackFridayPage() {
           <span aria-hidden="true">← </span>
           {t("backToEvents")}
         </Link>
-        <header className="mt-4 flex flex-wrap items-end justify-between gap-4">
+        <header className="mt-4 flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
           <div>
             <p className="eyebrow">{t("preview")}</p>
             <h1 className="yk-title mt-1">{t("title")}</h1>
-            <p className="mt-2 text-sm text-ink-2">{dates}</p>
           </div>
-          <Link
-            className="yk-button yk-button-secondary"
-            href={`/boosters#${BLACKOUT_SLUG}`}
-          >
-            {t("openMyPacks")}
-          </Link>
+          <p className="text-sm text-ink-2">{dates}</p>
         </header>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <section className="rounded-card border border-veil bg-surface p-4">
-            <h2 className="font-bold">{t("boosterTitle")}</h2>
-            <p className="mt-1 text-sm text-ink-2">
+        <section
+          className="yk-blackout-storefront mt-4"
+          aria-labelledby="blackout-store-title"
+        >
+          <div className="yk-blackout-store-art" aria-hidden="true">
+            <Image
+              src={BLACKOUT_BOOSTER_IMAGE}
+              alt=""
+              width={941}
+              height={1672}
+              sizes="(min-width: 700px) 240px, 126px"
+              loading="eager"
+            />
+          </div>
+          <div className="yk-blackout-store-info">
+            <h2 id="blackout-store-title">{t("boosterTitle")}</h2>
+            <p className="mt-2 text-sm text-ink-2">
               {t("dailyPacks", freePacks)}
             </p>
             <BlackoutPreviewShop />
-          </section>
-          <section className="rounded-card border border-veil bg-surface p-4">
-            <h2 className="font-bold">Yokkai Pro</h2>
-            <p className="mt-1 text-sm text-ink-2">{offer}</p>
-          </section>
-        </div>
+          </div>
+        </section>
+        <section className="yk-blackout-pro-offer mt-4" aria-label="Yokkai Pro">
+          <h2 className="font-bold">Yokkai Pro</h2>
+          <p className="text-sm text-ink-2">{offer}</p>
+        </section>
         <section
           className="yk-blackout-roster"
           aria-labelledby="blackout-roster-title"

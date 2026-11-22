@@ -1,11 +1,13 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
-import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui";
+import { useState, useSyncExternalStore } from "react";
+import Link from "next/link";
+import { useFormatter, useTranslations } from "next-intl";
+import { Button, Karas } from "@/components/ui";
 import {
+  BLACKOUT_SLUG,
   blackoutPreviewShop,
-  buyBlackoutPreviewPack,
+  buyBlackoutPreviewPacks,
   getBlackoutPreviewWallet,
   getInitialBlackoutPreviewWallet,
   subscribeBlackoutPreviewWallet,
@@ -23,29 +25,86 @@ function usePreviewWallet() {
 
 export function BlackoutPreviewShop() {
   const t = useTranslations("blackout");
+  const format = useFormatter();
   const { boughtToday, reserve, balance } = usePreviewWallet();
   const { price, dailyLimit } = blackoutPreviewShop;
-  const atLimit = boughtToday >= dailyLimit;
-  const insufficient = balance < price;
+  const [selection, setSelection] = useState(1);
+  const maxQuantity = Math.max(
+    0,
+    Math.min(dailyLimit - boughtToday, Math.floor(balance / price))
+  );
+  const quantity = Math.min(selection, maxQuantity);
+  const action =
+    boughtToday >= dailyLimit
+      ? t("dailyLimitReached")
+      : quantity === 0
+        ? t("notEnoughKaras")
+        : t("buyPacks", { quantity, total: quantity * price });
 
   return (
     <div className="yk-blackout-shop">
-      <Button
-        className="w-full sm:w-fit"
-        disabled={atLimit || insufficient}
-        onClick={buyBlackoutPreviewPack}
-      >
-        {t("buyPack", { price })}
-      </Button>
-      <div className="yk-blackout-shop-status" role="status">
-        <p>
-          {t("previewBalance", { balance })} ·{" "}
-          {t("dailyPurchases", { boughtToday, dailyLimit })}
-        </p>
-        <p>{t("purchasedReserve", { reserve })}</p>
-        {atLimit && <p>{t("dailyLimitReached")}</p>}
-        {!atLimit && insufficient && <p>{t("notEnoughKaras")}</p>}
+      <div className="yk-blackout-price">
+        <Karas amount={price} /> <span>{t("perPack")}</span>
       </div>
+      <dl className="yk-blackout-shop-status" aria-live="polite">
+        <div>
+          <dt>{t("previewBalance")}</dt>
+          <dd>
+            <Karas amount={balance} />
+          </dd>
+        </div>
+        <div>
+          <dt>{t("dailyPurchases")}</dt>
+          <dd>
+            {format.number(boughtToday)} / {format.number(dailyLimit)}
+          </dd>
+        </div>
+        <div>
+          <dt>{t("inReserve")}</dt>
+          <dd>{format.number(reserve)}</dd>
+        </div>
+      </dl>
+      <div className="yk-blackout-purchase-row">
+        <div
+          className="yk-blackout-quantity"
+          role="group"
+          aria-label={t("quantity")}
+        >
+          <button
+            type="button"
+            aria-label={t("decreaseQuantity")}
+            disabled={quantity <= 1}
+            onClick={() => setSelection(quantity - 1)}
+          >
+            −
+          </button>
+          <output aria-label={t("quantity")}>{format.number(quantity)}</output>
+          <button
+            type="button"
+            aria-label={t("increaseQuantity")}
+            disabled={quantity >= maxQuantity}
+            onClick={() => setSelection(quantity + 1)}
+          >
+            +
+          </button>
+        </div>
+        <Button
+          className="yk-blackout-buy"
+          disabled={quantity === 0}
+          onClick={() => {
+            buyBlackoutPreviewPacks(quantity);
+            setSelection(1);
+          }}
+        >
+          {action}
+        </Button>
+      </div>
+      <Link
+        className="yk-blackout-open-link"
+        href={`/boosters#${BLACKOUT_SLUG}`}
+      >
+        {t("openMyPacks")} <span aria-hidden="true">↗</span>
+      </Link>
     </div>
   );
 }
