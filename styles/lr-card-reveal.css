@@ -1035,12 +1035,12 @@
 /* Blackout LR uses the colors of its metallic frame. */
 .yk-lr-reveal:has(> .yk-lr-stage .yk-rarity-LR[data-blackout]) {
   .yk-card-name {
-    animation-delay: 8.6s;
+    animation-delay: 9.15s;
   }
 
   /* Keep both badges on the card timeline, even if the #1 lookup resolves later. */
   .yk-card[data-blackout] {
-    animation: yk-lr-blackout-badges 9.2s step-end both;
+    animation: yk-lr-blackout-badges 9.8s step-end both;
   }
 
   .yk-card-event-label {
