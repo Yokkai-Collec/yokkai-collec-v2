@@ -184,6 +184,10 @@
 .yk-card-first-lr:not(.yk-first-copy-shiny, .yk-first-copy-sunset) img {
   filter: grayscale(1) brightness(0.65) contrast(3.3) sepia(0.85) saturate(1.6);
 }
+.yk-card[data-blackout] .yk-card-first-lr img {
+  filter: hue-rotate(61deg) saturate(0.9) contrast(1.18) brightness(0.93)
+    drop-shadow(0 1px 3px #673990ad);
+}
 .yk-card:has(.yk-card-copy-status) .yk-card-category-accessory {
   top: calc(6cqw + clamp(22px, 12cqw, 28px) + clamp(22px, 12cqw, 30px));
 }
