@@ -114,12 +114,6 @@ export function BlackoutPreviewShop() {
       </div>
       <dl className="yk-blackout-shop-status" aria-live="polite">
         <div>
-          <dt>{t("accountBalance")}</dt>
-          <dd>
-            <Karas amount={balance} />
-          </dd>
-        </div>
-        <div>
           <dt>{t("dailyPurchases")}</dt>
           <dd>
             {format.number(boughtToday)} / {format.number(dailyLimit)}
