@@ -14,7 +14,8 @@ async function loadBlackoutOwners(card: Card, offset: number) {
   const { data, error } = await createClient()
     .from("cards")
     .select("id")
-    .ilike("nom", `${card.name} (Blackout Edition)`)
+    .eq("source", "manual")
+    .eq("source_id", card.id)
     .eq("event_only", true)
     .eq("rarete_base", "LR")
     .maybeSingle();

@@ -34,7 +34,12 @@ function load(file, mocks = {}, globals = {}) {
         name === "@/lib/data/blackout-preview"
           ? load(
               "lib/data/blackout-preview.ts",
-              {},
+              {
+                "@/data/blackout-cards.json": {
+                  __esModule: true,
+                  default: JSON.parse(read("data/blackout-cards.json"))
+                }
+              },
               { process: globals.process ?? process }
             )
           : name === "@/lib/ui/license-name"

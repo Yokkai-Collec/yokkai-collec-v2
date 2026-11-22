@@ -1,0 +1,50 @@
+[
+  {
+    "id": "blackout-sung-jinwoo",
+    "name": "Sung Jin-Woo (Blackout)",
+    "anime": "Solo Leveling",
+    "imageKey": "729e3c5364cf4db6b8874ece22af5f487789b1976b4d6bcf2db7142184811633"
+  },
+  {
+    "id": "blackout-ryomen-sukuna",
+    "name": "Ryomen Sukuna (Blackout)",
+    "anime": "JUJUTSU KAISEN",
+    "imageKey": "370e1a75b5b6f7173388bbb7eb795f7678604031183dcb6024b9fb1ce6da3a13-11793d74-f8aa-4a07-aa10-443a91c6916b"
+  },
+  {
+    "id": "blackout-goku-black",
+    "name": "Goku Black (Blackout)",
+    "anime": "Dragon Ball Super",
+    "imageKey": "0625d99359c4c91bb2f60cc576b5908eea9bfe08643da1649fa2eba072fd8c29-650ef4eb67ca9fb2"
+  },
+  {
+    "id": "blackout-itachi-uchiha",
+    "name": "Itachi Uchiha (Blackout)",
+    "anime": "Naruto",
+    "imageKey": "0945d625057b159a33a9488e54a0158e739f5821955906d0685ad252449254ff-137a4418-ca04-46dc-a1c4-3f47689108a6"
+  },
+  {
+    "id": "blackout-ichigo-kurosaki",
+    "name": "Ichigo Kurosaki (Blackout)",
+    "anime": "Bleach",
+    "imageKey": "ebe38465c6a4d5892ce148567c27f82276922ab3a0f946b5a47f46a0c737c7c1-2edf87f59661c10a"
+  },
+  {
+    "id": "blackout-sosuke-aizen",
+    "name": "Sōsuke Aizen (Blackout)",
+    "anime": "Bleach",
+    "imageKey": "513e99b167e980644150cfa568ce893389234dc17f2a6a2348f7106bd7160d6a-81449e8479687e43"
+  },
+  {
+    "id": "blackout-guts",
+    "name": "Guts (Blackout)",
+    "anime": "Berserk",
+    "imageKey": "4be2d74e3b81cbdf72d880c9ef66e0eb963bb8417baf2a879d2372e6c8a7377e-7dbef174-048a-4ea0-af59-96709d6cc613"
+  },
+  {
+    "id": "blackout-madara-uchiha",
+    "name": "Madara Uchiha (Blackout)",
+    "anime": "Naruto",
+    "imageKey": "20f5bc4f195becf9cdd1201fbbfe4b00af9469442371cfae6cc391c175fd103f-b4b7cf67-df5b-42e6-a093-fab485c6620a"
+  }
+]
