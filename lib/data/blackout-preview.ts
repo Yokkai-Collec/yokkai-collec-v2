@@ -14,6 +14,7 @@ export const blackFridayTerms = {
   freePacks: { basic: 1, pro: 2 },
   // Target a 15% chance of at least one Blackout LR across 25 packs.
   lrRatePerPack: 1 - 0.85 ** (1 / 25),
+  promoCode: "BLACKOUT",
   firstMonthPrice: 2.99,
   renewalPrice: 4.99
 } as const;

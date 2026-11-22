@@ -6,6 +6,7 @@ import { createClient } from "@/utils/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { AccountMenu } from "@/components/account-menu";
+import { BlackoutProCheckout } from "@/components/blackout-pro-checkout";
 import { BlackoutPreviewShop } from "@/components/blackout-preview-shop";
 import { LeaderboardTopbar } from "@/components/leaderboard-topbar";
 import { BlackoutRoster } from "@/components/blackout-roster";
@@ -42,14 +43,21 @@ export default async function BlackFridayPage() {
     getTranslations("blackout"),
     getFormatter()
   ]);
-  const { startsAt, endsAt, freePacks, firstMonthPrice, renewalPrice } =
-    blackFridayTerms;
+  const {
+    startsAt,
+    endsAt,
+    freePacks,
+    promoCode,
+    firstMonthPrice,
+    renewalPrice
+  } = blackFridayTerms;
   const dates = format.dateTimeRange(
     new Date(startsAt),
     new Date(Date.parse(endsAt) - 1),
     { day: "numeric", month: "long", timeZone: "Europe/Paris" }
   );
-  const offer = t("proPrice", {
+  const offer = t.rich("proPrice", {
+    price: chunks => <strong className="text-ink-1">{chunks}</strong>,
     first: format.number(firstMonthPrice, {
       style: "currency",
       currency: "EUR"
@@ -112,14 +120,15 @@ export default async function BlackFridayPage() {
               </div>
             </section>
             <section className="yk-blackout-pro-offer" aria-label="Yokkai Pro">
-              <h2 className="font-bold">Yokkai Pro</h2>
+              <div className="yk-blackout-pro-heading">
+                <h2 className="font-bold">Yokkai Pro</h2>
+                <span className="yk-blackout-promo-code">
+                  <span className="sr-only">{t("promoCode")} </span>
+                  <code>{promoCode}</code>
+                </span>
+              </div>
               <p className="text-sm text-ink-2">{offer}</p>
-              <Link
-                className="yk-blackout-open-link"
-                href="/premium#membership"
-              >
-                {t("seePro")}
-              </Link>
+              <BlackoutProCheckout />
             </section>
           </div>
         </div>
