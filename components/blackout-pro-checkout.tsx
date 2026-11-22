@@ -4,9 +4,15 @@ import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui";
 
-export function BlackoutProCheckout() {
+export function BlackoutProCheckout({ preview }: { preview: boolean }) {
   const t = useTranslations("blackout");
   const premium = useTranslations("premiumUi");
+  const endpoint = preview
+    ? "/api/billing/whop-sandbox"
+    : "/api/billing/checkout?offer=blackout";
+  const checkoutOrigin = preview
+    ? "https://sandbox.whop.com"
+    : "https://whop.com";
   const pending = useRef(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -17,7 +23,7 @@ export function BlackoutProCheckout() {
     setBusy(true);
     setError("");
     try {
-      const response = await fetch("/api/billing/checkout?offer=blackout", {
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: "{}"
@@ -38,7 +44,12 @@ export function BlackoutProCheckout() {
         return;
       }
       const url = new URL(result.url);
-      if (url.origin !== "https://whop.com" || url.username || url.password)
+      if (
+        url.origin !== checkoutOrigin ||
+        url.username ||
+        url.password ||
+        !/^[/]checkout[/]ch_[A-Za-z0-9]+[/]?$/.test(url.pathname)
+      )
         throw Error("Invalid Whop destination");
       window.location.assign(url.href);
     } catch {

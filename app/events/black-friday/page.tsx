@@ -129,7 +129,7 @@ export default async function BlackFridayPage() {
                   renewal: format.number(renewalPrice, euro)
                 })}
               </p>
-              <BlackoutProCheckout />
+              <BlackoutProCheckout preview={blackoutPreviewEnabled} />
             </section>
           </div>
         </div>
