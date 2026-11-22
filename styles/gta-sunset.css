@@ -293,6 +293,7 @@
 .yk-pack-panel[data-pack-theme="blackout"] .yk-blackout-pack-info > summary {
   position: absolute;
   z-index: 5;
+  inset-block-start: var(--layout-gutter-compact);
   inset-inline: auto var(--layout-gutter-compact);
 }
 .yk-blackout-pack-info .yk-pack-info-popover {
