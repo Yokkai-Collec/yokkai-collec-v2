@@ -1032,8 +1032,12 @@
     0 8px 26px #00000057;
 }
 
-/* Blackout LR shares the reveal timing and uses the colors of its metallic frame. */
+/* Blackout LR uses the colors of its metallic frame. */
 .yk-lr-reveal:has(> .yk-lr-stage .yk-rarity-LR[data-blackout]) {
+  .yk-card-name {
+    animation-delay: 8.6s;
+  }
+
   /* Keep both badges on the card timeline, even if the #1 lookup resolves later. */
   .yk-card[data-blackout] {
     animation: yk-lr-blackout-badges 9.2s step-end both;

@@ -43,8 +43,8 @@
   max-height: 400px;
   object-fit: contain;
   transform: rotate(-8deg);
-  filter: saturate(0.34) brightness(0.85) drop-shadow(0 14px 14px #0d061b)
-    drop-shadow(0 0 16px #a088ed65);
+  filter: hue-rotate(34deg) saturate(0.82) brightness(1.06)
+    drop-shadow(0 14px 14px #0d061b) drop-shadow(0 0 16px #a088ed65);
 }
 
 .yk-blackout-store-info {

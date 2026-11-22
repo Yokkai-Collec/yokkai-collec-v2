@@ -247,7 +247,7 @@ export function boosterOpeningDocument(
       "</head>",
       `<style>
       body{background:#070b13 url(${json(new URL(nebula, origin).href)}) center / cover no-repeat}
-      ${blackout ? ".pack-position{filter:saturate(.34) brightness(.72)}" : ""}
+      ${blackout ? ".pack-position{filter:hue-rotate(34deg) saturate(.82) brightness(1.06)}" : ""}
       html,body,.scene{-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
       .pack-position,.opening-cards{transform-style:preserve-3d}
       .yokkai-wait-booster .scene{visibility:hidden}

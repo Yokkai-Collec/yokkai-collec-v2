@@ -244,7 +244,7 @@
 }
 .yk-home-sunset-banner[data-pack-theme="blackout"] .yk-home-sunset-pack,
 .yk-booster-opening-fallback[data-pack-theme="blackout"] {
-  filter: saturate(0.34) brightness(0.72);
+  filter: hue-rotate(34deg) saturate(0.82) brightness(1.06);
 }
 .yk-home-sunset-banner[data-pack-theme="blackout"]
   :is(strong, .yk-event-banner-arrow) {
@@ -278,7 +278,13 @@
 .yk-pack-grid .yk-sunset-pack-panel[data-pack-theme="blackout"] .yk-pack-image {
   scale: 1;
   translate: none;
-  filter: saturate(0.34) brightness(0.72) drop-shadow(0 0 18px #a28bee88);
+  filter: hue-rotate(34deg) saturate(0.82) brightness(1.06)
+    drop-shadow(0 0 18px #a28bee88);
+}
+.yk-pack-grid
+  .yk-sunset-pack-panel[data-pack-theme="blackout"][data-unavailable="true"]
+  .yk-pack-image {
+  filter: saturate(0.34) brightness(0.72);
 }
 .yk-pack-grid
   .yk-sunset-pack-panel[data-pack-theme="blackout"]
