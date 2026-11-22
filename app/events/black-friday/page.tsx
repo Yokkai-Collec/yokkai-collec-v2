@@ -48,46 +48,50 @@ export default async function BlackFridayPage() {
       <LeaderboardTopbar view="events" account={<AccountMenu />} />
       <main
         id="main-content"
-        className="mx-auto w-full max-w-6xl min-w-0 px-3 py-6 sm:px-6 sm:py-10"
+        className="mx-auto w-full max-w-[90rem] min-w-0 px-3 pt-4 pb-10 sm:px-6"
       >
         <Link className="text-sm text-ink-2 hover:text-ink-1" href="/events">
           <span aria-hidden="true">← </span>
           {t("backToEvents")}
         </Link>
-        <header className="mt-4 flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
+        <header className="mt-2 mb-4 flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
           <div>
             <p className="eyebrow">{t("preview")}</p>
-            <h1 className="yk-title mt-1">{t("title")}</h1>
+            <h1 className="yk-title yk-blackout-title mt-1">{t("title")}</h1>
           </div>
           <p className="text-sm text-ink-2">{dates}</p>
         </header>
-        <section
-          className="yk-blackout-storefront mt-4"
-          aria-labelledby="blackout-store-title"
-        >
-          <div className="yk-blackout-store-art" aria-hidden="true">
-            <Image
-              src={BLACKOUT_BOOSTER_IMAGE}
-              alt=""
-              width={941}
-              height={1672}
-              sizes="(min-width: 700px) 240px, 126px"
-              loading="eager"
-            />
+        <div className="yk-blackout-layout">
+          <BlackoutRoster />
+          <div className="yk-blackout-offers">
+            <section
+              className="yk-blackout-storefront"
+              aria-labelledby="blackout-store-title"
+            >
+              <div className="yk-blackout-store-art" aria-hidden="true">
+                <Image
+                  src={BLACKOUT_BOOSTER_IMAGE}
+                  alt=""
+                  width={941}
+                  height={1672}
+                  sizes="(min-width: 64rem) 100px, (min-width: 44rem) 180px, 126px"
+                  loading="eager"
+                />
+              </div>
+              <div className="yk-blackout-store-info">
+                <h2 id="blackout-store-title">{t("boosterTitle")}</h2>
+                <p className="mt-2 text-sm text-ink-2">
+                  {t("dailyPacks", freePacks)}
+                </p>
+                <BlackoutPreviewShop />
+              </div>
+            </section>
+            <section className="yk-blackout-pro-offer" aria-label="Yokkai Pro">
+              <h2 className="font-bold">Yokkai Pro</h2>
+              <p className="text-sm text-ink-2">{offer}</p>
+            </section>
           </div>
-          <div className="yk-blackout-store-info">
-            <h2 id="blackout-store-title">{t("boosterTitle")}</h2>
-            <p className="mt-2 text-sm text-ink-2">
-              {t("dailyPacks", freePacks)}
-            </p>
-            <BlackoutPreviewShop />
-          </div>
-        </section>
-        <section className="yk-blackout-pro-offer mt-4" aria-label="Yokkai Pro">
-          <h2 className="font-bold">Yokkai Pro</h2>
-          <p className="text-sm text-ink-2">{offer}</p>
-        </section>
-        <BlackoutRoster />
+        </div>
       </main>
     </div>
   );

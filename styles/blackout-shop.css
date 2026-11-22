@@ -1,3 +1,18 @@
+.yk-blackout-layout,
+.yk-blackout-offers {
+  display: grid;
+  min-width: 0;
+  align-items: start;
+}
+
+.yk-blackout-layout {
+  gap: clamp(20px, 2vw, 32px);
+}
+
+.yk-blackout-offers {
+  gap: 12px;
+}
+
 .yk-blackout-storefront {
   display: grid;
   overflow: hidden;
@@ -180,14 +195,14 @@
 
 .yk-blackout-roster {
   container-type: inline-size;
-  margin-block: 28px;
+  min-width: 0;
 }
 
 .yk-blackout-roster ul {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 118px), 1fr));
-  gap: var(--layout-gutter-compact);
-  margin-top: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 90px), 1fr));
+  gap: clamp(8px, 0.85vw, 14px);
+  margin-top: 10px;
 }
 
 .yk-blackout-roster .yk-catalogue-card:focus-visible {
@@ -201,7 +216,7 @@
   }
 }
 
-@media (min-width: 700px) {
+@media (44rem <= width < 64rem) {
   .yk-blackout-storefront {
     grid-template-columns: 0.88fr 1fr;
   }
@@ -217,7 +232,51 @@
   }
 }
 
+@media (min-width: 64rem) {
+  .yk-blackout-layout {
+    grid-template-columns: minmax(0, 1fr) clamp(18.25rem, 26vw, 24rem);
+  }
+
+  .yk-blackout-roster ul {
+    /* Fit two rows of 5:7 cards beneath the navigation and page heading. */
+    grid-template-columns: repeat(
+      5,
+      minmax(0, clamp(6.5rem, (100svh - 14.5rem) / 2.8, 12.5rem))
+    );
+  }
+
+  .yk-blackout-store-art {
+    height: clamp(112px, 19svh, 174px);
+  }
+
+  .yk-blackout-store-info {
+    padding: 16px;
+  }
+
+  .yk-blackout-store-info h2 {
+    font-size: clamp(1.4rem, 2vw, 1.75rem);
+  }
+
+  .yk-blackout-shop {
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .yk-blackout-price .yk-karas {
+    font-size: 1.4rem;
+  }
+
+  .yk-blackout-purchase-row .yk-blackout-buy {
+    min-width: min(100%, 7.75rem);
+    flex-basis: 7.75rem;
+  }
+}
+
 @media (max-width: 420px) {
+  .yk-blackout-title {
+    font-size: clamp(1.75rem, 8vw, 2rem);
+  }
+
   .yk-blackout-quantity {
     flex: 1 1 100%;
     justify-content: center;
