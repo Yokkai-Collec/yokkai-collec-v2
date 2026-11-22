@@ -1620,7 +1620,12 @@ export function Boosters({
             <p className="yk-classic-pack-caption">{tp("chanceForEachCardRevealed")}</p>
             <dl className="yk-pack-rate-summary">
               {rates.map(rate => (
-                <div key={rate.rarity}>
+                <div
+                  key={rate.rarity}
+                  style={{
+                    "--pack-rate-ink": `var(--color-rarity-${rate.rarity.toLowerCase()})`
+                  } as CSSProperties}
+                >
                   <dt>{rate.rarity}</dt>
                   <dd>{formatRate(rate.percent)}</dd>
                 </div>

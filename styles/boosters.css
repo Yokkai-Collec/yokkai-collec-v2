@@ -921,6 +921,12 @@
 }
 .yk-classic-pack-info .yk-pack-rate-summary > div {
   padding-inline: 6px;
+  color: var(--pack-rate-ink, var(--pack-accent));
+  border-color: color-mix(in srgb, currentColor 40%, var(--color-veil));
+  background: color-mix(in srgb, currentColor 9%, var(--color-surface));
+}
+.yk-classic-pack-info .yk-pack-rate-summary :is(dt, dd) {
+  color: inherit;
 }
 .yk-classic-pack-info .yk-pack-rate-summary dd {
   font-size: clamp(0.875rem, 6cqi, 1.125rem);
@@ -937,9 +943,6 @@
 .yk-classic-pack-shiny {
   padding-top: 8px;
   border-top: 1px solid var(--color-veil);
-}
-.yk-decision-panel .yk-classic-pack-info {
-  --pack-accent: #ffb6ce;
 }
 @media (min-width: 1024px) {
   .yk-pack-panel:not(.yk-decision-panel, [data-pack-theme="blackout"])
