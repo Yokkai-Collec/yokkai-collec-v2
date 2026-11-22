@@ -17,8 +17,9 @@
   font-size: clamp(14px, 1.4vw, 18px);
 }
 .yk-pack-grid {
+  --pack-column-gap: clamp(32px, 6vw, 96px);
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(32px, 6vw, 96px);
+  gap: var(--pack-column-gap);
   max-width: 960px;
   margin: 12px auto 0;
 }
@@ -454,5 +455,19 @@
     min-height: 54px;
     gap: 4px;
     margin-block: 6px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .yk-pack-grid {
+    --pack-column-gap: clamp(17rem, 20vw, 22rem);
+    column-gap: var(--pack-column-gap);
+    position: relative;
+    inset-block-start: 10px;
+  }
+}
+@media (min-width: 1024px) and (min-height: 701px) {
+  .yk-pack-grid {
+    inset-block-start: clamp(10px, calc(8svh - 40px), 36px);
   }
 }

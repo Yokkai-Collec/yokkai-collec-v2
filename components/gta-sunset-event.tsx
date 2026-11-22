@@ -247,11 +247,13 @@ export function GtaSunsetHubCard({
 export function GtaSunsetBooster({
   snapshot,
   busy,
-  onOpen
+  onOpen,
+  onRatesOpen
 }: {
   snapshot: ReturnType<typeof useGtaSunsetEvent>;
   busy: boolean;
   onOpen: (trigger: HTMLButtonElement) => void;
+  onRatesOpen?: () => void;
 }) {
   const t = useTranslations("gtaSunset");
   const format = useFormatter();
@@ -282,6 +284,9 @@ export function GtaSunsetBooster({
         />
         <details
           className="yk-pack-info-trigger yk-sunset-pack-info"
+          onToggle={event => {
+            if (event.currentTarget.open) onRatesOpen?.();
+          }}
           onKeyDown={event => {
             if (event.key !== "Escape" || !event.currentTarget.open) return;
             event.currentTarget.open = false;
