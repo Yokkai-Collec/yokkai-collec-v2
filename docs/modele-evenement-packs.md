@@ -23,7 +23,7 @@ Les noms et identifiants source des cartes sont dans [le fichier des éditions B
 
 La commande `node scripts/prepare-blackout-import.mjs` vérifie toutes les illustrations et écrit le SQL d’import sur la sortie standard. Intégrer les lignes générées à la migration qui publie les cartes. L’import crée les cartes exclusives avec le suffixe `(Blackout)` et conserve leurs identifiants de catalogue lors des relances.
 
-Pour tester les achats Blackout avec le solde du compte connecté, appliquer la [recette du portefeuille Blackout](../supabase/recipes/blackout_preview_wallet.sql) sur Supabase local, y compris après une réinitialisation de la base. Le débit et la réserve sont enregistrés sur ce compte local. L’ouverture utilise les cartes de démonstration de l’aperçu. Le bouton d’abonnement passe par Whop Sandbox avec les variables de test et le port du serveur local dans `NEXT_PUBLIC_SITE_URL`. Le code BLACKOUT est prérempli sur le checkout de production pendant l’événement.
+Pour tester les achats Blackout avec le solde du compte connecté, appliquer la [recette du portefeuille Blackout](../supabase/recipes/blackout_preview_wallet.sql) sur Supabase local, y compris après une réinitialisation de la base. Le débit et la réserve sont enregistrés sur ce compte local. L’ouverture utilise les cartes de démonstration de l’aperçu. Le bouton d’abonnement passe par Whop Sandbox avec les variables de test et le port du serveur local dans `NEXT_PUBLIC_SITE_URL`. Créer le code BLACKOUT séparément dans Whop Sandbox avec la même remise de 2 € sur le premier paiement. Le bouton préremplit ce code dans l’aperçu local et sur le checkout de production pendant l’événement.
 
 ## Lancement du Black Friday 2026
 

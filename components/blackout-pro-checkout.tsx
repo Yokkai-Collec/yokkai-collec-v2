@@ -8,7 +8,7 @@ export function BlackoutProCheckout({ preview }: { preview: boolean }) {
   const t = useTranslations("blackout");
   const premium = useTranslations("premiumUi");
   const endpoint = preview
-    ? "/api/billing/whop-sandbox"
+    ? "/api/billing/whop-sandbox?offer=blackout"
     : "/api/billing/checkout?offer=blackout";
   const checkoutOrigin = preview
     ? "https://sandbox.whop.com"
