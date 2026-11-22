@@ -27,6 +27,8 @@
     "backToEvents": "Tous les événements",
     "boosterTitle": "Pack Blackout",
     "packSummary": "3 cartes par pack. Une chance de trouver une LR de l’édition Blackout.",
+    "viewRates": "Voir les taux du pack Blackout",
+    "lrChancePerPack": "{rate} de chances d’obtenir une LR Blackout par pack.",
     "switchToBlackout": "Passer au pack Blackout",
     "open": "Ouvrir un pack",
     "opening": "Ouverture…",

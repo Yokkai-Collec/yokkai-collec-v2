@@ -27,6 +27,8 @@
     "backToEvents": "All events",
     "boosterTitle": "Blackout Pack",
     "packSummary": "3 cards per pack. A chance to find a Blackout Edition LR.",
+    "viewRates": "View Blackout pack drop rates",
+    "lrChancePerPack": "{rate} chance to find a Blackout LR per pack.",
     "switchToBlackout": "Switch to the Blackout Pack",
     "open": "Open a pack",
     "opening": "Opening…",
