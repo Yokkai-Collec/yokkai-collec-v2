@@ -203,7 +203,7 @@ export function GtaSunsetHomeBanner({
       <span className="yk-home-sunset-copy">
         <strong>{t("title")}</strong>
         <span>
-          {status === "ended"
+          {status === "ended" && edition === "sunset"
             ? event.unlimited
               ? t("unlimitedPacks")
               : t("availablePacks", { count: event.availableDays.length })
@@ -393,11 +393,15 @@ export function GtaSunsetBooster({
         <h2 id={`${appearance.slug}-title`}>{t("boosterTitle")}</h2>
         <div className="yk-pack-status">
           <p>{t("packSummary")}</p>
-          <p className="yk-pack-reserve yk-sunset-pack-reserve" role="status">
-            {unlimited
-              ? t("unlimitedPacks")
-              : t("availablePacks", { count: availableDays.length })}
-          </p>
+          {edition === "blackout" ? (
+            <BlackoutPreviewReserve />
+          ) : (
+            <p className="yk-pack-reserve yk-sunset-pack-reserve" role="status">
+              {unlimited
+                ? t("unlimitedPacks")
+                : t("availablePacks", { count: availableDays.length })}
+            </p>
+          )}
           {status === "ended" && nextPackDay && event.packsExpireAt && (
             <p>
               {t("expiresIn")}{" "}
@@ -419,7 +423,6 @@ export function GtaSunsetBooster({
             t(busy ? "opening" : "open")
           )}
         </Button>
-        {edition === "blackout" && <BlackoutPreviewReserve />}
       </div>
     </article>
   );

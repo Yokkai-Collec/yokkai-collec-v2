@@ -174,10 +174,9 @@ export function BlackoutPreviewShop() {
 export function BlackoutPreviewReserve() {
   const t = useTranslations("blackout");
   const { wallet } = usePreviewWallet();
-  const reserve = wallet?.reserve ?? 0;
-  return reserve > 0 ? (
-    <p className="mt-2 text-sm text-ink-2">
-      {t("purchasedReserve", { reserve })}
+  return wallet ? (
+    <p className="yk-pack-reserve yk-sunset-pack-reserve" role="status">
+      {t("purchasedReserve", { reserve: wallet.reserve })}
     </p>
   ) : null;
 }
