@@ -46,5 +46,17 @@
     "name": "Madara Uchiha (Blackout)",
     "anime": "Naruto",
     "imageKey": "20f5bc4f195becf9cdd1201fbbfe4b00af9469442371cfae6cc391c175fd103f-b4b7cf67-df5b-42e6-a093-fab485c6620a"
+  },
+  {
+    "id": "blackout-ken-kaneki",
+    "name": "Ken Kaneki (Blackout)",
+    "anime": "Tokyo Ghoul",
+    "imageKey": "1eb06956256cee65c27d97806db42e2b87c27622c7143aebca7cb68219f1ada2-645fba0a-7844-434e-94e4-2e94d3884512"
+  },
+  {
+    "id": "blackout-eren-yeager",
+    "name": "Eren Yeager (Blackout)",
+    "anime": "Attack on Titan",
+    "imageKey": "1cf0b1e21167788f8c877f555f616597c7c9cfff2c2fc7c19a61551e46bf20e9-8bb91f61d6e8c3a9"
   }
 ]

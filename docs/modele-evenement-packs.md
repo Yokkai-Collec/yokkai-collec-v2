@@ -19,9 +19,9 @@ Une édition exclusive d’une carte existante a son propre nom, son propre iden
 
 ## Import Blackout
 
-Les noms et identifiants source des huit cartes sont dans [le fichier des éditions Blackout](../data/blackout-cards.json). Déposer les illustrations finales dans `public/assets/events/blackout/cards/`, au format WebP, avec le nom de l’identifiant sans le préfixe `blackout-`. Par exemple, l’illustration de Sung Jin-Woo s’appelle `sung-jinwoo.webp`.
+Les noms et identifiants source des cartes sont dans [le fichier des éditions Blackout](../data/blackout-cards.json). Déposer les illustrations finales dans `public/assets/events/blackout/cards/`, au format WebP, avec le nom de l’identifiant sans le préfixe `blackout-`. Par exemple, l’illustration de Sung Jin-Woo s’appelle `sung-jinwoo.webp`.
 
-La commande `node scripts/prepare-blackout-import.mjs` vérifie les huit illustrations et écrit le SQL d’import sur la sortie standard. Exécuter ce SQL au moment où les illustrations seront servies en production. L’import crée les cartes exclusives avec le suffixe `(Blackout)` et conserve leurs identifiants de catalogue lors des relances.
+La commande `node scripts/prepare-blackout-import.mjs` vérifie toutes les illustrations et écrit le SQL d’import sur la sortie standard. Exécuter ce SQL au moment où les illustrations seront servies en production. L’import crée les cartes exclusives avec le suffixe `(Blackout)` et conserve leurs identifiants de catalogue lors des relances.
 
 ## Références dans le dépôt
 

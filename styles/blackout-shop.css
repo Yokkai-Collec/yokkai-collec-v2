@@ -179,6 +179,7 @@
 }
 
 .yk-blackout-roster {
+  container-type: inline-size;
   margin-block: 28px;
 }
 
@@ -192,6 +193,12 @@
 .yk-blackout-roster .yk-catalogue-card:focus-visible {
   outline: 2px solid #d3c0f9;
   outline-offset: 4px;
+}
+
+@container (min-width: 660px) {
+  .yk-blackout-roster ul {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
 }
 
 @media (min-width: 700px) {

@@ -223,10 +223,6 @@ export function YokaiCard({
     /^\/assets\/events\/blackout\/cards\/[a-z0-9-]+\.webp$/.test(
       catalogueImage ?? image ?? ""
     );
-  const blackoutSuffix = blackout ? / \(Blackout\)$/i.exec(name) : null;
-  const displayName = blackoutSuffix
-    ? name.slice(0, blackoutSuffix.index)
-    : name;
   const t = useTranslations("collectionShared");
   const sunset = /^\/assets\/events\/gta-sunset\/(?:jason|lucia)\.png$/.test(
     catalogueImage ?? image ?? ""
@@ -441,13 +437,8 @@ export function YokaiCard({
             )}
             <div className="yk-card-bottom">
               <span className="yk-card-name" title={name}>
-                {displayName}
+                {name}
               </span>
-              {blackoutSuffix && (
-                <span className="yk-card-blackout-edition">
-                  {blackoutSuffix[0].trim()}
-                </span>
-              )}
               {franchise && (
                 <span className="yk-card-anime" title={franchise}>
                   {franchise}

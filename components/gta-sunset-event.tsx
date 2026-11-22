@@ -207,7 +207,7 @@ export function GtaSunsetHomeBanner({
             ? event.unlimited
               ? t("unlimitedPacks")
               : t("availablePacks", { count: event.availableDays.length })
-            : t("homeDescription")}
+            : t("homeDescription", { count: event.featured.length })}
         </span>
       </span>
       <SunsetFeaturedCards
@@ -278,7 +278,9 @@ export function GtaSunsetHubCard({
         <div className="yk-event-banner-content">
           <span className="yk-event-frequency">{t("limitedEdition")}</span>
           <h3>{t("title")}</h3>
-          <p className="yk-event-description">{t("hubDescription")}</p>
+          <p className="yk-event-description">
+            {t("hubDescription", { count: event.featured.length })}
+          </p>
         </div>
         <SunsetFeaturedCards
           cards={event.featured.slice(0, 2)}

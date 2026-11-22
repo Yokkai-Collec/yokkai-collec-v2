@@ -214,12 +214,9 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.yk-card-blackout-edition {
-  color: #e9def2;
-  font-size: clamp(7px, 5.7cqw, 12px);
-  font-weight: 700;
-  line-height: 1;
-  text-shadow: 0 1px 4px #000;
+.yk-card[data-blackout] .yk-card-name {
+  font-size: min(5.35cqw, 20px);
+  letter-spacing: 0;
 }
 .yk-card-category {
   min-width: 0;
