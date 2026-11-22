@@ -11,6 +11,7 @@ import type { Rarity } from "@/lib/data/cards";
 import "@/styles/cards.css";
 
 export type YokaiCardProps = {
+  id?: string;
   rarity: Rarity;
   instanceId?: string;
   copyInstanceIds?: readonly string[];
@@ -195,6 +196,7 @@ function FirstLrCopyBadge({
 }
 
 export function YokaiCard({
+  id,
   rarity,
   instanceId,
   copyInstanceIds,
@@ -215,6 +217,7 @@ export function YokaiCard({
   categoryAccessory,
   rarityAccessory
 }: YokaiCardProps) {
+  const blackout = id?.startsWith("blackout-") ?? false;
   const t = useTranslations("collectionShared");
   const sunset = /^\/assets\/events\/gta-sunset\/(?:jason|lucia)\.png$/.test(
     catalogueImage ?? image ?? ""
@@ -282,6 +285,7 @@ export function YokaiCard({
   return (
     <div
       data-sunset={sunset || undefined}
+      data-blackout={blackout || undefined}
       className={`yk-card yk-rarity-${rarity} ${evolvedStyle ? "yk-evolved" : holo ? "yk-shiny" : ""} ${animated ? "yk-animated" : ""} ${className}`}
     >
       <div
@@ -439,6 +443,7 @@ export function YokaiCard({
         </div>
       </div>
       {rarity === "LR" &&
+        !blackout &&
         Boolean(firstLrCopy || instanceId || copyInstanceIds?.length) && (
           <FirstLrCopyBadge
             instanceId={instanceId}

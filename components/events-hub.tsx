@@ -27,6 +27,7 @@ import {
   GtaSunsetHubCard,
   useGtaSunsetEvent
 } from "@/components/gta-sunset-event";
+import { blackoutPreviewEnabled } from "@/lib/data/blackout-preview";
 import "@/styles/events.css";
 
 export function EventsHub({ home = false }: { home?: boolean }) {
@@ -42,6 +43,14 @@ export function EventsHub({ home = false }: { home?: boolean }) {
   const referral = useReferralEvent();
   const blackMarket = useBlackMarketEvent();
   const sunset = useGtaSunsetEvent(!home);
+  const blackout = useGtaSunsetEvent(
+    !home && blackoutPreviewEnabled,
+    "blackout"
+  );
+  const blackoutVisible =
+    blackoutPreviewEnabled &&
+    !!blackout.event &&
+    (filter === "all" || filter === blackout.status);
   const sunsetVisible =
     !!sunset.event && (filter === "all" || filter === sunset.status);
   const blackMarketTiming =
@@ -72,17 +81,20 @@ export function EventsHub({ home = false }: { home?: boolean }) {
       1 +
       Number(!!referral.event) +
       Number(!!blackMarketTiming) +
-      Number(!!sunset.event),
+      Number(!!sunset.event) +
+      Number(blackoutPreviewEnabled && !!blackout.event),
     live:
       Number(!!live) +
       Number(referralStatus === "live") +
       Number(blackMarketLive) +
-      Number(sunset.status === "live"),
+      Number(sunset.status === "live") +
+      Number(blackoutPreviewEnabled && blackout.status === "live"),
     upcoming:
       Number(status === "upcoming") +
       Number(referralStatus === "upcoming") +
       Number(blackMarketTiming?.status === "upcoming") +
-      Number(sunset.status === "upcoming")
+      Number(sunset.status === "upcoming") +
+      Number(blackoutPreviewEnabled && blackout.status === "upcoming")
   };
   if (home && !visible && !referralVisible && !blackMarketVisible) return null;
   if (home)
@@ -145,7 +157,11 @@ export function EventsHub({ home = false }: { home?: boolean }) {
       </section>
     );
   const hasEvents =
-    visible || referralVisible || blackMarketVisible || sunsetVisible;
+    visible ||
+    referralVisible ||
+    blackMarketVisible ||
+    sunsetVisible ||
+    blackoutVisible;
   return (
     <div className={`yk-events-hub${home ? " yk-home-events" : ""}`}>
       {!home && (
@@ -180,6 +196,14 @@ export function EventsHub({ home = false }: { home?: boolean }) {
         </h2>
         {hasEvents ? (
           <ul className="yk-events-grid">
+            {blackoutVisible && blackout.event && blackout.status && (
+              <GtaSunsetHubCard
+                edition="blackout"
+                event={blackout.event}
+                now={blackout.now}
+                status={blackout.status}
+              />
+            )}
             {sunsetVisible && sunset.event && sunset.status && (
               <GtaSunsetHubCard
                 event={sunset.event}

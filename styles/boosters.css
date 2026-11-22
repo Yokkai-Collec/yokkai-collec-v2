@@ -398,6 +398,11 @@
 .yk-reveal-screen[data-pack-kind="sunset"] {
   --reveal-background: url("/assets/events/gta-sunset/opening-nebula.webp");
 }
+.yk-reveal-screen[data-pack-kind="blackout"] {
+  --reveal-background:
+    linear-gradient(#160b2fa0, #080611c9),
+    url("/assets/regular-opening-nebula.webp");
+}
 .yk-reveal-screen[data-pack-kind="decision"] {
   --reveal-background: url("/assets/decision-opening-nebula.webp");
 }
@@ -488,7 +493,8 @@
   margin: var(--layout-gutter-compact) auto 0;
 }
 @media (width > 40rem) {
-  .yk-reveal-screen[data-pack-kind="sunset"] > .yk-reveal-grid {
+  .yk-reveal-screen:is([data-pack-kind="sunset"], [data-pack-kind="blackout"])
+    > .yk-reveal-grid {
     grid-template-columns: none;
     grid-auto-flow: column;
     grid-auto-columns: calc((100% - 4 * var(--booster-reveal-gap)) / 5);

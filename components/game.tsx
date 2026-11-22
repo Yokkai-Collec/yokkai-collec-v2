@@ -50,6 +50,10 @@ import { getWishlist } from "@/lib/data/wishlist";
 import { subscribePlayerSnapshotInvalidation } from "@/lib/data/player-state";
 import { useSfx } from "@/hooks/use-sfx";
 import { runPackOpeningOnce } from "@/lib/ui/pack-opening";
+import {
+  blackoutPreviewEnabled,
+  openBlackoutPreview
+} from "@/lib/data/blackout-preview";
 import type { BoosterKind } from "@/lib/ui/booster-opening-document";
 import { releaseBoostersBackground } from "@/components/boosters-load-priority";
 import { startVisiblePolling } from "@/lib/ui/visible-polling";
@@ -730,6 +734,17 @@ export function Game({
                 ? undefined
                 : packDay =>
                     openPack("sunset", () => openSunsetBooster(packDay))
+            }
+            onOpenBlackout={
+              blackoutPreviewEnabled
+                ? async () => {
+                    const cards = await openBlackoutPreview();
+                    setDraw(cards);
+                    setDrawKind("blackout");
+                    setRevealed(0);
+                    return cards;
+                  }
+                : undefined
             }
             onKeepDecision={previewData ? async () => 0 : keepDecision}
             onSellDecisionAll={previewData ? undefined : discardDecision}

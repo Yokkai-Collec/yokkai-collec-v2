@@ -1,4 +1,20 @@
 {
+  "blackout": {
+    "title": "Black Friday",
+    "preview": "Local preview",
+    "limitedEdition": "Blackout Edition",
+    "hubDescription": "Eight Yokkai cards in a special Blackout Edition.",
+    "homeDescription": "Discover the eight Blackout Edition cards.",
+    "homeOpen": "Preview the pack",
+    "viewBooster": "View the Blackout Pack",
+    "boosterTitle": "Blackout Pack",
+    "packSummary": "Three cards, with a Blackout LR revealed last in this preview.",
+    "unlimitedPacks": "Test pack · No cards added to your collection",
+    "switchToBlackout": "Switch to the Blackout Pack",
+    "open": "Open a test pack",
+    "opening": "Opening…",
+    "roster": "Blackout Edition cards"
+  },
   "gtaSunset": {
     "title": "GTA VI Sunset",
     "limitedEdition": "Limited edition",

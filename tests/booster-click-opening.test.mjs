@@ -30,21 +30,27 @@ function load(file, mocks = {}, globals = {}) {
       AbortController,
       ...globals,
       require: name =>
-        name === "@/lib/ui/license-name"
-          ? licenseName
-          : name === "next-intl"
-            ? intl
-            : name === "next-intl/server"
-              ? intlServer
-              : name === "@/i18n/game-messages"
-                ? gameMessages
-                : name === "@/lib/ui/card-rarity-label"
-                  ? cardRarityLabels
-                  : name in mocks
-                    ? mocks[name]
-                    : name.endsWith(".css")
-                      ? {}
-                      : require(name)
+        name === "@/lib/data/blackout-preview"
+          ? load(
+              "lib/data/blackout-preview.ts",
+              {},
+              { process: globals.process ?? process }
+            )
+          : name === "@/lib/ui/license-name"
+            ? licenseName
+            : name === "next-intl"
+              ? intl
+              : name === "next-intl/server"
+                ? intlServer
+                : name === "@/i18n/game-messages"
+                  ? gameMessages
+                  : name === "@/lib/ui/card-rarity-label"
+                    ? cardRarityLabels
+                    : name in mocks
+                      ? mocks[name]
+                      : name.endsWith(".css")
+                        ? {}
+                        : require(name)
     }
   );
   return exports;

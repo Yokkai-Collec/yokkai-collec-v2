@@ -78,6 +78,8 @@ test("the events hub lists the real event, filters its status, and keeps results
                 })
               })
           };
+        if (name === "@/lib/data/blackout-preview")
+          return { blackoutPreviewEnabled: false };
         if (name.endsWith("/gta-sunset-event"))
           return {
             useGtaSunsetEvent: () => sunset,

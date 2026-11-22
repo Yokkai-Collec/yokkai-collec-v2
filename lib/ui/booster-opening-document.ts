@@ -1,4 +1,6 @@
-export type BoosterKind = "regular" | "decision" | "sunset";
+export type BoosterKind = "regular" | "decision" | "sunset" | "blackout";
+
+export const BLACKOUT_BOOSTER_IMAGE = "/assets/chrome-regular-booster-v1.png";
 
 export const SUNSET_BOOSTER_IMAGE = "/assets/events/gta-sunset/booster.png";
 
@@ -9,7 +11,12 @@ export function boosterOpeningDocument(
   kind: BoosterKind,
   waitForClick = false
 ) {
-  if (kind !== "regular" && kind !== "decision" && kind !== "sunset")
+  if (
+    kind !== "regular" &&
+    kind !== "decision" &&
+    kind !== "sunset" &&
+    kind !== "blackout"
+  )
     throw new Error("Invalid pack kind");
   const origin = new URL(parentOrigin);
   if (
@@ -27,21 +34,28 @@ export function boosterOpeningDocument(
       character => `\\u${character.charCodeAt(0).toString(16).padStart(4, "0")}`
     );
   const sunset = kind === "sunset";
+  const blackout = kind === "blackout";
   const booster = {
     boosterImage: new URL(
-      sunset ? SUNSET_BOOSTER_IMAGE : `/assets/chrome-${kind}-booster-v1.png`,
+      sunset
+        ? SUNSET_BOOSTER_IMAGE
+        : blackout
+          ? BLACKOUT_BOOSTER_IMAGE
+          : `/assets/chrome-${kind}-booster-v1.png`,
       origin
     ).href,
     tearAt: 17.3,
     accentColor: sunset
       ? "#ffa5d2"
-      : kind === "decision"
-        ? "#ff69be"
-        : "#8dbdff"
+      : blackout
+        ? "#b5a7f2"
+        : kind === "decision"
+          ? "#ff69be"
+          : "#8dbdff"
   };
   const nebula = sunset
     ? "/assets/events/gta-sunset/opening-nebula.webp"
-    : `/assets/${kind}-opening-nebula.webp`;
+    : `/assets/${blackout ? "regular" : kind}-opening-nebula.webp`;
   if (
     !source.includes('data-yokkai-opening="tear-and-fan"') ||
     !source.includes("window.setYokkaiBooster = setYokkaiBooster;")
@@ -51,7 +65,7 @@ export function boosterOpeningDocument(
     "__CARD_BACK__",
     new URL("/assets/bubble-card-back-v1.png", origin).href
   );
-  if (sunset) {
+  if (sunset || blackout) {
     const fan =
       /<div class="opening-cards">(?:\s*<div class="opening-card"[^>]*><\/div>){5}<\/div>/;
     if (!fan.test(document)) throw new Error("Invalid booster fan");
@@ -231,6 +245,7 @@ export function boosterOpeningDocument(
       "</head>",
       `<style>
       body{background:#070b13 url(${json(new URL(nebula, origin).href)}) center / cover no-repeat}
+      ${blackout ? "body::after{content:'';position:fixed;inset:0;background:#170d2980;pointer-events:none;z-index:-1}.pack-position{filter:saturate(.34) brightness(.72)}" : ""}
       html,body,.scene{-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
       .pack-position,.opening-cards{transform-style:preserve-3d}
       .yokkai-wait-booster .scene{visibility:hidden}

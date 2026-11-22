@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { blackoutPreviewEnabled } from "@/lib/data/blackout-preview";
 import { boosterOpeningDocument } from "@/lib/ui/booster-opening-document";
 
 export const runtime = "nodejs";
@@ -20,7 +21,12 @@ export async function GET(request: Request) {
     );
   const url = new URL(request.url);
   const kind = url.searchParams.get("kind");
-  if (kind !== "regular" && kind !== "decision" && kind !== "sunset")
+  if (
+    kind !== "regular" &&
+    kind !== "decision" &&
+    kind !== "sunset" &&
+    (kind !== "blackout" || !blackoutPreviewEnabled)
+  )
     return new Response(
       (await getTranslations("openingErrors"))("invalidKind"),
       { status: 400, headers }

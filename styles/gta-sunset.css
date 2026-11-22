@@ -230,3 +230,78 @@
     transition: none;
   }
 }
+
+.yk-home-sunset-banner[data-pack-theme="blackout"] {
+  --blackout-light: #e2daff;
+  border-color: #746777;
+  background:
+    linear-gradient(100deg, #171320 18%, #191629e6 55%, #140f25b8),
+    #191629 url("/assets/regular-opening-nebula.webp") right center / 65% auto
+      no-repeat;
+}
+.yk-home-sunset-banner[data-pack-theme="blackout"]:hover {
+  border-color: #b5a7df;
+}
+.yk-home-sunset-banner[data-pack-theme="blackout"] .yk-home-sunset-pack,
+.yk-booster-opening-fallback[data-pack-theme="blackout"] {
+  filter: saturate(0.34) brightness(0.72);
+}
+.yk-home-sunset-banner[data-pack-theme="blackout"]
+  :is(strong, .yk-event-banner-arrow) {
+  color: var(--blackout-light);
+}
+.yk-home-sunset-banner[data-pack-theme="blackout"] .yk-home-sunset-action {
+  background: var(--blackout-light);
+  color: #1c132b;
+}
+.yk-event-card[data-event="black-friday"] {
+  --banner-accent: #b6a8ed;
+  --banner-light: #ede8ff;
+  --banner-glow: #9f85df;
+  --event-banner-title-fill: linear-gradient(#fff, #dacdff 75%, #b2a1e9);
+  border-color: #81709d;
+  background:
+    radial-gradient(ellipse at 83% 50%, #503a6d, transparent 56%),
+    linear-gradient(115deg, #121019 24%, #231a34);
+}
+.yk-event-card[data-event="black-friday"] .yk-event-banner-content {
+  width: 58%;
+}
+.yk-event-card[data-event="black-friday"] h3 {
+  padding-inline-end: 0.2em;
+}
+.yk-pack-grid .yk-sunset-pack-panel[data-pack-theme="blackout"] {
+  --pack-accent: #d0c5fa;
+  --color-pack-glow: #8871c889;
+  --color-pack-shadow: #110b20;
+}
+.yk-pack-grid .yk-sunset-pack-panel[data-pack-theme="blackout"] .yk-pack-image {
+  scale: 1;
+  translate: none;
+  filter: saturate(0.34) brightness(0.72) drop-shadow(0 0 18px #a28bee88);
+}
+.yk-pack-grid
+  .yk-sunset-pack-panel[data-pack-theme="blackout"]
+  .yk-sunset-pack-reserve {
+  color: #d9cefa;
+}
+.yk-blackout-roster {
+  margin-block: 28px;
+}
+.yk-blackout-roster ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 118px), 1fr));
+  gap: var(--layout-gutter-compact);
+  margin-top: 14px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .yk-pack-carousel-slot:has([data-pack-theme="blackout"]) > .yk-pack-panel {
+    animation: yk-blackout-slide-in 220ms var(--ease-standard) both;
+  }
+}
+@keyframes yk-blackout-slide-in {
+  from {
+    opacity: 0;
+    translate: 12px 0;
+  }
+}
