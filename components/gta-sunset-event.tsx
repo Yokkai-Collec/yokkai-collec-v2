@@ -352,6 +352,12 @@ export function GtaSunsetBooster({
         event.currentTarget.open = false;
         event.currentTarget.querySelector("summary")?.focus();
       }}
+      onToggle={event => {
+        if (isBlackout && event.currentTarget.open)
+          event.currentTarget
+            .querySelector(".yk-pack-info-popover")
+            ?.scrollIntoView({ block: "nearest" });
+      }}
     >
       <summary className="yk-pack-info" aria-label={t("viewRates")}>
         <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -360,31 +366,58 @@ export function GtaSunsetBooster({
         </svg>
       </summary>
       <div className="yk-pack-info-popover">
-        <p>
-          {isBlackout
-            ? t("lrChancePerPack", {
-                rate: format.number(blackFridayTerms.lrRatePerPack, {
-                  style: "percent",
-                  maximumFractionDigits: 2
-                })
-              })
-            : t("cardsPerPack")}
-        </p>
-        <dl className="yk-drop-rates">
-          {event.featured.map(card => (
-            <div key={card.id}>
-              <dt>
-                {card.name} · {card.rarity}
-              </dt>
-              <dd>
-                {format.number(lrRatePerCard, {
-                  style: "percent",
-                  maximumFractionDigits: isBlackout ? 3 : 2
-                })}
-              </dd>
-            </div>
-          ))}
-        </dl>
+        {isBlackout ? (
+          <>
+            <dl className="yk-blackout-rate-summary">
+              <div>
+                <dt>{t("lrChancePerPack")}</dt>
+                <dd>
+                  {format.number(blackFridayTerms.lrRatePerPack, {
+                    style: "percent",
+                    maximumFractionDigits: 2
+                  })}
+                </dd>
+              </div>
+              <div>
+                <dt>{t("lrChanceForOneCard")}</dt>
+                <dd>
+                  {format.number(lrRatePerCard, {
+                    style: "percent",
+                    maximumFractionDigits: 3
+                  })}
+                </dd>
+              </div>
+            </dl>
+            <ul
+              className="yk-blackout-rate-cards"
+              role="list"
+              aria-label={t("roster")}
+            >
+              {event.featured.map(card => (
+                <li key={card.id}>{card.name.replace(/ \(Blackout\)$/, "")}</li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <>
+            <p>{t("cardsPerPack")}</p>
+            <dl className="yk-drop-rates">
+              {event.featured.map(card => (
+                <div key={card.id}>
+                  <dt>
+                    {card.name} · {card.rarity}
+                  </dt>
+                  <dd>
+                    {format.number(lrRatePerCard, {
+                      style: "percent",
+                      maximumFractionDigits: 2
+                    })}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </>
+        )}
       </div>
     </details>
   );
