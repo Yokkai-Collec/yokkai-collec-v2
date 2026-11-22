@@ -56,14 +56,7 @@ export default async function BlackFridayPage() {
     new Date(Date.parse(endsAt) - 1),
     { day: "numeric", month: "long", timeZone: "Europe/Paris" }
   );
-  const offer = t.rich("proPrice", {
-    price: chunks => <strong className="text-ink-1">{chunks}</strong>,
-    first: format.number(firstMonthPrice, {
-      style: "currency",
-      currency: "EUR"
-    }),
-    renewal: format.number(renewalPrice, { style: "currency", currency: "EUR" })
-  });
+  const euro = { style: "currency", currency: "EUR" } as const;
 
   return (
     <div className="flex min-h-dvh w-full flex-col">
@@ -120,14 +113,22 @@ export default async function BlackFridayPage() {
               </div>
             </section>
             <section className="yk-blackout-pro-offer" aria-label="Yokkai Pro">
-              <div className="yk-blackout-pro-heading">
-                <h2 className="font-bold">Yokkai Pro</h2>
-                <span className="yk-blackout-promo-code">
-                  <span className="sr-only">{t("promoCode")} </span>
-                  <code>{promoCode}</code>
-                </span>
-              </div>
-              <p className="text-sm text-ink-2">{offer}</p>
+              <h2 className="font-bold">Yokkai Pro</h2>
+              <p className="yk-blackout-pro-price">
+                {t.rich("proPrice", {
+                  first: format.number(firstMonthPrice, euro),
+                  amount: chunks => <strong>{chunks}</strong>
+                })}
+              </p>
+              <p className="yk-blackout-pro-terms">
+                {t.rich("proTerms", {
+                  code: promoCode,
+                  promo: chunks => (
+                    <code className="yk-blackout-promo-code">{chunks}</code>
+                  ),
+                  renewal: format.number(renewalPrice, euro)
+                })}
+              </p>
               <BlackoutProCheckout />
             </section>
           </div>
