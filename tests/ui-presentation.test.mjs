@@ -152,6 +152,8 @@ function load(relative) {
         if (name === "@/components/ui") return load("components/ui/index.tsx");
         if (name.startsWith("@/")) {
           const modulePath = name.slice(2);
+          if (modulePath.endsWith(".json"))
+            return require(path.join(root, modulePath));
           const relative = (
             modulePath.endsWith(".mjs")
               ? [modulePath]

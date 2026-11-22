@@ -950,24 +950,11 @@
     inset-inline: calc(100% + 12px) auto;
   }
   .yk-pack-panel .yk-classic-pack-info {
-    --classic-rates-width: var(
-      --classic-rates-desktop,
-      clamp(14rem, 22vw, 18rem)
-    );
-    --classic-rates-offset: calc(
-      100% +
-        (
-          var(--blackout-pack-gap, var(--pack-column-gap)) -
-            var(--classic-rates-width)
-        ) /
-        2
-    );
+    --classic-rates-width: calc(var(--pack-column-gap) - 24px);
+
     position: absolute;
     inset-inline: 0;
     width: auto;
-  }
-  .yk-pack-grid[data-blackout-carousel] {
-    --classic-rates-desktop: calc(var(--blackout-pack-gap) - 24px);
   }
   .yk-pack-grid .yk-pack-panel .yk-classic-pack-info > button {
     position: static;
@@ -976,18 +963,13 @@
   .yk-pack-grid .yk-pack-panel .yk-classic-pack-info .yk-pack-info-popover {
     position: absolute;
     inset-block-start: 0;
-    inset-inline: var(--classic-rates-offset) auto;
+    inset-inline: calc(100% + 12px) auto;
     width: var(--classic-rates-width);
     margin-bottom: 0;
     scroll-margin-block-end: 12px;
   }
   .yk-pack-grid .yk-decision-panel .yk-classic-pack-info .yk-pack-info-popover {
-    inset-inline: auto var(--classic-rates-offset);
-  }
-}
-@media (min-width: 1440px) {
-  .yk-decision-panel .yk-pack-info-popover {
-    inset-inline: calc(100% + 12px) auto;
+    inset-inline: auto calc(100% + 12px);
   }
 }
 .yk-pack-info {

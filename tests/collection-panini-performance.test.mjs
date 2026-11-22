@@ -31,6 +31,13 @@ test("la collection normale ne télécharge plus le catalogue complet", () => {
   assert.match(game, /onSetPaniniAlbumFavorite=\{setPaniniAlbumFavorite\}/);
 });
 
+test("la Collection essaie la pagination serveur avec les classeurs stables", () => {
+  assert.match(
+    game,
+    /const pagesProbe = useMemo\(\s*\(\) =>\s*view === "collection" && !previewData\s*\? liveCollectionPages\.counts\(\)/
+  );
+});
+
 test("les classeurs personnels peuvent être placés en favoris", () => {
   assert.match(collection, /className="yk-panini-favorite"/);
   assert.match(collection, /aria-pressed=\{item\.favorite\}/);

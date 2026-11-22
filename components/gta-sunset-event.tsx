@@ -28,6 +28,8 @@ import {
 import { createClient } from "@/utils/supabase/client";
 import "@/styles/gta-sunset.css";
 
+export { BLACKOUT_SLUG, blackoutPreviewEnabled };
+
 type EventEdition = "sunset" | "blackout";
 
 function eventAppearance(edition: EventEdition) {

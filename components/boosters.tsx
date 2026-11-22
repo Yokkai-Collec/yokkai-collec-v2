@@ -7,9 +7,7 @@ import { ReferralReminder } from "@/components/referral-reminder";
 import { AmbientGlow } from "@/components/ambient-glow";
 import {
   BLACKOUT_SLUG,
-  blackoutPreviewEnabled
-} from "@/lib/data/blackout-preview";
-import {
+  blackoutPreviewEnabled,
   GtaSunsetBooster,
   useGtaSunsetEvent
 } from "@/components/gta-sunset-event";
@@ -1579,12 +1577,12 @@ export function Boosters({
 
   const formatRate = (percent: number) =>
     format.number(percent / 100, { style: "percent", maximumFractionDigits: 2 });
+  const shownRates = ratesKind === "decision" ? decisionDropRates : dropRates;
 
   function renderPackRates(kind: "regular" | "decision") {
     const isDecision = kind === "decision";
     const expanded = ratesKind === kind;
     const ratesId = `${kind}-drop-rates`;
-    const rates = isDecision ? decisionDropRates : dropRates;
     return (
       <div
         className="yk-pack-info-trigger yk-classic-pack-info"
@@ -1600,7 +1598,7 @@ export function Boosters({
         <button
           type="button"
           className="yk-pack-info"
-          aria-label={tp(isDecision ? "viewDecisionPackDropRates" : "viewRegularPackDropRates")}
+          aria-label={isDecision ? tp("viewDecisionPackDropRates") : tp("viewRegularPackDropRates")}
           aria-expanded={expanded}
           aria-describedby={expanded ? ratesId : undefined}
           onClick={() => toggleRates(kind)}
@@ -1615,11 +1613,11 @@ export function Boosters({
         {expanded && (
           <div id={ratesId} className="yk-pack-info-popover" role="tooltip">
             <p className="yk-classic-pack-rule">
-              {tp(isDecision ? "reveal5CardsAndChooseOneToKeep" : "openARegularPackAndAddAll5")}
+              {isDecision ? tp("reveal5CardsAndChooseOneToKeep") : tp("openARegularPackAndAddAll5")}
             </p>
             <p className="yk-classic-pack-caption">{tp("chanceForEachCardRevealed")}</p>
             <dl className="yk-pack-rate-summary">
-              {rates.map(rate => (
+              {shownRates.map(rate => (
                 <div
                   key={rate.rarity}
                   style={{

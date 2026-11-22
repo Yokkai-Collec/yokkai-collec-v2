@@ -306,7 +306,6 @@
     line-height: 1.5;
   }
   .yk-pack-grid {
-    --pack-column-gap: clamp(96px, 5vw, 192px);
     max-width: min(70vw, 2000px);
     margin-top: 32px;
   }
@@ -457,5 +456,19 @@
     min-height: 54px;
     gap: 4px;
     margin-block: 6px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .yk-pack-grid {
+    --pack-column-gap: clamp(17rem, 20vw, 22rem);
+    column-gap: var(--pack-column-gap);
+    position: relative;
+    inset-block-start: 10px;
+  }
+}
+@media (min-width: 1024px) and (min-height: 701px) {
+  .yk-pack-grid {
+    inset-block-start: clamp(10px, calc(8svh - 40px), 36px);
   }
 }

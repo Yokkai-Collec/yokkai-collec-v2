@@ -141,10 +141,7 @@ export function Game({
   const [pagesVersion, setPagesVersion] = useState(0);
   const pagesProbe = useMemo(
     () =>
-      // Binder search names stay client-side: keep the full load with them.
-      view === "collection" &&
-      !previewData &&
-      process.env.NEXT_PUBLIC_STABLE_BINDERS_ENABLED !== "true"
+      view === "collection" && !previewData
         ? liveCollectionPages.counts().then(
             counts => (typeof counts?.copies === "number" ? "server" : "full"),
             () => "full" as const
