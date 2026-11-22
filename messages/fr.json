@@ -1,6 +1,9 @@
 {
   "blackout": {
     "title": "Black Friday",
+    "dailyPacks": "{basic, plural, one {# pack gratuit par jour} other {# packs gratuits par jour}} en Basic et {pro, plural, one {# pack gratuit par jour} other {# packs gratuits par jour}} en Pro.",
+    "karasPacks": "Des packs supplémentaires seront disponibles en Karas pendant l’événement.",
+    "proPrice": "{first} le premier mois, puis {renewal} par mois. Sans essai gratuit.",
     "preview": "Aperçu local",
     "limitedEdition": "Édition Blackout",
     "hubDescription": "Huit cartes Yokkai en édition Blackout.",

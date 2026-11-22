@@ -7,6 +7,14 @@ export const blackoutPreviewEnabled =
 export const BLACKOUT_SLUG = "black-friday";
 export const BLACKOUT_EVENT_PATH = `/events/${BLACKOUT_SLUG}`;
 
+export const blackFridayTerms = {
+  startsAt: "2026-11-26T20:00:00+01:00",
+  endsAt: "2026-12-01T00:00:00+01:00",
+  freePacks: { basic: 1, pro: 2 },
+  firstMonthPrice: 2.99,
+  renewalPrice: 4.99
+} as const;
+
 const cardImages = "https://api.yokkai-collec.com/storage/v1/object/public/card-images/";
 
 function previewCard(

@@ -1,6 +1,9 @@
 {
   "blackout": {
     "title": "Black Friday",
+    "dailyPacks": "{basic, plural, one {# free pack per day} other {# free packs per day}} for Basic players and {pro, plural, one {# free pack per day} other {# free packs per day}} for Pro members.",
+    "karasPacks": "Extra packs available for Karas during the event.",
+    "proPrice": "{first} for the first month, then {renewal} per month. Billed from day one.",
     "preview": "Local preview",
     "limitedEdition": "Blackout Edition",
     "hubDescription": "Eight Yokkai cards in a special Blackout Edition.",

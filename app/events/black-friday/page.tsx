@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getFormatter, getTranslations } from "next-intl/server";
 import { AccountMenu } from "@/components/account-menu";
 import { LeaderboardTopbar } from "@/components/leaderboard-topbar";
 import { YokaiCard } from "@/components/yokai-card";
@@ -9,6 +9,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import {
   BLACKOUT_EVENT_PATH,
   BLACKOUT_SLUG,
+  blackFridayTerms,
   blackoutCards,
   blackoutPreviewEnabled
 } from "@/lib/data/blackout-preview";
@@ -22,7 +23,24 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function BlackFridayPage() {
   if (!blackoutPreviewEnabled) notFound();
   if (!(await getCurrentUser())) redirect(`/login?next=${BLACKOUT_EVENT_PATH}`);
-  const t = await getTranslations("blackout");
+  const [t, format] = await Promise.all([
+    getTranslations("blackout"),
+    getFormatter()
+  ]);
+  const { startsAt, endsAt, freePacks, firstMonthPrice, renewalPrice } =
+    blackFridayTerms;
+  const dates = format.dateTimeRange(
+    new Date(startsAt),
+    new Date(Date.parse(endsAt) - 1),
+    { day: "numeric", month: "long", timeZone: "Europe/Paris" }
+  );
+  const offer = t("proPrice", {
+    first: format.number(firstMonthPrice, {
+      style: "currency",
+      currency: "EUR"
+    }),
+    renewal: format.number(renewalPrice, { style: "currency", currency: "EUR" })
+  });
 
   return (
     <div className="flex min-h-dvh w-full flex-col">
@@ -39,6 +57,7 @@ export default async function BlackFridayPage() {
           <div>
             <p className="eyebrow">{t("preview")}</p>
             <h1 className="yk-title mt-1">{t("title")}</h1>
+            <p className="mt-2 text-sm text-ink-2">{dates}</p>
           </div>
           <Link
             className="yk-button yk-button-primary"
@@ -47,6 +66,19 @@ export default async function BlackFridayPage() {
             {t("viewBooster")}
           </Link>
         </header>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <section className="rounded-card border border-veil bg-surface p-4">
+            <h2 className="font-bold">{t("boosterTitle")}</h2>
+            <p className="mt-1 text-sm text-ink-2">
+              {t("dailyPacks", freePacks)}
+            </p>
+            <p className="mt-1 text-sm text-ink-2">{t("karasPacks")}</p>
+          </section>
+          <section className="rounded-card border border-veil bg-surface p-4">
+            <h2 className="font-bold">Yokkai Pro</h2>
+            <p className="mt-1 text-sm text-ink-2">{offer}</p>
+          </section>
+        </div>
         <section
           className="yk-blackout-roster"
           aria-labelledby="blackout-roster-title"
