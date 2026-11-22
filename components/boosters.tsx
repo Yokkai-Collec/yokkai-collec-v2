@@ -1330,6 +1330,7 @@ export function Boosters({
   const selectedCount = batchEnabled && status && status.available >= regularCount ? regularCount : 1;
   const openingLock = useRef(false);
   const openingStage = useRef<HTMLDivElement>(null);
+  const packGrid = useRef<HTMLDivElement>(null);
   const openingTrigger = useRef<HTMLElement | null>(null);
   const preloading = useRef<Promise<void>>(Promise.resolve());
   const finishOpening = useRef<(() => void) | null>(null);
@@ -1345,14 +1346,23 @@ export function Boosters({
     setRatesKind(null);
     setRatesPinned(false);
   }
+  function closeEventRates() {
+    const eventRates = packGrid.current?.querySelector<HTMLDetailsElement>(
+      "details.yk-sunset-pack-info[open]"
+    );
+    if (eventRates) eventRates.open = false;
+  }
   function showRates(kind: "regular" | "decision") {
-    if (!ratesPinned) setRatesKind(kind);
+    if (ratesPinned) return;
+    closeEventRates();
+    setRatesKind(kind);
   }
   function hideRates() {
     if (!ratesPinned) setRatesKind(null);
   }
   function toggleRates(kind: "regular" | "decision") {
     const shouldClose = ratesPinned && ratesKind === kind;
+    if (!shouldClose) closeEventRates();
     setRatesKind(shouldClose ? null : kind);
     setRatesPinned(!shouldClose);
   }
@@ -1370,6 +1380,12 @@ export function Boosters({
     document.addEventListener("pointerdown", handlePointerDown);
     return () => document.removeEventListener("pointerdown", handlePointerDown);
   }, [ratesPinned]);
+  useEffect(() => {
+    if (!ratesPinned || !ratesKind) return;
+    packGrid.current
+      ?.querySelector(`#${ratesKind}-drop-rates`)
+      ?.scrollIntoView({ block: "nearest" });
+  }, [ratesKind, ratesPinned]);
   const speedUpSeal = () => {
     if (clickToOpen && !openingClicked.current) {
       openingClicked.current = true;
@@ -1561,36 +1577,63 @@ export function Boosters({
     window.dispatchEvent(new Event("hashchange"));
   }
 
-  const shownRates = ratesKind === "decision" ? decisionDropRates : dropRates;
-  const rateDetails = <>
-        <p className="text-sm leading-6 text-ink-2">
-          {ratesKind === "decision"
-            ? tp("reveal5CardsAndChooseOneToKeep")
-            : tp("openARegularPackAndAddAll5")}
-        </p>
-        <p className="mt-4 text-sm text-ink-2">
-          {tp("chanceForEachCardRevealed")}</p>
-        <dl className="yk-drop-rates">
-          {shownRates.map(rate => (
-            <div key={rate.rarity}>
-              <dt>{rate.rarity}</dt>
-              <dd>
-                {format.number(rate.percent, {
-                  maximumFractionDigits: 2
-                })}
-                %
-              </dd>
-            </div>
-          ))}
-        </dl>
-        <p className="yk-drop-shiny">
-          {tp("anLrCardThenHasA")}{" "}
-          <strong>
-            {format.number(shinyRate, { maximumFractionDigits: 2 })}%
-          </strong>{"  "}
-          {tp("chanceOfBeingShiny")}</p>
+  const formatRate = (percent: number) =>
+    format.number(percent / 100, { style: "percent", maximumFractionDigits: 2 });
 
-  </>;
+  function renderPackRates(kind: "regular" | "decision") {
+    const isDecision = kind === "decision";
+    const expanded = ratesKind === kind;
+    const ratesId = `${kind}-drop-rates`;
+    const rates = isDecision ? decisionDropRates : dropRates;
+    return (
+      <div
+        className="yk-pack-info-trigger yk-classic-pack-info"
+        onMouseEnter={() => showRates(kind)}
+        onMouseLeave={hideRates}
+        onKeyDown={event => {
+          if (event.key === "Escape") {
+            event.stopPropagation();
+            closeRates();
+          }
+        }}
+      >
+        <button
+          type="button"
+          className="yk-pack-info"
+          aria-label={tp(isDecision ? "viewDecisionPackDropRates" : "viewRegularPackDropRates")}
+          aria-expanded={expanded}
+          aria-describedby={expanded ? ratesId : undefined}
+          onClick={() => toggleRates(kind)}
+          onFocus={() => showRates(kind)}
+          onBlur={hideRates}
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 11v6M12 7h.01" />
+          </svg>
+        </button>
+        {expanded && (
+          <div id={ratesId} className="yk-pack-info-popover" role="tooltip">
+            <p className="yk-classic-pack-rule">
+              {tp(isDecision ? "reveal5CardsAndChooseOneToKeep" : "openARegularPackAndAddAll5")}
+            </p>
+            <p className="yk-classic-pack-caption">{tp("chanceForEachCardRevealed")}</p>
+            <dl className="yk-pack-rate-summary">
+              {rates.map(rate => (
+                <div key={rate.rarity}>
+                  <dt>{rate.rarity}</dt>
+                  <dd>{formatRate(rate.percent)}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="yk-classic-pack-shiny">
+              {tp("lrShinyChance", { rate: formatRate(shinyRate) })}
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  }
   return (
     <>
       {opening ? (
@@ -1703,7 +1746,7 @@ export function Boosters({
           onStopSound={onStopSound}
         />
       ) : (
-        <div className="yk-pack-grid" data-blackout-carousel={hasBlackout || undefined}>
+        <div ref={packGrid} className="yk-pack-grid" data-blackout-carousel={hasBlackout || undefined}>
           <AmbientGlow />
           <div className="yk-pack-carousel-slot" id={showBlackout ? BLACKOUT_SLUG : hasSunset ? "gta-sunset" : undefined}>
           {showBlackout ? (
@@ -1711,12 +1754,14 @@ export function Boosters({
               edition="blackout"
               snapshot={blackout}
               busy={busy}
+              onRatesOpen={closeRates}
               onOpen={trigger => start("blackout", trigger)}
             />
           ) : showSunset ? (
             <GtaSunsetBooster
               snapshot={sunset}
               busy={busy}
+              onRatesOpen={closeRates}
               onOpen={trigger => start("sunset", trigger)}
             />
           ) : (
@@ -1727,34 +1772,6 @@ export function Boosters({
             <div className="yk-pack-art-stage">
               <span className="yk-pack-aura" aria-hidden="true" />
               <span className="yk-pack-floor" aria-hidden="true" />
-              <div
-                className="yk-pack-info-trigger"
-                onMouseEnter={() => showRates("regular")}
-                onMouseLeave={hideRates}
-                onKeyDown={event => {
-                  if (event.key === "Escape") {
-                    event.stopPropagation();
-                    closeRates();
-                  }
-                }}
-              >
-<button
-                type="button"
-                className="yk-pack-info"
-                aria-label={tp("viewRegularPackDropRates")}
-                aria-expanded={ratesKind === "regular"}
-                onClick={() => toggleRates("regular")}
-                onFocus={() => showRates("regular")}
-                onBlur={hideRates}
-                aria-describedby={ratesKind === "regular" ? "regular-drop-rates" : undefined}
-              >
-                <svg aria-hidden="true" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="9" />
-                  <path d="M12 11v6M12 7h.01" />
-                </svg>
-              </button>
-{ratesKind === "regular" && <div id="regular-drop-rates" role="tooltip" className="yk-pack-info-popover">{rateDetails}</div>}
-</div>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/assets/chrome-regular-booster-v1.png" alt="Yokkai Collec’ Regular Pack"
@@ -1765,6 +1782,7 @@ export function Boosters({
                 sizes={PACK_IMAGE_SIZES}
               />
             </div>
+            {renderPackRates("regular")}
             <div className="yk-pack-body">
               <h2 className="font-display text-[26px] font-semibold">
                 Regular Pack
@@ -1865,34 +1883,6 @@ export function Boosters({
             <div className="yk-pack-art-stage">
               <span className="yk-pack-aura" aria-hidden="true" />
               <span className="yk-pack-floor" aria-hidden="true" />
-              <div
-                className="yk-pack-info-trigger"
-                onMouseEnter={() => showRates("decision")}
-                onMouseLeave={hideRates}
-                onKeyDown={event => {
-                  if (event.key === "Escape") {
-                    event.stopPropagation();
-                    closeRates();
-                  }
-                }}
-              >
-<button
-                type="button"
-                className="yk-pack-info"
-                aria-label={tp("viewDecisionPackDropRates")}
-                aria-expanded={ratesKind === "decision"}
-                onClick={() => toggleRates("decision")}
-                onFocus={() => showRates("decision")}
-                onBlur={hideRates}
-                aria-describedby={ratesKind === "decision" ? "decision-drop-rates" : undefined}
-              >
-                <svg aria-hidden="true" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="9" />
-                  <path d="M12 11v6M12 7h.01" />
-                </svg>
-              </button>
-{ratesKind === "decision" && <div id="decision-drop-rates" role="tooltip" className="yk-pack-info-popover">{rateDetails}</div>}
-</div>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/assets/chrome-decision-booster-v1.png" alt="Decision Pack"
@@ -1903,6 +1893,7 @@ export function Boosters({
                 sizes={PACK_IMAGE_SIZES}
               />
             </div>
+            {renderPackRates("decision")}
             <div className="yk-pack-body">
               <h2 className="font-display text-[26px] font-semibold">
                 Decision Pack

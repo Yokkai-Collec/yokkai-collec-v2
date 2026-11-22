@@ -318,12 +318,14 @@ export function GtaSunsetBooster({
   snapshot,
   busy,
   onOpen,
+  onRatesOpen,
   edition = "sunset"
 }: {
   edition?: EventEdition;
   snapshot: ReturnType<typeof useGtaSunsetEvent>;
   busy: boolean;
   onOpen: (trigger: HTMLButtonElement) => void;
+  onRatesOpen?: () => void;
 }) {
   const appearance = eventAppearance(edition);
   const t = useTranslations(appearance.messages);
@@ -353,7 +355,9 @@ export function GtaSunsetBooster({
         event.currentTarget.querySelector("summary")?.focus();
       }}
       onToggle={event => {
-        if (isBlackout && event.currentTarget.open)
+        if (!event.currentTarget.open) return;
+        onRatesOpen?.();
+        if (isBlackout)
           event.currentTarget
             .querySelector(".yk-pack-info-popover")
             ?.scrollIntoView({ block: "nearest" });
@@ -368,7 +372,7 @@ export function GtaSunsetBooster({
       <div className="yk-pack-info-popover">
         {isBlackout ? (
           <>
-            <dl className="yk-blackout-rate-summary">
+            <dl className="yk-pack-rate-summary">
               <div>
                 <dt>{t("lrChancePerPack")}</dt>
                 <dd>
