@@ -301,6 +301,10 @@
   max-height: min(20rem, 50svh);
   margin-bottom: 12px;
 }
+.yk-pack-grid:has(.yk-blackout-pack-info) {
+  position: relative;
+  inset-block-start: 10px;
+}
 @media (min-width: 1024px) {
   .yk-pack-grid:has(.yk-blackout-pack-info) {
     --blackout-pack-gap: clamp(17rem, 20vw, 22rem);
@@ -319,6 +323,11 @@
     inset-inline: calc(100% + 12px) auto;
     width: calc(var(--blackout-pack-gap) - 24px);
     margin-bottom: 0;
+  }
+}
+@media (min-width: 1024px) and (min-height: 701px) {
+  .yk-pack-grid:has(.yk-blackout-pack-info) {
+    inset-block-start: clamp(10px, calc(8svh - 40px), 36px);
   }
 }
 @media (prefers-reduced-motion: no-preference) {
