@@ -16,7 +16,8 @@ import { getCurrentUser } from "@/lib/auth/session";
 import {
   BLACKOUT_EVENT_PATH,
   blackFridayTerms,
-  blackoutPreviewEnabled
+  blackoutPreviewEnabled,
+  getBlackoutPhase
 } from "@/lib/data/blackout-preview";
 import { BLACKOUT_BOOSTER_IMAGE } from "@/lib/ui/booster-opening-document";
 import "@/styles/blackout-shop.css";
@@ -27,11 +28,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function BlackFridayPage() {
-  const now = Date.now();
-  const adminPreview =
-    !blackoutPreviewEnabled && now < Date.parse(blackFridayTerms.startsAt);
-  if (!blackoutPreviewEnabled && now >= Date.parse(blackFridayTerms.endsAt))
-    notFound();
+  const phase = getBlackoutPhase();
+  const adminPreview = !blackoutPreviewEnabled && phase === "upcoming";
+  if (!blackoutPreviewEnabled && phase === "ended") notFound();
   if (adminPreview) {
     if ((await getAdminUser()).kind !== "admin") notFound();
   } else {

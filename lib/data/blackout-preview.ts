@@ -20,6 +20,11 @@ export const blackFridayTerms = {
   renewalPrice: 4.99
 } as const;
 
+export function getBlackoutPhase(now = Date.now()) {
+  if (now < Date.parse(blackFridayTerms.startsAt)) return "upcoming";
+  return now < Date.parse(blackFridayTerms.endsAt) ? "live" : "ended";
+}
+
 const cardImages = "https://api.yokkai-collec.com/storage/v1/object/public/card-images/";
 
 function previewCard(

@@ -4,7 +4,7 @@ import { AccountMenu } from "@/components/account-menu";
 import { Topbar } from "@/components/topbar";
 import { cookies } from "next/headers";
 import { requireAdminPage } from "@/lib/auth/admin";
-import { blackFridayTerms } from "@/lib/data/blackout-preview";
+import { getBlackoutPhase } from "@/lib/data/blackout-preview";
 import { getCurrentKarasBalance, getCurrentPseudo } from "@/lib/auth/session";
 import { createClient } from "@/utils/supabase/server";
 import { AdminCardManager } from "./admin-card-manager";
@@ -97,9 +97,7 @@ export default async function AdminCardsPage({
             </div>
           </header>
           <AdminNavigation
-            showBlackoutPreview={
-              Date.now() < Date.parse(blackFridayTerms.startsAt)
-            }
+            showBlackoutPreview={getBlackoutPhase() === "upcoming"}
           />
           <section className="rounded-2xl border border-cyan-300/20 bg-slate-900/70 p-5">
             <h2 className="text-xl font-bold">Search catalogue cards</h2>
