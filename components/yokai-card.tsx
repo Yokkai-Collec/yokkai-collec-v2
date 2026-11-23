@@ -445,13 +445,18 @@ export function YokaiCard({
                   {franchise}
                 </span>
               )}
-              {blackoutLabel && (
-                <span className="yk-card-event-label">{blackoutLabel}</span>
-              )}
             </div>
           </div>
         </div>
       </div>
+      {blackoutLabel && (
+        <span
+          className="yk-card-event-label text-[11px] font-semibold"
+          aria-hidden="true"
+        >
+          {blackoutLabel}
+        </span>
+      )}
       {rarity === "LR" &&
         !blackoutPreview &&
         Boolean(firstLrCopy || instanceId || copyInstanceIds?.length) && (

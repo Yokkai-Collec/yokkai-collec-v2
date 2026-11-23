@@ -680,6 +680,9 @@
 .yk-collection-card-meta {
   margin-top: calc(var(--spacing) * 3);
 }
+.yk-collection-card:has(.yk-card-event-label) + .yk-collection-card-meta {
+  margin-top: 0;
+}
 
 .yk-selected-card {
   outline: 2px solid var(--color-accent-gold);
