@@ -4,9 +4,9 @@ insert into public.cards
   (source, source_id, nom, categorie, franchise, rarete_base, image_url, event_only)
 values
   ('manual', 'blackout-sung-jinwoo', 'Sung Jin-Woo (Blackout)', 'ANIME/MANGA', 'Solo Leveling', 'LR', '/assets/events/blackout/cards/sung-jinwoo.webp', true),
-  ('manual', 'blackout-ryomen-sukuna', 'Ryomen Sukuna (Blackout)', 'ANIME/MANGA', 'JUJUTSU KAISEN', 'LR', '/assets/events/blackout/cards/ryomen-sukuna.webp', true),
+  ('manual', 'blackout-ryomen-sukuna', 'Sukuna (Blackout)', 'ANIME/MANGA', 'JUJUTSU KAISEN', 'LR', '/assets/events/blackout/cards/ryomen-sukuna.webp', true),
   ('manual', 'blackout-goku-black', 'Goku Black (Blackout)', 'ANIME/MANGA', 'Dragon Ball Super', 'LR', '/assets/events/blackout/cards/goku-black.webp', true),
-  ('manual', 'blackout-roronoa-zoro', 'Roronoa Zoro (Blackout)', 'ANIME/MANGA', 'One Piece', 'LR', '/assets/events/blackout/cards/roronoa-zoro.webp', true),
+  ('manual', 'blackout-roronoa-zoro', 'Zoro Roronoa (Blackout)', 'ANIME/MANGA', 'One Piece', 'LR', '/assets/events/blackout/cards/roronoa-zoro.webp', true),
   ('manual', 'blackout-ichigo-kurosaki', 'Ichigo Kurosaki (Blackout)', 'ANIME/MANGA', 'Bleach', 'LR', '/assets/events/blackout/cards/ichigo-kurosaki.webp', true),
   ('manual', 'blackout-sosuke-aizen', 'Sōsuke Aizen (Blackout)', 'ANIME/MANGA', 'Bleach', 'LR', '/assets/events/blackout/cards/sosuke-aizen.webp', true),
   ('manual', 'blackout-guts', 'Guts (Blackout)', 'ANIME/MANGA', 'Berserk', 'LR', '/assets/events/blackout/cards/guts.webp', true),
@@ -24,9 +24,9 @@ begin
     select 1
     from (values
     ('blackout-sung-jinwoo', 'Sung Jin-Woo (Blackout)', '/assets/events/blackout/cards/sung-jinwoo.webp'),
-    ('blackout-ryomen-sukuna', 'Ryomen Sukuna (Blackout)', '/assets/events/blackout/cards/ryomen-sukuna.webp'),
+    ('blackout-ryomen-sukuna', 'Sukuna (Blackout)', '/assets/events/blackout/cards/ryomen-sukuna.webp'),
     ('blackout-goku-black', 'Goku Black (Blackout)', '/assets/events/blackout/cards/goku-black.webp'),
-    ('blackout-roronoa-zoro', 'Roronoa Zoro (Blackout)', '/assets/events/blackout/cards/roronoa-zoro.webp'),
+    ('blackout-roronoa-zoro', 'Zoro Roronoa (Blackout)', '/assets/events/blackout/cards/roronoa-zoro.webp'),
     ('blackout-ichigo-kurosaki', 'Ichigo Kurosaki (Blackout)', '/assets/events/blackout/cards/ichigo-kurosaki.webp'),
     ('blackout-sosuke-aizen', 'Sōsuke Aizen (Blackout)', '/assets/events/blackout/cards/sosuke-aizen.webp'),
     ('blackout-guts', 'Guts (Blackout)', '/assets/events/blackout/cards/guts.webp'),
