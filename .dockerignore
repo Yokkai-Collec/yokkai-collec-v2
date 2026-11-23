@@ -15,7 +15,8 @@ Yokkai Collec' UI design
 .env*
 !.env.example
 # Runtime reads only these data files (disposable email snapshot, booster
-# opening document); the import CSVs stay out of the image.
+# opening document, Blackout roster); the import CSVs stay out of the image.
 data/*
 !data/disposable-email-domains.json
 !data/booster-opening
+!data/blackout-cards.json
