@@ -46,7 +46,10 @@ test("Whop provisioning reads only the expected variant on the selected host", a
           `Bearer ${env.WHOP_API_KEY}`
         );
         assert.equal(options.headers["Api-Version-Date"], "2026-11-20");
-        return Response.json(variant);
+        return Response.json({
+          ...variant,
+          trial_period_days: mode === "production" ? null : 3
+        });
       }
     );
     assert.equal(calls, 1);
@@ -56,7 +59,7 @@ test("Whop provisioning reads only the expected variant on the selected host", a
       renewalAmountInCents: 499,
       currency: "eur",
       billingPeriodDays: 30,
-      trialDays: 3,
+      trialDays: mode === "production" ? 0 : 3,
       taxType: "exclusive"
     });
   }
@@ -90,6 +93,12 @@ test("Whop provisioning rejects missing settings, account drift and changed term
       { message: "WHOP_SETUP_PLAN_TERMS_MISMATCH" }
     );
   }
+  await assert.rejects(
+    checkWhopSetup({ ...env, WHOP_MODE: "production" }, async () =>
+      Response.json(variant)
+    ),
+    { message: "WHOP_SETUP_PLAN_TERMS_MISMATCH" }
+  );
   await assert.rejects(
     checkWhopSetup(env, async () =>
       Response.json({ error: env.WHOP_API_KEY }, { status: 403 })

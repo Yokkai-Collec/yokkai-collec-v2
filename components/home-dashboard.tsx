@@ -258,6 +258,7 @@ export function HomeDashboard({
       <HomeRefresh />
       <main id="main-content" className="yk-home-main">
         <HomeHero />
+        <GtaSunsetHomeBanner edition="blackout" />
         <GtaSunsetHomeBanner />
         <EventsHub home />
         <HomePacks>

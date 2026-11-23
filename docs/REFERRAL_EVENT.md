@@ -45,7 +45,7 @@ existante, avec le marqueur de pack bonus pour préserver le quota quotidien.
 Il est attribué et ouvert côté serveur avec le reçu unique ; la révélation UI
 ne fait que lire les cinq cartes déjà attribuées. Cette attribution automatique
 ne compte pas comme une activité du filleul. Doublons possibles et chance
-Shiny LR habituelle du Decision Pack (1 %), jamais Infinity.
+Shiny LR habituelle du Decision Pack (0,5 %), jamais Infinity.
 
 ## Classement de l’édition
 

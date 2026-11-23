@@ -26,6 +26,11 @@
   --card-foil: none;
   --card-spark: #ffd2ac;
 }
+.yk-card.yk-rarity-LR[data-blackout] {
+  --card-badge: #20182a;
+  --card-badge-border: #ab97bd;
+  --card-badge-ink: #e9def2;
+}
 .yk-card[data-sunset] .yk-card-art {
   mask-image: none;
 }
@@ -95,6 +100,9 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+.yk-card-art img[src$="/assets/events/blackout/cards/sosuke-aizen.webp"] {
+  object-position: center top;
 }
 /* Custom art layers over its catalogue placeholder until it is painted. */
 .yk-card-art[data-art-layers] > * {
@@ -176,6 +184,10 @@
 .yk-card-first-lr:not(.yk-first-copy-shiny, .yk-first-copy-sunset) img {
   filter: grayscale(1) brightness(0.65) contrast(3.3) sepia(0.85) saturate(1.6);
 }
+.yk-card[data-blackout] .yk-card-first-lr img {
+  filter: hue-rotate(61deg) saturate(0.9) contrast(1.18) brightness(0.93)
+    drop-shadow(0 1px 3px #673990ad);
+}
 .yk-card:has(.yk-card-copy-status) .yk-card-category-accessory {
   top: calc(6cqw + clamp(22px, 12cqw, 28px) + clamp(22px, 12cqw, 30px));
 }
@@ -208,6 +220,9 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.yk-card[data-blackout] .yk-card-name {
+  text-transform: uppercase;
 }
 .yk-card-category {
   min-width: 0;
@@ -453,6 +468,39 @@
   --evolution-accent: #edbc42;
   --evolution-base: #44300c;
   --evolution-mid: #191307;
+}
+
+.yk-evolved.yk-rarity-LR[data-blackout] {
+  --evolved-frame: linear-gradient(
+    135deg,
+    #dfd4eb 0%,
+    #b1a1c4 13%,
+    #4d405e 25%,
+    #d7cbe1 36%,
+    #8b779e 48%,
+    #292333 59%,
+    #d8cee3 71%,
+    #a18cb2 83%,
+    #51435f 92%,
+    #bfb1d0 100%
+  );
+  --evolved-glow: #8568ae45;
+  --evolution-rgb: 139, 113, 171;
+  --evolution-light-rgb: 209, 193, 224;
+  --evolution-dark-rgb: 67, 52, 83;
+  --evolution-edge: #d8cbe4;
+  --evolution-accent: #ac91c3;
+  --evolution-base: #292333;
+  --evolution-mid: #160f21;
+  --card-line: #b1a1c466;
+  --evolved-foil: linear-gradient(
+    115deg,
+    transparent 35%,
+    #b1a1c41a 44%,
+    #eadff23d 49%,
+    #66537d1f 54%,
+    transparent 64%
+  );
 }
 
 .yk-shiny.yk-rarity-LR {

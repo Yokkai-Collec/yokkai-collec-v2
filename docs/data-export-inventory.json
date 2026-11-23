@@ -617,6 +617,12 @@
   "public.event_runtime_config": {
     "excluded": "Global operator-controlled event activation switch; no player-specific records or personal data."
   },
+  "public.blackout_purchases": {
+    "excluded": "Private Blackout purchase receipts and idempotency keys used to enforce daily limits and calculate the pack reserve. Receipts cascade on account deletion and can be provided through manual account-data review."
+  },
+  "public.blackout_openings": {
+    "excluded": "Private Blackout credit receipts and stored results used to retry openings without awarding cards twice. Owned cards are in the collection export. Receipts cascade on account deletion and can be provided through manual account-data review."
+  },
   "public.gta_sunset_event": {
     "excluded": "Global event schedule, reward rates and catalogue references shared by every player; no individual account records."
   },

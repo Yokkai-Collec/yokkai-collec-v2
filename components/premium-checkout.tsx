@@ -96,12 +96,6 @@ export function PremiumCheckout({
           })}
         </p>
       )}
-      {displayWhop && !active && (
-        <div className="yk-premium-whop-trial">
-          <strong>{tPr5("whopTrialTitle")}</strong>
-          <p>{tPr5("whopTrialConditions")}</p>
-        </div>
-      )}
       {!displayWhop && (
         <p>{tPr5("monthlySubscriptionCancelFromYourAccountSettings")}</p>
       )}

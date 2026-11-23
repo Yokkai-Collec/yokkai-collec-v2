@@ -450,8 +450,21 @@ test("drift detects changed, missing and extra cron jobs", async t => {
       active: true
     });
   }
+  const blackoutJob = jobs.find(
+    job => job.name === "publish-blackout-cards@postgres"
+  );
+  assert.deepEqual(blackoutJob?.value, {
+    schedule: "0,1,2,5,10,15,30,45 * 26-30 11 *",
+    command: "select public.publish_blackout_cards();",
+    username: "postgres",
+    database: "postgres",
+    active: true
+  });
   const existingJobs = jobs.filter(
-    job => !anticheatJobs.has(job.name) && !blackMarketJobs.has(job.name)
+    job =>
+      job !== blackoutJob &&
+      !anticheatJobs.has(job.name) &&
+      !blackMarketJobs.has(job.name)
   );
   assert.deepEqual(
     jobs.filter(job => anticheatJobs.has(job.name)).map(job => job.name),

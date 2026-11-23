@@ -31,21 +31,32 @@ function load(file, mocks = {}, globals = {}) {
       AbortController,
       ...globals,
       require: name =>
-        name === "@/lib/ui/license-name"
-          ? licenseName
-          : name === "next-intl"
-            ? intl
-            : name === "next-intl/server"
-              ? intlServer
-              : name === "@/i18n/game-messages"
-                ? gameMessages
-                : name === "@/lib/ui/card-rarity-label"
-                  ? cardRarityLabels
-                  : name in mocks
-                    ? mocks[name]
-                    : name.endsWith(".css")
-                      ? {}
-                      : require(name)
+        name === "@/lib/data/blackout-preview"
+          ? load(
+              "lib/data/blackout-preview.ts",
+              {
+                "@/data/blackout-cards.json": {
+                  __esModule: true,
+                  default: JSON.parse(read("data/blackout-cards.json"))
+                }
+              },
+              { process: globals.process ?? process }
+            )
+          : name === "@/lib/ui/license-name"
+            ? licenseName
+            : name === "next-intl"
+              ? intl
+              : name === "next-intl/server"
+                ? intlServer
+                : name === "@/i18n/game-messages"
+                  ? gameMessages
+                  : name === "@/lib/ui/card-rarity-label"
+                    ? cardRarityLabels
+                    : name in mocks
+                      ? mocks[name]
+                      : name.endsWith(".css")
+                        ? {}
+                        : require(name)
     }
   );
   return exports;
@@ -292,6 +303,7 @@ test("trusted bridge completes once after the last effect, respects reduced moti
 
 test("production route bounds requests and serves one fixed inert template, never arbitrary paths or media", async () => {
   let reads = 0;
+  let now = Date.parse("2026-11-26T19:59:59+01:00");
   const { GET } = load(
     "app/api/booster-opening/route.ts",
     {
@@ -307,11 +319,15 @@ test("production route bounds requests and serves one fixed inert template, neve
       },
       "@/lib/ui/booster-opening-document": { boosterOpeningDocument }
     },
-    { process: { env: { NODE_ENV: "production" }, cwd: () => "/workspace" } }
+    {
+      Date: { now: () => now, parse: Date.parse },
+      process: { env: { NODE_ENV: "production" }, cwd: () => "/workspace" }
+    }
   );
   for (const query of [
     "kind=../../secret",
     "kind=LR",
+    "kind=blackout",
     "",
     "kind=regular&padding=" + "x".repeat(600)
   ]) {
@@ -342,6 +358,12 @@ test("production route bounds requests and serves one fixed inert template, neve
     assert.match(html, new RegExp(`/assets/chrome-${kind}-booster-v1\\.png`));
     assert.doesNotMatch(html, /javascript:alert/);
   }
+  const blackoutRequest = () =>
+    new Request("https://yokkai-collec.com/api/booster-opening?kind=blackout");
+  now = Date.parse("2026-11-30T20:59:59+01:00");
+  assert.equal((await GET(blackoutRequest())).status, 200);
+  now = Date.parse("2026-11-30T21:00:00+01:00");
+  assert.equal((await GET(blackoutRequest())).status, 400);
   assert.equal(reads, 1);
 });
 
@@ -706,11 +728,16 @@ test("production proxy origins use configured public site, not localhost or atta
   }
 });
 
-test("opening keeps the matching nebula behind both pack animations", () => {
-  for (const kind of ["regular", "decision"]) {
+test("opening keeps the matching background behind each pack animation", () => {
+  for (const [kind, background] of Object.entries({
+    regular: "/assets/regular-opening-nebula.webp",
+    decision: "/assets/decision-opening-nebula.webp",
+    sunset: "/assets/events/gta-sunset/opening-nebula.webp",
+    blackout: "/assets/events/blackout/opening-nebula.webp"
+  })) {
     assert.ok(
       documentFor(kind).includes(
-        `body{background:#070b13 url("https://yokkai-collec.com/assets/${kind}-opening-nebula.webp") center / cover no-repeat}`
+        `body{background:#070b13 url("https://yokkai-collec.com${background}") center / cover no-repeat}`
       )
     );
   }

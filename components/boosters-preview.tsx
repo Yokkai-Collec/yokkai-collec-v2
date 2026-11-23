@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 import { Boosters, type RevealCard } from "@/components/boosters";
+import {
+  blackoutPreviewEnabled,
+  openBlackoutPreview
+} from "@/lib/data/blackout-preview";
+import type { BoosterKind } from "@/lib/ui/booster-opening-document";
 import type { Rarity } from "@/lib/data/cards";
 
 // Local-only simulation: no RPC, so the complete opening flow (including SSR/LR
@@ -32,13 +37,26 @@ const franchises = [
 
 export function BoostersPreview() {
   const [draw, setDraw] = useState<RevealCard[]>([]);
-  const [drawKind, setDrawKind] = useState<"regular" | "decision">("regular");
+  const [drawKind, setDrawKind] = useState<BoosterKind>("regular");
   const [revealed, setRevealed] = useState(0);
   const [reserve, setReserve] = useState(3);
   const [decisionUsed, setDecisionUsed] = useState(false);
   const [decisionReturn] = useState(() => new Date().setHours(24, 0, 0, 0));
   return (
     <Boosters
+      previewOnly={blackoutPreviewEnabled}
+      clickToOpen={blackoutPreviewEnabled}
+      onOpenBlackout={
+        blackoutPreviewEnabled
+          ? async () => {
+              const cards = await openBlackoutPreview();
+              setDraw(cards);
+              setDrawKind("blackout");
+              setRevealed(0);
+              return cards;
+            }
+          : undefined
+      }
       status={{ available: reserve, maximum: 5, nextPackAt: 4_102_444_800_000 }}
       countdown="42:00"
       // Demo probabilities only; the live page gets these from the server.
@@ -54,7 +72,7 @@ export function BoostersPreview() {
         { rarity: "SSR", percent: 3 },
         { rarity: "LR", percent: 0.5 }
       ]}
-      shinyRate={1}
+      shinyRate={0.5}
       decisionStatus={{
         available: !decisionUsed,
         pending: [],

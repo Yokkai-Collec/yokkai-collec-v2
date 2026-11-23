@@ -1,0 +1,329 @@
+.yk-blackout-layout,
+.yk-blackout-offers {
+  display: grid;
+  min-width: 0;
+  align-items: start;
+}
+
+.yk-blackout-layout {
+  gap: clamp(20px, 2vw, 32px);
+}
+
+.yk-blackout-offers {
+  gap: 12px;
+}
+
+.yk-blackout-storefront {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid #8e79b966;
+  border-radius: 20px;
+  background: linear-gradient(125deg, #181225, #10101a 65%);
+  box-shadow: 0 16px 52px #03020870;
+}
+
+.yk-blackout-store-art {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  height: 222px;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 58%, #6c50a146, transparent 63%),
+    linear-gradient(180deg, #1b122330, #0e09189c),
+    #100b18 url("/assets/events/blackout/opening-nebula.webp") center / cover
+      no-repeat;
+}
+
+.yk-blackout-store-art img {
+  width: auto;
+  height: 88%;
+  max-width: 90%;
+  max-height: 400px;
+  object-fit: contain;
+  transform: rotate(-8deg);
+  filter: hue-rotate(34deg) saturate(0.82) brightness(1.06)
+    drop-shadow(0 14px 14px #0d061b) drop-shadow(0 0 16px #a088ed65);
+}
+
+.yk-blackout-store-info {
+  display: grid;
+  align-content: center;
+  min-width: 0;
+  padding: clamp(16px, 3vw, 36px);
+}
+
+.yk-blackout-store-info h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.55rem, 3.1vw, 2.35rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.035em;
+}
+
+.yk-blackout-shop {
+  display: grid;
+  gap: 13px;
+  margin-top: 15px;
+}
+
+.yk-blackout-price {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  color: var(--color-ink-2);
+  font-size: 0.9rem;
+}
+
+.yk-blackout-price .yk-karas {
+  font-size: 1.75rem;
+  font-weight: 800;
+}
+
+.yk-blackout-shop-status {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 10px 0;
+  border-block: 1px solid #a495c72b;
+}
+
+.yk-blackout-shop-status dt {
+  color: var(--color-ink-2);
+  font-size: 0.75rem;
+  line-height: 1.25;
+}
+
+.yk-blackout-shop-status dd {
+  margin-top: 4px;
+  color: #f3eeff;
+  font-size: clamp(0.83rem, 2.1vw, 1.125rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.yk-blackout-purchase-row {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.yk-blackout-quantity {
+  display: inline-grid;
+  grid-template-columns: 44px 2rem 44px;
+  align-items: stretch;
+  justify-items: center;
+  border: 1px solid #b1a1c445;
+  border-radius: 10px;
+  background: #160f22;
+}
+
+.yk-blackout-quantity button {
+  width: 44px;
+  min-height: 44px;
+  border-radius: 9px;
+  background: transparent;
+  color: #f1eaff;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.yk-blackout-quantity button:not(:disabled):hover {
+  background: #a88fdd22;
+}
+
+.yk-blackout-quantity button:disabled {
+  color: #aaa0bc80;
+}
+
+.yk-blackout-quantity output {
+  align-self: center;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.yk-blackout-purchase-row .yk-blackout-buy {
+  min-width: min(100%, 10rem);
+  min-height: 46px;
+  flex: 1 1 10rem;
+  padding-inline: 11px;
+  border-color: #b9a1f0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #d8c8ff, #b89be9);
+  color: #1b112e;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.yk-blackout-purchase-row .yk-blackout-buy:not(:disabled):hover {
+  background: #e3d6ff;
+  box-shadow: 0 0 20px #bd9bff4d;
+}
+
+.yk-blackout-purchase-row .yk-blackout-buy:disabled {
+  border-color: #afa2c849;
+  background: #261b35;
+  color: #d3c6e9;
+}
+
+.yk-blackout-open-link {
+  justify-self: start;
+  color: #d6c1ff;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.yk-blackout-open-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.yk-blackout-pro-offer {
+  display: grid;
+  gap: 8px;
+  padding: 15px 16px;
+  border: 1px solid #af99d14d;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #241934, #15121f 85%);
+}
+
+.yk-blackout-pro-price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  color: #e1d5f2;
+  font-size: 0.875rem;
+}
+
+.yk-blackout-pro-price strong {
+  color: #f4ecff;
+  font-size: 1.875rem;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.yk-blackout-pro-terms {
+  color: #beb0cf;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.yk-blackout-promo-code {
+  color: #ecd9ff;
+  font-size: inherit;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.yk-blackout-pro-offer .yk-blackout-pro-checkout {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 3px;
+  padding: 7px 14px;
+  border-color: #c7a7fb65;
+  background: #dbcbf8;
+  color: #211531;
+  text-align: center;
+  white-space: normal;
+}
+
+.yk-blackout-pro-offer .yk-blackout-pro-checkout:not(:disabled):hover {
+  background: #efe4ff;
+}
+
+.yk-blackout-roster {
+  container-type: inline-size;
+  min-width: 0;
+}
+
+.yk-blackout-roster ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 90px), 1fr));
+  gap: clamp(8px, 0.85vw, 14px);
+  margin-top: 10px;
+}
+
+.yk-blackout-roster .yk-catalogue-card:focus-visible {
+  outline: 2px solid #d3c0f9;
+  outline-offset: 4px;
+}
+
+@container (min-width: 660px) {
+  .yk-blackout-roster ul {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (44rem <= width < 64rem) {
+  .yk-blackout-storefront {
+    grid-template-columns: 0.88fr 1fr;
+  }
+
+  .yk-blackout-store-art {
+    height: 100%;
+    min-height: 310px;
+    border-inline-end: 1px solid #8e79b947;
+  }
+
+  .yk-blackout-store-art img {
+    height: 94%;
+  }
+}
+
+@media (min-width: 64rem) {
+  .yk-blackout-layout {
+    grid-template-columns: minmax(0, 1fr) clamp(18.25rem, 26vw, 24rem);
+  }
+
+  .yk-blackout-roster ul {
+    /* Fit two rows of 5:7 cards beneath the navigation and page heading. */
+    grid-template-columns: repeat(
+      5,
+      minmax(0, clamp(6.5rem, (100svh - 14.5rem) / 2.8, 12.5rem))
+    );
+  }
+
+  .yk-blackout-store-art {
+    height: clamp(112px, 19svh, 174px);
+  }
+
+  .yk-blackout-store-info {
+    padding: 16px;
+  }
+
+  .yk-blackout-store-info h2 {
+    font-size: clamp(1.4rem, 2vw, 1.75rem);
+  }
+
+  .yk-blackout-shop {
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .yk-blackout-price .yk-karas {
+    font-size: 1.4rem;
+  }
+
+  .yk-blackout-purchase-row .yk-blackout-buy {
+    min-width: min(100%, 7.75rem);
+    flex-basis: 7.75rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .yk-blackout-title {
+    font-size: clamp(1.75rem, 8vw, 2rem);
+  }
+
+  .yk-blackout-quantity {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+}

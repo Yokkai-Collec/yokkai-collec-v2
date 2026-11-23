@@ -230,3 +230,152 @@
     transition: none;
   }
 }
+
+.yk-home-sunset-banner[data-pack-theme="blackout"] {
+  --blackout-light: #f1e9ff;
+  border-color: #695686;
+  background:
+    linear-gradient(
+      100deg,
+      #0e0b15 10%,
+      #151021f5 44%,
+      #17102375 82%,
+      #171023d9
+    ),
+    #14101e url("/assets/events/blackout/opening-nebula.webp") right center /
+      clamp(22rem, 65%, 54rem) auto no-repeat;
+  color: #e2d8ee;
+}
+.yk-home-sunset-banner[data-pack-theme="blackout"]:is(:hover, :focus-visible) {
+  border-color: #c6a9ef;
+  outline-color: #c6a9ef;
+}
+.yk-home-sunset-banner[data-pack-theme="blackout"] .yk-home-sunset-cards {
+  gap: 10px;
+  padding-inline: 12px;
+}
+.yk-home-sunset-banner[data-pack-theme="blackout"] .yk-home-sunset-pack,
+.yk-booster-opening-fallback[data-pack-theme="blackout"] {
+  filter: hue-rotate(34deg) saturate(0.82) brightness(1.06);
+}
+.yk-home-sunset-banner[data-pack-theme="blackout"]
+  :is(strong, .yk-event-banner-arrow) {
+  color: var(--blackout-light);
+}
+.yk-home-sunset-banner[data-pack-theme="blackout"] .yk-home-sunset-action {
+  padding: 6px 10px;
+  border: 1px solid #ae94d4;
+  background: #221931;
+  color: var(--blackout-light);
+}
+.yk-event-card[data-event="black-friday"] {
+  --banner-accent: #b6a8ed;
+  --banner-light: #ede8ff;
+  --banner-glow: #9f85df;
+  --event-banner-title-fill: linear-gradient(#fff, #dacdff 75%, #b2a1e9);
+  border-color: #81709d;
+  background:
+    radial-gradient(ellipse at 83% 50%, #503a6d, transparent 56%),
+    linear-gradient(115deg, #121019 24%, #231a34);
+}
+.yk-event-card[data-event="black-friday"] .yk-event-banner-content {
+  width: 58%;
+}
+.yk-event-card[data-event="black-friday"] h3 {
+  padding-inline-end: 0.2em;
+}
+.yk-pack-grid .yk-sunset-pack-panel[data-pack-theme="blackout"] {
+  --pack-accent: #d0c5fa;
+  --color-pack-glow: #8871c889;
+  --color-pack-shadow: #110b20;
+}
+.yk-pack-grid .yk-sunset-pack-panel[data-pack-theme="blackout"] .yk-pack-image {
+  scale: 1;
+  translate: none;
+  filter: hue-rotate(34deg) saturate(0.82) brightness(1.06)
+    drop-shadow(0 0 18px #a28bee88);
+}
+.yk-pack-grid
+  .yk-sunset-pack-panel[data-pack-theme="blackout"][data-unavailable="true"]
+  .yk-pack-image {
+  filter: saturate(0.34) brightness(0.72);
+}
+.yk-pack-grid
+  .yk-sunset-pack-panel[data-pack-theme="blackout"]
+  .yk-sunset-pack-reserve {
+  color: #d9cefa;
+}
+.yk-pack-panel[data-pack-theme="blackout"] .yk-blackout-pack-info {
+  position: static;
+  align-self: center;
+  width: min(100%, 23rem);
+}
+.yk-pack-panel[data-pack-theme="blackout"] .yk-blackout-pack-info > summary {
+  position: absolute;
+  z-index: 5;
+  inset-block-start: var(--layout-gutter-compact);
+  inset-inline: auto var(--layout-gutter-compact);
+}
+.yk-blackout-pack-info .yk-pack-info-popover {
+  position: static;
+  width: 100%;
+  max-height: none;
+  overflow: visible;
+  margin-bottom: 12px;
+  scroll-margin-block: 5rem 12px;
+}
+.yk-blackout-rate-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 12px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-veil);
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1023px) {
+  .yk-pack-grid[data-blackout-carousel] {
+    position: relative;
+    inset-block-start: 10px;
+  }
+}
+@media (max-width: 700px) {
+  .yk-blackout-pack-info .yk-pack-info-popover {
+    scroll-margin-block-end: calc(
+      64px + max(12px, env(safe-area-inset-bottom))
+    );
+  }
+  /* Keep the stacked Decision Pack below the Regular Pack's batch controls. */
+  .yk-pack-grid[data-blackout-carousel] .yk-pack-carousel-slot .yk-pack-body {
+    min-block-size: 17rem;
+  }
+}
+@media (min-width: 1024px) {
+  .yk-pack-panel[data-pack-theme="blackout"] .yk-blackout-pack-info {
+    position: absolute;
+    inset-inline-end: 0;
+    width: auto;
+  }
+  .yk-pack-panel[data-pack-theme="blackout"] .yk-blackout-pack-info > summary {
+    position: static;
+  }
+  .yk-blackout-pack-info .yk-pack-info-popover {
+    position: absolute;
+    inset-inline: calc(100% + 12px) auto;
+    width: calc(var(--pack-column-gap) - 24px);
+    margin-bottom: 0;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .yk-pack-carousel-slot:has([data-pack-theme="blackout"]) > .yk-pack-panel {
+    animation: yk-blackout-slide-in 220ms var(--ease-standard) both;
+  }
+}
+@keyframes yk-blackout-slide-in {
+  from {
+    opacity: 0;
+    translate: 12px 0;
+  }
+}

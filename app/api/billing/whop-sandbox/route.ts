@@ -28,7 +28,14 @@ async function run(request: Request, checkout: boolean) {
     const billing = whopSandboxService(config);
     if (checkout) {
       await emptyBillingInput(request);
-      return billingReply({ url: await billing.checkout(user.id) });
+      const checkoutUrl = await billing.checkout(user.id);
+      if (new URL(request.url).searchParams.get("offer") !== "blackout")
+        return billingReply({ url: checkoutUrl });
+
+      const { blackFridayTerms } = await import("@/lib/data/blackout-preview");
+      const url = new URL(checkoutUrl);
+      url.searchParams.set("promoCode", blackFridayTerms.promoCode);
+      return billingReply({ url: url.href });
     }
     return billingReply(await billing.status(user.id));
   } catch (error) {

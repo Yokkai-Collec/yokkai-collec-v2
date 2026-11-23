@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui";
+import { BlackoutPreviewReserve } from "@/components/blackout-preview-shop";
 import { useFormatter, useTranslations } from "next-intl";
 import {
   EventBannerArrow,
@@ -12,10 +13,38 @@ import {
   EventBannerFrame
 } from "@/components/event-banner";
 import { YokaiCard } from "@/components/yokai-card";
+import {
+  BLACKOUT_EVENT_PATH,
+  BLACKOUT_SLUG,
+  blackFridayTerms,
+  blackoutCards,
+  blackoutPreviewEnabled
+} from "@/lib/data/blackout-preview";
 import type { Card, CollectedCard } from "@/lib/data/cards";
-import { SUNSET_BOOSTER_IMAGE } from "@/lib/ui/booster-opening-document";
+import {
+  BLACKOUT_BOOSTER_IMAGE,
+  SUNSET_BOOSTER_IMAGE
+} from "@/lib/ui/booster-opening-document";
 import { createClient } from "@/utils/supabase/client";
 import "@/styles/gta-sunset.css";
+
+export { BLACKOUT_SLUG, blackoutPreviewEnabled };
+
+type EventEdition = "sunset" | "blackout";
+
+function eventAppearance(edition: EventEdition) {
+  return edition === "blackout"
+    ? {
+        slug: BLACKOUT_SLUG,
+        image: BLACKOUT_BOOSTER_IMAGE,
+        messages: "blackout" as const
+      }
+    : {
+        slug: "gta-sunset",
+        image: SUNSET_BOOSTER_IMAGE,
+        messages: "gtaSunset" as const
+      };
+}
 
 type SunsetStatus = "upcoming" | "live" | "ended";
 
@@ -26,6 +55,7 @@ type SunsetEvent = {
   packsExpireAt?: string;
   nextResetAt: string | null;
   lrRatePerCard?: number;
+  lrRatePerPack?: number;
   featured: Card[];
   availableDays: string[];
   unlimited?: boolean;
@@ -42,20 +72,65 @@ function nextSunsetCredit(event: SunsetEvent, status: SunsetStatus) {
     : null;
 }
 
-export function useGtaSunsetEvent(enabled = true) {
-  const [event, setEvent] = useState<SunsetEvent | null>(null);
+export function useGtaSunsetEvent(
+  enabled = true,
+  edition: EventEdition = "sunset"
+) {
+  const [event, setEvent] = useState<SunsetEvent | null>(() => {
+    if (edition !== "blackout" || !enabled || !blackoutPreviewEnabled)
+      return null;
+    const now = Date.now();
+    return {
+      serverNow: now,
+      startsAt: new Date(now).toISOString(),
+      endsAt: new Date(now + 86_400_000).toISOString(),
+      nextResetAt: null,
+      availableDays: ["preview"],
+      featured: blackoutCards,
+      openedCards: null,
+      unlimited: true
+    };
+  });
   const [offset, setOffset] = useState(0);
-  const [clock, setClock] = useState(0);
+  const [clock, setClock] = useState(() => event?.serverNow ?? 0);
   const [refresh, setRefresh] = useState(0);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || (edition === "blackout" && blackoutPreviewEnabled)) return;
     let active = true;
     let request = 0;
+    let launchTimer: number | undefined;
     const load = async () => {
       const current = ++request;
-      const { data, error } = await createClient().rpc("get_gta_sunset_event");
-      if (!active || current !== request || error) return;
+      if (edition === "blackout") {
+        const now = Date.now();
+        const untilLaunch = Date.parse(blackFridayTerms.startsAt) - now;
+        if (untilLaunch > 0) {
+          window.clearTimeout(launchTimer);
+          launchTimer = window.setTimeout(
+            load,
+            Math.min(untilLaunch + 500, 2_147_000_000)
+          );
+          return;
+        }
+        if (now >= Date.parse(blackFridayTerms.endsAt)) {
+          setEvent(null);
+          return;
+        }
+      }
+      const { data, error } = await createClient().rpc(
+        edition === "blackout" ? "get_blackout_event" : "get_gta_sunset_event"
+      );
+      if (!active || current !== request) return;
+      if (
+        edition === "blackout" &&
+        !data &&
+        Date.now() < Date.parse(blackFridayTerms.startsAt) + 5 * 60_000
+      ) {
+        window.clearTimeout(launchTimer);
+        launchTimer = window.setTimeout(load, 15_000);
+      }
+      if (error) return;
       const snapshot = data as SunsetEvent | null;
       const now = Date.now();
       setClock(now);
@@ -69,9 +144,10 @@ export function useGtaSunsetEvent(enabled = true) {
     document.addEventListener("visibilitychange", onVisibility);
     return () => {
       active = false;
+      window.clearTimeout(launchTimer);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [enabled, refresh]);
+  }, [edition, enabled, refresh]);
 
   const nextBoundary = event
     ? [event.startsAt, event.endsAt, event.nextResetAt, event.packsExpireAt]
@@ -80,7 +156,11 @@ export function useGtaSunsetEvent(enabled = true) {
         .reduce((earliest, deadline) => Math.min(earliest, deadline), Infinity)
     : Infinity;
   useEffect(() => {
-    if (!Number.isFinite(nextBoundary)) return;
+    if (
+      (edition === "blackout" && blackoutPreviewEnabled) ||
+      !Number.isFinite(nextBoundary)
+    )
+      return;
     const interval = window.setInterval(() => setClock(Date.now()), 1000);
     const reset = window.setTimeout(
       () => {
@@ -93,7 +173,7 @@ export function useGtaSunsetEvent(enabled = true) {
       window.clearInterval(interval);
       window.clearTimeout(reset);
     };
-  }, [nextBoundary, offset]);
+  }, [edition, nextBoundary, offset]);
 
   const now = clock + offset;
   const status: SunsetStatus | undefined = event
@@ -128,9 +208,12 @@ export function useGtaSunsetEvent(enabled = true) {
   };
 }
 
-export function GtaSunsetHomeBanner() {
-  const t = useTranslations("gtaSunset");
-  const { event, now, status, packsExpired } = useGtaSunsetEvent();
+export function GtaSunsetHomeBanner({
+  edition = "sunset"
+}: { edition?: EventEdition } = {}) {
+  const appearance = eventAppearance(edition);
+  const t = useTranslations(appearance.messages);
+  const { event, now, status, packsExpired } = useGtaSunsetEvent(true, edition);
 
   if (!event || !status || packsExpired) return null;
 
@@ -142,10 +225,18 @@ export function GtaSunsetHomeBanner() {
   const deadline = upcoming ? event.startsAt : (nextPack ?? event.endsAt);
 
   return (
-    <Link className="yk-home-sunset-banner" href="/boosters#gta-sunset">
+    <Link
+      className="yk-home-sunset-banner"
+      data-pack-theme={edition}
+      href={
+        edition === "blackout"
+          ? BLACKOUT_EVENT_PATH
+          : `/boosters#${appearance.slug}`
+      }
+    >
       <Image
         className="yk-home-sunset-pack"
-        src={SUNSET_BOOSTER_IMAGE}
+        src={appearance.image}
         width={36}
         height={64}
         alt=""
@@ -157,14 +248,16 @@ export function GtaSunsetHomeBanner() {
             ? event.unlimited
               ? t("unlimitedPacks")
               : t("availablePacks", { count: event.availableDays.length })
-            : t("homeDescription")}
+            : t("homeDescription", { count: event.featured.length })}
         </span>
       </span>
       <SunsetFeaturedCards
-        cards={event.featured}
+        cards={event.featured.slice(0, 2)}
         className="yk-home-sunset-cards"
       />
-      {hasPacks ? (
+      {edition === "blackout" ? (
+        <span className="yk-home-sunset-action">{t("homeOpen")}</span>
+      ) : hasPacks ? (
         <span className="yk-home-sunset-action">
           {t(status === "ended" ? "homeOpenRemaining" : "homeOpen")}
         </span>
@@ -203,40 +296,64 @@ function SunsetFeaturedCards({
 export function GtaSunsetHubCard({
   event,
   now,
-  status
+  status,
+  edition = "sunset"
 }: {
+  edition?: EventEdition;
   event: SunsetEvent;
   now: number;
   status: SunsetStatus;
 }) {
-  const t = useTranslations("gtaSunset");
+  const appearance = eventAppearance(edition);
+  const t = useTranslations(appearance.messages);
   const te = useTranslations("events");
 
   return (
-    <li className="yk-event-card" data-event="gta-sunset">
-      <EventBannerFrame href="/boosters#gta-sunset" label={t("viewBooster")}>
+    <li className="yk-event-card" data-event={appearance.slug}>
+      <EventBannerFrame
+        href={
+          edition === "blackout"
+            ? BLACKOUT_EVENT_PATH
+            : `/boosters#${appearance.slug}`
+        }
+        label={t(edition === "blackout" ? "viewEvent" : "viewBooster")}
+      >
         <div className="yk-event-banner-content">
           <span className="yk-event-frequency">{t("limitedEdition")}</span>
           <h3>{t("title")}</h3>
-          <p className="yk-event-description">{t("hubDescription")}</p>
+          <p className="yk-event-description">
+            {t("hubDescription", { count: event.featured.length })}
+          </p>
         </div>
         <SunsetFeaturedCards
-          cards={event.featured}
+          cards={event.featured.slice(0, 2)}
           className="yk-sunset-hub-art"
         />
         <div className="yk-event-banner-footer">
-          <span className="yk-event-status" data-status={status}>
-            {status === "ended" ? t("endedBadge") : te(status)}
+          <span
+            className="yk-event-status"
+            data-status={
+              edition === "blackout" && blackoutPreviewEnabled
+                ? undefined
+                : status
+            }
+          >
+            {edition === "blackout" && blackoutPreviewEnabled
+              ? t("preview")
+              : status === "ended"
+                ? t("endedBadge")
+                : te(status)}
           </span>
-          {status !== "ended" && (
-            <span className="yk-event-banner-time">
-              <EventBannerClockIcon />
-              <EventBannerCountdown
-                end={status === "live" ? event.endsAt : event.startsAt}
-                now={now}
-              />
-            </span>
-          )}
+          {(edition === "sunset" || !blackoutPreviewEnabled) &&
+            status !== "ended" && (
+              <span className="yk-event-banner-time">
+                <EventBannerClockIcon />
+                <EventBannerCountdown
+                  end={status === "live" ? event.endsAt : event.startsAt}
+                  now={now}
+                />
+              </span>
+            )}
           <EventBannerArrow />
         </div>
       </EventBannerFrame>
@@ -248,14 +365,17 @@ export function GtaSunsetBooster({
   snapshot,
   busy,
   onOpen,
-  onRatesOpen
+  onRatesOpen,
+  edition = "sunset"
 }: {
+  edition?: EventEdition;
   snapshot: ReturnType<typeof useGtaSunsetEvent>;
   busy: boolean;
   onOpen: (trigger: HTMLButtonElement) => void;
   onRatesOpen?: () => void;
 }) {
-  const t = useTranslations("gtaSunset");
+  const appearance = eventAppearance(edition);
+  const t = useTranslations(appearance.messages);
   const format = useFormatter();
   const { event, now, status } = snapshot;
 
@@ -264,42 +384,76 @@ export function GtaSunsetBooster({
   const nextPackDay = availableDays[0];
   const nextCredit = nextSunsetCredit(event, status);
   const deadline = status === "upcoming" ? event.startsAt : nextCredit;
+  const isBlackout = edition === "blackout";
+  const lrRatePerPack = event.lrRatePerPack ?? blackFridayTerms.lrRatePerPack;
+  const lrRatePerCard = isBlackout
+    ? lrRatePerPack / event.featured.length
+    : (event.lrRatePerCard ?? 0.05);
 
-  return (
-    <article
-      className="yk-pack-panel yk-sunset-pack-panel"
-      aria-labelledby="gta-sunset-title"
-      data-unavailable={!nextPackDay}
+  const rates = (
+    <details
+      className={
+        isBlackout
+          ? "yk-pack-info-trigger yk-sunset-pack-info yk-blackout-pack-info"
+          : "yk-pack-info-trigger yk-sunset-pack-info"
+      }
+      onKeyDown={event => {
+        if (event.key !== "Escape" || !event.currentTarget.open) return;
+        event.currentTarget.open = false;
+        event.currentTarget.querySelector("summary")?.focus();
+      }}
+      onToggle={event => {
+        if (!event.currentTarget.open) return;
+        onRatesOpen?.();
+        if (isBlackout)
+          event.currentTarget
+            .querySelector(".yk-pack-info-popover")
+            ?.scrollIntoView({ block: "nearest" });
+      }}
     >
-      <div className="yk-pack-art-stage">
-        <span className="yk-pack-aura" aria-hidden="true" />
-        <span className="yk-pack-floor" aria-hidden="true" />
-        <Image
-          className="yk-pack-image"
-          src={SUNSET_BOOSTER_IMAGE}
-          width={941}
-          height={1671}
-          sizes="(max-width: 700px) 55vw, 340px"
-          alt=""
-        />
-        <details
-          className="yk-pack-info-trigger yk-sunset-pack-info"
-          onToggle={event => {
-            if (event.currentTarget.open) onRatesOpen?.();
-          }}
-          onKeyDown={event => {
-            if (event.key !== "Escape" || !event.currentTarget.open) return;
-            event.currentTarget.open = false;
-            event.currentTarget.querySelector("summary")?.focus();
-          }}
-        >
-          <summary className="yk-pack-info" aria-label={t("viewRates")}>
-            <svg aria-hidden="true" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="9" />
-              <path d="M12 11v6M12 7h.01" />
-            </svg>
-          </summary>
-          <div className="yk-pack-info-popover">
+      <summary className="yk-pack-info" aria-label={t("viewRates")}>
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 11v6M12 7h.01" />
+        </svg>
+      </summary>
+      <div className="yk-pack-info-popover">
+        {isBlackout ? (
+          <>
+            <dl className="yk-pack-rate-summary">
+              <div>
+                <dt>{t("lrChancePerPack")}</dt>
+                <dd>
+                  {format.number(lrRatePerPack, {
+                    style: "percent",
+                    maximumFractionDigits: 2
+                  })}
+                </dd>
+              </div>
+              <div>
+                <dt>{t("lrChanceForOneCard")}</dt>
+                <dd>
+                  {format.number(lrRatePerCard, {
+                    style: "percent",
+                    maximumFractionDigits: 3
+                  })}
+                </dd>
+              </div>
+            </dl>
+            <ul
+              className="yk-blackout-rate-cards"
+              role="list"
+              aria-label={t("roster")}
+            >
+              {event.featured.map(card => (
+                <li key={card.id}>
+                  {card.name.replace(/ \(Blackout\)$/i, "")}
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <>
             <p>{t("cardsPerPack")}</p>
             <dl className="yk-drop-rates">
               {event.featured.map(card => (
@@ -308,7 +462,7 @@ export function GtaSunsetBooster({
                     {card.name} · {card.rarity}
                   </dt>
                   <dd>
-                    {format.number(event.lrRatePerCard ?? 0.05, {
+                    {format.number(lrRatePerCard, {
                       style: "percent",
                       maximumFractionDigits: 2
                     })}
@@ -316,18 +470,46 @@ export function GtaSunsetBooster({
                 </div>
               ))}
             </dl>
-          </div>
-        </details>
+          </>
+        )}
       </div>
+    </details>
+  );
+
+  return (
+    <article
+      className="yk-pack-panel yk-sunset-pack-panel"
+      aria-labelledby={`${appearance.slug}-title`}
+      data-pack-theme={edition}
+      data-unavailable={!nextPackDay}
+    >
+      <div className="yk-pack-art-stage">
+        <span className="yk-pack-aura" aria-hidden="true" />
+        <span className="yk-pack-floor" aria-hidden="true" />
+        <Image
+          className="yk-pack-image"
+          src={appearance.image}
+          width={941}
+          height={1671}
+          sizes="(max-width: 700px) 55vw, 340px"
+          alt=""
+        />
+        {!isBlackout && rates}
+      </div>
+      {isBlackout && rates}
       <div className="yk-pack-body">
-        <h2 id="gta-sunset-title">{t("boosterTitle")}</h2>
+        <h2 id={`${appearance.slug}-title`}>{t("boosterTitle")}</h2>
         <div className="yk-pack-status">
           <p>{t("packSummary")}</p>
-          <p className="yk-pack-reserve yk-sunset-pack-reserve" role="status">
-            {unlimited
-              ? t("unlimitedPacks")
-              : t("availablePacks", { count: availableDays.length })}
-          </p>
+          {isBlackout && blackoutPreviewEnabled ? (
+            <BlackoutPreviewReserve />
+          ) : (
+            <p className="yk-pack-reserve yk-sunset-pack-reserve" role="status">
+              {unlimited
+                ? t("unlimitedPacks")
+                : t("availablePacks", { count: availableDays.length })}
+            </p>
+          )}
           {status === "ended" && nextPackDay && event.packsExpireAt && (
             <p>
               {t("expiresIn")}{" "}

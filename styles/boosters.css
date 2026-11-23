@@ -398,6 +398,9 @@
 .yk-reveal-screen[data-pack-kind="sunset"] {
   --reveal-background: url("/assets/events/gta-sunset/opening-nebula.webp");
 }
+.yk-reveal-screen[data-pack-kind="blackout"] {
+  --reveal-background: url("/assets/events/blackout/opening-nebula.webp");
+}
 .yk-reveal-screen[data-pack-kind="decision"] {
   --reveal-background: url("/assets/decision-opening-nebula.webp");
 }
@@ -488,7 +491,8 @@
   margin: var(--layout-gutter-compact) auto 0;
 }
 @media (width > 40rem) {
-  .yk-reveal-screen[data-pack-kind="sunset"] > .yk-reveal-grid {
+  .yk-reveal-screen:is([data-pack-kind="sunset"], [data-pack-kind="blackout"])
+    > .yk-reveal-grid {
     grid-template-columns: none;
     grid-auto-flow: column;
     grid-auto-columns: calc((100% - 4 * var(--booster-reveal-gap)) / 5);
@@ -941,7 +945,8 @@
   border-top: 1px solid var(--color-veil);
 }
 @media (min-width: 1024px) {
-  .yk-pack-panel:not(.yk-decision-panel) .yk-pack-info-popover {
+  .yk-pack-panel:not(.yk-decision-panel, [data-pack-theme="blackout"])
+    .yk-pack-info-popover {
     inset-inline: calc(100% + 12px) auto;
   }
   .yk-pack-panel .yk-classic-pack-info {

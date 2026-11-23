@@ -535,6 +535,20 @@ export async function openSunsetBooster(packDay: string): Promise<CollectedCard[
   }
 }
 
+export async function openBlackoutBooster(): Promise<CollectedCard[]> {
+  const id = await playerId();
+  try {
+    const { data, error } = await db().rpc("open_blackout_booster", {
+      p_request: crypto.randomUUID()
+    });
+    if (error) throw failure(error);
+    await assertPlayer(id);
+    return await prepareOwnedPack(data as CollectedCard[]);
+  } finally {
+    invalidatePlayerSnapshots(["collection", "profile"]);
+  }
+}
+
 export async function openBooster(): Promise<CollectedCard[]> {
   const id = await playerId();
   try {

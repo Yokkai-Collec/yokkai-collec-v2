@@ -5,7 +5,12 @@ import { useTranslations, useFormatter } from "next-intl";
 import { cardRarityLabel } from "@/lib/ui/card-rarity-label";
 import { ReferralReminder } from "@/components/referral-reminder";
 import { AmbientGlow } from "@/components/ambient-glow";
-import { GtaSunsetBooster, useGtaSunsetEvent } from "@/components/gta-sunset-event";
+import {
+  BLACKOUT_SLUG,
+  blackoutPreviewEnabled,
+  GtaSunsetBooster,
+  useGtaSunsetEvent
+} from "@/components/gta-sunset-event";
 import { packCopySnapshot, packCopyLabels, packRevealWindow, packRareRevealQueue } from "@/lib/ui/pack-opening";
 
 import Link from "next/link";
@@ -1195,8 +1200,18 @@ function subscribePackHash(notify: () => void) {
   return () => window.removeEventListener("hashchange", notify);
 }
 
-const getSunsetHash = () => window.location.hash === "#gta-sunset";
-const getServerSunsetHash = () => false;
+type CarouselPack = Exclude<BoosterKind, "decision">;
+const packHashes: Record<CarouselPack, string> = {
+  regular: "",
+  sunset: "gta-sunset",
+  blackout: BLACKOUT_SLUG
+};
+function getPackFromHash(): CarouselPack {
+  const hash = window.location?.hash.slice(1);
+  if (hash === packHashes.sunset) return "sunset";
+  return hash === packHashes.blackout ? "blackout" : "regular";
+}
+const getServerPack = () => "regular" as const;
 
 export function Boosters({
   previewOnly = false,
@@ -1214,7 +1229,7 @@ export function Boosters({
   decisionCountdown,
   dropRates = [],
   decisionDropRates = DECISION_DROP_RATES,
-  shinyRate = 1,
+  shinyRate = 0.5,
   busy,
   draw,
   drawKind,
@@ -1224,6 +1239,7 @@ export function Boosters({
   onOpen,
   onOpenMany,
   onOpenSunset,
+  onOpenBlackout,
   onKeepDecision,
   onSellDecisionAll,
   onDiscard,
@@ -1262,6 +1278,7 @@ export function Boosters({
   onOpen: (kind: "regular" | "decision") => Promise<RevealCard[] | undefined>;
   onOpenMany?: (count: 1 | 5 | 10) => Promise<RevealCard[] | undefined>;
   onOpenSunset?: (packDay: string) => Promise<CollectedCard[] | undefined>;
+  onOpenBlackout?: () => Promise<CollectedCard[] | undefined>;
   onKeepDecision: (instanceId: string) => Promise<number>;
   onSellDecisionAll?: () => Promise<number>;
   onDiscard: (instanceId: string) => Promise<void>;
@@ -1417,7 +1434,17 @@ export function Boosters({
               }
             }
           : undefined
-        : () => count > 1 && onOpenMany ? onOpenMany(count) : onOpen(kind);
+        : kind === "blackout"
+          ? onOpenBlackout && (blackoutPreviewEnabled || blackout.event?.availableDays.length)
+            ? async () => {
+                try {
+                  return await onOpenBlackout();
+                } finally {
+                  blackout.reload();
+                }
+              }
+            : undefined
+          : () => count > 1 && onOpenMany ? onOpenMany(count) : onOpen(kind);
     if (!openCards) return;
     openingTrigger.current = trigger ?? (document.activeElement instanceof HTMLElement && document.activeElement.tabIndex >= 0 ? document.activeElement : null);
     openingLock.current = true;
@@ -1517,24 +1544,44 @@ export function Boosters({
   }, []);
   const tSunset = useTranslations("gtaSunset");
   const sunset = useGtaSunsetEvent(!previewOnly && !!onOpenSunset);
-  const linkedToSunset = useSyncExternalStore(subscribePackHash, getSunsetHash, getServerSunsetHash);
-  const [sunsetSelected, setSunsetSelected] = useState<boolean | null>(null);
-  const wantsSunset = sunsetSelected ?? linkedToSunset;
+  const tBlackout = useTranslations("blackout");
+  const blackout = useGtaSunsetEvent(
+    !!onOpenBlackout,
+    "blackout"
+  );
+  const linkedPack = useSyncExternalStore(
+    subscribePackHash,
+    getPackFromHash,
+    getServerPack
+  );
+  const wantsSunset = linkedPack === "sunset";
   const hasSunset = Boolean(!sunset.packsExpired && sunset.event && (
     sunset.status !== "ended" || sunset.event.availableDays.length > 0 ||
     (wantsSunset && sunset.event.openedCards)
   ));
-  const showSunset = hasSunset && wantsSunset;
+  const hasBlackout = !!blackout.event && !!onOpenBlackout && !blackout.packsExpired;
+  const carouselPacks: CarouselPack[] = ["regular"];
+  if (hasSunset) carouselPacks.push("sunset");
+  if (hasBlackout) carouselPacks.push("blackout");
+  const selectedPack = carouselPacks.includes(linkedPack) ? linkedPack : "regular";
+  const nextPack = carouselPacks[(carouselPacks.indexOf(selectedPack) + 1) % carouselPacks.length];
+  const arrowLabel = nextPack === "blackout"
+    ? tBlackout("switchToBlackout")
+    : tSunset(nextPack === "regular" ? "switchToRegular" : "switchToSunset");
+  const showBlackout = selectedPack === "blackout";
+  const showSunset = selectedPack === "sunset";
+  const blackoutDraw = drawKind === "blackout";
+  const previewBlackoutDraw = blackoutDraw && blackoutPreviewEnabled;
   const sunsetDraw = drawKind === "sunset";
   const collectionDraw = drawKind !== "decision";
   const sunsetRemaining = sunset.event?.availableDays.length ?? 0;
 
-  function switchPack(selected: boolean) {
+  function switchPack(selected: CarouselPack) {
     closeRates();
-    setSunsetSelected(selected);
     const url = new URL(window.location.href);
-    url.hash = selected ? "gta-sunset" : "";
+    url.hash = packHashes[selected];
     window.history.replaceState(window.history.state, "", url);
+    window.dispatchEvent(new Event("hashchange"));
   }
 
   const formatRate = (percent: number) =>
@@ -1655,9 +1702,9 @@ export function Boosters({
         <BoosterReveal
           packCount={drawKind === "regular" ? activePackCount : 1}
           packKind={drawKind}
-          packLabel={sunsetDraw ? tSunset("boosterTitle") : undefined}
-          previewOnly={localPreview}
-          onComplete={localPreview ? () => setShowDraw(false) : undefined}
+          packLabel={blackoutDraw ? tBlackout("boosterTitle") : sunsetDraw ? tSunset("boosterTitle") : undefined}
+          previewOnly={localPreview || previewBlackoutDraw}
+          onComplete={localPreview || previewBlackoutDraw ? () => setShowDraw(false) : undefined}
           key={draw[0].instanceId}
           cards={revealCards}
           collection={collection}
@@ -1667,22 +1714,22 @@ export function Boosters({
           onReveal={onReveal}
           onReturn={() => setShowDraw(false)}
           onNext={collectionDraw ? () => start(drawKind) : undefined}
-          nextDisabled={busy || (sunsetDraw ? sunsetRemaining === 0 : !status || status.available < selectedCount)}
-          nextRemaining={sunsetDraw ? (sunset.event?.unlimited ? undefined : sunsetRemaining) : status?.available}
+          nextDisabled={busy || (blackoutDraw ? !previewBlackoutDraw && !(blackout.event?.availableDays.length) : (sunsetDraw ? sunsetRemaining === 0 : !status || status.available < selectedCount))}
+          nextRemaining={blackoutDraw ? (previewBlackoutDraw ? undefined : blackout.event?.availableDays.length ?? 0) : sunsetDraw ? (sunset.event?.unlimited ? undefined : sunsetRemaining) : status?.available}
           nextLabel={
-            sunsetDraw ? tp("nextPack") : status?.available === 0 ? tp("nextIn", { time: countdown }) : selectedCount > 1 ? tp("nextPacks", { count: selectedCount }) : tp("nextPack")
+            blackoutDraw || sunsetDraw ? tp("nextPack") : status?.available === 0 ? tp("nextIn", { time: countdown }) : selectedCount > 1 ? tp("nextPacks", { count: selectedCount }) : tp("nextPack")
           }
-          onDiscard={(!localPreview || simulateActions) && collectionDraw ? onDiscard : undefined}
+          onDiscard={!previewBlackoutDraw && (!localPreview || simulateActions) && collectionDraw ? onDiscard : undefined}
           onDiscardMany={
-            (!localPreview || simulateActions) && collectionDraw
+            !previewBlackoutDraw && (!localPreview || simulateActions) && collectionDraw
               ? onDiscardMany
               : undefined
           }
-          onAuction={collectionDraw ? onAuction : undefined}
-          onMoveCard={collectionDraw ? onMoveCard : undefined}
-          onSetLocked={collectionDraw ? onSetLocked : undefined}
-          onEvolve={collectionDraw ? onEvolve : undefined}
-          onSetCustomImage={collectionDraw ? onSetCustomImage : undefined}
+          onAuction={collectionDraw && !previewBlackoutDraw ? onAuction : undefined}
+          onMoveCard={collectionDraw && !previewBlackoutDraw ? onMoveCard : undefined}
+          onSetLocked={collectionDraw && !previewBlackoutDraw ? onSetLocked : undefined}
+          onEvolve={collectionDraw && !previewBlackoutDraw ? onEvolve : undefined}
+          onSetCustomImage={collectionDraw && !previewBlackoutDraw ? onSetCustomImage : undefined}
           decision={
             drawKind === "decision"
               ? {
@@ -1711,10 +1758,18 @@ export function Boosters({
           onStopSound={onStopSound}
         />
       ) : (
-        <div ref={packGrid} className="yk-pack-grid">
+        <div ref={packGrid} className="yk-pack-grid" data-blackout-carousel={hasBlackout || undefined}>
           <AmbientGlow />
-          <div className="yk-pack-carousel-slot" id={hasSunset ? "gta-sunset" : undefined}>
-          {showSunset ? (
+          <div className="yk-pack-carousel-slot" id={showBlackout ? BLACKOUT_SLUG : hasSunset ? "gta-sunset" : undefined}>
+          {showBlackout ? (
+            <GtaSunsetBooster
+              edition="blackout"
+              snapshot={blackout}
+              busy={busy}
+              onRatesOpen={closeRates}
+              onOpen={trigger => start("blackout", trigger)}
+            />
+          ) : showSunset ? (
             <GtaSunsetBooster
               snapshot={sunset}
               busy={busy}
@@ -1815,14 +1870,14 @@ export function Boosters({
             </div>
           </article>
           )}
-          {hasSunset && (
+          {carouselPacks.length > 1 && (
             <button
               type="button"
               className="yk-pack-carousel-arrow"
-              aria-label={tSunset(showSunset ? "switchToRegular" : "switchToSunset")}
-              title={tSunset(showSunset ? "switchToRegular" : "switchToSunset")}
-              data-direction={showSunset ? "back" : "next"}
-              onClick={() => switchPack(!showSunset)}
+              aria-label={arrowLabel}
+              title={arrowLabel}
+              data-direction={nextPack === "regular" ? "back" : "next"}
+              onClick={() => switchPack(nextPack)}
             >
               <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 12h14m-6-6 6 6-6 6" />

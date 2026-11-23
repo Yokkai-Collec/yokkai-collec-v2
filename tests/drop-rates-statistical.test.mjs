@@ -69,9 +69,11 @@ test("effective SQL drop expressions match advertised rates and real authenticat
     { rarity: "SSR", percent: 3 },
     { rarity: "LR", percent: 0.5 }
   ]);
-  assert.equal(info.shinyRate, 1);
+  assert.equal(info.shinyRate, 0.5);
   const regular = await definition(db, "open_regular_pack"),
-    decision = await definition(db, "open_decision_pack");
+    decision = await definition(db, "open_decision_pack"),
+    referral = await definition(db, "settle_referral_events");
+  assert.match(referral, /shiny\s*:=\s*random\(\)\s*<\s*0\.005\s*;/);
   await db.exec("select setseed(0.314159)");
   const n = 200_000;
   await histogram(db, regular, info.dropRates, n);
