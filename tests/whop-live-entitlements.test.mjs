@@ -369,7 +369,7 @@ test("new Whop checkouts reuse the same server-owned reference and reject change
       billing_period: 30,
       initial_price: 0,
       renewal_price: 4.99,
-      trial_period_days: 3
+      trial_period_days: null
     }
   };
   const attempt = {
@@ -416,20 +416,39 @@ test("new Whop checkouts reuse the same server-owned reference and reject change
     db
   );
   attempt.checkout_id = null;
-  await assert.rejects(
-    openWhopCheckout(
+  for (const changed of [
+    { renewal_price: 9.99 },
+    { trial_period_days: 3 },
+    { trial_period_days: undefined }
+  ]) {
+    await assert.rejects(
+      openWhopCheckout(
+        "player",
+        env,
+        async () =>
+          Response.json({
+            ...checkout,
+            variant: { ...checkout.variant, ...changed }
+          }),
+        db
+      ),
+      /CHECKOUT_MISMATCH/
+    );
+    assert.equal(attempt.checkout_id, null);
+  }
+  assert.equal(
+    await openWhopCheckout(
       "player",
       env,
       async () =>
         Response.json({
           ...checkout,
-          variant: { ...checkout.variant, renewal_price: 9.99 }
+          variant: { ...checkout.variant, trial_period_days: 0 }
         }),
       db
     ),
-    /CHECKOUT_MISMATCH/
+    "https://whop.com/checkout/ch_server"
   );
-  assert.equal(attempt.checkout_id, null);
 });
 
 test("an eligible Whop trial grants access for its verified period and cannot be extended indefinitely", async () => {

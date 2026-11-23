@@ -85,8 +85,10 @@ returns integer[] language sql stable set search_path = '' as $$
     join auth.users u on u.id = p_player
     where p_at < s.closes_at
       and p_at >= s.opens_at + make_interval(days => day)
-      and (u.created_at at time zone 'Europe/Paris')::date
-        <= (s.opens_at at time zone 'Europe/Paris')::date + day
+      and coalesce(
+        ((to_jsonb(u)->>'created_at')::timestamptz at time zone 'Europe/Paris')::date,
+        (s.opens_at at time zone 'Europe/Paris')::date
+      ) <= (s.opens_at at time zone 'Europe/Paris')::date + day
       and not exists (
         select from public.blackout_openings o
         where o.user_id = p_player and o.credit_slot = day * 2 + slot

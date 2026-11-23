@@ -46,6 +46,13 @@ export async function checkWhopSetup(env, request = fetch) {
   if (variant?.account?.id !== accountId || variant.id !== planId)
     throw new Error("WHOP_SETUP_ACCOUNT_OR_PLAN_MISMATCH");
 
+  const trialDays = mode === "sandbox" ? 3 : 0;
+  const trialMatches =
+    mode === "sandbox"
+      ? variant.trial_period_days === trialDays
+      : variant.trial_period_days === null ||
+        variant.trial_period_days === trialDays;
+
   if (
     !/^prod_[A-Za-z0-9]+$/.test(variant.product?.id ?? "") ||
     !["visible", "hidden", "quick_link"].includes(variant.visibility) ||
@@ -55,7 +62,7 @@ export async function checkWhopSetup(env, request = fetch) {
     variant.currency !== "eur" ||
     variant.renewal_price !== 4.99 ||
     variant.initial_price !== 0 ||
-    variant.trial_period_days !== 3 ||
+    !trialMatches ||
     variant.tax_type !== "exclusive"
   )
     throw new Error("WHOP_SETUP_PLAN_TERMS_MISMATCH");
@@ -66,7 +73,7 @@ export async function checkWhopSetup(env, request = fetch) {
     renewalAmountInCents: 499,
     currency: "eur",
     billingPeriodDays: 30,
-    trialDays: 3,
+    trialDays,
     taxType: "exclusive"
   };
 }
