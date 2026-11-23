@@ -123,6 +123,69 @@
   line-height: 1.3;
   letter-spacing: -0.025em;
 }
+.yk-lr-pity {
+  display: grid;
+  width: min(100%, 280px);
+  gap: 3px;
+  margin-block-start: 10px;
+  padding: 4px 9px;
+  border: 1px solid #665333;
+  border-radius: 8px;
+  background: linear-gradient(120deg, #242017, #11131e 80%);
+  color: #c6bbac;
+  text-align: left;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.yk-lr-pity-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  column-gap: 8px;
+}
+.yk-lr-pity-header strong {
+  color: #ffe1a2;
+  font-size: 12px;
+}
+.yk-lr-pity[data-next="true"] {
+  border-color: #bb924a;
+}
+.yk-lr-pity[data-next="true"] .yk-lr-pity-header span {
+  color: #ffe1a2;
+  font-weight: 700;
+}
+.yk-lr-pity-meter {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.25;
+}
+.yk-lr-pity-track {
+  display: block;
+  width: 100%;
+  height: 5px;
+  appearance: none;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #302a33;
+  color: #f6c967;
+  accent-color: #f6c967;
+}
+.yk-lr-pity-track::-webkit-progress-bar {
+  border-radius: inherit;
+  background: #302a33;
+}
+.yk-lr-pity-track::-webkit-progress-value {
+  border-radius: inherit;
+  background: linear-gradient(90deg, #b78943, #ffdda0);
+}
+.yk-lr-pity-track::-moz-progress-bar {
+  border-radius: inherit;
+  background: linear-gradient(90deg, #b78943, #ffdda0);
+}
+
 .yk-pack-grid .yk-pack-panel .yk-pack-status {
   display: flex;
   flex-direction: column;
@@ -437,8 +500,37 @@
   }
 }
 
+/* Keep the progress on its own row so both pack bodies end at their buttons. */
+.yk-pack-grid:has(> .yk-lr-pity) {
+  row-gap: 0;
+}
+.yk-pack-grid > .yk-lr-pity {
+  grid-column: 1;
+  justify-self: center;
+}
+@media (min-width: 701px) {
+  .yk-pack-grid > .yk-lr-pity {
+    grid-row: 2;
+    width: min(calc(100% - 32px), 280px);
+  }
+  .yk-pack-grid:has(> .yk-lr-pity) .yk-pack-body {
+    flex: 1;
+  }
+  .yk-pack-grid:has(> .yk-lr-pity) .yk-pack-panel .yk-pack-body > .yk-button {
+    margin-top: auto;
+  }
+}
+@media (max-width: 700px) {
+  .yk-pack-grid:has(> .yk-lr-pity) > .yk-decision-panel {
+    margin-block-start: 56px;
+  }
+}
+
 /* Keep the idle Packs controls above the two direct choices. */
 @media (min-width: 1024px) and (min-height: 701px) {
+  .yk-game-main:has(.yk-lr-pity) {
+    --pack-pity-space: 40px;
+  }
   .yk-boosters-page
     .yk-game-main:has(.yk-referral-reminder--boosters)
     .yk-pack-grid
@@ -446,7 +538,13 @@
     .yk-pack-art-stage {
     height: clamp(
       64px,
-      min(36svh, calc(100svh - 480px - var(--pack-choices-height, 80px))),
+      min(
+        36svh,
+        calc(
+          100svh - 480px - var(--pack-choices-height, 80px) -
+            var(--pack-pity-space, 0px)
+        )
+      ),
       400px
     );
   }

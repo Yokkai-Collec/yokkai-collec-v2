@@ -406,13 +406,12 @@ export function Game({
         setDrawKind(kind);
         setRevealed(0);
         setBusy(false);
+        void getPackStatus().then(setStatus, () => undefined);
         void Promise.all([
-          getPackStatus(),
           getDecisionPackStatus(),
           getUserCollection(false)
         ]).then(
-          ([packs, decision, cards]) => {
-            setStatus(packs);
+          ([decision, cards]) => {
             setDecisionStatus(decision);
             setCollection(cards);
           },
@@ -424,10 +423,10 @@ export function Game({
         setError(
           e instanceof Error ? gameErrorKey(e) : "gameUi.couldntOpenThisPack"
         );
+        if (batch) void getPackStatus().then(setStatus, () => undefined);
         throw e;
       } finally {
         setBusy(false);
-        if (batch) void getPackStatus().then(setStatus, () => undefined);
       }
     });
   }

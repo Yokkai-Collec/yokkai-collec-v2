@@ -63,6 +63,7 @@ export type PackStatus = {
   nextPackAt: number | null;
   reserve?: number;
   bonus?: number;
+  lrPity?: { opened: number; target: number };
 };
 export type DecisionPackStatus = {
   available: boolean; nextPackAt: number; pending: (CollectedCard & { discarded?: boolean })[];
@@ -490,7 +491,8 @@ export async function getPackStatus(sharePending = false): Promise<PackStatus> {
   // Display clock only: availability and consumption always use database time.
   return { available: status.available, maximum: status.maximum,
     nextPackAt: status.nextPackAt === null ? null : Date.now() + status.nextPackAt - status.serverNow,
-    reserve: status.reserve, bonus: status.bonus };
+    reserve: status.reserve, bonus: status.bonus,
+    ...(status.lrPity ? { lrPity: status.lrPity } : {}) };
 }
 
 export async function getDecisionPackStatus(includeCardDetails = true): Promise<DecisionPackStatus> {
