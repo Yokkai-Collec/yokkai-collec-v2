@@ -500,8 +500,30 @@
   }
 }
 
-.yk-pack-grid:has(.yk-lr-pity) .yk-pack-panel .yk-pack-body > .yk-button {
-  margin-top: 0;
+/* Keep the progress on its own row so both pack bodies end at their buttons. */
+.yk-pack-grid:has(> .yk-lr-pity) {
+  row-gap: 0;
+}
+.yk-pack-grid > .yk-lr-pity {
+  grid-column: 1;
+  justify-self: center;
+}
+@media (min-width: 701px) {
+  .yk-pack-grid > .yk-lr-pity {
+    grid-row: 2;
+    width: min(calc(100% - 32px), 280px);
+  }
+  .yk-pack-grid:has(> .yk-lr-pity) .yk-pack-body {
+    flex: 1;
+  }
+  .yk-pack-grid:has(> .yk-lr-pity) .yk-pack-panel .yk-pack-body > .yk-button {
+    margin-top: auto;
+  }
+}
+@media (max-width: 700px) {
+  .yk-pack-grid:has(> .yk-lr-pity) > .yk-decision-panel {
+    margin-block-start: 56px;
+  }
 }
 
 /* Keep the idle Packs controls above the two direct choices. */

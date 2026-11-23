@@ -1874,33 +1874,6 @@ export function Boosters({
               >
                 {status?.available === 0 ? tp("nextIn", { time: countdown }) : selectedCount > 1 ? tp("openBatch", { count: selectedCount }) : tp("open")}
               </Button>
-              {process.env.NODE_ENV === "development" && (
-                <div className="yk-lr-pity" data-next={pityRemaining === 1}>
-                  <div className="yk-lr-pity-header">
-                    <strong>{tp("lrPityTitle")}</strong>
-                    <span>
-                      {pityRemaining === 1
-                        ? tp("lrPityNextPack")
-                        : tp("lrPityRemaining", { count: pityRemaining })}
-                    </span>
-                  </div>
-                  <div className="yk-lr-pity-meter">
-                    <progress
-                      className="yk-lr-pity-track"
-                      aria-label={tp("lrPityTitle")}
-                      aria-valuetext={tp("lrPityProgress", {
-                        opened: pityPreviewOpened,
-                        total: LR_PITY_PACKS
-                      })}
-                      value={pityPreviewOpened}
-                      max={LR_PITY_PACKS}
-                    />
-                    <span aria-hidden="true">
-                      {format.number(pityPreviewOpened)} / {format.number(LR_PITY_PACKS)}
-                    </span>
-                  </div>
-                </div>
-              )}
             </div>
           </article>
           )}
@@ -1919,6 +1892,33 @@ export function Boosters({
             </button>
           )}
           </div>
+          {process.env.NODE_ENV === "development" && selectedPack === "regular" && (
+            <div className="yk-lr-pity" data-next={pityRemaining === 1}>
+              <div className="yk-lr-pity-header">
+                <strong>{tp("lrPityTitle")}</strong>
+                <span>
+                  {pityRemaining === 1
+                    ? tp("lrPityNextPack")
+                    : tp("lrPityRemaining", { count: pityRemaining })}
+                </span>
+              </div>
+              <div className="yk-lr-pity-meter">
+                <progress
+                  className="yk-lr-pity-track"
+                  aria-label={tp("lrPityTitle")}
+                  aria-valuetext={tp("lrPityProgress", {
+                    opened: pityPreviewOpened,
+                    total: LR_PITY_PACKS
+                  })}
+                  value={pityPreviewOpened}
+                  max={LR_PITY_PACKS}
+                />
+                <span aria-hidden="true">
+                  {format.number(pityPreviewOpened)} / {format.number(LR_PITY_PACKS)}
+                </span>
+              </div>
+            </div>
+          )}
           <article
             className="yk-pack-panel yk-decision-panel"
             data-unavailable={
