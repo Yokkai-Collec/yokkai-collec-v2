@@ -1,29 +1,37 @@
 begin;
 
--- Expose an earned legacy reward through the existing bonus action while
--- the catalogue tier is still incomplete.
-do $migration$
+alter function public.get_achievement_catalogue()
+  rename to get_achievement_catalogue_before_legacy_reward;
+revoke all on function public.get_achievement_catalogue_before_legacy_reward()
+  from public, anon, authenticated, service_role;
+
+create function public.get_achievement_catalogue()
+returns jsonb language plpgsql volatile security definer set search_path='' as $$
 declare
-  definition text;
-  marker text := '''upgradeReward'',case when b.claimed_at is null then coalesce(b.reward,0) else 0 end';
-  replacement text := $sql$'upgradeReward',case
-    when a.id='transcendance' and u.completed_at is null then coalesce((
-      select original.karas_reward
-      from public.user_achievements earned
-      join public.achievements original on original.id=earned.achievement_id
-      where earned.user_id=player and earned.achievement_id=a.id
-        and earned.completed_at is not null and earned.claimed_at is null
-    ),0)
-    when b.claimed_at is null then coalesce(b.reward,0)
-    else 0 end$sql$;
+  catalogue jsonb := public.get_achievement_catalogue_before_legacy_reward();
+  legacy_reward integer;
 begin
-  definition := pg_get_functiondef('public.get_achievement_catalogue()'::regprocedure);
-  if length(definition)-length(replace(definition,marker,'')) <> length(marker) then
-    raise exception 'Unexpected achievement catalogue definition';
-  end if;
-  execute replace(definition,marker,replacement);
+  select original.karas_reward into legacy_reward
+  from public.user_achievements earned
+  join public.achievements original on original.id=earned.achievement_id
+  where earned.user_id=auth.uid() and earned.achievement_id='transcendance'
+    and earned.completed_at is not null and earned.claimed_at is null;
+  if legacy_reward is null then return catalogue; end if;
+
+  return (
+    select jsonb_agg(
+      case when item->>'id'='transcendance' and item->>'completedAt' is null
+        then jsonb_set(item,'{upgradeReward}',to_jsonb(legacy_reward))
+        else item end
+      order by position
+    )
+    from jsonb_array_elements(catalogue) with ordinality as entries(item,position)
+  );
 end;
-$migration$;
+$$;
+revoke all on function public.get_achievement_catalogue()
+  from public, anon, authenticated, service_role;
+grant execute on function public.get_achievement_catalogue() to authenticated;
 
 create or replace function public.claim_achievement_upgrade(p_achievement_id text)
 returns jsonb language plpgsql volatile security definer set search_path='' as $$
