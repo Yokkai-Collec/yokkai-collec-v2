@@ -126,11 +126,11 @@
 .yk-lr-pity {
   display: grid;
   width: min(100%, 280px);
-  gap: 5px;
-  margin: 0 0 8px;
-  padding: 9px 11px;
+  gap: 3px;
+  margin-block-start: 10px;
+  padding: 4px 9px;
   border: 1px solid #665333;
-  border-radius: 10px;
+  border-radius: 8px;
   background: linear-gradient(120deg, #242017, #11131e 80%);
   color: #c6bbac;
   text-align: left;
@@ -146,7 +146,7 @@
 }
 .yk-lr-pity-header strong {
   color: #ffe1a2;
-  font-size: 13px;
+  font-size: 12px;
 }
 .yk-lr-pity[data-next="true"] {
   border-color: #bb924a;
@@ -154,6 +154,13 @@
 .yk-lr-pity[data-next="true"] .yk-lr-pity-header span {
   color: #ffe1a2;
   font-weight: 700;
+}
+.yk-lr-pity-meter {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.25;
 }
 .yk-lr-pity-track {
   display: block;
@@ -493,10 +500,14 @@
   }
 }
 
+.yk-pack-grid:has(.yk-lr-pity) .yk-pack-panel .yk-pack-body > .yk-button {
+  margin-top: 0;
+}
+
 /* Keep the idle Packs controls above the two direct choices. */
 @media (min-width: 1024px) and (min-height: 701px) {
   .yk-game-main:has(.yk-lr-pity) {
-    --pack-pity-space: 56px;
+    --pack-pity-space: 40px;
   }
   .yk-boosters-page
     .yk-game-main:has(.yk-referral-reminder--boosters)
