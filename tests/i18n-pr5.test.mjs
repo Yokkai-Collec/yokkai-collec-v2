@@ -58,7 +58,7 @@ const golden = {
     privacy: "1d1c326d87dde2527feb6870a1e81c1c51ed509e81964fe17a8e941acbe93e10", // Includes the one-time community gifts and their retention; exact HTML assertion retained.
     rules: "984e1a56cd9b0dbd51aeb7b8dc1b86943712230bebe49d4d43afe0115f1951f7",
     info: "3a7002eef8f2ed6df50e903ee49da122249f279aef77fc2d6ffcf199e879cc22",
-    rarities: "90565ea6e0575e80508ab3eb11e26b056cef65d60659e906cf4f4de42c348b9d"
+    rarities: "4da4adff1f11727e5c322ecf1f505bb337bbfc29ed145c84a982b921ba299cf1"
   }
 };
 function protectedParts(file, source) {

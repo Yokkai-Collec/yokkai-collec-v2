@@ -40,7 +40,7 @@ export default async function RaritiesPage() {
           <div className="yk-rarity-row" data-rarity="LR-SHINY">
             <strong>LR SHINY</strong>
             <span>Legendary Rare · Shiny</span>
-            <b>0.001%</b>
+            <b>0.0005%</b>
           </div>
         </div>
         <p>{t("theFirstFivePercentagesAreTheCurrent")}</p>
