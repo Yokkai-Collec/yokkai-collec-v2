@@ -8,20 +8,22 @@ revoke all on function public.get_achievement_catalogue_before_legacy_reward()
 create function public.get_achievement_catalogue()
 returns jsonb language plpgsql volatile security definer set search_path='' as $$
 declare
-  catalogue jsonb := public.get_achievement_catalogue_before_legacy_reward();
+  catalogue jsonb;
   legacy_reward integer;
 begin
+  perform public.assert_player_not_banned();
+  catalogue := public.get_achievement_catalogue_before_legacy_reward();
+
   select original.karas_reward into legacy_reward
   from public.user_achievements earned
   join public.achievements original on original.id=earned.achievement_id
   where earned.user_id=auth.uid() and earned.achievement_id='transcendance'
     and earned.completed_at is not null and earned.claimed_at is null;
-  if legacy_reward is null then return catalogue; end if;
 
   return (
     select jsonb_agg(
       case when item->>'id'='transcendance' and item->>'completedAt' is null
-        then jsonb_set(item,'{upgradeReward}',to_jsonb(legacy_reward))
+        then jsonb_set(item,'{upgradeReward}',to_jsonb(coalesce(legacy_reward,0)))
         else item end
       order by position
     )
