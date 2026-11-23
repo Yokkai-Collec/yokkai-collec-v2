@@ -237,3 +237,62 @@ test("personal export includes own progress and claims without internal counterp
     /permission denied/
   );
 });
+
+test("legacy Transcendence can be claimed while Evolution is incomplete", async t => {
+  const { db } = await replayMigrations();
+  t.after(() => db.close());
+  await db.query(
+    `insert into auth.users(id,raw_user_meta_data) values($1,'{"pseudo":"LegacyEvolution"}')`,
+    [user]
+  );
+  await db.query(
+    `insert into public.user_achievements(user_id,achievement_id,completed_at)
+     values($1,'transcendance',now())`,
+    [user]
+  );
+  await db.query("select set_config('request.jwt.claim.sub',$1,false)", [user]);
+  await db.exec("set role authenticated");
+  async function evolution() {
+    const { rows } = await db.query(
+      "select public.get_achievement_catalogue() result"
+    );
+    return rows[0].result.find(item => item.id === "transcendance");
+  }
+  const incomplete = await evolution();
+  assert.equal(incomplete.progressCurrent, 0);
+  assert.equal(incomplete.completedAt, null);
+  assert.equal(incomplete.upgradeReward, 100);
+  await assert.rejects(
+    db.query("select public.claim_catalogue_achievement('transcendance')"),
+    /ACHIEVEMENT_LOCKED/
+  );
+
+  const { rows } = await db.query(
+    "select public.claim_achievement_upgrade('transcendance') result"
+  );
+  assert.equal(rows[0].result.reward, 100);
+  assert.equal(rows[0].result.claimedAt, null);
+  assert.equal((await evolution()).upgradeReward, 0);
+  await assert.rejects(
+    db.query("select public.claim_achievement_upgrade('transcendance')"),
+    /ACHIEVEMENT_ALREADY_CLAIMED/
+  );
+
+  await db.exec("reset role");
+  await db.query(
+    "insert into public.user_progress_counters values($1,'ssr_infinity',1)",
+    [user]
+  );
+  await db.exec("set role authenticated");
+  const completed = await evolution();
+  assert.ok(completed.completedAt);
+  assert.equal(completed.upgradeReward, 900);
+  const finalClaim = await db.query(
+    "select public.claim_achievement_upgrade('transcendance') result"
+  );
+  assert.equal(finalClaim.rows[0].result.reward, 900);
+  await assert.rejects(
+    db.query("select public.claim_achievement_upgrade('transcendance')"),
+    /ACHIEVEMENT_ALREADY_CLAIMED/
+  );
+});
