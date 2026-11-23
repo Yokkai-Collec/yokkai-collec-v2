@@ -1,0 +1,258 @@
+/* The economy console follows the admin panels and dark game palette. */
+.yk-econ-page {
+  max-width: 90rem;
+  min-width: 0;
+  margin-inline: auto;
+  padding: clamp(1rem, 3vw, 2.25rem);
+  display: grid;
+  gap: 1rem;
+}
+.yk-econ-page header {
+  display: grid;
+  gap: 0.35rem;
+}
+.yk-econ-note {
+  color: #a6b5cf;
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+.yk-econ-tabs,
+.yk-econ-pages,
+.yk-econ-view-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+.yk-econ-tabs a,
+.yk-econ-pages a,
+.yk-econ-view-toggle a {
+  min-height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid #263b59;
+  border-radius: 0.5rem;
+  background: #0b1424;
+  color: #c8d5ea;
+  font-size: 0.875rem;
+}
+.yk-econ-tabs a[aria-current],
+.yk-econ-view-toggle a[aria-current] {
+  background: #163344;
+  border-color: #417d99;
+  color: #d6f4fa;
+}
+.yk-econ-filters {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.yk-econ-filters label {
+  display: grid;
+  gap: 0.35rem;
+  flex: 1 1 10rem;
+  max-width: 22rem;
+  min-width: 0;
+  color: #c8d5ea;
+  font-size: 0.8125rem;
+}
+.yk-econ-filters :is(input, select):not([type="hidden"]) {
+  width: 100%;
+  min-height: 2.625rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid #344968;
+  border-radius: 0.5rem;
+  background: #0a1120;
+  color-scheme: dark;
+  color: #edf4ff;
+}
+.yk-econ-filters > button {
+  min-height: 2.625rem;
+}
+.yk-econ-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: 0.75rem;
+}
+.yk-econ-kpi,
+.yk-econ-panel {
+  min-width: 0;
+  background: linear-gradient(150deg, #101c2e, #0a1220 70%);
+  border: 1px solid #273955;
+  border-radius: 0.875rem;
+  padding: clamp(0.875rem, 2vw, 1.3rem);
+}
+.yk-econ-kpi {
+  display: grid;
+  gap: 0.35rem;
+  align-content: start;
+  overflow-wrap: anywhere;
+}
+.yk-econ-kpi h2 {
+  color: #b9c8e0;
+  font-size: 0.875rem;
+  font-weight: 650;
+}
+.yk-econ-kpi strong {
+  color: #e9f3ff;
+  font-size: clamp(1.1rem, 2.7vw, 1.9rem);
+  font-variant-numeric: tabular-nums;
+}
+.yk-econ-kpi p,
+.yk-econ-details,
+.yk-econ-kpi summary {
+  color: #a6b5cf;
+  font-size: 0.8125rem;
+}
+.yk-econ-kpi [data-trend="up"] {
+  color: #9ae8c4;
+}
+.yk-econ-kpi [data-trend="down"] {
+  color: #f5b5a0;
+}
+.yk-econ-kpi summary,
+.yk-econ-details summary {
+  cursor: pointer;
+  width: fit-content;
+}
+.yk-econ-kpi details p {
+  margin-top: 0.4rem;
+}
+.yk-econ-panel {
+  display: grid;
+  gap: 0.75rem;
+}
+.yk-econ-panel h2 {
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  font-weight: 750;
+}
+.yk-econ-table-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+  border: 1px solid #25344e;
+  border-radius: 0.55rem;
+}
+.yk-econ-table {
+  width: 100%;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  border-collapse: collapse;
+}
+.yk-econ-table th,
+.yk-econ-table td {
+  padding: 0.6rem 0.7rem;
+  text-align: start;
+  vertical-align: baseline;
+}
+.yk-econ-table thead {
+  color: #c0d3ef;
+  background: #111e31;
+}
+.yk-econ-table tbody tr {
+  border-top: 1px solid #223550;
+}
+.yk-econ-table tbody tr:nth-child(2n) {
+  background: #0a1727;
+}
+.yk-econ-table tbody th {
+  color: #d8e5f8;
+  font-weight: 620;
+}
+.yk-econ-table td {
+  color: #bac9e1;
+  white-space: nowrap;
+}
+.yk-econ-table time {
+  white-space: nowrap;
+}
+.yk-econ-chart {
+  display: grid;
+  gap: 0.6rem;
+}
+.yk-econ-chart svg {
+  width: 100%;
+  max-height: 24rem;
+  min-height: 8rem;
+  overflow: visible;
+}
+.yk-econ-chart svg [data-series] {
+  fill: var(--plot-color);
+}
+.yk-econ-chart svg [data-series] polyline {
+  stroke: var(--plot-color);
+}
+.yk-econ-chart svg [data-series] rect,
+.yk-econ-chart svg [data-series] circle {
+  stroke: none;
+}
+.yk-econ-axis {
+  fill: #a9b8d0;
+  font:
+    12px system-ui,
+    sans-serif;
+}
+.yk-econ-axis line {
+  stroke: #2e435e;
+}
+.yk-econ-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  font-size: 0.8125rem;
+}
+.yk-econ-legend li {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+}
+.yk-econ-legend span {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--plot-color);
+}
+.yk-econ-chart [data-series] {
+  --plot-color: #6addc4;
+}
+.yk-econ-chart [data-series="1"] {
+  --plot-color: #f6ab83;
+}
+.yk-econ-chart [data-series="2"] {
+  --plot-color: #91b7ff;
+}
+.yk-econ-chart [data-series="3"] {
+  --plot-color: #c3a1fc;
+}
+.yk-econ-chart [data-series="4"] {
+  --plot-color: #f5cf70;
+}
+.yk-econ-chart [data-series="5"] {
+  --plot-color: #eb9dbb;
+}
+.yk-econ-details[open] > summary {
+  margin-bottom: 0.6rem;
+}
+.yk-econ-alert {
+  color: #b1c4df;
+}
+.yk-econ-alert[data-active="true"] {
+  color: #ffd695;
+  font-weight: 750;
+}
+.yk-econ-empty {
+  padding: 0.85rem;
+  border-radius: 0.5rem;
+  background: #0a1424;
+  color: #adbed8;
+}
+@media (max-width: 500px) {
+  .yk-econ-filters label {
+    flex-basis: 8rem;
+  }
+  .yk-econ-table th,
+  .yk-econ-table td {
+    padding: 0.55rem;
+  }
+}

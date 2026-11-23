@@ -315,6 +315,11 @@ const allowlist = {
     "authenticated"
   ], // Bounded market prefixes, same viewer visibility as list_auctions_page; no anonymous access. Requires Walid ACL review.
   "public.admin_get_player(uuid)": ["authenticated"], // Admin-only account and inventory projection.
+  "public.admin_get_economy(text, integer, text, boolean, integer, text)": [
+    "authenticated"
+  ], // Existing admin gate in SQL; economic aggregates and bounded player pages only.
+  "public.admin_set_economy_thresholds(numeric, numeric, numeric, numeric, numeric, integer)":
+    ["authenticated"], // Existing admin gate in SQL; only observational thresholds may change.
   "public.admin_get_ops_monitor(integer)": ["authenticated"], // Admin-only read of host monitor snapshots (infrastructure metrics, no account data). PhyesGG approved.
   "public.admin_list_anticheat_cases(text, text, integer, integer)": [
     "authenticated"
