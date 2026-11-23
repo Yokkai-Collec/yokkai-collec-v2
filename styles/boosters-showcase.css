@@ -495,6 +495,9 @@
 
 /* Keep the idle Packs controls above the two direct choices. */
 @media (min-width: 1024px) and (min-height: 701px) {
+  .yk-game-main:has(.yk-lr-pity) {
+    --pack-pity-space: 56px;
+  }
   .yk-boosters-page
     .yk-game-main:has(.yk-referral-reminder--boosters)
     .yk-pack-grid
@@ -502,7 +505,13 @@
     .yk-pack-art-stage {
     height: clamp(
       64px,
-      min(36svh, calc(100svh - 480px - var(--pack-choices-height, 80px))),
+      min(
+        36svh,
+        calc(
+          100svh - 480px - var(--pack-choices-height, 80px) -
+            var(--pack-pity-space, 0px)
+        )
+      ),
       400px
     );
   }

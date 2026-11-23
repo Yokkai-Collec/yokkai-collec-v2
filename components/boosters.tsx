@@ -1217,6 +1217,7 @@ const LR_PITY_PACKS = 500;
 
 export function Boosters({
   pityPreviewOpened = 418,
+  referralPreviewCode,
   previewOnly = false,
   simulateActions = false,
   clickToOpen = false,
@@ -1257,6 +1258,7 @@ export function Boosters({
   onStopSound
 }: {
   pityPreviewOpened?: number;
+  referralPreviewCode?: string;
   previewOnly?: boolean;
   simulateActions?: boolean;
   clickToOpen?: boolean;
@@ -1990,8 +1992,8 @@ export function Boosters({
           </article>
         </div>
       )}
-      {!opening && !revealing && !localPreview && (
-        <ReferralReminder packChoices />
+      {!opening && !revealing && (!localPreview || referralPreviewCode) && (
+        <ReferralReminder packChoices previewCode={referralPreviewCode} />
       )}
     </>
   );

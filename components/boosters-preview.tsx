@@ -35,7 +35,13 @@ const franchises = [
   "Moonlit Shrine"
 ];
 
-export function BoostersPreview({ pityOpened }: { pityOpened?: number } = {}) {
+export function BoostersPreview({
+  pityOpened,
+  showPackChoices = false
+}: {
+  pityOpened?: number;
+  showPackChoices?: boolean;
+} = {}) {
   const [draw, setDraw] = useState<RevealCard[]>([]);
   const [drawKind, setDrawKind] = useState<BoosterKind>("regular");
   const [revealed, setRevealed] = useState(0);
@@ -71,6 +77,7 @@ export function BoostersPreview({ pityOpened }: { pityOpened?: number } = {}) {
   return (
     <Boosters
       pityPreviewOpened={pityOpened}
+      referralPreviewCode={showPackChoices ? "000000000000" : undefined}
       previewOnly={blackoutPreviewEnabled}
       clickToOpen={blackoutPreviewEnabled}
       onOpenBlackout={
@@ -106,6 +113,8 @@ export function BoostersPreview({ pityOpened }: { pityOpened?: number } = {}) {
       shinyRate={0.5}
       decisionStatus={{
         available: !decisionUsed,
+        maximum: 1,
+        remaining: decisionUsed ? 0 : 1,
         pending: [],
         nextPackAt: decisionReturn
       }}

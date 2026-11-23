@@ -233,6 +233,13 @@ ul.yk-referral-option-detail {
   .yk-boosters-page .yk-game-main:has(.yk-referral-reminder--boosters) {
     padding-bottom: calc(var(--pack-choices-height, 80px) + 24px);
   }
+  .yk-boosters-page .yk-game-main:has(.yk-lr-pity) {
+    padding-bottom: 12px;
+  }
+  .yk-game-main:has(.yk-lr-pity) .yk-referral-reminder--boosters {
+    position: static;
+    margin: clamp(34px, calc(8svh - 16px), 60px) auto 0;
+  }
 }
 @media (min-width: 1024px) and (min-height: 1201px) {
   .yk-referral-reminder--boosters {

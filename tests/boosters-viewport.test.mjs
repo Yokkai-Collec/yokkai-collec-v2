@@ -63,20 +63,26 @@ test("browser fixture includes the same pack header, main and footer as the real
   for (const marker of [
     "yk-game-main",
     "yk-pack-page-heading",
-    "Your next great pull.",
-    "Your collection is saved to your account"
+    "<Topbar",
+    "<SiteFooter"
   ]) {
     assert.ok(page.includes(marker));
-    if (marker.startsWith("yk-")) assert.ok(game.includes(marker));
-    else {
-      const key =
-        marker === "Your next great pull."
-          ? "yourNextGreatPull"
-          : "yourCollectionIsSavedToYourAccount";
-      assert.ok(game.includes(`tg("${key}")`));
-      assert.equal(englishMessages.gameUi[key], marker);
-    }
+    assert.ok(game.includes(marker));
   }
+  for (const [key, expected] of [
+    ["yourNextGreatPull", "Your next great pull."],
+    [
+      "yourCollectionIsSavedToYourAccount",
+      "Your collection is saved to your account"
+    ]
+  ]) {
+    const translatedText = `tg("${key}")`;
+    assert.ok(page.includes(translatedText));
+    assert.ok(game.includes(translatedText));
+    assert.equal(englishMessages.gameUi[key], expected);
+  }
+  assert.match(page, /yk-boosters-page/);
+  assert.match(page, /showPackChoices/);
   assert.match(page, /min-h-dvh/);
   assert.match(page, /flex-1/);
 });

@@ -34,19 +34,30 @@ function fallbackCopy(value: string) {
 
 export function ReferralReminder({
   packChoices = false,
-  homeCard = false
+  homeCard = false,
+  previewCode
 }: {
   packChoices?: boolean;
   homeCard?: boolean;
+  previewCode?: string;
 }) {
   const t = useTranslations("referralReminder");
   const [choicesOpen, setChoicesOpen] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === "/" || pathname === "/design-system/home-preview";
-  const isBoosters = pathname === "/boosters";
+  const isBoosters =
+    pathname === "/boosters" ||
+    (pathname === "/design-system/boosters-preview" &&
+      process.env.NODE_ENV === "development");
   const [visible, setVisible] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
-  const [code, setCode] = useState<string | null>(null);
+  const [accountCode, setAccountCode] = useState<string | null>(null);
+  const demoCode =
+    previewCode && process.env.NODE_ENV === "development"
+      ? previewCode
+      : undefined;
+  const code = demoCode ?? accountCode;
+  const showReminder = visible || Boolean(demoCode);
   const [copyState, setCopyState] = useState<CopyState>("idle");
   const [progress, setProgress] = useState({ friends: 0, packs: 0 });
 
@@ -68,10 +79,11 @@ export function ReferralReminder({
       observer.disconnect();
       main.style.removeProperty("--pack-choices-height");
     };
-  }, [visible]);
+  }, [showReminder]);
 
   useEffect(() => {
     if (
+      demoCode ||
       (isHome && !homeCard) ||
       (homeCard && !prepareHomeLink) ||
       (isBoosters && !packChoices)
@@ -121,19 +133,20 @@ export function ReferralReminder({
           ? status.code
           : null;
       if (existingCode) {
-        setCode(existingCode);
+        setAccountCode(existingCode);
         return;
       }
 
       const { data: createdCode } = await supabase.rpc("create_referral_code");
-      if (active && typeof createdCode === "string") setCode(createdCode);
+      if (active && typeof createdCode === "string")
+        setAccountCode(createdCode);
     }
 
     void prepareLink();
     return () => {
       active = false;
     };
-  }, [isHome, isBoosters, packChoices, homeCard, prepareHomeLink]);
+  }, [demoCode, isHome, isBoosters, packChoices, homeCard, prepareHomeLink]);
 
   function dismiss() {
     if (userId) localStorage.setItem(dismissalKey(userId), "1");
@@ -173,7 +186,7 @@ export function ReferralReminder({
     }
   }
 
-  if (!homeCard && (!visible || isHome || (isBoosters && !packChoices)))
+  if (!homeCard && (!showReminder || isHome || (isBoosters && !packChoices)))
     return null;
 
   const inlineChoices = packChoices && !homeCard;
