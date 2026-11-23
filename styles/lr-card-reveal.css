@@ -1038,13 +1038,9 @@
     animation-delay: 9.15s;
   }
 
-  /* Keep both badges on the card timeline, even if the #1 lookup resolves later. */
+  /* Keep #1 on the card timeline, even when the lookup resolves later. */
   .yk-card[data-blackout] {
-    animation: yk-lr-blackout-badges 9.8s step-end both;
-  }
-
-  .yk-card-event-label {
-    visibility: var(--yk-blackout-badge-visibility, hidden);
+    animation: yk-lr-blackout-first-copy 9.8s step-end both;
   }
 
   .yk-card-first-lr {
@@ -1054,7 +1050,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .yk-card[data-blackout] {
-      animation: yk-lr-blackout-badges 0.3s step-end both !important;
+      animation: yk-lr-blackout-first-copy 0.3s step-end both !important;
     }
   }
 
@@ -1180,7 +1176,7 @@
   }
 }
 
-@keyframes yk-lr-blackout-badges {
+@keyframes yk-lr-blackout-first-copy {
   from {
     --yk-blackout-badge-visibility: hidden;
   }

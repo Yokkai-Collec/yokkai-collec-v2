@@ -246,19 +246,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.yk-card:has(> .yk-card-event-label):not(.yk-card-shell-plane > .yk-card),
-.yk-card-shell:has(> .yk-card-shell-plane > .yk-card > .yk-card-event-label) {
-  margin-block-end: 25px;
-}
-.yk-card-event-label {
-  position: absolute;
-  inset-block-start: calc(100% + 8px);
-  inset-inline-start: 0;
-  line-height: 16px;
-  color: #d5b9f2;
-  text-shadow: 0 1px 3px #180e22;
-  white-space: nowrap;
-}
 .yk-card-name,
 .yk-card-category,
 .yk-card-anime,

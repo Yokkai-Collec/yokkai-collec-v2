@@ -1,5 +1,7 @@
 {
   "blackout": {
+    "adminPreview": "Admin preview",
+    "availableAtLaunch": "Available at launch",
     "startsIn": "Available in",
     "endsIn": "Ends in",
     "endedBadge": "Ended",
@@ -36,7 +38,7 @@
     "limitedEdition": "Blackout Edition",
     "hubDescription": "{count, number} Yokkai cards in Blackout Edition.",
     "homeDescription": "Discover the {count, number} Blackout Edition cards.",
-    "homeOpen": "Preview the pack",
+    "homeOpen": "View event",
     "viewEvent": "View the Black Friday event",
     "backToEvents": "All events",
     "boosterTitle": "Blackout Pack",
@@ -3724,6 +3726,7 @@
     "historyMissingRecipients": "{count, plural, one {Recipient unavailable for # redemption.} other {Recipients unavailable for # redemptions.}}"
   },
   "adminNavigation": {
+    "blackout": "Black Friday preview",
     "giftCodes": "Gift codes",
     "label": "Admin navigation",
     "cards": "Card publishing",

@@ -12,6 +12,7 @@ export const blackFridayTerms = {
   startsAt: "2026-11-26T20:00:00+01:00",
   endsAt: "2026-11-30T21:00:00+01:00",
   freePacks: { basic: 1, pro: 2 },
+  packPrice: 750,
   // Target a 15% chance of at least one Blackout LR across 25 packs.
   lrRatePerPack: 1 - 0.85 ** (1 / 25),
   promoCode: "BLACKOUT",

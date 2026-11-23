@@ -232,15 +232,27 @@
 }
 
 .yk-home-sunset-banner[data-pack-theme="blackout"] {
-  --blackout-light: #e2daff;
-  border-color: #746777;
+  --blackout-light: #f1e9ff;
+  border-color: #695686;
   background:
-    linear-gradient(100deg, #171320 18%, #191629e6 55%, #140f25b8),
-    #191629 url("/assets/regular-opening-nebula.webp") right center / 65% auto
-      no-repeat;
+    linear-gradient(
+      100deg,
+      #0e0b15 10%,
+      #151021f5 44%,
+      #17102375 82%,
+      #171023d9
+    ),
+    #14101e url("/assets/events/blackout/opening-nebula.webp") right center /
+      clamp(22rem, 65%, 54rem) auto no-repeat;
+  color: #e2d8ee;
 }
-.yk-home-sunset-banner[data-pack-theme="blackout"]:hover {
-  border-color: #b5a7df;
+.yk-home-sunset-banner[data-pack-theme="blackout"]:is(:hover, :focus-visible) {
+  border-color: #c6a9ef;
+  outline-color: #c6a9ef;
+}
+.yk-home-sunset-banner[data-pack-theme="blackout"] .yk-home-sunset-cards {
+  gap: 10px;
+  padding-inline: 12px;
 }
 .yk-home-sunset-banner[data-pack-theme="blackout"] .yk-home-sunset-pack,
 .yk-booster-opening-fallback[data-pack-theme="blackout"] {
@@ -251,8 +263,10 @@
   color: var(--blackout-light);
 }
 .yk-home-sunset-banner[data-pack-theme="blackout"] .yk-home-sunset-action {
-  background: var(--blackout-light);
-  color: #1c132b;
+  padding: 6px 10px;
+  border: 1px solid #ae94d4;
+  background: #221931;
+  color: var(--blackout-light);
 }
 .yk-event-card[data-event="black-friday"] {
   --banner-accent: #b6a8ed;

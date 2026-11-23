@@ -219,7 +219,11 @@ export function GtaSunsetHomeBanner({
     <Link
       className="yk-home-sunset-banner"
       data-pack-theme={edition}
-      href={`/boosters#${appearance.slug}`}
+      href={
+        edition === "blackout"
+          ? BLACKOUT_EVENT_PATH
+          : `/boosters#${appearance.slug}`
+      }
     >
       <Image
         className="yk-home-sunset-pack"
@@ -242,7 +246,9 @@ export function GtaSunsetHomeBanner({
         cards={event.featured.slice(0, 2)}
         className="yk-home-sunset-cards"
       />
-      {hasPacks ? (
+      {edition === "blackout" ? (
+        <span className="yk-home-sunset-action">{t("homeOpen")}</span>
+      ) : hasPacks ? (
         <span className="yk-home-sunset-action">
           {t(status === "ended" ? "homeOpenRemaining" : "homeOpen")}
         </span>

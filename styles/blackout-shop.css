@@ -245,7 +245,7 @@
 
 .yk-blackout-roster ul {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 98px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 90px), 1fr));
   gap: clamp(8px, 0.85vw, 14px);
   margin-top: 10px;
 }
@@ -286,7 +286,7 @@
     /* Fit two rows of 5:7 cards beneath the navigation and page heading. */
     grid-template-columns: repeat(
       5,
-      minmax(0, clamp(6.5rem, (100svh - 17.625rem) / 2.8, 12.5rem))
+      minmax(0, clamp(6.5rem, (100svh - 14.5rem) / 2.8, 12.5rem))
     );
   }
 

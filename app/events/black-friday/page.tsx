@@ -5,6 +5,8 @@ import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
+import { getAdminUser } from "@/lib/auth/admin";
+import { Button, Karas } from "@/components/ui";
 import { AccountMenu } from "@/components/account-menu";
 import { BlackoutProCheckout } from "@/components/blackout-pro-checkout";
 import { BlackoutPreviewShop } from "@/components/blackout-preview-shop";
@@ -26,18 +28,21 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function BlackFridayPage() {
   const now = Date.now();
-  if (
-    !blackoutPreviewEnabled &&
-    (now < Date.parse(blackFridayTerms.startsAt) ||
-      now >= Date.parse(blackFridayTerms.endsAt))
-  )
+  const adminPreview =
+    !blackoutPreviewEnabled && now < Date.parse(blackFridayTerms.startsAt);
+  if (!blackoutPreviewEnabled && now >= Date.parse(blackFridayTerms.endsAt))
     notFound();
-  if (!(await getCurrentUser())) redirect(`/login?next=${BLACKOUT_EVENT_PATH}`);
-  if (!blackoutPreviewEnabled) {
-    const { data, error } = await createClient(await cookies()).rpc(
-      "get_blackout_event"
-    );
-    if (error || !data) notFound();
+  if (adminPreview) {
+    if ((await getAdminUser()).kind !== "admin") notFound();
+  } else {
+    if (!(await getCurrentUser()))
+      redirect(`/login?next=${BLACKOUT_EVENT_PATH}`);
+    if (!blackoutPreviewEnabled) {
+      const { data, error } = await createClient(await cookies()).rpc(
+        "get_blackout_event"
+      );
+      if (error || !data) notFound();
+    }
   }
   const [t, format] = await Promise.all([
     getTranslations("blackout"),
@@ -71,8 +76,10 @@ export default async function BlackFridayPage() {
         </Link>
         <header className="mt-2 mb-4 flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
           <div>
-            {blackoutPreviewEnabled && (
-              <p className="eyebrow">{t("preview")}</p>
+            {(adminPreview || blackoutPreviewEnabled) && (
+              <p className="eyebrow">
+                {t(adminPreview ? "adminPreview" : "preview")}
+              </p>
             )}
             <h1 className="yk-title yk-blackout-title mt-1">{t("title")}</h1>
           </div>
@@ -109,7 +116,17 @@ export default async function BlackFridayPage() {
                 <p className="mt-2 text-sm text-ink-2">
                   {t("dailyPacks", freePacks)}
                 </p>
-                <BlackoutPreviewShop />
+                {adminPreview ? (
+                  <div className="yk-blackout-shop">
+                    <div className="yk-blackout-price">
+                      <Karas amount={blackFridayTerms.packPrice} />{" "}
+                      <span>{t("perPack")}</span>
+                    </div>
+                    <Button disabled>{t("availableAtLaunch")}</Button>
+                  </div>
+                ) : (
+                  <BlackoutPreviewShop />
+                )}
               </div>
             </section>
             <section className="yk-blackout-pro-offer" aria-label="Yokkai Pro">
@@ -129,7 +146,11 @@ export default async function BlackFridayPage() {
                   renewal: format.number(renewalPrice, euro)
                 })}
               </p>
-              <BlackoutProCheckout preview={blackoutPreviewEnabled} />
+              {adminPreview ? (
+                <Button disabled>{t("availableAtLaunch")}</Button>
+              ) : (
+                <BlackoutProCheckout preview={blackoutPreviewEnabled} />
+              )}
             </section>
           </div>
         </div>

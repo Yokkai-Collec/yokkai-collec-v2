@@ -1,50 +1,72 @@
 begin;
 
-insert into public.cards
-  (source, source_id, nom, categorie, franchise, rarete_base, image_url, event_only)
-values
-  ('manual', 'blackout-sung-jinwoo', 'Sung Jin-Woo (Blackout)', 'ANIME/MANGA', 'Solo Leveling', 'LR', '/assets/events/blackout/cards/sung-jinwoo.webp', true),
-  ('manual', 'blackout-ryomen-sukuna', 'Sukuna (Blackout)', 'ANIME/MANGA', 'JUJUTSU KAISEN', 'LR', '/assets/events/blackout/cards/ryomen-sukuna.webp', true),
-  ('manual', 'blackout-goku-black', 'Goku Black (Blackout)', 'ANIME/MANGA', 'Dragon Ball Super', 'LR', '/assets/events/blackout/cards/goku-black.webp', true),
-  ('manual', 'blackout-roronoa-zoro', 'Zoro Roronoa (Blackout)', 'ANIME/MANGA', 'One Piece', 'LR', '/assets/events/blackout/cards/roronoa-zoro.webp', true),
-  ('manual', 'blackout-ichigo-kurosaki', 'Ichigo Kurosaki (Blackout)', 'ANIME/MANGA', 'Bleach', 'LR', '/assets/events/blackout/cards/ichigo-kurosaki.webp', true),
-  ('manual', 'blackout-sosuke-aizen', 'Sōsuke Aizen (Blackout)', 'ANIME/MANGA', 'Bleach', 'LR', '/assets/events/blackout/cards/sosuke-aizen.webp', true),
-  ('manual', 'blackout-guts', 'Guts (Blackout)', 'ANIME/MANGA', 'Berserk', 'LR', '/assets/events/blackout/cards/guts.webp', true),
-  ('manual', 'blackout-sasuke-uchiha', 'Sasuke Uchiha (Blackout)', 'ANIME/MANGA', 'Naruto', 'LR', '/assets/events/blackout/cards/sasuke-uchiha.webp', true),
-  ('manual', 'blackout-ken-kaneki', 'Ken Kaneki (Blackout)', 'ANIME/MANGA', 'Tokyo Ghoul', 'LR', '/assets/events/blackout/cards/ken-kaneki.webp', true),
-  ('manual', 'blackout-eren-yeager', 'Eren Yeager (Blackout)', 'ANIME/MANGA', 'Attack on Titan', 'LR', '/assets/events/blackout/cards/eren-yeager.webp', true)
-on conflict (source, source_id) do update
-set nom = excluded.nom, image_url = excluded.image_url
-where cards.event_only and cards.rarete_base = 'LR'
-  and (cards.nom, cards.image_url) is distinct from (excluded.nom, excluded.image_url);
-
-do $$
-begin
-  if exists (
-    select 1
-    from (values
-    ('blackout-sung-jinwoo', 'Sung Jin-Woo (Blackout)', '/assets/events/blackout/cards/sung-jinwoo.webp'),
-    ('blackout-ryomen-sukuna', 'Sukuna (Blackout)', '/assets/events/blackout/cards/ryomen-sukuna.webp'),
-    ('blackout-goku-black', 'Goku Black (Blackout)', '/assets/events/blackout/cards/goku-black.webp'),
-    ('blackout-roronoa-zoro', 'Zoro Roronoa (Blackout)', '/assets/events/blackout/cards/roronoa-zoro.webp'),
-    ('blackout-ichigo-kurosaki', 'Ichigo Kurosaki (Blackout)', '/assets/events/blackout/cards/ichigo-kurosaki.webp'),
-    ('blackout-sosuke-aizen', 'Sōsuke Aizen (Blackout)', '/assets/events/blackout/cards/sosuke-aizen.webp'),
-    ('blackout-guts', 'Guts (Blackout)', '/assets/events/blackout/cards/guts.webp'),
-    ('blackout-sasuke-uchiha', 'Sasuke Uchiha (Blackout)', '/assets/events/blackout/cards/sasuke-uchiha.webp'),
-    ('blackout-ken-kaneki', 'Ken Kaneki (Blackout)', '/assets/events/blackout/cards/ken-kaneki.webp'),
-    ('blackout-eren-yeager', 'Eren Yeager (Blackout)', '/assets/events/blackout/cards/eren-yeager.webp')
-    ) as expected(source_id, nom, image_url)
-    where not exists (
-      select 1 from public.cards c
-      where c.source = 'manual' and c.source_id = expected.source_id
-        and c.nom = upper(expected.nom) and c.image_url = expected.image_url
-        and c.event_only and c.rarete_base = 'LR'
-    )
-  ) then
-    raise exception 'Blackout source IDs conflict with an existing card';
-  end if;
-end;
+create function public.blackout_schedule()
+returns table (opens_at timestamptz, closes_at timestamptz)
+language sql immutable set search_path = '' as $$
+  select timestamptz '2026-11-26 20:00:00 Europe/Paris',
+         timestamptz '2026-11-30 21:00:00 Europe/Paris';
 $$;
+
+-- Import into the public catalogue only after the official opening.
+create function public.publish_blackout_cards()
+returns void language plpgsql set search_path = '' as $publish$
+begin
+  if not exists (
+    select from public.blackout_schedule() s
+    where statement_timestamp() >= s.opens_at and statement_timestamp() < s.closes_at
+  ) then
+    return;
+  end if;
+
+  insert into public.cards
+    (source, source_id, nom, categorie, franchise, rarete_base, image_url, event_only)
+  values
+    ('manual', 'blackout-sung-jinwoo', 'Sung Jin-Woo (Blackout)', 'ANIME/MANGA', 'Solo Leveling', 'LR', '/assets/events/blackout/cards/sung-jinwoo.webp', true),
+    ('manual', 'blackout-ryomen-sukuna', 'Sukuna (Blackout)', 'ANIME/MANGA', 'JUJUTSU KAISEN', 'LR', '/assets/events/blackout/cards/ryomen-sukuna.webp', true),
+    ('manual', 'blackout-goku-black', 'Goku Black (Blackout)', 'ANIME/MANGA', 'Dragon Ball Super', 'LR', '/assets/events/blackout/cards/goku-black.webp', true),
+    ('manual', 'blackout-roronoa-zoro', 'Zoro Roronoa (Blackout)', 'ANIME/MANGA', 'One Piece', 'LR', '/assets/events/blackout/cards/roronoa-zoro.webp', true),
+    ('manual', 'blackout-ichigo-kurosaki', 'Ichigo Kurosaki (Blackout)', 'ANIME/MANGA', 'Bleach', 'LR', '/assets/events/blackout/cards/ichigo-kurosaki.webp', true),
+    ('manual', 'blackout-sosuke-aizen', 'Sōsuke Aizen (Blackout)', 'ANIME/MANGA', 'Bleach', 'LR', '/assets/events/blackout/cards/sosuke-aizen.webp', true),
+    ('manual', 'blackout-guts', 'Guts (Blackout)', 'ANIME/MANGA', 'Berserk', 'LR', '/assets/events/blackout/cards/guts.webp', true),
+    ('manual', 'blackout-sasuke-uchiha', 'Sasuke Uchiha (Blackout)', 'ANIME/MANGA', 'Naruto', 'LR', '/assets/events/blackout/cards/sasuke-uchiha.webp', true),
+    ('manual', 'blackout-ken-kaneki', 'Ken Kaneki (Blackout)', 'ANIME/MANGA', 'Tokyo Ghoul', 'LR', '/assets/events/blackout/cards/ken-kaneki.webp', true),
+    ('manual', 'blackout-eren-yeager', 'Eren Yeager (Blackout)', 'ANIME/MANGA', 'Attack on Titan', 'LR', '/assets/events/blackout/cards/eren-yeager.webp', true)
+  on conflict (source, source_id) do update
+  set nom = excluded.nom, image_url = excluded.image_url
+  where cards.event_only and cards.rarete_base = 'LR'
+    and (cards.nom, cards.image_url) is distinct from (excluded.nom, excluded.image_url);
+
+    if exists (
+      select 1
+      from (values
+      ('blackout-sung-jinwoo', 'Sung Jin-Woo (Blackout)', '/assets/events/blackout/cards/sung-jinwoo.webp'),
+      ('blackout-ryomen-sukuna', 'Sukuna (Blackout)', '/assets/events/blackout/cards/ryomen-sukuna.webp'),
+      ('blackout-goku-black', 'Goku Black (Blackout)', '/assets/events/blackout/cards/goku-black.webp'),
+      ('blackout-roronoa-zoro', 'Zoro Roronoa (Blackout)', '/assets/events/blackout/cards/roronoa-zoro.webp'),
+      ('blackout-ichigo-kurosaki', 'Ichigo Kurosaki (Blackout)', '/assets/events/blackout/cards/ichigo-kurosaki.webp'),
+      ('blackout-sosuke-aizen', 'Sōsuke Aizen (Blackout)', '/assets/events/blackout/cards/sosuke-aizen.webp'),
+      ('blackout-guts', 'Guts (Blackout)', '/assets/events/blackout/cards/guts.webp'),
+      ('blackout-sasuke-uchiha', 'Sasuke Uchiha (Blackout)', '/assets/events/blackout/cards/sasuke-uchiha.webp'),
+      ('blackout-ken-kaneki', 'Ken Kaneki (Blackout)', '/assets/events/blackout/cards/ken-kaneki.webp'),
+      ('blackout-eren-yeager', 'Eren Yeager (Blackout)', '/assets/events/blackout/cards/eren-yeager.webp')
+      ) as expected(source_id, nom, image_url)
+      where not exists (
+        select 1 from public.cards c
+        where c.source = 'manual' and c.source_id = expected.source_id
+          and c.nom = upper(expected.nom) and c.image_url = expected.image_url
+          and c.event_only and c.rarete_base = 'LR'
+      )
+    ) then
+      raise exception 'Blackout source IDs conflict with an existing card';
+    end if;
+end;
+$publish$;
+revoke all on function public.publish_blackout_cards() from public, anon, authenticated, service_role;
+
+-- Retry at launch and throughout the event if the database was unavailable.
+select cron.schedule('publish-blackout-cards', '0,1,2,5,10,15,30,45 * 26-30 11 *',
+  'select public.publish_blackout_cards();');
+select public.publish_blackout_cards();
 
 create table public.blackout_purchases (
   user_id uuid not null references public.user_profiles(user_id) on delete cascade,
@@ -67,13 +89,6 @@ alter table public.blackout_purchases enable row level security;
 alter table public.blackout_openings enable row level security;
 revoke all on public.blackout_purchases, public.blackout_openings
   from public, anon, authenticated, service_role;
-
-create function public.blackout_schedule()
-returns table (opens_at timestamptz, closes_at timestamptz)
-language sql immutable set search_path = '' as $$
-  select timestamptz '2026-11-26 20:00:00 Europe/Paris',
-         timestamptz '2026-11-30 21:00:00 Europe/Paris';
-$$;
 
 create function public.blackout_free_slots(p_player uuid, p_at timestamptz)
 returns integer[] language sql stable set search_path = '' as $$
@@ -154,7 +169,8 @@ returns jsonb language sql stable security definer set search_path = '' as $$
   from public.blackout_schedule() s
   cross join lateral public.blackout_wallet(auth.uid(), statement_timestamp()) wallet
   where auth.uid() is not null and wallet is not null
-    and statement_timestamp() >= s.opens_at and statement_timestamp() < s.closes_at;
+    and statement_timestamp() >= s.opens_at and statement_timestamp() < s.closes_at
+    and (select count(*) from public.blackout_featured_cards()) = 10;
 $$;
 
 create function public.buy_blackout_packs(p_quantity integer, p_request uuid)

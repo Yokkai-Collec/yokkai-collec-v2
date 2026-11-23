@@ -195,6 +195,19 @@ function FirstLrCopyBadge({
   );
 }
 
+export function isBlackoutCard({
+  id,
+  image,
+  catalogueImage
+}: Pick<YokaiCardProps, "id" | "image" | "catalogueImage">) {
+  return (
+    Boolean(id?.startsWith("blackout-")) ||
+    /^\/assets\/events\/blackout\/cards\/[a-z0-9-]+\.webp$/.test(
+      catalogueImage ?? image ?? ""
+    )
+  );
+}
+
 export function YokaiCard({
   id,
   rarity,
@@ -218,13 +231,8 @@ export function YokaiCard({
   rarityAccessory
 }: YokaiCardProps) {
   const blackoutPreview = id?.startsWith("blackout-") ?? false;
-  const blackout =
-    blackoutPreview ||
-    /^\/assets\/events\/blackout\/cards\/[a-z0-9-]+\.webp$/.test(
-      catalogueImage ?? image ?? ""
-    );
+  const blackout = isBlackoutCard({ id, image, catalogueImage });
   const t = useTranslations("collectionShared");
-  const blackoutLabel = blackout ? t("blackFriday2026") : null;
   const sunset = /^\/assets\/events\/gta-sunset\/(?:jason|lucia)\.png$/.test(
     catalogueImage ?? image ?? ""
   );
@@ -298,7 +306,7 @@ export function YokaiCard({
       <div
         className="yk-card-clip"
         role="img"
-        aria-label={`${name}, ${cardRarityLabel(rarity, shiny, isEvolved)}, ${franchise || category}${blackoutLabel ? `, ${blackoutLabel}` : ""}`}
+        aria-label={`${name}, ${cardRarityLabel(rarity, shiny, isEvolved)}, ${franchise || category}`}
       >
         <div className="yk-card-frame" />
         {special && <div className="yk-shiny-frame" />}
@@ -449,14 +457,6 @@ export function YokaiCard({
           </div>
         </div>
       </div>
-      {blackoutLabel && (
-        <span
-          className="yk-card-event-label text-[11px] font-semibold"
-          aria-hidden="true"
-        >
-          {blackoutLabel}
-        </span>
-      )}
       {rarity === "LR" &&
         !blackoutPreview &&
         Boolean(firstLrCopy || instanceId || copyInstanceIds?.length) && (

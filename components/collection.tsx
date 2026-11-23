@@ -34,7 +34,7 @@ import {
   SelectionBar,
   SelectionModeButton
 } from "@/components/ui";
-import { YokaiCard } from "@/components/yokai-card";
+import { isBlackoutCard, YokaiCard } from "@/components/yokai-card";
 import { CardShell } from "@/components/card-shell";
 import { CollectionLoading } from "@/components/collection-loading";
 import { CardShareButton, MyCardShares } from "@/components/card-sharing";
@@ -142,7 +142,13 @@ function AuctionIcon({ size = 14 }: { size?: number }) {
   );
 }
 
-function FirstLrCopyMeta({ instanceIds }: { instanceIds: readonly string[] }) {
+function CollectionCardMeta({
+  instanceIds,
+  blackout
+}: {
+  instanceIds: readonly string[];
+  blackout: boolean;
+}) {
   const t = useTranslations("collectionShared");
   const key = instanceIds.join(",");
   const [sources, setSources] = useState<
@@ -175,12 +181,13 @@ function FirstLrCopyMeta({ instanceIds }: { instanceIds: readonly string[] }) {
       unsubscribe?.();
     };
   }, [key]);
-  if (!source) return null;
+  if (!source && !blackout) return null;
   return (
-    <div className="yk-collection-card-meta">
-      <p className="text-[11px] font-semibold text-rarity-lr">
-        {t("firstLrBadge")}
-      </p>
+    <div className="yk-collection-card-meta text-[11px] font-semibold">
+      {blackout && (
+        <p className="yk-collection-blackout-label">{t("blackFriday2026")}</p>
+      )}
+      {source && <p className="text-rarity-lr">{t("firstLrBadge")}</p>}
     </div>
   );
 }
@@ -2376,7 +2383,8 @@ export function CollectionView({
                           )}
                         </button>
                         {!renderCardControls && (
-                          <FirstLrCopyMeta
+                          <CollectionCardMeta
+                            blackout={isBlackoutCard(card)}
                             instanceIds={group.cards.map(
                               copy => copy.instanceId
                             )}
