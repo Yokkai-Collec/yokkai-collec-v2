@@ -23,7 +23,7 @@ test("creating an auction leaves unrelated expired sales to the cron and release
   ).rows[0].id;
   const copies = (
     await db.query(
-      "insert into public.user_cards(user_id,card_id,rarity) select $1,$2,'SR' from generate_series(1,5) returning id",
+      "insert into public.user_cards(user_id,card_id,rarity) select $1,$2,'SR' from generate_series(1,6) returning id",
       [seller, card]
     )
   ).rows.map(r => r.id);
@@ -43,10 +43,10 @@ test("creating an auction leaves unrelated expired sales to the cron and release
     seller
   ]);
   await db.exec("set role authenticated");
-  for (const copy of copies.slice(0, 3))
+  for (const copy of copies.slice(0, 5))
     await db.query("select public.create_auction($1,10,60)", [copy]);
   await assert.rejects(
-    db.query("select public.create_auction($1,10,60)", [copies[3]]),
+    db.query("select public.create_auction($1,10,60)", [copies[5]]),
     /AUCTION_LIMIT_REACHED/
   );
   await db.exec("reset role");
@@ -63,7 +63,7 @@ test("creating an auction leaves unrelated expired sales to the cron and release
     [seller]
   );
   await db.exec("set role authenticated");
-  await db.query("select public.create_auction($1,10,60)", [copies[3]]);
+  await db.query("select public.create_auction($1,10,60)", [copies[5]]);
   await db.exec("reset role");
   await db.query("select public.settle_expired_auctions()");
   assert.equal(

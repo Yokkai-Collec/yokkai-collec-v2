@@ -394,7 +394,7 @@ test("PR5 static catalogue calls resolve in both locales in their lexical scope"
 test("Premium English HTML preserves the reviewed presentation with normalized license names", async () => {
   assert.equal(
     hash(await fixture("en").render("app/premium/page.tsx")),
-    "5d00221be5dc4267d098fde6ca580661940e7f2d5463341a62c0f911289dfa77"
+    "e01795743dbd50a3cb6acfda55a5edef8ac43cea734314ad36dd802e0a9c03dd"
   );
 });
 test("Achievement notifications reuse the SQL-ID catalogue and preserve unknown names", () => {

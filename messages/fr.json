@@ -2827,7 +2827,7 @@
     "signInAgainToLoadYourFeed": "Reconnecte-toi pour charger ton fil.",
     "thisFeedPageIsNoLongerAvailableRefresh": "Cette page du fil n’est plus disponible. Actualise ton fil et réessaie.",
     "couldnTLoadYourTimelinePleaseTryAgain": "Impossible de charger ton fil. Réessaie.",
-    "yourActiveAuctionLimitHasBeenReachedBasic": "Tu as atteint ta limite d’enchères actives. L’offre gratuite permet de mettre 3 cartes aux enchères à la fois ; l’offre Pro permet d’en mettre 6.",
+    "yourActiveAuctionLimitHasBeenReachedBasic": "Tu as atteint ta limite d’enchères actives. Tu peux mettre 5 cartes aux enchères à la fois en Basic et 10 en Pro.",
     "thisListingCanTBeCanceledBecauseA": "Cette enchère ne peut pas être annulée car une mise a déjà été placée.",
     "thisCardIsAlreadyListedInAnAuction": "Cette carte est déjà aux enchères.",
     "couldnTLoadTheMarketPleaseTryAgain": "Impossible de charger le marché. Réessaie.",

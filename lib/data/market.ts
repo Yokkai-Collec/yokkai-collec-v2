@@ -107,7 +107,7 @@ async function call<T>(
       throw new Error(error.message);
     if (error.message === "AUCTION_LIMIT_REACHED")
       throw new Error(
-        "Your active auction limit has been reached. Basic members can list 3 cards at once; Pro members can list 6."
+        "Your active auction limit has been reached. You can list 5 cards at once on Basic and 10 on Pro."
       );
     if (error.message === "CHAT_RATE_LIMITED") {
       const seconds = Number(details);

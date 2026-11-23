@@ -38,7 +38,7 @@ for (const [message, key] of Object.entries({
     "socialUi.thisFeedPageIsNoLongerAvailableRefresh",
   "Couldn't load your timeline. Please try again.":
     "socialUi.couldnTLoadYourTimelinePleaseTryAgain",
-  "Your active auction limit has been reached. Basic members can list 3 cards at once; Pro members can list 6.":
+  "Your active auction limit has been reached. You can list 5 cards at once on Basic and 10 on Pro.":
     "socialUi.yourActiveAuctionLimitHasBeenReachedBasic",
   "This listing can't be canceled because a bid has already been placed.":
     "socialUi.thisListingCanTBeCanceledBecauseA",

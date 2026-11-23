@@ -137,10 +137,10 @@ test("paid server state activates actual game limits, never client flags; expiry
     ]),
     /FEATURED_CARDS_INVALID/
   );
-  for (const id of copies.slice(0, 6))
+  for (const id of copies.slice(0, 10))
     await db.query("select public.create_auction($1,10,60)", [id]);
   await assert.rejects(
-    db.query("select public.create_auction($1,10,60)", [copies[6]]),
+    db.query("select public.create_auction($1,10,60)", [copies[10]]),
     /AUCTION_LIMIT_REACHED/
   );
   await admin();
@@ -153,7 +153,7 @@ test("paid server state activates actual game limits, never client flags; expiry
   assert.equal((await status()).maximum, 5);
   await login(owner);
   await assert.rejects(
-    db.query("select public.create_auction($1,10,60)", [copies[6]]),
+    db.query("select public.create_auction($1,10,60)", [copies[10]]),
     /AUCTION_LIMIT_REACHED/
   );
   await db.query(
@@ -174,7 +174,7 @@ test("paid server state activates actual game limits, never client flags; expiry
         [owner]
       )
     ).rows[0].n,
-    6
+    10
   );
   assert.equal(
     (
@@ -217,7 +217,7 @@ test("paid server state activates actual game limits, never client flags; expiry
   );
   await admin();
   const basicCopies = [];
-  for (let index = 0; index < 4; index++)
+  for (let index = 0; index < 6; index++)
     basicCopies.push(
       (
         await db.query(
@@ -227,10 +227,10 @@ test("paid server state activates actual game limits, never client flags; expiry
       ).rows[0].id
     );
   await login(other);
-  for (const id of basicCopies.slice(0, 3))
+  for (const id of basicCopies.slice(0, 5))
     await db.query("select public.create_auction($1,10,60)", [id]);
   await assert.rejects(
-    db.query("select public.create_auction($1,10,60)", [basicCopies[3]]),
+    db.query("select public.create_auction($1,10,60)", [basicCopies[5]]),
     /AUCTION_LIMIT_REACHED/
   );
   // Use the exact fenced persistence RPC called by the verified Stripe service:
@@ -272,5 +272,5 @@ test("paid server state activates actual game limits, never client flags; expiry
       .value.refillSeconds,
     300
   );
-  await db.query("select public.create_auction($1,10,60)", [basicCopies[3]]);
+  await db.query("select public.create_auction($1,10,60)", [basicCopies[5]]);
 });

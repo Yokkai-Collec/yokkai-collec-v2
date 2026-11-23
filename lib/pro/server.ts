@@ -2,7 +2,7 @@ import "server-only";
 import { createClient } from "@supabase/supabase-js";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getSupabaseConfig } from "@/utils/supabase/config";
-import { DECISION_PACK_RESET } from "@/lib/premium/offer";
+import { DECISION_PACK_RESET, PROPOSED_PLAN_RULES } from "@/lib/premium/offer";
 import { matchesProRequestOrigin } from "@/lib/pro/request-origin";
 
 export class ProError extends Error {
@@ -71,7 +71,8 @@ export function benefits(active: boolean) {
     decisionPacksPerDay: active ? 2 : 1,
     decisionPackResetHour: DECISION_PACK_RESET.hour,
     decisionPackResetTimeZone: DECISION_PACK_RESET.timeZone,
-    maxActiveAuctions: active ? 6 : 3,
+    maxActiveAuctions:
+      PROPOSED_PLAN_RULES[active ? "pro" : "basic"].concurrentAuctions,
     maxShowcaseCards: active ? 10 : 5,
     canCustomizeCards: active,
     canUploadBanners: active,

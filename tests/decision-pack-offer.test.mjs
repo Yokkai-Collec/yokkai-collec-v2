@@ -78,7 +78,7 @@ test("Pro benefits and sales rules describe a shared Paris daily quota instead o
     assert.equal(rules[plan].regularPackMinutes, 5);
     assert.equal(actual.regularPackReserve, active ? 10 : 5);
     assert.equal(rules[plan].regularPackReserve, active ? 10 : 5);
-    assert.equal(actual.maxActiveAuctions, active ? 6 : 3);
+    assert.equal(actual.maxActiveAuctions, active ? 10 : 5);
     assert.equal(actual.maxShowcaseCards, active ? 10 : 5);
     assert.equal("decisionPackHours" in actual, false);
     assert.equal("decisionPackHours" in rules[plan], false);
