@@ -236,9 +236,11 @@ test("Checkout derives locale on the server after Auth, input and quota validati
         }
       }).outputText,
       {
+        URL,
         module: mod,
         exports: mod.exports,
         require(id) {
+          if (id === "@/lib/billing/config") return { BillingError: Error };
           if (id === "next-intl/server")
             return {
               getLocale: async () => {
@@ -279,7 +281,11 @@ test("Checkout derives locale on the server after Auth, input and quota validati
         }
       }
     );
-    const result = await mod.exports.POST({});
+    const result = await mod.exports.POST(
+      new Request("https://yokkai-collec.com/api/billing/checkout", {
+        method: "POST"
+      })
+    );
     assert.equal(result.url, "https://checkout.stripe.com/example");
     assert.deepEqual(JSON.parse(JSON.stringify(calls)), [
       "auth",

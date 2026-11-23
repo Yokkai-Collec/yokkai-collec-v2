@@ -142,7 +142,7 @@ function AuctionIcon({ size = 14 }: { size?: number }) {
   );
 }
 
-function CollectionCardMeta({
+function FirstLrCopyMeta({
   instanceIds,
   blackout
 }: {
@@ -2383,7 +2383,7 @@ export function CollectionView({
                           )}
                         </button>
                         {!renderCardControls && (
-                          <CollectionCardMeta
+                          <FirstLrCopyMeta
                             blackout={isBlackoutCard(card)}
                             instanceIds={group.cards.map(
                               copy => copy.instanceId

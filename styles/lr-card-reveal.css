@@ -1038,18 +1038,14 @@
     animation-delay: 9.15s;
   }
 
-  /* Keep #1 on the card timeline, even when the lookup resolves later. */
-  .yk-card[data-blackout] {
+  .yk-card-first-lr {
+    /* Blackout reveals #1 on its own timeline. */
+    visibility: visible !important;
     animation: yk-lr-blackout-first-copy 9.8s step-end both;
   }
 
-  .yk-card-first-lr {
-    /* The standard LR badge is hidden inline until the controls unlock. */
-    visibility: var(--yk-blackout-badge-visibility, hidden) !important;
-  }
-
   @media (prefers-reduced-motion: reduce) {
-    .yk-card[data-blackout] {
+    .yk-card-first-lr {
       animation: yk-lr-blackout-first-copy 0.3s step-end both !important;
     }
   }
@@ -1178,10 +1174,10 @@
 
 @keyframes yk-lr-blackout-first-copy {
   from {
-    --yk-blackout-badge-visibility: hidden;
+    opacity: 0;
   }
   to {
-    --yk-blackout-badge-visibility: visible;
+    opacity: 1;
   }
 }
 

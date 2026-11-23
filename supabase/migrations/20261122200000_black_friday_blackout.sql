@@ -180,6 +180,7 @@ declare
   stamp timestamptz;
   wallet jsonb;
 begin
+  perform public.assert_player_not_banned();
   if player is null then raise exception 'AUTH_REQUIRED'; end if;
   if p_request is null or p_quantity is null or p_quantity not between 1 and 3 then
     raise exception 'INVALID_PACK_QUANTITY';
@@ -221,6 +222,7 @@ declare
   copy_id uuid;
   result jsonb;
 begin
+  perform public.assert_player_not_banned();
   if player is null then raise exception 'AUTH_REQUIRED'; end if;
   if p_request is null then raise exception 'INVALID_PACK_REQUEST'; end if;
   perform pg_advisory_xact_lock_shared(hashtextextended('account-deletion:' || player::text, 0));

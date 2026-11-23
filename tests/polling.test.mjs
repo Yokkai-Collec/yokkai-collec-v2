@@ -144,6 +144,13 @@ function fixture(view = "packs") {
     if (stubs[name]) return stubs[name];
     if (!name.startsWith("@/")) return require(name);
     if (modules.has(name)) return modules.get(name);
+    if (name.endsWith(".json")) {
+      return {
+        default: JSON.parse(
+          readFileSync(new URL("../" + name.slice(2), import.meta.url), "utf8")
+        )
+      };
+    }
     const base = new URL(`../${name.slice(2)}`, import.meta.url);
     const file = new URL(
       base.href + (existsSync(new URL(base.href + ".tsx")) ? ".tsx" : ".ts")
