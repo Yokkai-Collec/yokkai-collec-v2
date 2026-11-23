@@ -36,29 +36,29 @@ begin
   where cards.event_only and cards.rarete_base = 'LR'
     and (cards.nom, cards.image_url) is distinct from (excluded.nom, excluded.image_url);
 
-    if exists (
-      select 1
-      from (values
-      ('blackout-sung-jinwoo', 'Sung Jin-Woo (Blackout)', '/assets/events/blackout/cards/sung-jinwoo.webp'),
-      ('blackout-ryomen-sukuna', 'Sukuna (Blackout)', '/assets/events/blackout/cards/ryomen-sukuna.webp'),
-      ('blackout-goku-black', 'Goku Black (Blackout)', '/assets/events/blackout/cards/goku-black.webp'),
-      ('blackout-roronoa-zoro', 'Zoro Roronoa (Blackout)', '/assets/events/blackout/cards/roronoa-zoro.webp'),
-      ('blackout-ichigo-kurosaki', 'Ichigo Kurosaki (Blackout)', '/assets/events/blackout/cards/ichigo-kurosaki.webp'),
-      ('blackout-sosuke-aizen', 'Sōsuke Aizen (Blackout)', '/assets/events/blackout/cards/sosuke-aizen.webp'),
-      ('blackout-guts', 'Guts (Blackout)', '/assets/events/blackout/cards/guts.webp'),
-      ('blackout-sasuke-uchiha', 'Sasuke Uchiha (Blackout)', '/assets/events/blackout/cards/sasuke-uchiha.webp'),
-      ('blackout-ken-kaneki', 'Ken Kaneki (Blackout)', '/assets/events/blackout/cards/ken-kaneki.webp'),
-      ('blackout-eren-yeager', 'Eren Yeager (Blackout)', '/assets/events/blackout/cards/eren-yeager.webp')
-      ) as expected(source_id, nom, image_url)
-      where not exists (
-        select 1 from public.cards c
-        where c.source = 'manual' and c.source_id = expected.source_id
-          and c.nom = upper(expected.nom) and c.image_url = expected.image_url
-          and c.event_only and c.rarete_base = 'LR'
-      )
-    ) then
-      raise exception 'Blackout source IDs conflict with an existing card';
-    end if;
+  if exists (
+    select 1
+    from (values
+    ('blackout-sung-jinwoo', 'Sung Jin-Woo (Blackout)', '/assets/events/blackout/cards/sung-jinwoo.webp'),
+    ('blackout-ryomen-sukuna', 'Sukuna (Blackout)', '/assets/events/blackout/cards/ryomen-sukuna.webp'),
+    ('blackout-goku-black', 'Goku Black (Blackout)', '/assets/events/blackout/cards/goku-black.webp'),
+    ('blackout-roronoa-zoro', 'Zoro Roronoa (Blackout)', '/assets/events/blackout/cards/roronoa-zoro.webp'),
+    ('blackout-ichigo-kurosaki', 'Ichigo Kurosaki (Blackout)', '/assets/events/blackout/cards/ichigo-kurosaki.webp'),
+    ('blackout-sosuke-aizen', 'Sōsuke Aizen (Blackout)', '/assets/events/blackout/cards/sosuke-aizen.webp'),
+    ('blackout-guts', 'Guts (Blackout)', '/assets/events/blackout/cards/guts.webp'),
+    ('blackout-sasuke-uchiha', 'Sasuke Uchiha (Blackout)', '/assets/events/blackout/cards/sasuke-uchiha.webp'),
+    ('blackout-ken-kaneki', 'Ken Kaneki (Blackout)', '/assets/events/blackout/cards/ken-kaneki.webp'),
+    ('blackout-eren-yeager', 'Eren Yeager (Blackout)', '/assets/events/blackout/cards/eren-yeager.webp')
+    ) as expected(source_id, nom, image_url)
+    where not exists (
+      select 1 from public.cards c
+      where c.source = 'manual' and c.source_id = expected.source_id
+        and c.nom = upper(expected.nom) and c.image_url = expected.image_url
+        and c.event_only and c.rarete_base = 'LR'
+    )
+  ) then
+    raise exception 'Blackout source IDs conflict with an existing card';
+  end if;
 end;
 $publish$;
 revoke all on function public.publish_blackout_cards() from public, anon, authenticated, service_role;

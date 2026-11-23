@@ -121,7 +121,16 @@ export function useGtaSunsetEvent(
       const { data, error } = await createClient().rpc(
         edition === "blackout" ? "get_blackout_event" : "get_gta_sunset_event"
       );
-      if (!active || current !== request || error) return;
+      if (!active || current !== request) return;
+      if (
+        edition === "blackout" &&
+        !data &&
+        Date.now() < Date.parse(blackFridayTerms.startsAt) + 5 * 60_000
+      ) {
+        window.clearTimeout(launchTimer);
+        launchTimer = window.setTimeout(load, 15_000);
+      }
+      if (error) return;
       const snapshot = data as SunsetEvent | null;
       const now = Date.now();
       setClock(now);
