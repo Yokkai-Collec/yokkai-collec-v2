@@ -39,9 +39,35 @@ export function BoostersPreview({ pityOpened }: { pityOpened?: number } = {}) {
   const [draw, setDraw] = useState<RevealCard[]>([]);
   const [drawKind, setDrawKind] = useState<BoosterKind>("regular");
   const [revealed, setRevealed] = useState(0);
-  const [reserve, setReserve] = useState(3);
+  const [reserve, setReserve] = useState(10);
   const [decisionUsed, setDecisionUsed] = useState(false);
   const [decisionReturn] = useState(() => new Date().setHours(24, 0, 0, 0));
+  async function openDemo(kind: "regular" | "decision", count = 1) {
+    if (kind === "regular") {
+      if (reserve < count) return;
+      setReserve(current => current - count);
+    } else {
+      setDecisionUsed(true);
+    }
+    const stamp = Date.now();
+    const cards = Array.from({ length: count }, (_, pack) =>
+      draws[kind].map(([name, rarity, shiny], index) => ({
+        id: "preview-" + kind + "-" + index,
+        instanceId: ["preview", kind, stamp, pack, index].join("-"),
+        name,
+        category: "Anime",
+        anime: franchises[index],
+        rarity,
+        image: "/assets/booster-pack.png",
+        shiny
+      }))
+    ).flat();
+    setDrawKind(kind);
+    setRevealed(0);
+    setDraw(cards);
+    return cards;
+  }
+
   return (
     <Boosters
       pityPreviewOpened={pityOpened}
@@ -58,7 +84,11 @@ export function BoostersPreview({ pityOpened }: { pityOpened?: number } = {}) {
             }
           : undefined
       }
-      status={{ available: reserve, maximum: 5, nextPackAt: 4_102_444_800_000 }}
+      status={{
+        available: reserve,
+        maximum: 10,
+        nextPackAt: reserve === 10 ? null : 4_102_444_800_000
+      }}
       countdown="42:00"
       // Demo probabilities only; the live page gets these from the server.
       dropRates={[
@@ -85,24 +115,8 @@ export function BoostersPreview({ pityOpened }: { pityOpened?: number } = {}) {
       drawKind={drawKind}
       collection={[]}
       revealed={revealed}
-      onOpen={async kind => {
-        if (kind === "regular") setReserve(current => Math.max(0, current - 1));
-        else setDecisionUsed(true);
-        setDrawKind(kind);
-        setRevealed(0);
-        const cards = draws[kind].map(([name, rarity, shiny], index) => ({
-          id: `preview-${kind}-${index}`,
-          instanceId: `preview-${kind}-${index}-${Date.now()}`,
-          name,
-          category: "Anime",
-          anime: franchises[index],
-          rarity,
-          image: "/assets/booster-pack.png",
-          shiny
-        }));
-        setDraw(cards);
-        return cards;
-      }}
+      onOpen={kind => openDemo(kind)}
+      onOpenMany={count => openDemo("regular", count)}
       onKeepDecision={async () => 180}
       onDiscard={async () => {}}
       onReveal={index =>
