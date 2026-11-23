@@ -72,7 +72,7 @@ export function BoostersPreview() {
         { rarity: "SSR", percent: 3 },
         { rarity: "LR", percent: 0.5 }
       ]}
-      shinyRate={1}
+      shinyRate={0.5}
       decisionStatus={{
         available: !decisionUsed,
         pending: [],

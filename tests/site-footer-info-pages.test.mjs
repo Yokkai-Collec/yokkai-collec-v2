@@ -33,14 +33,14 @@ test("public guide pages have English metadata and useful content", () => {
   for (const rate of ["69.4%", "20%", "10%", "0.5%", "0.1%"])
     assert.match(rarities, new RegExp(rate.replace(".", "\\.")));
   assert.match(rarities, /LR SHINY/);
-  assert.match(rarities, /0\.001%/);
+  assert.match(rarities, /0\.0005%/);
   assert.match(
     rarities,
     /t(?:\.rich)?\("theFirstFivePercentagesAreTheCurrent"/
   );
   assert.match(
     englishMessages.legalUi.theFirstFivePercentagesAreTheCurrent,
-    /1 in 100,000 pull per card/
+    /1 in 200,000 pull per card/
   );
   assert.match(
     rarities,
@@ -48,7 +48,7 @@ test("public guide pages have English metadata and useful content", () => {
   );
   assert.match(
     englishMessages.legalUi.theFirstFivePercentagesAreTheCurrent,
-    /independent 1% chance/
+    /independent 0\.5% chance/
   );
   assert.match(
     rarities,
@@ -56,7 +56,7 @@ test("public guide pages have English metadata and useful content", () => {
   );
   assert.match(
     englishMessages.legalUi.decisionPacksOnlyContainHighRarityChoices,
-    /0\.005% chance per revealed card \(1 in 20,000\)/
+    /0\.0025% chance per revealed card \(1 in 40,000\)/
   );
   assert.match(rules, /t(?:\.rich)?\("doNotAutomatePackOpeningsOrOther"/);
   assert.match(

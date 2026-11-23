@@ -129,7 +129,7 @@ function createPreviewData(
           categories: [],
           rarities: [],
           dropRates: [],
-          shinyRate: 1
+          shinyRate: 0.5
         })
       ),
     getUserCollection: () =>

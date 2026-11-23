@@ -1229,7 +1229,7 @@ export function Boosters({
   decisionCountdown,
   dropRates = [],
   decisionDropRates = DECISION_DROP_RATES,
-  shinyRate = 1,
+  shinyRate = 0.5,
   busy,
   draw,
   drawKind,
