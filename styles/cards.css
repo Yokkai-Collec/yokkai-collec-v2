@@ -222,8 +222,7 @@
   text-overflow: ellipsis;
 }
 .yk-card[data-blackout] .yk-card-name {
-  font-size: min(5.35cqw, 20px);
-  letter-spacing: 0;
+  text-transform: uppercase;
 }
 .yk-card-category {
   min-width: 0;
