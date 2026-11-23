@@ -42,6 +42,7 @@ function loader(options = {}) {
         exports: compiled.exports,
         module: compiled,
         Error,
+        Date: options.Date ?? Date,
         URL,
         Request,
         Response,
@@ -841,4 +842,80 @@ test("quota denial returns a safe retry delay and stops the actual billing route
     assert.equal(result.headers.get("Retry-After"), "60");
   }
   assert.equal(providerCalls, 0);
+});
+
+test("Blackout checkout uses the authenticated Whop session and prefills only the event code", async () => {
+  const site = "https://yokkai-collec.com";
+  let now = Date.parse("2026-11-26T19:59:59+01:00");
+  let destination = "https://whop.com/checkout/ch_linked";
+  const calls = [];
+  const app = loader({
+    Date: class extends Date {
+      static now() {
+        return now;
+      }
+    },
+    env: {
+      ...env,
+      NODE_ENV: "production",
+      STRIPE_BILLING_MODE: "live",
+      STRIPE_SECRET_KEY: "sk_live_example",
+      NEXT_PUBLIC_SITE_URL: site,
+      NEXT_PUBLIC_SUPABASE_URL: "https://database.invalid",
+      WHOP_LIVE_SYNC_ENABLED: "true"
+    },
+    mocks: {
+      "@/lib/auth/session": { getCurrentUser: async () => ({ id: userId }) },
+      "@/lib/billing/rate-limit": {
+        BillingRateLimitError: class extends Error {},
+        consumeBillingRequest: async () => {}
+      },
+      "@/lib/data/blackout-preview": {
+        blackFridayTerms: {
+          startsAt: "2026-11-26T20:00:00+01:00",
+          endsAt: "2026-11-30T21:00:00+01:00",
+          promoCode: "BLACKOUT"
+        }
+      },
+      "@/lib/billing/whop-live.mjs": { whopCheckoutEnabled: () => true },
+      "@/lib/billing/checkout-service": {
+        configuredBillingService: () => ({
+          checkout: async id => {
+            calls.push(id);
+            return destination;
+          }
+        })
+      }
+    }
+  });
+  const { POST } = app("app/api/billing/checkout/route.ts");
+  function checkout(origin = site) {
+    return POST(
+      new Request(
+        site +
+          "/api/billing/checkout?offer=blackout&promoCode=OTHER&userId=other",
+        {
+          method: "POST",
+          headers: { origin, "Content-Type": "application/json" },
+          body: "{}"
+        }
+      )
+    );
+  }
+
+  assert.equal((await checkout()).status, 404);
+  now = Date.parse("2026-11-26T20:00:00+01:00");
+  assert.equal((await checkout("https://other.invalid")).status, 403);
+  assert.deepEqual(calls, []);
+  const response = await checkout();
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), {
+    url: "https://whop.com/checkout/ch_linked?promoCode=BLACKOUT"
+  });
+  assert.deepEqual(calls, [userId]);
+  destination = "https://checkout.stripe.com/example";
+  assert.equal((await checkout()).status, 503);
+  now = Date.parse("2026-11-30T21:00:00+01:00");
+  assert.equal((await checkout()).status, 404);
+  assert.deepEqual(calls, [userId, userId]);
 });

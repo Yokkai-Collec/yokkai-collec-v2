@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 
 import { useEffect, useRef, useState } from "react";
 import {
+  BLACKOUT_BOOSTER_IMAGE,
   SUNSET_BOOSTER_IMAGE,
   type BoosterKind
 } from "@/lib/ui/booster-opening-document";
@@ -32,6 +33,7 @@ export function BoosterOpening({
 }) {
   const tp = useTranslations("packs");
   const tSunset = useTranslations("gtaSunset");
+  const tBlackout = useTranslations("blackout");
   const [html, setHtml] = useState("");
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -190,9 +192,11 @@ export function BoosterOpening({
             pack:
               kind === "sunset"
                 ? tSunset("boosterTitle")
-                : kind === "decision"
-                  ? "Decision Pack"
-                  : "Regular Pack"
+                : kind === "blackout"
+                  ? tBlackout("boosterTitle")
+                  : kind === "decision"
+                    ? "Decision Pack"
+                    : "Regular Pack"
           })}
           sandbox="allow-scripts"
           referrerPolicy="no-referrer"
@@ -213,10 +217,13 @@ export function BoosterOpening({
         <img
           draggable={false}
           className="yk-booster-opening-fallback"
+          data-pack-theme={kind}
           src={
             kind === "sunset"
               ? SUNSET_BOOSTER_IMAGE
-              : `/assets/chrome-${kind}-booster-v1.png`
+              : kind === "blackout"
+                ? BLACKOUT_BOOSTER_IMAGE
+                : `/assets/chrome-${kind}-booster-v1.png`
           }
           alt=""
         />

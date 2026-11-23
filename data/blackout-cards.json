@@ -1,0 +1,62 @@
+[
+  {
+    "id": "blackout-sung-jinwoo",
+    "name": "Sung Jin-Woo (Blackout)",
+    "anime": "Solo Leveling",
+    "artwork": "/assets/events/blackout/cards/sung-jinwoo.webp"
+  },
+  {
+    "id": "blackout-ryomen-sukuna",
+    "name": "Sukuna (Blackout)",
+    "anime": "JUJUTSU KAISEN",
+    "artwork": "/assets/events/blackout/cards/ryomen-sukuna.webp"
+  },
+  {
+    "id": "blackout-goku-black",
+    "name": "Goku Black (Blackout)",
+    "anime": "Dragon Ball Super",
+    "artwork": "/assets/events/blackout/cards/goku-black.webp"
+  },
+  {
+    "id": "blackout-roronoa-zoro",
+    "name": "Zoro Roronoa (Blackout)",
+    "anime": "One Piece",
+    "artwork": "/assets/events/blackout/cards/roronoa-zoro.webp"
+  },
+  {
+    "id": "blackout-ichigo-kurosaki",
+    "name": "Ichigo Kurosaki (Blackout)",
+    "anime": "Bleach",
+    "artwork": "/assets/events/blackout/cards/ichigo-kurosaki.webp"
+  },
+  {
+    "id": "blackout-sosuke-aizen",
+    "name": "Sōsuke Aizen (Blackout)",
+    "anime": "Bleach",
+    "artwork": "/assets/events/blackout/cards/sosuke-aizen.webp"
+  },
+  {
+    "id": "blackout-guts",
+    "name": "Guts (Blackout)",
+    "anime": "Berserk",
+    "artwork": "/assets/events/blackout/cards/guts.webp"
+  },
+  {
+    "id": "blackout-sasuke-uchiha",
+    "name": "Sasuke Uchiha (Blackout)",
+    "anime": "Naruto",
+    "artwork": "/assets/events/blackout/cards/sasuke-uchiha.webp"
+  },
+  {
+    "id": "blackout-ken-kaneki",
+    "name": "Ken Kaneki (Blackout)",
+    "anime": "Tokyo Ghoul",
+    "artwork": "/assets/events/blackout/cards/ken-kaneki.webp"
+  },
+  {
+    "id": "blackout-eren-yeager",
+    "name": "Eren Yeager (Blackout)",
+    "anime": "Attack on Titan",
+    "artwork": "/assets/events/blackout/cards/eren-yeager.webp"
+  }
+]

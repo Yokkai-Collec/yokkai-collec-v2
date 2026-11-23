@@ -11,6 +11,7 @@ import type { Rarity } from "@/lib/data/cards";
 import "@/styles/cards.css";
 
 export type YokaiCardProps = {
+  id?: string;
   rarity: Rarity;
   instanceId?: string;
   copyInstanceIds?: readonly string[];
@@ -194,7 +195,21 @@ function FirstLrCopyBadge({
   );
 }
 
+export function isBlackoutCard({
+  id,
+  image,
+  catalogueImage
+}: Pick<YokaiCardProps, "id" | "image" | "catalogueImage">) {
+  return (
+    Boolean(id?.startsWith("blackout-")) ||
+    /^\/assets\/events\/blackout\/cards\/[a-z0-9-]+\.webp$/.test(
+      catalogueImage ?? image ?? ""
+    )
+  );
+}
+
 export function YokaiCard({
+  id,
   rarity,
   instanceId,
   copyInstanceIds,
@@ -215,6 +230,8 @@ export function YokaiCard({
   categoryAccessory,
   rarityAccessory
 }: YokaiCardProps) {
+  const blackoutPreview = id?.startsWith("blackout-") ?? false;
+  const blackout = isBlackoutCard({ id, image, catalogueImage });
   const t = useTranslations("collectionShared");
   const sunset = /^\/assets\/events\/gta-sunset\/(?:jason|lucia)\.png$/.test(
     catalogueImage ?? image ?? ""
@@ -223,8 +240,9 @@ export function YokaiCard({
   const evolved =
     (isEvolved || (shiny && rarity === "SSR")) &&
     (rarity === "SSR" || rarity === "LR");
-  const evolvedStyle = evolved && !(shiny && rarity === "LR");
-  const special = holo || evolved;
+  const evolvedStyle =
+    (evolved || (blackout && rarity === "LR")) && !(shiny && rarity === "LR");
+  const special = holo || evolvedStyle;
   const franchise = formatLicenseName(anime?.trim());
   const sparkCount = !animated
     ? 0
@@ -282,6 +300,7 @@ export function YokaiCard({
   return (
     <div
       data-sunset={sunset || undefined}
+      data-blackout={blackout || undefined}
       className={`yk-card yk-rarity-${rarity} ${evolvedStyle ? "yk-evolved" : holo ? "yk-shiny" : ""} ${animated ? "yk-animated" : ""} ${className}`}
     >
       <div
@@ -389,7 +408,7 @@ export function YokaiCard({
                     ✧
                   </span>
                 )}
-                {special && (
+                {(holo || evolved) && (
                   <span
                     className={`yk-shiny-badge${evolved ? " yk-evolved-badge" : ""}`}
                     title={cardRarityLabel(rarity, shiny, isEvolved)}
@@ -439,6 +458,7 @@ export function YokaiCard({
         </div>
       </div>
       {rarity === "LR" &&
+        !blackoutPreview &&
         Boolean(firstLrCopy || instanceId || copyInstanceIds?.length) && (
           <FirstLrCopyBadge
             instanceId={instanceId}

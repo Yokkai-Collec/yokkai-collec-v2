@@ -1,5 +1,6 @@
 // Exact overloads and roles only. Every addition requires an access justification.
 export const ownerOnly = [
+  "public.publish_blackout_cards()", // Only the cron owner publishes cards in the event window.
   "public.track_black_market_ban()", // Trigger-only permanent ban clock; private Auth history.
   "public.recover_black_market_cards(uuid, uuid)", // Private 14-day recovery shared only by the owner cron worker.
   "public.recover_due_black_market_cards()", // Owner cron only; never callable by players or service role.
@@ -119,6 +120,9 @@ const allowlist = {
     "authenticated"
   ], // Admin-only pending cards and their recovery blockers.
   "public.get_gta_sunset_event()": ["authenticated"], // Public event and only the current player’s opening.
+  "public.get_blackout_event()": ["authenticated"], // Scheduled event and current player wallet only.
+  "public.buy_blackout_packs(integer, uuid)": ["authenticated"], // Purchases against the caller’s wallet during the event.
+  "public.open_blackout_booster(uuid)": ["authenticated"], // Consumes only the caller’s credit and writes their own collection.
   "public.get_black_market_event()": ["authenticated"], // Authenticated public event DTO; no source identities or recovery records.
   "public.get_black_market_activity()": ["authenticated"], // Public final sale prices and winner profile visuals, plus own wins and pending reminders.
   "public.set_black_market_reminder(uuid, boolean)": ["authenticated"], // Changes only the current user's reminders for scheduled cards.

@@ -369,7 +369,7 @@ test("new Whop checkouts reuse the same server-owned reference and reject change
       billing_period: 30,
       initial_price: 0,
       renewal_price: 4.99,
-      trial_period_days: 3
+      trial_period_days: null
     }
   };
   const attempt = {
@@ -416,20 +416,39 @@ test("new Whop checkouts reuse the same server-owned reference and reject change
     db
   );
   attempt.checkout_id = null;
-  await assert.rejects(
-    openWhopCheckout(
+  for (const changed of [
+    { renewal_price: 9.99 },
+    { trial_period_days: 3 },
+    { trial_period_days: undefined }
+  ]) {
+    await assert.rejects(
+      openWhopCheckout(
+        "player",
+        env,
+        async () =>
+          Response.json({
+            ...checkout,
+            variant: { ...checkout.variant, ...changed }
+          }),
+        db
+      ),
+      /CHECKOUT_MISMATCH/
+    );
+    assert.equal(attempt.checkout_id, null);
+  }
+  assert.equal(
+    await openWhopCheckout(
       "player",
       env,
       async () =>
         Response.json({
           ...checkout,
-          variant: { ...checkout.variant, renewal_price: 9.99 }
+          variant: { ...checkout.variant, trial_period_days: 0 }
         }),
       db
     ),
-    /CHECKOUT_MISMATCH/
+    "https://whop.com/checkout/ch_server"
   );
-  assert.equal(attempt.checkout_id, null);
 });
 
 test("an eligible Whop trial grants access for its verified period and cannot be extended indefinitely", async () => {
@@ -506,5 +525,70 @@ test("a localized Whop renewal must still match the paid membership and its EUR 
     (await status(eurOffer, { ...localized, member_id: "mber_other" }))
       .accessUntil,
     null
+  );
+});
+
+test("Whop applies a verified Black Friday code only on the first payment for the regular checkout plan", async () => {
+  const promoConfig = { ...config, regularPlan: "plan_regular" };
+  const player = {
+    ...row,
+    stripe_paid_until: null,
+    variant_id: promoConfig.regularPlan
+  };
+  const firstPeriod = {
+    ...membership,
+    variant_id: player.variant_id,
+    created_at: time(-0.1)
+  };
+  const discount = {
+    ...paid,
+    subtotal: { amount: "2.99", currency: "eur" },
+    promo_code_id: "promo_blackFriday",
+    variant_id: player.variant_id,
+    member_id: player.member_id
+  };
+  const verify = (current, payment, at = now) =>
+    verifyWhopLiveAccess(
+      player,
+      promoConfig,
+      provider(current, [payment]).fetch,
+      at
+    );
+
+  assert.equal(
+    (await verify(firstPeriod, discount)).accessUntil,
+    firstPeriod.current_period_end
+  );
+  assert.equal(
+    (await verify(firstPeriod, { ...discount, promo_code_id: null }))
+      .accessUntil,
+    null
+  );
+  assert.equal(
+    (await verify(firstPeriod, { ...discount, variant_id: "plan_other" }))
+      .accessUntil,
+    null
+  );
+  assert.equal(
+    (await verify({ ...firstPeriod, created_at: time(-31) }, discount))
+      .accessUntil,
+    null
+  );
+  const trialConversion = {
+    ...firstPeriod,
+    created_at: "2026-11-30T19:30:00Z",
+    current_period_start: "2026-12-03T19:30:00Z",
+    current_period_end: "2027-01-02T19:30:00Z",
+    updated_at: "2026-12-03T19:30:00Z"
+  };
+  assert.equal(
+    (
+      await verify(
+        trialConversion,
+        { ...discount, paid_at: trialConversion.current_period_start },
+        Date.parse("2026-12-03T20:00:00Z")
+      )
+    ).accessUntil,
+    trialConversion.current_period_end
   );
 });

@@ -15,6 +15,7 @@ const root = path.resolve(import.meta.dirname, "..");
 const read = file => readFileSync(path.join(root, file), "utf8");
 const modules = new Map();
 function load(file) {
+  if (file.endsWith(".json")) return JSON.parse(read(file));
   if (modules.has(file)) return modules.get(file);
   const exports = {};
   modules.set(file, exports);

@@ -25,6 +25,7 @@
 }
 .yk-pack-grid .yk-pack-panel {
   --pack-accent: var(--color-pack-accent);
+  --pack-info-size: 44px;
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -40,7 +41,6 @@
   content: none;
 }
 .yk-pack-grid .yk-pack-panel .yk-pack-art-stage {
-  --pack-info-size: 44px;
   height: clamp(280px, calc(100dvh - 464px), 520px);
   container-type: size;
   flex-shrink: 0;
@@ -307,12 +307,13 @@
   }
   .yk-pack-grid {
     max-width: min(70vw, 2000px);
-    gap: clamp(96px, 5vw, 192px);
     margin-top: 32px;
+  }
+  .yk-pack-grid .yk-pack-panel {
+    --pack-info-size: clamp(44px, 1.5vw, 52px);
   }
   .yk-pack-grid .yk-pack-panel .yk-pack-art-stage {
     height: clamp(360px, calc(52dvh - 180px), 640px);
-    --pack-info-size: clamp(44px, 1.5vw, 52px);
   }
   .yk-pack-floor {
     width: min(100%, clamp(300px, 18vw, 520px));
