@@ -165,6 +165,10 @@
     "reset": "Restore original cover"
   },
   "packs": {
+    "lrPityTitle": "Guaranteed LR",
+    "lrPityNextPack": "In the next pack",
+    "lrPityRemaining": "{count, number} packs remaining",
+    "lrPityProgress": "{opened, number} / {total, number} packs without an LR",
     "decisionCard": {
       "aboutStats": "About these figures",
       "title": "Before you choose",

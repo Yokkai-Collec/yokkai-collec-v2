@@ -1213,7 +1213,10 @@ function getPackFromHash(): CarouselPack {
 }
 const getServerPack = () => "regular" as const;
 
+const LR_PITY_PACKS = 500;
+
 export function Boosters({
+  pityPreviewOpened = 418,
   previewOnly = false,
   simulateActions = false,
   clickToOpen = false,
@@ -1253,6 +1256,7 @@ export function Boosters({
   onSound,
   onStopSound
 }: {
+  pityPreviewOpened?: number;
   previewOnly?: boolean;
   simulateActions?: boolean;
   clickToOpen?: boolean;
@@ -1303,6 +1307,7 @@ export function Boosters({
   const tp = useTranslations("packs");
   const format = useFormatter();
   const localPreview = process.env.NODE_ENV === "development" && previewOnly;
+  const pityRemaining = LR_PITY_PACKS - pityPreviewOpened;
   const [openingPhase, setOpeningPhase] = useState<"idle" | "tension" | "seal" | "fan">(
     "idle"
   );
@@ -1837,6 +1842,26 @@ export function Boosters({
                   </p>
                 )}
               </div>
+              {process.env.NODE_ENV === "development" && (
+                <div className="yk-lr-pity" data-next={pityRemaining === 1}>
+                  <div className="yk-lr-pity-header">
+                    <strong>{tp("lrPityTitle")}</strong>
+                    <span>
+                      {pityRemaining === 1
+                        ? tp("lrPityNextPack")
+                        : tp("lrPityRemaining", { count: pityRemaining })}
+                    </span>
+                  </div>
+                  <progress
+                    className="yk-lr-pity-track"
+                    aria-label={tp("lrPityTitle")}
+                    aria-valuetext={tp("lrPityProgress", { opened: pityPreviewOpened, total: LR_PITY_PACKS })}
+                    value={pityPreviewOpened}
+                    max={LR_PITY_PACKS}
+                  />
+                  <p>{tp("lrPityProgress", { opened: pityPreviewOpened, total: LR_PITY_PACKS })}</p>
+                </div>
+              )}
               {statusError && (
                 <p role="alert" className="my-3 text-sm text-danger-ink">
                   {tError(gameErrorKey(statusError))}{" "}

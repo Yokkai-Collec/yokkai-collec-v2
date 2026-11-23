@@ -7,7 +7,16 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false }
 };
 
-export default function BoostersPreviewPage() {
+export default async function BoostersPreviewPage({
+  searchParams
+}: {
+  searchParams: Promise<{ pity?: string | string[] }>;
+}) {
+  const { pity } = await searchParams;
+  const pityOpened =
+    typeof pity === "string" && /^\d{1,3}$/.test(pity) && Number(pity) < 500
+      ? Number(pity)
+      : undefined;
   return (
     <div className="flex min-h-dvh w-full flex-col">
       <Topbar view="packs" name="Kitsune" karas={4920} notifications={[]} />
@@ -18,7 +27,7 @@ export default function BoostersPreviewPage() {
             New Yokkai, new stories, always something to discover.
           </p>
         </header>
-        <BoostersPreview />
+        <BoostersPreview pityOpened={pityOpened} />
       </main>
       <footer className="mx-auto mt-6 flex w-full max-w-6xl flex-wrap justify-between gap-3 border-t border-veil px-6 py-6 text-xs text-ink-3">
         <span>Yokkai Collec’ · v0.2</span>

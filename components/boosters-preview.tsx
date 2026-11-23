@@ -35,7 +35,7 @@ const franchises = [
   "Moonlit Shrine"
 ];
 
-export function BoostersPreview() {
+export function BoostersPreview({ pityOpened }: { pityOpened?: number } = {}) {
   const [draw, setDraw] = useState<RevealCard[]>([]);
   const [drawKind, setDrawKind] = useState<BoosterKind>("regular");
   const [revealed, setRevealed] = useState(0);
@@ -44,6 +44,7 @@ export function BoostersPreview() {
   const [decisionReturn] = useState(() => new Date().setHours(24, 0, 0, 0));
   return (
     <Boosters
+      pityPreviewOpened={pityOpened}
       previewOnly={blackoutPreviewEnabled}
       clickToOpen={blackoutPreviewEnabled}
       onOpenBlackout={

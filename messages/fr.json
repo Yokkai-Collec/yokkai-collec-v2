@@ -165,6 +165,10 @@
     "reset": "Remettre la couverture d’origine"
   },
   "packs": {
+    "lrPityTitle": "LR garantie",
+    "lrPityNextPack": "Au prochain pack",
+    "lrPityRemaining": "{count, number} packs restants",
+    "lrPityProgress": "{opened, number} / {total, number} packs sans LR",
     "decisionCard": {
       "aboutStats": "À propos de ces chiffres",
       "title": "Avant de choisir",
