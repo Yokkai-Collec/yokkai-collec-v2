@@ -28,11 +28,15 @@ function load(path, imports) {
           ? { LocaleSelector: () => null }
           : Object.hasOwn(imports, name)
             ? imports[name]
-            : require(name),
+            : name === "@/lib/ui/packs-market-announcement"
+              ? packsMarketAnnouncement
+              : require(name),
     process: { env: {} }
   });
   return loadedModule.exports;
 }
+
+const packsMarketAnnouncement = load("lib/ui/packs-market-announcement.ts", {});
 
 test("the anonymous home page renders the same signup and shell with referral parameters intact", async () => {
   const AuthLayout = () => null;
@@ -63,6 +67,7 @@ test("the anonymous home page renders the same signup and shell with referral pa
 
 test("the connected home page renders the dashboard for the authenticated player", async () => {
   const HomeDashboard = () => null;
+  const player = { id: "home-player", user_metadata: {} };
   const home = load("app/page.tsx", {
     "@/components/maintenance-compensation": {
       MaintenanceCompensation: () => null
@@ -74,7 +79,7 @@ test("the connected home page renders the dashboard for the authenticated player
       }
     },
     "@/lib/auth/session": {
-      getVerifiedUser: async () => ({ id: "home-player" })
+      getVerifiedUser: async () => player
     },
     "@/components/home-dashboard": { HomeDashboard },
     "./(auth)/layout": { default: () => null, __esModule: true },
@@ -84,6 +89,15 @@ test("the connected home page renders the dashboard for the authenticated player
   const dashboard = tree;
   assert.equal(dashboard.type, HomeDashboard);
   assert.equal(dashboard.props.userId, "home-player");
+  assert.equal(dashboard.props.announcePacksMarket, true);
+
+  player.user_metadata[
+    packsMarketAnnouncement.PACKS_MARKET_ANNOUNCEMENT_METADATA_KEY
+  ] = packsMarketAnnouncement.PACKS_MARKET_ANNOUNCEMENT_ID;
+  const afterReceipt = await home.default({
+    searchParams: Promise.resolve({})
+  });
+  assert.equal(afterReceipt.props.announcePacksMarket, false);
 });
 
 test("the retired compensation popup is never queried or rendered, even for an eligible player", async () => {
