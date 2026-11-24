@@ -487,6 +487,9 @@
   "public.regular_pack_card_transfers": {
     "excluded": "Private immutable card transfer provenance across trades, auctions and removals, including counterparties and transaction references; requires separate manual privacy review."
   },
+  "public.regular_pack_lr_pity": {
+    "excluded": "Derived game state containing only the current consecutive Regular Packs without an LR. The player can read their own exact counter through the authenticated Regular Pack status, and the row is deleted with the account. Individual data access requests can include it through the manual process."
+  },
   "public.regular_pack_opening_cards": {
     "excluded": "Private card-to-opening provenance linking an owned card to a referral-funded or legacy pack opening; third-party referral data requires separate manual privacy review."
   },

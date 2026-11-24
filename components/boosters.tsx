@@ -1888,8 +1888,8 @@ export function Boosters({
           )}
           </div>
           {lrPity && selectedPack === "regular" && (
-            <div className="yk-lr-pity" data-next={pityRemaining === 1}>
-              <div className="yk-lr-pity-header">
+            <div className="yk-pack-lr-pity" data-next={pityRemaining === 1}>
+              <div className="yk-pack-lr-pity-header">
                 <strong>{tp("lrPityTitle")}</strong>
                 <span>
                   {pityRemaining === 1
@@ -1897,9 +1897,9 @@ export function Boosters({
                     : tp("lrPityRemaining", { count: pityRemaining })}
                 </span>
               </div>
-              <div className="yk-lr-pity-meter">
+              <div className="yk-pack-lr-pity-meter">
                 <progress
-                  className="yk-lr-pity-track"
+                  className="yk-pack-lr-pity-track"
                   aria-label={tp("lrPityTitle")}
                   aria-valuetext={tp("lrPityProgress", {
                     opened: lrPity.opened,

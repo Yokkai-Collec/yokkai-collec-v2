@@ -123,7 +123,7 @@
   line-height: 1.3;
   letter-spacing: -0.025em;
 }
-.yk-lr-pity {
+.yk-pack-lr-pity {
   display: grid;
   width: min(100%, 280px);
   gap: 3px;
@@ -150,32 +150,32 @@
   font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
-.yk-lr-pity-header {
+.yk-pack-lr-pity-header {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
   column-gap: 8px;
 }
-.yk-lr-pity-header strong {
+.yk-pack-lr-pity-header strong {
   color: var(--color-accent-gold);
   font-size: 12px;
 }
-.yk-lr-pity[data-next="true"] {
+.yk-pack-lr-pity[data-next="true"] {
   border-color: var(--color-rarity-lr);
 }
-.yk-lr-pity[data-next="true"] .yk-lr-pity-header span {
+.yk-pack-lr-pity[data-next="true"] .yk-pack-lr-pity-header span {
   color: var(--color-accent-gold);
   font-weight: 700;
 }
-.yk-lr-pity-meter {
+.yk-pack-lr-pity-meter {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 8px;
   line-height: 1.25;
 }
-.yk-lr-pity-track {
+.yk-pack-lr-pity-track {
   display: block;
   width: 100%;
   height: 5px;
@@ -186,11 +186,11 @@
   color: var(--color-rarity-lr);
   accent-color: var(--color-rarity-lr);
 }
-.yk-lr-pity-track::-webkit-progress-bar {
+.yk-pack-lr-pity-track::-webkit-progress-bar {
   border-radius: inherit;
   background: var(--color-veil-strong);
 }
-.yk-lr-pity-track::-webkit-progress-value {
+.yk-pack-lr-pity-track::-webkit-progress-value {
   border-radius: inherit;
   background: linear-gradient(
     90deg,
@@ -198,7 +198,7 @@
     var(--color-accent-gold)
   );
 }
-.yk-lr-pity-track::-moz-progress-bar {
+.yk-pack-lr-pity-track::-moz-progress-bar {
   border-radius: inherit;
   background: linear-gradient(
     90deg,
@@ -522,34 +522,37 @@
 }
 
 /* Keep the progress on its own row so both pack bodies end at their buttons. */
-.yk-pack-grid:has(> .yk-lr-pity) {
+.yk-pack-grid:has(> .yk-pack-lr-pity) {
   row-gap: 0;
 }
-.yk-pack-grid > .yk-lr-pity {
+.yk-pack-grid > .yk-pack-lr-pity {
   grid-column: 1;
   justify-self: center;
 }
 @media (min-width: 701px) {
-  .yk-pack-grid > .yk-lr-pity {
+  .yk-pack-grid > .yk-pack-lr-pity {
     grid-row: 2;
     width: min(calc(100% - 32px), 280px);
   }
-  .yk-pack-grid:has(> .yk-lr-pity) .yk-pack-body {
+  .yk-pack-grid:has(> .yk-pack-lr-pity) .yk-pack-body {
     flex: 1;
   }
-  .yk-pack-grid:has(> .yk-lr-pity) .yk-pack-panel .yk-pack-body > .yk-button {
+  .yk-pack-grid:has(> .yk-pack-lr-pity)
+    .yk-pack-panel
+    .yk-pack-body
+    > .yk-button {
     margin-top: auto;
   }
 }
 @media (max-width: 700px) {
-  .yk-pack-grid:has(> .yk-lr-pity) > .yk-decision-panel {
+  .yk-pack-grid:has(> .yk-pack-lr-pity) > .yk-decision-panel {
     margin-block-start: 56px;
   }
 }
 
 /* Keep the idle Packs controls above the two direct choices. */
 @media (min-width: 1024px) and (min-height: 701px) {
-  .yk-game-main:has(.yk-lr-pity) {
+  .yk-game-main:has(.yk-pack-lr-pity) {
     --pack-pity-space: 40px;
   }
   .yk-boosters-page
