@@ -1,6 +1,5 @@
 import { EventsHub } from "@/components/events-hub";
 import { GtaSunsetHomeBanner } from "@/components/gta-sunset-event";
-import { MysteryAuctionAnnouncement } from "@/components/mystery-auction-announcement";
 import { PacksMarketReleaseNotice } from "@/components/packs-market-announcement";
 import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
@@ -251,11 +250,9 @@ async function HomeTopbar() {
 
 export function HomeDashboard({
   userId,
-  seenAnnouncement,
   announcePacksMarket = false
 }: {
   userId: string;
-  seenAnnouncement?: string | null;
   announcePacksMarket?: boolean;
 }) {
   const t = useTranslations("homeDashboard");
@@ -325,10 +322,6 @@ export function HomeDashboard({
         </HomePanel>
         <HomeLinks discordEnabled={discordEnabled} />
       </main>
-      <MysteryAuctionAnnouncement
-        userId={userId}
-        seenAnnouncement={seenAnnouncement}
-      />
       <SiteFooter
         discordEnabled={discordEnabled}
         contactEmail={process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim()}

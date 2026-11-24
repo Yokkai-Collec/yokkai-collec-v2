@@ -40,12 +40,6 @@ export default async function Home({
           user.user_metadata?.[PACKS_MARKET_ANNOUNCEMENT_METADATA_KEY] !==
           PACKS_MARKET_ANNOUNCEMENT_ID
         }
-        seenAnnouncement={
-          typeof user.user_metadata
-            ?.yokkai_seen_mystery_auction_announcement === "string"
-            ? user.user_metadata.yokkai_seen_mystery_auction_announcement
-            : null
-        }
       />
     );
   }

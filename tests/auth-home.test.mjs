@@ -91,6 +91,13 @@ test("the connected home page renders the dashboard for the authenticated player
   assert.equal(dashboard.props.userId, "home-player");
   assert.equal(dashboard.props.announcePacksMarket, true);
 
+  player.user_metadata.yokkai_seen_mystery_auction_announcement =
+    "2026-11-mystery-twice-daily-lr";
+  const afterOlderReceipt = await home.default({
+    searchParams: Promise.resolve({})
+  });
+  assert.equal(afterOlderReceipt.props.announcePacksMarket, true);
+
   player.user_metadata[
     packsMarketAnnouncement.PACKS_MARKET_ANNOUNCEMENT_METADATA_KEY
   ] = packsMarketAnnouncement.PACKS_MARKET_ANNOUNCEMENT_ID;
@@ -98,6 +105,12 @@ test("the connected home page renders the dashboard for the authenticated player
     searchParams: Promise.resolve({})
   });
   assert.equal(afterReceipt.props.announcePacksMarket, false);
+});
+
+test("the dashboard mounts only the current release announcement", () => {
+  const dashboard = readFileSync("components/home-dashboard.tsx", "utf8");
+  assert.match(dashboard, /<PacksMarketReleaseNotice\b/);
+  assert.doesNotMatch(dashboard, /<MysteryAuctionAnnouncement\b/);
 });
 
 test("the retired compensation popup is never queried or rendered, even for an eligible player", async () => {
