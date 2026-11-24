@@ -45,8 +45,9 @@ export function EventsHub({ home = false }: { home?: boolean }) {
   const blackout = useGtaSunsetEvent(!home, "blackout");
   const blackoutVisible =
     !!blackout.event && (filter === "all" || filter === blackout.status);
+  const sunsetListed = !!sunset.event && !sunset.packsExpired;
   const sunsetVisible =
-    !!sunset.event && (filter === "all" || filter === sunset.status);
+    sunsetListed && (filter === "all" || filter === sunset.status);
   const blackMarketTiming =
     blackMarket.event === undefined
       ? undefined
@@ -75,19 +76,19 @@ export function EventsHub({ home = false }: { home?: boolean }) {
       1 +
       Number(!!referral.event) +
       Number(!!blackMarketTiming) +
-      Number(!!sunset.event) +
+      Number(sunsetListed) +
       Number(!!blackout.event),
     live:
       Number(!!live) +
       Number(referralStatus === "live") +
       Number(blackMarketLive) +
-      Number(sunset.status === "live") +
+      Number(sunsetListed && sunset.status === "live") +
       Number(blackout.status === "live"),
     upcoming:
       Number(status === "upcoming") +
       Number(referralStatus === "upcoming") +
       Number(blackMarketTiming?.status === "upcoming") +
-      Number(sunset.status === "upcoming") +
+      Number(sunsetListed && sunset.status === "upcoming") +
       Number(blackout.status === "upcoming")
   };
   if (home && !visible && !referralVisible && !blackMarketVisible) return null;

@@ -250,9 +250,76 @@
   border-color: #c6a9ef;
   outline-color: #c6a9ef;
 }
-.yk-home-sunset-banner[data-pack-theme="blackout"] .yk-home-sunset-cards {
-  gap: 10px;
+.yk-home-sunset-banner .yk-home-blackout-cards {
+  gap: 0;
   padding-inline: 12px;
+}
+.yk-home-blackout-cards > div {
+  width: 45px;
+  height: 61px;
+  flex: none;
+  overflow: hidden;
+  padding: 1.5px;
+  border-radius: 6px;
+  background: linear-gradient(
+    140deg,
+    #fff0fa,
+    #e68ebe 39%,
+    #47264d 71%,
+    #d5a0dd
+  );
+  box-shadow:
+    0 3px 8px #080512cf,
+    0 0 10px #a385ef46;
+  rotate: -9deg;
+}
+.yk-home-blackout-cards > div + div {
+  margin-inline-start: -4px;
+}
+.yk-home-blackout-cards > div:nth-child(2) {
+  background: linear-gradient(
+    148deg,
+    #ede9ff,
+    #bfa7ff 43%,
+    #4a347f 75%,
+    #ddcbff
+  );
+  rotate: -3deg;
+}
+.yk-home-blackout-cards > div:nth-child(3) {
+  background: linear-gradient(
+    145deg,
+    #fff6ff,
+    #cda8ed 46%,
+    #513f79 69%,
+    #e5d5ff
+  );
+  rotate: 4deg;
+}
+.yk-home-blackout-cards > div:nth-child(4) {
+  background: linear-gradient(
+    148deg,
+    #fff0dc,
+    #db936e 44%,
+    #52364e 75%,
+    #ffbe91
+  );
+  rotate: 10deg;
+}
+.yk-home-blackout-cards img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  object-fit: cover;
+  object-position: 50% 28%;
+  filter: brightness(1.13) saturate(1.06);
+}
+.yk-home-blackout-cards > div:first-child img {
+  object-position: 64% 16%;
+}
+.yk-home-blackout-cards > div:last-child img {
+  object-position: 50% 25%;
 }
 .yk-home-sunset-banner[data-pack-theme="blackout"] .yk-home-sunset-pack,
 .yk-booster-opening-fallback[data-pack-theme="blackout"] {

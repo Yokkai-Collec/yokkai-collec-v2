@@ -28,6 +28,7 @@ test("the events hub lists the real event, filters its status, and keeps results
     let referral = { event: null, now: 1 };
     let blackMarket = { event: undefined, now: 1 };
     let sunset = { event: null, now: 1 };
+    let blackout = { event: null, now: 1 };
     const exports = {};
     const blackMarketExports = {};
     const dependencies = {
@@ -82,13 +83,20 @@ test("the events hub lists the real event, filters its status, and keeps results
           return { blackoutPreviewEnabled: false };
         if (name.endsWith("/gta-sunset-event"))
           return {
-            useGtaSunsetEvent: () => sunset,
-            GtaSunsetHubCard: () =>
+            useGtaSunsetEvent: (_enabled, edition) =>
+              edition === "blackout" ? blackout : sunset,
+            GtaSunsetHubCard: ({ edition }) =>
               jsx.jsx("li", {
                 className: "yk-event-card",
                 children: jsx.jsx("a", {
-                  href: "/boosters#gta-sunset",
-                  children: messages.gtaSunset.title
+                  href:
+                    edition === "blackout"
+                      ? "/events/black-friday"
+                      : "/boosters#gta-sunset",
+                  children:
+                    edition === "blackout"
+                      ? messages.blackout.title
+                      : messages.gtaSunset.title
                 })
               })
           };
@@ -244,5 +252,28 @@ test("the events hub lists the real event, filters its status, and keeps results
     assert.doesNotMatch(render(), /href="\/boosters#gta-sunset"/);
     sunset.status = "upcoming";
     assert.match(render(), /href="\/boosters#gta-sunset"/);
+
+    filter = "all";
+    sunset.status = "ended";
+    sunset.packsExpired = false;
+    const before = render();
+    assert.match(
+      before,
+      /<ul class="yk-events-grid"><li[^>]+><a href="\/boosters#gta-sunset"/
+    );
+    assert.doesNotMatch(before, /href="\/events\/black-friday"/);
+    assert.match(before, /aria-pressed="true"[^>]*>[^<]+<span>4<\/span>/);
+
+    sunset.packsExpired = true;
+    blackout = { event: {}, now: 1, status: "live" };
+    const after = render();
+    assert.match(
+      after,
+      /<ul class="yk-events-grid"><li[^>]+><a href="\/events\/black-friday"/
+    );
+    assert.doesNotMatch(after, /href="\/boosters#gta-sunset"/);
+    assert.match(after, /aria-pressed="true"[^>]*>[^<]+<span>4<\/span>/);
+    filter = "live";
+    assert.match(render(), /href="\/events\/black-friday"/);
   }
 });
