@@ -67,6 +67,143 @@ test("retroactive catalogue preserves claims, hides secret conditions and unlock
 });
 import { readFileSync, readdirSync } from "node:fs";
 import { pgliteMigrationSource } from "../scripts/replay-migrations.mjs";
+
+test("catalogue claims never create another legacy upgrade payment", async t => {
+  const { db } = await replayMigrations();
+  t.after(() => db.close());
+  await db.query(
+    `insert into auth.users(id,raw_user_meta_data) values($1,'{"pseudo":"CataloguePayment"}')`,
+    [user]
+  );
+  for (const table of ["user_achievements", "user_catalogue_achievements"]) {
+    await db.query(
+      `insert into public.${table}(user_id,achievement_id,completed_at)
+      select $1,id,now() from public.achievements where id in ('eclat-inattendu','specialiste','transcendance')`,
+      [user]
+    );
+  }
+  await db.query("select set_config('request.jwt.claim.sub',$1,false)", [user]);
+  await db.exec("set role authenticated");
+  for (const id of ["eclat-inattendu", "specialiste", "transcendance"]) {
+    const claim = (
+      await db.query("select public.claim_catalogue_achievement($1) result", [
+        id
+      ])
+    ).rows[0].result;
+    assert.ok(claim.reward > 0);
+    const catalogue = (
+      await db.query("select public.get_achievement_catalogue() result")
+    ).rows[0].result;
+    assert.equal(
+      catalogue.find(a => a.id === id).upgradeReward,
+      0,
+      `${id} was already paid in full`
+    );
+    await assert.rejects(
+      db.query("select public.claim_achievement_upgrade($1)", [id]),
+      /ACHIEVEMENT_LOCKED/
+    );
+  }
+});
+
+test("every legacy unlock remains claimable without completing a changed catalogue condition", async t => {
+  const { db } = await replayMigrations();
+  t.after(() => db.close());
+  await db.query(
+    `insert into auth.users(id,raw_user_meta_data) values($1,'{"pseudo":"AllLegacy"}')`,
+    [user]
+  );
+  const legacy = (
+    await db.query("select * from public.achievements order by id")
+  ).rows;
+  assert.equal(legacy.length, 11);
+  await db.query(
+    `insert into public.user_achievements(user_id,achievement_id,completed_at)
+    select $1,id,'2026-11-23T00:00:00Z' from public.achievements`,
+    [user]
+  );
+  await db.query("select set_config('request.jwt.claim.sub',$1,false)", [user]);
+  await db.exec("set role authenticated");
+  const catalogue = async () =>
+    (await db.query("select public.get_achievement_catalogue() result")).rows[0]
+      .result;
+  const before = (
+    await db.query(
+      "select (public.get_game_info()->>'karasBalance')::integer result"
+    )
+  ).rows[0].result;
+  let paid = 0;
+  for (const old of legacy) {
+    const item = (await catalogue()).find(a => a.id === old.id);
+    assert.ok(item, `${old.id} must remain visible`);
+    const changed = ["eclat-inattendu", "transcendance"].includes(old.id);
+    assert.equal(
+      Boolean(item.completedAt),
+      !changed,
+      `${old.id} completion must respect its actual condition`
+    );
+    const rpc = changed
+      ? "claim_achievement_upgrade"
+      : "claim_catalogue_achievement";
+    assert.ok(
+      item.completedAt || item.upgradeReward > 0,
+      `${old.id} must offer a claim`
+    );
+    const claim = (await db.query(`select public.${rpc}($1) result`, [old.id]))
+      .rows[0].result;
+    assert.equal(claim.reward, changed ? old.karas_reward : item.karasReward);
+    if (changed) assert.equal(claim.claimedAt, null);
+    paid += claim.reward;
+    await assert.rejects(
+      db.query(`select public.${rpc}($1)`, [old.id]),
+      /ACHIEVEMENT_ALREADY_CLAIMED/
+    );
+    const after = (await catalogue()).find(a => a.id === old.id);
+    assert.equal(
+      after.upgradeReward,
+      0,
+      `${old.id} must not expose a second payment`
+    );
+    if (changed) {
+      assert.equal(after.completedAt, null);
+      assert.equal(after.claimedAt, null);
+      await assert.rejects(
+        db.query("select public.claim_catalogue_achievement($1)", [old.id]),
+        /ACHIEVEMENT_LOCKED/
+      );
+    }
+  }
+  await db.exec("reset role");
+  await db.query(
+    "insert into public.user_progress_counters values($1,'shiny_drawn',1),($1,'ssr_infinity',1)",
+    [user]
+  );
+  await db.exec("set role authenticated");
+  for (const id of ["eclat-inattendu", "transcendance"]) {
+    const item = (await catalogue()).find(a => a.id === id);
+    const old = legacy.find(a => a.id === id);
+    assert.ok(item.completedAt);
+    assert.equal(item.upgradeReward, item.karasReward - old.karas_reward);
+    const claim = (
+      await db.query("select public.claim_achievement_upgrade($1) result", [id])
+    ).rows[0].result;
+    paid += claim.reward;
+    await assert.rejects(
+      db.query("select public.claim_achievement_upgrade($1)", [id]),
+      /ACHIEVEMENT_ALREADY_CLAIMED/
+    );
+  }
+  const balance = (
+    await db.query(
+      "select (public.get_game_info()->>'karasBalance')::integer result"
+    )
+  ).rows[0].result;
+  assert.equal(
+    balance,
+    before + paid,
+    "wallet receives each promised amount exactly once"
+  );
+});
 test("legacy upgrades preserve original claims and prepare exactly one player-claimed full bonus", async t => {
   const latest = "20261109190200_achievement_catalogue.sql";
   const migrations = readdirSync(
