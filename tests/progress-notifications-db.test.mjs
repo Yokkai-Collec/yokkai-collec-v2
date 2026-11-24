@@ -133,6 +133,11 @@ test("missions notify only when a Kara milestone can be claimed and clear indepe
     null
   );
   await as(player, "select public.mark_notification_read() value");
+  assert.ok((await notes()).every(n => n.readAt));
+  assert.equal(
+    await as(player, "select public.mark_notification_read() value"),
+    0
+  );
   assert.equal((await feed()).progressUnread, 1);
   await as(
     player,
