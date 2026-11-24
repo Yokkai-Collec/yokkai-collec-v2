@@ -4,6 +4,10 @@ import AuthLayout from "./(auth)/layout";
 import SignUpPage from "./(auth)/signup/page";
 import { getVerifiedUser } from "@/lib/auth/session";
 import { HomeDashboard } from "@/components/home-dashboard";
+import {
+  PACKS_MARKET_ANNOUNCEMENT_ID,
+  PACKS_MARKET_ANNOUNCEMENT_METADATA_KEY
+} from "@/lib/ui/packs-market-announcement";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("metadata");
@@ -32,6 +36,10 @@ export default async function Home({
     return (
       <HomeDashboard
         userId={user.id}
+        announcePacksMarket={
+          user.user_metadata?.[PACKS_MARKET_ANNOUNCEMENT_METADATA_KEY] !==
+          PACKS_MARKET_ANNOUNCEMENT_ID
+        }
         seenAnnouncement={
           typeof user.user_metadata
             ?.yokkai_seen_mystery_auction_announcement === "string"

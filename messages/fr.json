@@ -77,6 +77,20 @@
     "opening": "Ouverture…",
     "nextBooster": "Prochain dans"
   },
+  "packsMarketAnnouncement": {
+    "update": "Mise à jour",
+    "title": "Packs et enchères",
+    "packTitle": "Une LR garantie",
+    "packRule": "Après {withoutLr, number} Regular Packs d’affilée sans LR, le {guaranteed, number}ᵉ contient une LR garantie.",
+    "packReset": "Chaque LR obtenue dans un Regular Pack remet le compteur à zéro. Suis ta progression sous le Regular Pack.",
+    "marketTitle": "Plus d’enchères actives",
+    "marketRule": "Tu peux mettre plus de cartes en vente en même temps.",
+    "marketLimit": "De {previous, number} à {current, number} mises en vente simultanées",
+    "dismiss": "Compris",
+    "openMarket": "Voir les enchères",
+    "openPacks": "Voir mes packs",
+    "reopen": "Rouvrir l’annonce"
+  },
   "mysteryAnnouncement": {
     "title": "Mystery Auction évolue",
     "release": "Deux éditions par jour · chance de LR progressive",

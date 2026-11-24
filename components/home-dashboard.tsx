@@ -1,6 +1,7 @@
 import { EventsHub } from "@/components/events-hub";
 import { GtaSunsetHomeBanner } from "@/components/gta-sunset-event";
 import { MysteryAuctionAnnouncement } from "@/components/mystery-auction-announcement";
+import { PacksMarketReleaseNotice } from "@/components/packs-market-announcement";
 import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { AmbientGlow } from "@/components/ambient-glow";
@@ -125,7 +126,10 @@ async function latest(userId: string) {
   return <LatestPulls cards={cards} />;
 }
 
-async function packs(kind: "regular" | "decision" = "regular") {
+async function packs(
+  kind: "regular" | "decision" = "regular",
+  announceTo?: string
+) {
   const client = createClient(await cookies());
   const { data, error } = await client
     .rpc(
@@ -136,14 +140,19 @@ async function packs(kind: "regular" | "decision" = "regular") {
     .abortSignal(AbortSignal.timeout(12000));
   if (error) throw error;
   return (
-    <HomePackTimer
-      kind={kind}
-      initial={
-        kind === "decision"
-          ? { ...decisionPackSummary(data), serverNow: data.serverNow }
-          : (data as HomePackStatus)
-      }
-    />
+    <>
+      <HomePackTimer
+        kind={kind}
+        initial={
+          kind === "decision"
+            ? { ...decisionPackSummary(data), serverNow: data.serverNow }
+            : (data as HomePackStatus)
+        }
+      />
+      {kind === "regular" && announceTo && data?.lrPity?.target === 500 && (
+        <PacksMarketReleaseNotice key={announceTo} userId={announceTo} />
+      )}
+    </>
   );
 }
 
@@ -242,10 +251,12 @@ async function HomeTopbar() {
 
 export function HomeDashboard({
   userId,
-  seenAnnouncement
+  seenAnnouncement,
+  announcePacksMarket = false
 }: {
   userId: string;
   seenAnnouncement?: string | null;
+  announcePacksMarket?: boolean;
 }) {
   const t = useTranslations("homeDashboard");
   const discordEnabled = Boolean(getDiscordInviteUrl());
@@ -263,7 +274,11 @@ export function HomeDashboard({
         <EventsHub home />
         <HomePacks>
           <Suspense fallback={<HomeSkeleton />}>
-            <PanelData load={() => packs()} />
+            <PanelData
+              load={() =>
+                packs("regular", announcePacksMarket ? userId : undefined)
+              }
+            />
           </Suspense>
 
           <Suspense fallback={<HomeSkeleton />}>
