@@ -32,6 +32,16 @@ export { BLACKOUT_SLUG, blackoutPreviewEnabled };
 
 type EventEdition = "sunset" | "blackout";
 
+const blackoutHomePortraits = [
+  "blackout-goku-black",
+  "blackout-sung-jinwoo",
+  "blackout-sasuke-uchiha",
+  "blackout-ichigo-kurosaki"
+].flatMap(id => {
+  const card = blackoutCards.find(card => card.id === id);
+  return card ? [card] : [];
+});
+
 function eventAppearance(edition: EventEdition) {
   return edition === "blackout"
     ? {
@@ -251,10 +261,23 @@ export function GtaSunsetHomeBanner({
             : t("homeDescription", { count: event.featured.length })}
         </span>
       </span>
-      <SunsetFeaturedCards
-        cards={event.featured.slice(0, 2)}
-        className="yk-home-sunset-cards"
-      />
+      {edition === "blackout" ? (
+        <div
+          className="yk-home-sunset-cards yk-home-blackout-cards"
+          aria-hidden="true"
+        >
+          {blackoutHomePortraits.map(card => (
+            <div key={card.id}>
+              <Image src={card.image} alt="" width={45} height={61} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <SunsetFeaturedCards
+          cards={event.featured.slice(0, 2)}
+          className="yk-home-sunset-cards"
+        />
+      )}
       {edition === "blackout" ? (
         <span className="yk-home-sunset-action">{t("homeOpen")}</span>
       ) : hasPacks ? (
