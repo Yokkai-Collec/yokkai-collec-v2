@@ -2,12 +2,17 @@
 
 import { formatLicenseName } from "@/lib/ui/license-name";
 import { useTranslations } from "next-intl";
+import { CardShowcaseEffect } from "@/components/card-showcase-effect";
 
 import { cardRarityLabel } from "@/lib/ui/card-rarity-label";
 import type { FirstLrCopySource } from "@/lib/data/first-lr-copies";
 import { useEffect, useState } from "react";
 import type { CSSProperties, ReactNode, SyntheticEvent } from "react";
 import type { Rarity } from "@/lib/data/cards";
+import {
+  CARD_COSMETIC_DISPLAY,
+  type CardCosmeticLoadout
+} from "@/lib/ui/card-cosmetics";
 import "@/styles/cards.css";
 
 export type YokaiCardProps = {
@@ -32,6 +37,7 @@ export type YokaiCardProps = {
   imageLoading?: "lazy" | "eager";
   categoryAccessory?: ReactNode;
   rarityAccessory?: ReactNode;
+  cosmetics?: CardCosmeticLoadout;
 };
 // Grid size for card tiles: about 190 px on desktop, 2 columns on phones.
 export const GRID_CARD_IMAGE_SIZES =
@@ -228,7 +234,8 @@ export function YokaiCard({
   catalogueImage,
   imageSizes,
   categoryAccessory,
-  rarityAccessory
+  rarityAccessory,
+  cosmetics
 }: YokaiCardProps) {
   const blackoutPreview = id?.startsWith("blackout-") ?? false;
   const blackout = isBlackoutCard({ id, image, catalogueImage });
@@ -243,6 +250,12 @@ export function YokaiCard({
   const evolvedStyle =
     (evolved || (blackout && rarity === "LR")) && !(shiny && rarity === "LR");
   const special = holo || evolvedStyle;
+  const animationStyle = cosmetics?.animation
+    ? CARD_COSMETIC_DISPLAY[cosmetics.animation]
+    : undefined;
+  const lightning = animationStyle?.lightningColor;
+  const reflection = animationStyle?.reflectionColor;
+  const showcaseScene = animationStyle?.showcaseScene;
   const franchise = formatLicenseName(anime?.trim());
   const sparkCount = !animated
     ? 0
@@ -299,6 +312,7 @@ export function YokaiCard({
   };
   return (
     <div
+      data-cosmetic-filter={cosmetics?.filter}
       data-sunset={sunset || undefined}
       data-blackout={blackout || undefined}
       className={`yk-card yk-rarity-${rarity} ${evolvedStyle ? "yk-evolved" : holo ? "yk-shiny" : ""} ${animated ? "yk-animated" : ""} ${className}`}
@@ -370,10 +384,51 @@ export function YokaiCard({
             </div>
           )}
           <div className="yk-card-foil" />
+          {showcaseScene && <CardShowcaseEffect scene={showcaseScene} />}
+          {cosmetics?.animation &&
+            !lightning &&
+            !reflection &&
+            !showcaseScene && (
+              <div
+                className="yk-card-cosmetic-motion"
+                data-cosmetic-animation={cosmetics.animation}
+                aria-hidden="true"
+              />
+            )}
           {special && <div className="yk-holo" />}
-          {evolvedStyle && (
+          {(evolvedStyle || lightning || reflection) && (
             <div className="yk-evolved-energy" aria-hidden="true">
-              <span className="yk-evolved-scan" />
+              {(evolvedStyle || reflection) && (
+                <span
+                  className="yk-evolved-scan"
+                  data-reflection-color={reflection}
+                />
+              )}
+              {lightning && (
+                <svg
+                  className="yk-evolved-lightning"
+                  data-lightning-color={lightning}
+                  viewBox="0 0 100 140"
+                  preserveAspectRatio="none"
+                >
+                  <path
+                    pathLength="100"
+                    d="M3 10 8 19 5 20 12 31 7 29 10 41 4 49 M8 19 14 21 17 28 M10 41 15 44 13 50"
+                  />
+                  <path
+                    pathLength="100"
+                    d="M97 42 91 53 95 52 87 65 92 63 89 76 96 85 M91 53 85 55 82 61 M89 76 84 78 85 84"
+                  />
+                  <path
+                    pathLength="100"
+                    d="M3 87 9 96 5 95 12 107 7 105 10 118 4 129 M9 96 15 98 17 104 M10 118 17 121 20 128"
+                  />
+                  <path
+                    pathLength="100"
+                    d="M97 104 91 114 95 113 87 125 91 124 84 134 73 131 M91 114 85 115 82 121 M84 134 80 128 74 126"
+                  />
+                </svg>
+              )}
             </div>
           )}
           {spots.slice(0, sparkCount).map(([left, top], i) => (
@@ -473,7 +528,13 @@ export function YokaiCard({
   );
 }
 
-export function CardBack({ className = "" }: { className?: string }) {
+export function CardBack({
+  className = "",
+  cosmetic
+}: {
+  className?: string;
+  cosmetic?: string;
+}) {
   const t = useTranslations("collectionShared");
   const style = useOwnProfileStyle();
   return (
@@ -481,8 +542,9 @@ export function CardBack({ className = "" }: { className?: string }) {
       role="img"
       aria-label={t("cardBack")}
       className={`yk-card-back ${className}`}
+      data-cosmetic-back={cosmetic}
       style={
-        style?.cardBackUrl
+        !cosmetic && style?.cardBackUrl
           ? {
               backgroundImage: `url(${JSON.stringify(style.cardBackUrl)})`,
               backgroundSize: "cover",

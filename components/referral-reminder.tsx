@@ -44,6 +44,7 @@ export function ReferralReminder({
   const pathname = usePathname();
   const isHome = pathname === "/" || pathname === "/design-system/home-preview";
   const isBoosters = pathname === "/boosters";
+  const isShop = pathname === "/shop";
   const [visible, setVisible] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [code, setCode] = useState<string | null>(null);
@@ -72,6 +73,7 @@ export function ReferralReminder({
 
   useEffect(() => {
     if (
+      isShop ||
       (isHome && !homeCard) ||
       (homeCard && !prepareHomeLink) ||
       (isBoosters && !packChoices)
@@ -133,7 +135,7 @@ export function ReferralReminder({
     return () => {
       active = false;
     };
-  }, [isHome, isBoosters, packChoices, homeCard, prepareHomeLink]);
+  }, [isShop, isHome, isBoosters, packChoices, homeCard, prepareHomeLink]);
 
   function dismiss() {
     if (userId) localStorage.setItem(dismissalKey(userId), "1");
@@ -173,7 +175,10 @@ export function ReferralReminder({
     }
   }
 
-  if (!homeCard && (!visible || isHome || (isBoosters && !packChoices)))
+  if (
+    isShop ||
+    (!homeCard && (!visible || isHome || (isBoosters && !packChoices)))
+  )
     return null;
 
   const inlineChoices = packChoices && !homeCard;

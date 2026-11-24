@@ -1,0 +1,654 @@
+.yk-page-transition .yk-cosmetic-shop,
+.yk-cosmetic-shop {
+  width: min(calc(100% - 2 * var(--layout-gutter-compact)), 75rem);
+  margin-inline: auto;
+  padding-block: clamp(1.25rem, 3vw, 2.75rem) 3.5rem;
+}
+
+.yk-cosmetic-shop-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  min-height: clamp(10rem, 13vw, 13rem);
+  margin-bottom: clamp(1.15rem, 2.5vw, 1.85rem);
+  padding: clamp(1rem, 3.5vw, 2.15rem);
+  border: 1px solid #aaa1eb37;
+  border-radius: 1.35rem;
+  background:
+    radial-gradient(ellipse at 82% 90%, #613d926b, transparent 53%),
+    linear-gradient(111deg, #10121f 18%, #19182d 62%, #161022);
+}
+
+.yk-cosmetic-shop-intro {
+  position: relative;
+  z-index: 1;
+  max-width: min(30rem, 65%);
+}
+
+.yk-cosmetic-shop-hero .yk-title {
+  font-size: clamp(2rem, 4vw, 3.45rem);
+  line-height: 1;
+  letter-spacing: -0.055em;
+}
+
+.yk-cosmetic-shop-hero p {
+  max-width: 30em;
+  margin-top: 0.65rem;
+  color: #c2bed5;
+  font-size: clamp(0.8rem, 1.5vw, 1rem);
+  line-height: 1.5;
+}
+
+.yk-cosmetic-collection-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 44px;
+  margin-top: 0.85rem;
+  padding-inline: 0.8rem;
+  border: 1px solid #bcb4f044;
+  border-radius: 0.65rem;
+  background: #c1aff813;
+  color: #eeebff;
+  font-size: 0.8rem;
+  font-weight: 650;
+}
+
+.yk-cosmetic-collection-link:hover {
+  background: #c1aff829;
+}
+
+.yk-cosmetic-shop-hero-art {
+  position: absolute;
+  inset: 0 0 0 45%;
+  pointer-events: none;
+}
+
+.yk-cosmetic-shop-hero-art::before {
+  position: absolute;
+  inset: 8% -5% -28% 1%;
+  border: 1px solid #ab8be651;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 0.9rem #9e78d415,
+    0 0 0 2.25rem #9e78d412,
+    inset 0 0 2rem #a37bff1e;
+  transform: rotate(-22deg);
+  content: "";
+}
+
+.yk-cosmetic-shop-hero-art .yk-card-back {
+  position: absolute;
+  top: 52%;
+  width: clamp(4.8rem, 15vw, 12.25rem);
+  filter: drop-shadow(0 0.7rem 1.3rem #06040dc9);
+}
+
+.yk-cosmetic-shop-hero-art .yk-card-back:first-of-type {
+  left: 32%;
+  transform: translate(-50%, -47%) rotate(-16deg);
+}
+
+.yk-cosmetic-shop-hero-art .yk-card-back:last-of-type {
+  left: 66%;
+  transform: translate(-50%, -50%) rotate(12deg);
+}
+
+.yk-cosmetic-shop-tiers {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.3rem;
+  margin-bottom: clamp(1.05rem, 2.4vw, 1.65rem);
+  padding: 0.35rem;
+  border: 1px solid #a9aec82b;
+  border-radius: 0.9rem;
+  background: #11131e;
+}
+
+.yk-cosmetic-shop-tiers button {
+  --tier-accent: #d6b7f8;
+  display: grid;
+  grid-template-columns: 1.65rem minmax(0, 1fr);
+  align-content: start;
+  align-items: start;
+  gap: 0.48rem;
+  min-width: 0;
+  min-height: 58px;
+  padding: 0.55rem 0.45rem;
+  border: 1px solid transparent;
+  border-radius: 0.62rem;
+  color: #d9dbe9;
+  text-align: left;
+  white-space: normal;
+}
+
+.yk-cosmetic-shop-tiers [data-tier="ssr"] {
+  --tier-accent: #ffa1cb;
+}
+
+.yk-cosmetic-shop-tiers [data-tier="lr"] {
+  --tier-accent: #f5d68c;
+}
+
+.yk-cosmetic-shop-tiers [data-tier="backs"] {
+  --tier-accent: #b3c6ed;
+}
+
+.yk-cosmetic-tier-icon {
+  display: grid;
+  width: 1.65rem;
+  height: 1.65rem;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--tier-accent) 32%, transparent);
+  border-radius: 0.45rem;
+  background: color-mix(in srgb, var(--tier-accent) 11%, #131522);
+}
+
+.yk-cosmetic-tier-icon::before {
+  width: 0.45rem;
+  aspect-ratio: 1;
+  border-radius: 1px;
+  background: var(--tier-accent);
+  transform: rotate(45deg);
+  content: "";
+}
+
+.yk-cosmetic-shop-tiers [data-tier="special"] .yk-cosmetic-tier-icon::before {
+  width: 0.86rem;
+  clip-path: polygon(
+    50% 0%,
+    64% 36%,
+    100% 50%,
+    64% 64%,
+    50% 100%,
+    36% 64%,
+    0% 50%,
+    36% 36%
+  );
+  transform: none;
+}
+
+.yk-cosmetic-shop-tiers [data-tier="backs"] .yk-cosmetic-tier-icon::before {
+  width: 0.55rem;
+  height: 0.75rem;
+  border: 1px solid var(--tier-accent);
+  border-radius: 2px;
+  background: #202539;
+  box-shadow:
+    2px -2px 0 -1px #202539,
+    3px -2px 0 -1px var(--tier-accent);
+  transform: rotate(-10deg);
+}
+
+.yk-cosmetic-tier-name {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.yk-cosmetic-tier-name strong {
+  font-size: 0.85rem;
+  font-weight: 670;
+  line-height: 1.25;
+}
+
+.yk-cosmetic-tier-name small {
+  color: #a8aec4;
+  font-size: 0.72rem;
+  line-height: 1.25;
+}
+
+.yk-cosmetic-shop-tiers button:hover {
+  background: #202235;
+}
+
+.yk-cosmetic-shop-tiers button[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--tier-accent) 42%, #202235);
+  background: color-mix(in srgb, var(--tier-accent) 12%, #121523);
+  color: var(--tier-accent);
+}
+
+.yk-cosmetic-shop-tiers button:focus-visible {
+  outline: 2px solid var(--tier-accent);
+  outline-offset: -3px;
+}
+
+.yk-cosmetic-shop-results {
+  min-width: 0;
+}
+
+.yk-cosmetic-shop-heading {
+  margin-bottom: clamp(0.7rem, 1.6vw, 1.15rem);
+}
+
+.yk-cosmetic-shop-heading h2 {
+  min-width: 0;
+  color: var(--color-ink);
+  font-size: clamp(1.25rem, 2.7vw, 1.9rem);
+  font-weight: 740;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+}
+
+.yk-cosmetic-shop-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.55rem, 1.5vw, 1rem);
+}
+
+.yk-cosmetic-offer {
+  scroll-margin-top: calc(var(--topbar-height, 4.5rem) + 1rem);
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  overflow: clip;
+  border: 1px solid #a7a2d82c;
+  border-radius: 1rem;
+  background: #10121e;
+}
+
+.yk-cosmetic-offer:only-child {
+  grid-column: 1 / -1;
+}
+
+.yk-cosmetic-swatch[data-color="original"] {
+  --finish-color: #f8abd5;
+}
+
+.yk-cosmetic-swatch[data-color="white"] {
+  --finish-color: #eaf5ff;
+}
+
+.yk-cosmetic-swatch[data-color="blue"] {
+  --finish-color: #6bcbff;
+}
+
+.yk-cosmetic-swatch[data-color="violet"] {
+  --finish-color: #c18bff;
+}
+
+.yk-cosmetic-swatch[data-color="red"] {
+  --finish-color: #ff667c;
+}
+
+.yk-cosmetic-swatch[data-color="gold"] {
+  --finish-color: #f5c670;
+}
+
+.yk-cosmetic-swatch[data-color="black"] {
+  --finish-color: #a491bd;
+}
+
+.yk-cosmetic-offer-art {
+  display: grid;
+  place-items: center;
+  min-height: clamp(10rem, 22vw, 16rem);
+  padding: clamp(0.8rem, 2vw, 1.5rem);
+  border-bottom: 1px solid #c3b7fa21;
+  background: radial-gradient(ellipse at 50% 48%, #28282c, #131316 80%);
+}
+
+.yk-cosmetic-preview-card {
+  width: clamp(5.2rem, 20vw, 10rem);
+  max-width: 100%;
+}
+
+.yk-cosmetic-offer[data-kind="animation"] .yk-cosmetic-preview-card {
+  width: clamp(8rem, 23vw, 10rem);
+}
+
+.yk-cosmetic-offer-art .yk-cosmetic-preview-card {
+  filter: drop-shadow(0 0.55rem 0.85rem #0908138d);
+  transition: transform 220ms var(--ease-yokkai);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .yk-cosmetic-offer:hover .yk-cosmetic-preview-card {
+    transform: translateY(-3px);
+  }
+}
+
+.yk-cosmetic-offer-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.35rem;
+  min-width: 0;
+  padding: clamp(0.7rem, 1.8vw, 1.3rem);
+}
+
+.yk-cosmetic-offer-body h3,
+.yk-cosmetic-checkout-product h3 {
+  color: var(--color-ink);
+  font-size: clamp(0.95rem, 2vw, 1.2rem);
+  font-weight: 740;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.yk-cosmetic-options {
+  display: grid;
+  gap: 0.15rem;
+  margin-block: 0.18rem 0.2rem;
+  min-width: 0;
+}
+
+.yk-cosmetic-swatch-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.12rem;
+  margin-inline-start: -0.25rem;
+}
+
+.yk-cosmetic-swatch {
+  display: grid;
+  place-items: center;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid transparent;
+  border-radius: 0.65rem;
+}
+
+.yk-cosmetic-swatch > span {
+  width: 1.35rem;
+  aspect-ratio: 1;
+  border: 1px solid #ffffff50;
+  border-radius: 50%;
+  background:
+    linear-gradient(140deg, #ffffff66, transparent 56%), var(--finish-color);
+  box-shadow: inset 0 -4px 6px #10071f4d;
+}
+
+.yk-cosmetic-swatch[data-color="original"] > span {
+  background: linear-gradient(
+    140deg,
+    #fff 3%,
+    #ffd6ea 45%,
+    #e969a3 57%,
+    #f5a4c8
+  );
+}
+
+.yk-cosmetic-swatch[data-color="black"] > span {
+  background: linear-gradient(140deg, #73687d, #15121c 60%);
+}
+
+.yk-cosmetic-swatch:hover,
+.yk-cosmetic-swatch[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--finish-color) 13%, #131421);
+}
+
+.yk-cosmetic-swatch[aria-pressed="true"] {
+  border-color: var(--finish-color);
+}
+
+.yk-cosmetic-swatch:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: -3px;
+}
+
+.yk-cosmetic-selected-color {
+  color: var(--color-ink-2);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.yk-cosmetic-offer-actions {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-content: end;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  padding-top: 0.5rem;
+}
+
+.yk-cosmetic-offer-actions > .yk-karas {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  font-size: 0.95rem;
+}
+
+.yk-cosmetic-offer-actions .yk-button,
+.yk-cosmetic-checkout .yk-button {
+  min-width: 0;
+  min-height: 44px;
+  padding-inline: 0.85rem;
+  border-color: #bdb2ed5e;
+  border-radius: 0.55rem;
+  background: #e2daf7;
+  color: #181127;
+  box-shadow: none;
+  white-space: normal;
+  text-align: center;
+}
+
+.yk-cosmetic-offer-actions .yk-button:not(:disabled):hover,
+.yk-cosmetic-checkout .yk-button:not(:disabled):hover {
+  background: #f0e9ff;
+  color: #181127;
+}
+
+.yk-cosmetic-offer-actions .yk-button:disabled {
+  background: #1a1d2c;
+  border-color: #a7a2d82c;
+  color: #a9a8bf;
+  opacity: 1;
+}
+
+.yk-cosmetic-offer-owned,
+.yk-cosmetic-shop-success {
+  color: #8fe0c3;
+}
+
+.yk-cosmetic-offer-owned {
+  font-size: 0.78rem;
+}
+
+.yk-cosmetic-shop-success {
+  margin-bottom: 1rem;
+}
+
+.yk-cosmetic-shop-empty {
+  padding: 1.2rem;
+  border: 1px solid #a7a2d82c;
+  border-radius: 0.85rem;
+  background: #10121c;
+  color: var(--color-ink-2);
+}
+
+.yk-cosmetic-eligibility {
+  color: var(--color-ink-2);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.yk-cosmetic-checkout {
+  display: grid;
+  gap: 1rem;
+  color: var(--color-ink-2);
+}
+
+.yk-cosmetic-checkout-product {
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.yk-cosmetic-checkout-product p {
+  margin-top: 0.25rem;
+  font-size: 0.84rem;
+}
+
+.yk-cosmetic-quantity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+}
+
+.yk-cosmetic-quantity label {
+  color: var(--color-ink);
+  font-weight: 650;
+}
+
+.yk-cosmetic-quantity p {
+  font-size: 0.8rem;
+}
+
+.yk-cosmetic-quantity-controls {
+  display: grid;
+  grid-template-columns: 44px minmax(3.1rem, 5rem) 44px;
+  min-height: 44px;
+  overflow: hidden;
+  border: 1px solid #a7a2d851;
+  border-radius: 0.65rem;
+  background: #10121e;
+  color: var(--color-ink);
+}
+
+.yk-cosmetic-quantity-controls button:disabled {
+  opacity: 0.4;
+}
+
+.yk-cosmetic-quantity-controls input {
+  width: 100%;
+  border-inline: 1px solid #a7a2d851;
+  background: transparent;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.yk-cosmetic-quantity-controls :focus-visible {
+  outline-offset: -3px;
+}
+
+.yk-cosmetic-checkout dl > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem 0.65rem;
+  padding-block: 0.6rem;
+  border-bottom: 1px solid var(--color-veil);
+}
+
+.yk-cosmetic-checkout dd {
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 480px) {
+  .yk-cosmetic-shop-hero-art {
+    left: 56%;
+  }
+
+  .yk-cosmetic-shop-hero-art .yk-card-back:first-of-type {
+    left: 43%;
+  }
+
+  .yk-cosmetic-shop-hero-art .yk-card-back:last-of-type {
+    left: 85%;
+  }
+
+  .yk-cosmetic-offer-actions {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .yk-cosmetic-offer-actions .yk-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 660px) {
+  .yk-cosmetic-shop-results:not([data-view="backs"]) .yk-cosmetic-shop-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 580px) {
+  .yk-cosmetic-offer:only-child {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .yk-cosmetic-offer:only-child .yk-cosmetic-offer-art {
+    border-right: 1px solid #c3b7fa21;
+    border-bottom: 0;
+  }
+
+  .yk-cosmetic-offer:only-child .yk-cosmetic-offer-body {
+    justify-content: center;
+    padding: clamp(1.25rem, 3vw, 2.4rem);
+  }
+
+  .yk-cosmetic-offer:only-child .yk-cosmetic-offer-body h3 {
+    font-size: clamp(1.25rem, 3vw, 2rem);
+  }
+
+  .yk-cosmetic-offer:only-child .yk-cosmetic-offer-actions {
+    flex: 0 1 auto;
+    justify-content: start;
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 760px) {
+  .yk-cosmetic-shop-tiers {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    padding: 0.42rem;
+  }
+
+  .yk-cosmetic-shop-tiers button {
+    grid-template-columns: 1.9rem minmax(0, 1fr);
+    gap: 0.65rem;
+    min-height: 60px;
+    padding-inline: clamp(0.55rem, 1.2vw, 0.95rem);
+  }
+
+  .yk-cosmetic-tier-icon {
+    width: 1.9rem;
+    height: 1.9rem;
+  }
+}
+
+@media (min-width: 1040px) {
+  .yk-cosmetic-offer[data-kind="animation"] {
+    display: grid;
+    grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+  }
+
+  .yk-cosmetic-offer[data-kind="animation"] .yk-cosmetic-offer-art {
+    min-height: clamp(14.5rem, 20vw, 17rem);
+    padding: 1.15rem;
+    border-right: 1px solid #c3b7fa21;
+    border-bottom: 0;
+  }
+
+  .yk-cosmetic-offer[data-kind="animation"] .yk-cosmetic-preview-card {
+    width: min(100%, 9.4rem);
+  }
+
+  .yk-cosmetic-offer[data-kind="animation"] .yk-cosmetic-offer-body {
+    padding: clamp(0.9rem, 1.5vw, 1.4rem);
+  }
+}
+
+@media (min-width: 1140px) {
+  .yk-cosmetic-shop-results[data-view="backs"] .yk-cosmetic-shop-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

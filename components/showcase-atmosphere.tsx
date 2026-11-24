@@ -5,10 +5,12 @@ import { ShowcaseEmbers } from "@/components/showcase-embers";
 /** Decorative atmosphere: photographic fire/ice and procedural sky, all click-through. */
 export function ShowcaseAtmosphere({
   scene,
-  intensity = 60
+  intensity = 60,
+  onCard = false
 }: {
   scene?: string;
   intensity?: number;
+  onCard?: boolean;
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
@@ -140,14 +142,22 @@ export function ShowcaseAtmosphere({
     };
   }, [scene, intensity]);
   if (scene === "mist")
-    return <ShowcaseSecretFogEffect intensity={intensity} />;
+    return <ShowcaseSecretFogEffect intensity={intensity} onCard={onCard} />;
   if (scene === "lightning")
     return <ShowcaseLightningEffect intensity={intensity} />;
   if (scene === "feathers")
-    return <ShowcaseCelestialFeathersEffect intensity={intensity} />;
+    return (
+      <ShowcaseCelestialFeathersEffect intensity={intensity} onCard={onCard} />
+    );
   if (scene === "vhs") return <ShowcaseVhsCrtEffect intensity={intensity} />;
   if (scene === "cyber" || scene === "sakura")
-    return <ShowcaseParticleEffect kind={scene} intensity={intensity} />;
+    return (
+      <ShowcaseParticleEffect
+        kind={scene}
+        intensity={intensity}
+        onCard={onCard}
+      />
+    );
   if (scene === "embers" || scene === "flames")
     return (
       <>
@@ -158,11 +168,12 @@ export function ShowcaseAtmosphere({
           style={{ opacity: Math.max(0, Math.min(100, intensity)) / 100 }}
           aria-hidden="true"
         >
-          <ShowcaseEmbers enabled={intensity > 0} />
+          <ShowcaseEmbers enabled={intensity > 0} onCard={onCard} />
         </div>
       </>
     );
-  if (scene === "frost") return <ShowcaseFrostEffect intensity={intensity} />;
+  if (scene === "frost")
+    return <ShowcaseFrostEffect intensity={intensity} onCard={onCard} />;
   if (scene !== "aurora") return <ShowcaseSceneBackdrop scene={scene} />;
   return (
     <>
@@ -207,7 +218,13 @@ type CelestialDust = {
  * The rear canvas remains below the real cards; the few foreground feathers
  * are click-through and sit above them to preserve the demonstration's depth.
  */
-function ShowcaseCelestialFeathersEffect({ intensity }: { intensity: number }) {
+function ShowcaseCelestialFeathersEffect({
+  intensity,
+  onCard
+}: {
+  intensity: number;
+  onCard: boolean;
+}) {
   const layerRef = useRef<HTMLDivElement>(null);
   const backRef = useRef<HTMLCanvasElement>(null);
   const frontRef = useRef<HTMLCanvasElement>(null);
@@ -236,26 +253,36 @@ function ShowcaseCelestialFeathersEffect({ intensity }: { intensity: number }) {
       min + Math.random() * (max - min);
     const createFeather = (initial = false): CelestialFeather => {
       const depth = Math.random();
-      const size = between(30, 70) * (0.64 + depth * 1.16);
+      const size = onCard
+        ? Math.min(width * 0.42, between(26, 49))
+        : between(30, 70) * (0.64 + depth * 1.16);
       return {
-        x: between(-width * 0.16, width * 1.12),
-        y: initial ? between(-height, height) : between(-height * 0.45, -size),
+        x: onCard
+          ? between(width * 0.18, width * 0.82)
+          : between(-width * 0.16, width * 1.12),
+        y: initial
+          ? between(onCard ? height * 0.1 : -height, height)
+          : between(-height * 0.45, -size),
         size,
         angle: between(-1.5, 1.5),
         spin: between(-0.16, 0.16),
         phase: between(0, 7),
-        sway: between(7, 23),
+        sway: onCard ? between(5, 13) : between(7, 23),
         fall: between(6, 16) * (0.6 + depth * 0.7),
         horizontal: between(-5, 8),
         depth,
-        opacity: between(0.27, 0.75) * (0.38 + depth * 0.62),
+        opacity: onCard
+          ? between(0.62, 0.92)
+          : between(0.27, 0.75) * (0.38 + depth * 0.62),
         front: depth > 0.75,
         seed: between(-10, 10)
       };
     };
 
     const seedParticles = () => {
-      const amount = Math.round((width < 600 ? 9 : 15) + strength * 4);
+      const amount = onCard
+        ? 6
+        : Math.round((width < 600 ? 9 : 15) + strength * 4);
       particles = Array.from({ length: amount }, () => createFeather(true));
       dust = Array.from(
         { length: Math.max(8, Math.round((width * height) / 3800)) },
@@ -461,7 +488,7 @@ function ShowcaseCelestialFeathersEffect({ intensity }: { intensity: number }) {
       reducedMotion.removeEventListener("change", onMotionChange);
       document.removeEventListener("visibilitychange", onVisibilityChange);
     };
-  }, [intensity]);
+  }, [intensity, onCard]);
 
   return (
     <>
@@ -953,7 +980,13 @@ type SecretFogHole = {
  * Brume secrète V3. The front canvas is physically cleared around the active
  * card, while the other cards remain behind the dense foreground banks.
  */
-function ShowcaseSecretFogEffect({ intensity }: { intensity: number }) {
+function ShowcaseSecretFogEffect({
+  intensity,
+  onCard
+}: {
+  intensity: number;
+  onCard: boolean;
+}) {
   const backRef = useRef<HTMLDivElement>(null);
   const backCanvasRef = useRef<HTMLCanvasElement>(null);
   const frontCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -973,7 +1006,7 @@ function ShowcaseSecretFogEffect({ intensity }: { intensity: number }) {
     if (
       !back ||
       !surface ||
-      !stage ||
+      (!stage && !onCard) ||
       !backCanvas ||
       !frontCanvas ||
       !backContext ||
@@ -983,7 +1016,7 @@ function ShowcaseSecretFogEffect({ intensity }: { intensity: number }) {
     }
 
     const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
-    const cardElements = Array.from(stage.children).filter(
+    const cardElements = Array.from(stage?.children ?? []).filter(
       (element): element is HTMLElement =>
         element instanceof HTMLElement &&
         !element.classList.contains("yk-featured-empty")
@@ -1014,14 +1047,17 @@ function ShowcaseSecretFogEffect({ intensity }: { intensity: number }) {
       x: Math.random() * 1.7 - 0.35,
       y: layer === 0 ? Math.random() * 0.9 : Math.random() * 0.72 + 0.12,
       radius: (layer === 0 ? 0.28 : 0.34) + Math.random() * 0.25,
-      speed: (0.006 + Math.random() * 0.015) * (Math.random() > 0.5 ? 1 : -1),
+      speed:
+        (0.006 + Math.random() * 0.015) *
+        (onCard ? 2.6 : 1) *
+        (Math.random() > 0.5 ? 1 : -1),
       phase: Math.random() * Math.PI * 2,
       alpha: (layer === 0 ? 0.1 : 0.18) + Math.random() * 0.17,
       vertical: layer === 0 ? -0.02 : 0.045
     });
     const banks: [SecretFogBank[], SecretFogBank[]] = [
-      Array.from({ length: 19 }, () => makeBank(0)),
-      Array.from({ length: 34 }, () => makeBank(1))
+      Array.from({ length: onCard ? 8 : 19 }, () => makeBank(0)),
+      Array.from({ length: onCard ? 12 : 34 }, () => makeBank(1))
     ];
     const detailTexture = document.createElement("canvas");
     const detailContext = detailTexture.getContext("2d", { alpha: true });
@@ -1110,7 +1146,7 @@ function ShowcaseSecretFogEffect({ intensity }: { intensity: number }) {
         );
         floor.addColorStop(
           1,
-          `rgba(224,232,242,${0.65 * normalizedIntensity})`
+          `rgba(224,232,242,${(onCard ? 0.3 : 0.65) * normalizedIntensity})`
         );
       } else {
         floor.addColorStop(0, "rgba(144,176,207,0)");
@@ -1192,7 +1228,7 @@ function ShowcaseSecretFogEffect({ intensity }: { intensity: number }) {
         veil.addColorStop(0, "rgba(231,238,246,0)");
         veil.addColorStop(
           0.43,
-          `rgba(220,230,242,${0.19 * normalizedIntensity})`
+          `rgba(220,230,242,${(onCard ? 0.43 : 0.19) * normalizedIntensity})`
         );
         veil.addColorStop(
           0.6,
@@ -1320,10 +1356,12 @@ function ShowcaseSecretFogEffect({ intensity }: { intensity: number }) {
       syncMotion();
     });
     resizeObserver.observe(surface);
-    resizeObserver.observe(stage);
     intersection.observe(surface);
-    stage.addEventListener("scroll", updatePositions, { passive: true });
-    surface.addEventListener("pointerdown", closeFromSurface);
+    if (stage) {
+      resizeObserver.observe(stage);
+      stage.addEventListener("scroll", updatePositions, { passive: true });
+      surface.addEventListener("pointerdown", closeFromSurface);
+    }
     document.addEventListener("visibilitychange", syncMotion);
     reducedMotion.addEventListener("change", syncMotion);
     resize();
@@ -1340,12 +1378,12 @@ function ShowcaseSecretFogEffect({ intensity }: { intensity: number }) {
       cleanups.flat().forEach(cleanup => cleanup());
       resizeObserver.disconnect();
       intersection.disconnect();
-      stage.removeEventListener("scroll", updatePositions);
+      stage?.removeEventListener("scroll", updatePositions);
       surface.removeEventListener("pointerdown", closeFromSurface);
       document.removeEventListener("visibilitychange", syncMotion);
       reducedMotion.removeEventListener("change", syncMotion);
     };
-  }, [normalizedIntensity]);
+  }, [normalizedIntensity, onCard]);
 
   return (
     <>
@@ -1374,7 +1412,13 @@ type FrostParticle = {
 };
 
 /** V3 keeps the supplied WebP texture intact; only the light atmosphere moves. */
-function ShowcaseFrostEffect({ intensity }: { intensity: number }) {
+function ShowcaseFrostEffect({
+  intensity,
+  onCard
+}: {
+  intensity: number;
+  onCard: boolean;
+}) {
   const rootRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const normalizedIntensity =
@@ -1405,7 +1449,7 @@ function ShowcaseFrostEffect({ intensity }: { intensity: number }) {
       x: Math.random(),
       y: initial ? Math.random() : -0.04,
       speed: 0.03 + Math.random() * 0.09,
-      size: 0.4 + Math.random() * 1.4,
+      size: onCard ? 0.8 + Math.random() * 1.8 : 0.4 + Math.random() * 1.4,
       phase: Math.random() * Math.PI * 2
     });
     const resize = () => {
@@ -1424,7 +1468,8 @@ function ShowcaseFrostEffect({ intensity }: { intensity: number }) {
     const draw = (now: number) => {
       context.clearRect(0, 0, width, height);
       for (const particle of particles) {
-        const shimmer = 0.2 + Math.sin(now * 0.002 + particle.phase) * 0.16;
+        const shimmer =
+          (onCard ? 0.55 : 0.2) + Math.sin(now * 0.002 + particle.phase) * 0.16;
         context.beginPath();
         context.fillStyle = `rgba(223, 248, 255, ${Math.max(0, shimmer) * normalizedIntensity})`;
         context.arc(
@@ -1493,7 +1538,7 @@ function ShowcaseFrostEffect({ intensity }: { intensity: number }) {
       document.removeEventListener("visibilitychange", pause);
       reducedMotion.removeEventListener("change", pause);
     };
-  }, [normalizedIntensity]);
+  }, [normalizedIntensity, onCard]);
 
   return (
     <div
@@ -1554,10 +1599,12 @@ type Meteor = {
  */
 function ShowcaseParticleEffect({
   kind,
-  intensity
+  intensity,
+  onCard
 }: {
   kind: "cyber" | "sakura";
   intensity: number;
+  onCard: boolean;
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
@@ -1579,21 +1626,24 @@ function ShowcaseParticleEffect({
     let petals: SakuraPetal[] = [];
     let stars: Star[] = [];
     let meteors: Meteor[] = [];
+    const particleScale = () =>
+      onCard ? Math.min(0.9, Math.max(0.6, width / 210)) : 1;
 
     const petalCount = () =>
       Math.round(
         (15 + boundedIntensity * 25) *
-          Math.min(1.7, Math.max(0.65, width / 650))
+          Math.min(1.7, Math.max(0.65, width / 650)) *
+          (onCard ? 0.75 : 1)
       );
     const makePetal = (initial = false): SakuraPetal => ({
-      x: random(-30, width + 30),
+      x: onCard ? random(0, width) : random(-30, width + 30),
       y: initial ? random(-20, height + 20) : -random(12, 80),
-      size: random(6, 13.5),
+      size: (onCard ? random(8, 16) : random(6, 13.5)) * particleScale(),
       vy: random(11, 29),
       vx: random(-13, 13),
       angle: random(0, Math.PI * 2),
       spin: random(-1.8, 1.8),
-      wave: random(7, 29),
+      wave: random(7, 29) * particleScale(),
       frequency: random(0.6, 1.35),
       phase: random(0, Math.PI * 2),
       tilt: random(0.65, 1),
@@ -1603,42 +1653,50 @@ function ShowcaseParticleEffect({
     const makeStar = (): Star => ({
       x: random(0, width),
       y: random(0, height),
-      radius: random(0.35, 1.55),
-      alpha: random(0.15, 0.66),
+      radius: onCard ? random(0.5, 1.45) : random(0.35, 1.55),
+      alpha: onCard ? random(0.24, 0.76) : random(0.15, 0.66),
       phase: random(0, Math.PI * 2),
       frequency: random(0.7, 1.6),
       blue: Math.random() > 0.65
     });
     const makeMeteor = (initial = false): Meteor => {
-      const speed = random(230, 480);
+      const speed = onCard ? width * random(0.95, 1.4) : random(230, 480);
+      const entersLeft = onCard && Math.random() < 0.72;
+      const hues = onCard ? [202, 217, 234, 258] : [205, 225, 265, 315];
       return {
-        x: initial ? random(0, width) : random(-width * 0.26, width * 0.95),
-        y: initial ? random(0, height) : random(-height * 0.3, -12),
+        x: initial
+          ? random(width * (onCard ? 0.35 : 0), width * (onCard ? 0.87 : 1))
+          : entersLeft
+            ? -random(4, 16)
+            : random(-width * 0.26, width * (onCard ? 0.45 : 0.95)),
+        y: initial
+          ? random(height * (onCard ? 0.2 : 0), height * (onCard ? 0.72 : 1))
+          : entersLeft
+            ? random(height * 0.03, height * 0.61)
+            : random(-height * 0.3, -12),
         vx: speed * random(0.63, 0.95),
         vy: speed * random(0.35, 0.6),
-        life: random(0.52, 1.13),
+        life: onCard ? random(1.15, 1.6) : random(0.52, 1.13),
         age: 0,
-        trail: random(75, 170),
-        width: random(1.5, 3.1),
+        trail: onCard ? width * random(0.55, 0.86) : random(75, 170),
+        width: onCard ? random(1.65, 2.9) : random(1.5, 3.1),
         alpha: random(0.75, 1),
-        hue: [205, 225, 265, 315][Math.floor(random(0, 4))]
+        hue: hues[Math.floor(random(0, hues.length))]
       };
     };
     const reseed = () => {
-      petals = Array.from({ length: petalCount() }, () => makePetal(true));
-      stars = Array.from({ length: 58 }, makeStar);
+      if (kind === "sakura") {
+        petals = Array.from({ length: petalCount() }, () => makePetal(true));
+        return;
+      }
+      stars = Array.from({ length: onCard ? 34 : 58 }, makeStar);
       meteors = [];
       meteorClock = 0;
-      if (kind === "cyber") {
-        for (
-          let index = 0;
-          index < Math.max(3, Math.round(intensity / 15));
-          index++
-        ) {
-          const meteor = makeMeteor(true);
-          meteor.age = random(0.08, 0.5);
-          meteors.push(meteor);
-        }
+      const count = onCard ? 3 : Math.max(3, Math.round(intensity / 15));
+      for (let index = 0; index < count; index++) {
+        const meteor = makeMeteor(true);
+        meteor.age = random(0.12, 0.5);
+        meteors.push(meteor);
       }
     };
     const resize = () => {
@@ -1664,14 +1722,16 @@ function ShowcaseParticleEffect({
           petal.tilt
         );
         context.globalAlpha = petal.alpha;
-        context.shadowColor = "rgba(255,142,202,.68)";
-        context.shadowBlur = 4;
+        context.shadowColor = onCard ? "#a4198d" : "rgba(255,142,202,.68)";
+        context.shadowBlur = onCard ? 6 : 4;
         context.fillStyle =
           petal.tone > 0.72
             ? "#fff8fb"
             : petal.tone > 0.34
               ? "#ffd0e4"
-              : "#ff9fcc";
+              : onCard
+                ? "#ff75b5"
+                : "#ff9fcc";
         const size = petal.size;
         context.beginPath();
         context.moveTo(0, -size * 0.95);
@@ -1747,8 +1807,8 @@ function ShowcaseParticleEffect({
           meteor.y - y * meteor.trail
         );
         context.strokeStyle = gradient;
-        context.lineWidth = meteor.width * 3;
-        context.globalAlpha = alpha * 0.18;
+        context.lineWidth = meteor.width * (onCard ? 4 : 3);
+        context.globalAlpha = alpha * (onCard ? 0.28 : 0.18);
         context.lineCap = "round";
         context.stroke();
         context.globalAlpha = 1;
@@ -1758,7 +1818,7 @@ function ShowcaseParticleEffect({
         context.globalAlpha = alpha * 0.95;
         context.fillStyle = "#fefcff";
         context.shadowColor = "rgba(196,222,255,.9)";
-        context.shadowBlur = 12;
+        context.shadowBlur = onCard ? 10 : 12;
         context.beginPath();
         context.arc(meteor.x, meteor.y, meteor.width * 1.2, 0, Math.PI * 2);
         context.fill();
@@ -1787,7 +1847,7 @@ function ShowcaseParticleEffect({
         });
         return;
       }
-      meteorClock += delta * (0.5 + boundedIntensity * 5.5);
+      meteorClock += delta * (0.5 + boundedIntensity * (onCard ? 2.6 : 5.5));
       while (meteorClock >= 1) {
         meteors.push(makeMeteor());
         meteorClock -= 1;
@@ -1842,7 +1902,7 @@ function ShowcaseParticleEffect({
       document.removeEventListener("visibilitychange", pause);
       motion.removeEventListener("change", pause);
     };
-  }, [intensity, kind]);
+  }, [intensity, kind, onCard]);
   return (
     <>
       <span

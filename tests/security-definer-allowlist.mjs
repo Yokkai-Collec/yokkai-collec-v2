@@ -120,6 +120,10 @@ const allowlist = {
     "authenticated"
   ], // Admin-only pending cards and their recovery blockers.
   "public.get_gta_sunset_event()": ["authenticated"], // Public event and only the current player’s opening.
+  "public.get_card_cosmetic_shop()": ["authenticated"], // Offers and only the caller's purchases and balance.
+  "public.buy_card_cosmetic(text, integer, integer, uuid)": ["authenticated"], // Price-checked and retry-safe purchase for the caller.
+  "public.get_my_card_cosmetics()": ["authenticated"], // Own purchases and owned card loadouts only.
+  "public.set_card_cosmetic(uuid, text, text)": ["authenticated"], // Equips an owned cosmetic on an owned card.
   "public.get_blackout_event()": ["authenticated"], // Scheduled event and current player wallet only.
   "public.buy_blackout_packs(integer, uuid)": ["authenticated"], // Purchases against the caller’s wallet during the event.
   "public.open_blackout_booster(uuid)": ["authenticated"], // Consumes only the caller’s credit and writes their own collection.

@@ -158,6 +158,7 @@ export default async function RootLayout({
       "collectionUi",
       "gameUi",
       "catalogueUi",
+      "cosmeticShop",
       "collectionShared",
       "cardErrors",
       "homeFriendFeed",

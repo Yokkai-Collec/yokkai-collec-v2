@@ -1,0 +1,126 @@
+.yk-card-showcase-effect {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.yk-card-showcase-effect:not(
+  [data-card-scene="vhs"],
+  [data-card-scene="lightning"]
+) {
+  /* Above the card's shading, below its labels in document order. */
+  z-index: 3;
+}
+
+.yk-card-showcase-effect
+  :is(
+    .yk-showcase-effect-background,
+    .yk-showcase-lightning-flash,
+    .yk-showcase-vhs-crt-backdrop,
+    .yk-showcase-vhs-vignette,
+    .yk-showcase-vhs-osd
+  ) {
+  display: none;
+}
+
+.yk-card-showcase-effect
+  :is(
+    .yk-showcase-lightning-effect,
+    .yk-showcase-secret-fog-back,
+    .yk-showcase-celestial-feathers,
+    .yk-showcase-frost-v3
+  ) {
+  background: transparent;
+}
+
+.yk-card-showcase-effect
+  :is(.yk-showcase-secret-fog-back, .yk-showcase-celestial-feathers)::before,
+.yk-card-showcase-effect .yk-showcase-secret-fog-back::after {
+  content: none;
+}
+
+.yk-card-showcase-effect .yk-showcase-frost-v3-texture {
+  background-size: 100% 100%;
+  mask-image: radial-gradient(
+    ellipse 62% 62% at center,
+    transparent 48%,
+    #0009 69%,
+    #000 85%
+  );
+  filter: brightness(1.35);
+  mix-blend-mode: screen;
+}
+
+.yk-card-showcase-effect .yk-showcase-frost-v3-glimmer {
+  box-shadow:
+    inset 0 5px 12px #b9edffa6,
+    inset 0 -4px 12px #66bdff85;
+}
+
+.yk-card-showcase-effect .yk-showcase-vhs-crt {
+  opacity: 0.68;
+}
+
+.yk-card-showcase-effect[data-card-scene="mist"] {
+  mask-image: linear-gradient(black 72%, #0008 86%, transparent 100%);
+}
+
+.yk-card-showcase-effect[data-card-scene="embers"] {
+  background:
+    radial-gradient(ellipse 63% 40% at 12% 103%, #ff923462, transparent 83%),
+    radial-gradient(ellipse 75% 56% at 91% 106%, #e6572850, transparent 77%),
+    linear-gradient(0deg, #9c221d38, transparent 29%);
+}
+
+.yk-card-showcase-effect[data-card-scene="embers"] .yk-showcase-embers-canvas {
+  mask-image: linear-gradient(transparent 3%, #000 18% 77%, transparent 98%);
+}
+
+.yk-card-showcase-effect[data-card-scene="cyber"] {
+  background:
+    radial-gradient(ellipse at 0% 15%, #16295960, transparent 72%),
+    radial-gradient(ellipse at 100% 87%, #20234a5c, transparent 62%);
+}
+
+.yk-card-showcase-effect [data-atmosphere="cyber"] {
+  mask-image: linear-gradient(transparent 2%, #000 19% 77%, transparent 98%);
+}
+
+.yk-card-showcase-effect[data-card-scene="velvet"] {
+  background:
+    linear-gradient(
+        106deg,
+        #20113554 14%,
+        #8c5ddc19 24%,
+        #b390fa90 35%,
+        #d3b5ff8a 39%,
+        #341b6068 48%,
+        transparent 62%,
+        #bb9cfa70 74%,
+        #2a16415f 85%
+      )
+      50% 50% / 185% 100%,
+    radial-gradient(ellipse at 50% 120%, #9d62ed78, transparent 72%);
+  animation: yk-card-velvet-drape 6s ease-in-out infinite alternate;
+}
+
+@keyframes yk-card-velvet-drape {
+  from {
+    background-position:
+      40% 50%,
+      center;
+  }
+  to {
+    background-position:
+      90% 50%,
+      center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yk-card-showcase-effect[data-card-scene="velvet"] {
+    animation: none;
+  }
+}

@@ -35,6 +35,14 @@ import {
   SelectionModeButton
 } from "@/components/ui";
 import { isBlackoutCard, YokaiCard } from "@/components/yokai-card";
+import { CardCosmeticEntry } from "@/components/card-cosmetic-editor";
+import { CardCustomizer } from "@/components/card-customizer";
+import { createClient } from "@/utils/supabase/client";
+import type {
+  CardCosmeticInventory,
+  CardCosmeticKind,
+  CardCosmeticShop
+} from "@/lib/ui/card-cosmetics";
 import { CardShell } from "@/components/card-shell";
 import { CollectionLoading } from "@/components/collection-loading";
 import { CardShareButton, MyCardShares } from "@/components/card-sharing";
@@ -331,6 +339,9 @@ export function CollectionView({
     return () => window.clearTimeout(frame);
   }, [displayStorageKey]);
   function viewCopy(card: CollectedCard) {
+    setCustomizing(false);
+    setCosmeticPreview(undefined);
+    setCardFlipped(false);
     setSelectedId(card.instanceId);
     setPinned(card);
     const next = {
@@ -344,6 +355,43 @@ export function CollectionView({
   }
   const proAccess = useProAccess();
   const localPreview = previewOnly && process.env.NODE_ENV === "development";
+  const [cardCosmetics, setCardCosmetics] =
+    useState<CardCosmeticInventory | null>(null);
+  const [customizing, setCustomizing] = useState(false);
+  const [cardFlipped, setCardFlipped] = useState(false);
+  const [cosmeticPreview, setCosmeticPreview] = useState<{
+    kind: CardCosmeticKind;
+    id: string | null;
+  }>();
+  const [cosmeticOffers, setCosmeticOffers] = useState<
+    CardCosmeticShop["items"]
+  >([]);
+  const customizeButtonRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (readOnly || localPreview || pathname !== "/collection") return;
+    const controller = new AbortController();
+    void createClient()
+      .rpc("get_my_card_cosmetics")
+      .abortSignal(controller.signal)
+      .then(({ data, error }) => {
+        if (!controller.signal.aborted && !error && data)
+          setCardCosmetics(data as CardCosmeticInventory);
+      });
+    return () => controller.abort();
+  }, [readOnly, localPreview, pathname]);
+  useEffect(() => {
+    if (!customizing) return;
+    const controller = new AbortController();
+    void createClient()
+      .rpc("get_card_cosmetic_shop")
+      .abortSignal(controller.signal)
+      .then(({ data, error }) => {
+        if (!controller.signal.aborted && !error && data)
+          setCosmeticOffers((data as CardCosmeticShop).items);
+      });
+    return () => controller.abort();
+  }, [customizing]);
+
   const pro = proAccess || localPreview;
   const profileIdentifier = pathname?.startsWith("/profile/")
     ? decodeURIComponent(pathname.slice("/profile/".length))
@@ -529,6 +577,14 @@ export function CollectionView({
     return [...byId.values()];
   }, [remote, cards, seenCards, groupCopies]);
   const selectedMeta = selected ? presentation[selected.instanceId] : undefined;
+  const equippedCosmetics =
+    selected && cardCosmetics?.equipped[selected.instanceId];
+  const detailCosmetics = cosmeticPreview
+    ? {
+        ...equippedCosmetics,
+        [cosmeticPreview.kind]: cosmeticPreview.id ?? undefined
+      }
+    : equippedCosmetics;
   const filtered = useMemo(
     () =>
       filterCollection(
@@ -903,9 +959,20 @@ export function CollectionView({
         )
       : undefined;
   function closeDetail() {
+    setCustomizing(false);
+    setCardFlipped(false);
+    setCosmeticPreview(undefined);
     setSelectedId(null);
     setPinned(null);
     onDetailClose?.();
+  }
+
+  function backToCardDetails() {
+    setCustomizing(false);
+    setCosmeticPreview(undefined);
+    requestAnimationFrame(() =>
+      customizeButtonRef.current?.focus({ preventScroll: true })
+    );
   }
   function toggleGroup(groupCards: CollectedCard[]) {
     setSelection(current => {
@@ -2336,6 +2403,9 @@ export function CollectionView({
                           <CardShell interactive={false}>
                             <YokaiCard
                               {...card}
+                              cosmetics={
+                                cardCosmetics?.equipped[card.instanceId]
+                              }
                               copyInstanceIds={group.cards.map(
                                 copy => copy.instanceId
                               )}
@@ -2534,19 +2604,49 @@ export function CollectionView({
         headerActions={
           !detailOnly && !readOnly ? detailUtilityActions : undefined
         }
-        className={`yk-card-detail-modal ${!detailOnly && !readOnly ? "yk-card-detail-compact" : ""}`}
+        className={`yk-card-detail-modal ${!detailOnly && !readOnly ? "yk-card-detail-compact" : ""}${customizing ? " yk-card-detail-customizing" : ""}`}
       >
         {selected && (
-          <div className="yk-detail-grid">
+          <div
+            className={`yk-detail-grid${customizing ? " yk-detail-grid-customizing" : ""}`}
+          >
             <div className="yk-detail-side">
-              <div className="yk-detail-art">
-                <YokaiCard
-                  {...selected}
-                  image={selected.image}
-                  {...selectedMeta}
-                  fallbackImage={selected.catalogueImage}
-                />
-              </div>
+              {!readOnly && !localPreview && pathname === "/collection" ? (
+                <CardCosmeticEntry
+                  key={selected.instanceId}
+                  back={detailCosmetics?.back}
+                  animationPreview={
+                    cosmeticPreview?.kind === "animation"
+                      ? cosmeticPreview
+                      : undefined
+                  }
+                  flipped={cardFlipped}
+                  onFlip={() => setCardFlipped(value => !value)}
+                  customizing={customizing}
+                  onCustomize={() => {
+                    setCardFlipped(false);
+                    setCustomizing(true);
+                  }}
+                  customizeButtonRef={customizeButtonRef}
+                >
+                  <YokaiCard
+                    {...selected}
+                    image={selected.image}
+                    {...selectedMeta}
+                    fallbackImage={selected.catalogueImage}
+                    cosmetics={detailCosmetics || undefined}
+                  />
+                </CardCosmeticEntry>
+              ) : (
+                <div className="yk-detail-art">
+                  <YokaiCard
+                    {...selected}
+                    image={selected.image}
+                    {...selectedMeta}
+                    fallbackImage={selected.catalogueImage}
+                  />
+                </div>
+              )}
               {!readOnly && onMoveCard && (
                 <div className="yk-detail-folder">
                   <label
@@ -2575,7 +2675,7 @@ export function CollectionView({
                 </div>
               )}
             </div>
-            <div className="yk-detail-info">
+            <div className="yk-detail-info" inert={customizing}>
               {(detailOnly || readOnly) && (
                 <header className="yk-detail-header">
                   <div className="yk-detail-heading">
@@ -2889,6 +2989,25 @@ export function CollectionView({
                 </div>
               )}
             </div>
+            {customizing && (
+              <CardCustomizer
+                key={selected.instanceId}
+                instanceId={selected.instanceId}
+                inventory={cardCosmetics}
+                offers={cosmeticOffers}
+                lightningEligible={
+                  selected.shiny ||
+                  selected.isEvolved ||
+                  Boolean(cardCosmetics?.specialEditions?.includes(selected.id))
+                }
+                onInventory={setCardCosmetics}
+                onPreview={(preview, showBack) => {
+                  setCosmeticPreview(preview);
+                  setCardFlipped(showBack);
+                }}
+                onBack={backToCardDetails}
+              />
+            )}
           </div>
         )}
       </Modal>

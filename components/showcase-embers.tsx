@@ -2,7 +2,85 @@
 
 import { useEffect, useRef } from "react";
 
-export function ShowcaseEmbers({ enabled = true }: { enabled?: boolean }) {
+const random = (seed: number) => {
+  const value = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
+  return value - Math.floor(value);
+};
+
+function paintCardEmbers(
+  ctx: CanvasRenderingContext2D,
+  glows: HTMLCanvasElement[],
+  width: number,
+  height: number,
+  time: number
+) {
+  const scale = Math.min(1.25, Math.max(0.8, width / 135));
+  ctx.save();
+  for (let index = 0; index < 28; index++) {
+    const depth = random(index + 11);
+    const duration = 2.5 + depth * 2.4;
+    const age = (time / duration + random(index + 54)) % 1;
+    const rise =
+      height * (0.2 + (1 - depth) * 0.42 + random(index + 37) * 0.21);
+    const origin = random(index + 72);
+    const side = index % 2 ? 1 : -1;
+    // Most cinders rise from either edge. A few drift across the middle.
+    const start =
+      width * (index % 5 === 0 ? origin : 0.5 + side * (0.19 + origin * 0.24));
+    const drift = width * (0.04 + depth * 0.12) * -side;
+    const phase = random(index + 95) * Math.PI * 2;
+    const x = start + age * drift + Math.sin(age * 6 + phase) * (4 + depth * 6);
+    const y = height * 0.89 - age * rise;
+    const fade = Math.min(1, age * 17, (1 - age) * 4.7);
+    const heat = (1 - age) * (0.86 + Math.sin(time * 8 + phase) * 0.14);
+    const size = scale * (0.95 + depth * depth * 2.65);
+    const bloom = size * 4;
+
+    ctx.globalAlpha = fade * heat * 0.83;
+    ctx.drawImage(glows[index % 2], x - bloom, y - bloom, bloom * 2, bloom * 2);
+
+    const rotation = phase + time * side * (0.8 + depth * 1.3);
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rotation);
+    ctx.scale(0.62 + Math.abs(Math.sin(rotation)) * 0.38, 1);
+    ctx.globalAlpha = fade;
+    ctx.fillStyle = `hsl(${4 + heat * 23} 91% ${20 + heat * 42}%)`;
+    ctx.strokeStyle = "#4e170c";
+    ctx.lineWidth = 0.58;
+    ctx.beginPath();
+    ctx.moveTo(-size, -size * 0.15);
+    ctx.lineTo(-size * 0.65, -size * (0.36 + depth * 0.5));
+    ctx.lineTo(size * 0.32, -size * 0.77);
+    ctx.lineTo(size * 0.84, size * 0.01);
+    ctx.lineTo(size * 0.36, size * 0.69);
+    ctx.lineTo(-size * 0.44, size * 0.56);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.fill();
+
+    // The exposed face glows while the darker edge tumbles around it.
+    ctx.globalAlpha = fade * heat;
+    ctx.fillStyle = "#fff1bb";
+    ctx.beginPath();
+    ctx.moveTo(-size * 0.62, -size * 0.12);
+    ctx.lineTo(-size * 0.3, -size * 0.55);
+    ctx.lineTo(size * 0.47, -size * 0.35);
+    ctx.lineTo(size * 0.05, -size * 0.05);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
+export function ShowcaseEmbers({
+  enabled = true,
+  onCard = false
+}: {
+  enabled?: boolean;
+  onCard?: boolean;
+}) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = ref.current;
@@ -15,10 +93,6 @@ export function ShowcaseEmbers({ enabled = true }: { enabled?: boolean }) {
       disposed = false;
     let width = 1,
       height = 1;
-    const random = (seed: number) => {
-      const value = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
-      return value - Math.floor(value);
-    };
     // Small cached glow textures keep the particle pass inexpensive on phones.
     const colors = ["255,102,36", "255,166,64", "255,214,136"];
     const glows = colors.map(color => {
@@ -37,6 +111,10 @@ export function ShowcaseEmbers({ enabled = true }: { enabled?: boolean }) {
     function paint(time: number) {
       if (!ctx) return;
       ctx.clearRect(0, 0, width, height);
+      if (onCard) {
+        paintCardEmbers(ctx, glows, width, height, time);
+        return;
+      }
       const count = Math.min(
         180,
         Math.max(42, Math.round((width * height) / 2200))
@@ -120,7 +198,7 @@ export function ShowcaseEmbers({ enabled = true }: { enabled?: boolean }) {
       motion.removeEventListener("change", sync);
       document.removeEventListener("visibilitychange", sync);
     };
-  }, [enabled]);
+  }, [enabled, onCard]);
   return (
     <canvas
       ref={ref}
