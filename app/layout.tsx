@@ -150,6 +150,7 @@ export default async function RootLayout({
       "homeRankingCarousel",
       "rankingProgress",
       "mysteryAnnouncement",
+      "packsMarketAnnouncement",
       "accountSanctions",
       "playerWarnings",
       "sanctionAppeals",

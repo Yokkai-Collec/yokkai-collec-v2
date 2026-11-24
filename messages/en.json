@@ -77,6 +77,20 @@
     "opening": "Opening…",
     "nextBooster": "Next in"
   },
+  "packsMarketAnnouncement": {
+    "update": "Game update",
+    "title": "Packs and auctions",
+    "packTitle": "A guaranteed LR",
+    "packRule": "After {withoutLr, number} Regular Packs in a row without an LR, your {guaranteed, number}th pack is guaranteed to contain an LR.",
+    "packReset": "Any LR pulled from a Regular Pack resets the counter. Track your progress below the Regular Pack.",
+    "marketTitle": "More active auctions",
+    "marketRule": "You can list more cards at the same time.",
+    "marketLimit": "From {previous, number} to {current, number} simultaneous listings",
+    "dismiss": "Got it",
+    "openMarket": "View auctions",
+    "openPacks": "View my packs",
+    "reopen": "Reopen announcement"
+  },
   "mysteryAnnouncement": {
     "title": "Mystery Auction evolves",
     "release": "Two daily editions · progressive LR chance",
@@ -165,6 +179,10 @@
     "reset": "Restore original cover"
   },
   "packs": {
+    "lrPityTitle": "Guaranteed LR",
+    "lrPityNextPack": "In the next pack",
+    "lrPityRemaining": "{count, number} packs remaining",
+    "lrPityProgress": "{opened, number} / {total, number} packs without an LR",
     "decisionCard": {
       "aboutStats": "About these figures",
       "title": "Before you choose",
@@ -2823,7 +2841,7 @@
     "signInAgainToLoadYourFeed": "Sign in again to load your feed.",
     "thisFeedPageIsNoLongerAvailableRefresh": "This feed page is no longer available. Refresh your feed and try again.",
     "couldnTLoadYourTimelinePleaseTryAgain": "Couldn't load your timeline. Please try again.",
-    "yourActiveAuctionLimitHasBeenReachedBasic": "Your active auction limit has been reached. Basic members can list 3 cards at once; Pro members can list 6.",
+    "yourActiveAuctionLimitHasBeenReachedBasic": "Your active auction limit has been reached. You can list 5 cards at once on Basic and 10 on Pro.",
     "thisListingCanTBeCanceledBecauseA": "This listing can't be canceled because a bid has already been placed.",
     "thisCardIsAlreadyListedInAnAuction": "This card is already listed in an auction.",
     "couldnTLoadTheMarketPleaseTryAgain": "Couldn't load the market. Please try again.",

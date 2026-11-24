@@ -102,7 +102,7 @@ test("Basic and Pro compare real pack quotas and accessible inclusion marks", ()
   );
   assert.match(
     html,
-    /<th scope="row">Active auctions<\/th><td>3<\/td><td>6<\/td>/
+    /<th scope="row">Active auctions<\/th><td>5<\/td><td>10<\/td>/
   );
   assert.match(
     html,

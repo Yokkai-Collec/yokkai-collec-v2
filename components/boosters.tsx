@@ -1303,6 +1303,8 @@ export function Boosters({
   const tp = useTranslations("packs");
   const format = useFormatter();
   const localPreview = process.env.NODE_ENV === "development" && previewOnly;
+  const lrPity = status?.lrPity;
+  const pityRemaining = lrPity ? lrPity.target - lrPity.opened : 0;
   const [openingPhase, setOpeningPhase] = useState<"idle" | "tension" | "seal" | "fan">(
     "idle"
   );
@@ -1885,6 +1887,33 @@ export function Boosters({
             </button>
           )}
           </div>
+          {lrPity && selectedPack === "regular" && (
+            <div className="yk-pack-lr-pity" data-next={pityRemaining === 1}>
+              <div className="yk-pack-lr-pity-header">
+                <strong>{tp("lrPityTitle")}</strong>
+                <span>
+                  {pityRemaining === 1
+                    ? tp("lrPityNextPack")
+                    : tp("lrPityRemaining", { count: pityRemaining })}
+                </span>
+              </div>
+              <div className="yk-pack-lr-pity-meter">
+                <progress
+                  className="yk-pack-lr-pity-track"
+                  aria-label={tp("lrPityTitle")}
+                  aria-valuetext={tp("lrPityProgress", {
+                    opened: lrPity.opened,
+                    total: lrPity.target
+                  })}
+                  value={lrPity.opened}
+                  max={lrPity.target}
+                />
+                <span aria-hidden="true">
+                  {format.number(lrPity.opened)} / {format.number(lrPity.target)}
+                </span>
+              </div>
+            </div>
+          )}
           <article
             className="yk-pack-panel yk-decision-panel"
             data-unavailable={

@@ -68,9 +68,9 @@ test("unlimited auctions require both live admin and Pro privileges; other caps 
       )
     ).rows[0].n;
   for (const [n, cap] of [
-    [2, 3],
-    [3, 6],
-    [4, 3]
+    [2, 5],
+    [3, 10],
+    [4, 5]
   ]) {
     for (let i = 0; i < cap; i++) await create(n, i);
     await assert.rejects(create(n, cap), /AUCTION_LIMIT_REACHED/);

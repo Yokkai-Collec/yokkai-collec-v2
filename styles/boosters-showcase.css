@@ -123,6 +123,90 @@
   line-height: 1.3;
   letter-spacing: -0.025em;
 }
+.yk-pack-lr-pity {
+  display: grid;
+  width: min(100%, 280px);
+  gap: 3px;
+  margin-block-start: 10px;
+  padding: 4px 9px;
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--color-rarity-lr) 36%,
+      var(--color-pack-button-middle)
+    );
+  border-radius: 8px;
+  background: linear-gradient(
+    120deg,
+    color-mix(
+      in srgb,
+      var(--color-rarity-lr) 12%,
+      var(--color-pack-button-middle)
+    ),
+    var(--color-pack-button-end) 80%
+  );
+  color: color-mix(in srgb, var(--color-pack-ink) 86%, var(--color-rarity-lr));
+  text-align: left;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.yk-pack-lr-pity-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  column-gap: 8px;
+}
+.yk-pack-lr-pity-header strong {
+  color: var(--color-accent-gold);
+  font-size: 12px;
+}
+.yk-pack-lr-pity[data-next="true"] {
+  border-color: var(--color-rarity-lr);
+}
+.yk-pack-lr-pity[data-next="true"] .yk-pack-lr-pity-header span {
+  color: var(--color-accent-gold);
+  font-weight: 700;
+}
+.yk-pack-lr-pity-meter {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.25;
+}
+.yk-pack-lr-pity-track {
+  display: block;
+  width: 100%;
+  height: 5px;
+  appearance: none;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--color-veil-strong);
+  color: var(--color-rarity-lr);
+  accent-color: var(--color-rarity-lr);
+}
+.yk-pack-lr-pity-track::-webkit-progress-bar {
+  border-radius: inherit;
+  background: var(--color-veil-strong);
+}
+.yk-pack-lr-pity-track::-webkit-progress-value {
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    var(--color-rarity-lr),
+    var(--color-accent-gold)
+  );
+}
+.yk-pack-lr-pity-track::-moz-progress-bar {
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    var(--color-rarity-lr),
+    var(--color-accent-gold)
+  );
+}
+
 .yk-pack-grid .yk-pack-panel .yk-pack-status {
   display: flex;
   flex-direction: column;
@@ -437,8 +521,40 @@
   }
 }
 
+/* Keep the progress on its own row so both pack bodies end at their buttons. */
+.yk-pack-grid:has(> .yk-pack-lr-pity) {
+  row-gap: 0;
+}
+.yk-pack-grid > .yk-pack-lr-pity {
+  grid-column: 1;
+  justify-self: center;
+}
+@media (min-width: 701px) {
+  .yk-pack-grid > .yk-pack-lr-pity {
+    grid-row: 2;
+    width: min(calc(100% - 32px), 280px);
+  }
+  .yk-pack-grid:has(> .yk-pack-lr-pity) .yk-pack-body {
+    flex: 1;
+  }
+  .yk-pack-grid:has(> .yk-pack-lr-pity)
+    .yk-pack-panel
+    .yk-pack-body
+    > .yk-button {
+    margin-top: auto;
+  }
+}
+@media (max-width: 700px) {
+  .yk-pack-grid:has(> .yk-pack-lr-pity) > .yk-decision-panel {
+    margin-block-start: 56px;
+  }
+}
+
 /* Keep the idle Packs controls above the two direct choices. */
 @media (min-width: 1024px) and (min-height: 701px) {
+  .yk-game-main:has(.yk-pack-lr-pity) {
+    --pack-pity-space: 40px;
+  }
   .yk-boosters-page
     .yk-game-main:has(.yk-referral-reminder--boosters)
     .yk-pack-grid
@@ -446,7 +562,13 @@
     .yk-pack-art-stage {
     height: clamp(
       64px,
-      min(36svh, calc(100svh - 480px - var(--pack-choices-height, 80px))),
+      min(
+        36svh,
+        calc(
+          100svh - 480px - var(--pack-choices-height, 80px) -
+            var(--pack-pity-space, 0px)
+        )
+      ),
       400px
     );
   }

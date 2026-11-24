@@ -10,14 +10,14 @@ export const PROPOSED_PLAN_RULES = {
     regularPackMinutes: 5,
     regularPackReserve: 5,
     decisionPacksPerDay: 1,
-    concurrentAuctions: 3,
+    concurrentAuctions: 5,
     showcaseSlots: 5
   },
   pro: {
     regularPackMinutes: 5,
     regularPackReserve: 10,
     decisionPacksPerDay: 2,
-    concurrentAuctions: 6,
+    concurrentAuctions: 10,
     showcaseSlots: 10
   }
 } as const;
@@ -44,7 +44,7 @@ export const PROPOSED_PRO_FEATURES = [
   {
     id: "auctions",
     title: "More auction slots",
-    detail: "List up to 6 cards at once instead of 3."
+    detail: "List up to 10 cards at once."
   },
   {
     id: "achievements",
