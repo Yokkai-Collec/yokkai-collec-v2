@@ -1,6 +1,5 @@
 import type { FirstLrCopySource } from "@/lib/data/first-lr-copies";
 import { createClient } from "@/utils/supabase/client";
-import { gameErrorKey } from "@/i18n/game-messages";
 import { readRpcPages } from "@/lib/data/rpc-pages.mjs";
 import {
   invalidatePlayerSnapshots,
@@ -144,11 +143,10 @@ async function call<T>(
       CHAT_MENTION_INVALID:
         "You can only mention the seller or a player who has already bid."
     };
-    const message = messages[error.message ?? ""];
-    if (message) throw new Error(message);
-    // Keep stable codes (CARD_LOCKED, 42501…) so gameErrorKey can translate them.
-    if (gameErrorKey(error, "")) throw Object.assign(new Error(error.message), { code: error.code });
-    throw new Error("Couldn't reach the market. Please try again.", { cause: error });
+    throw new Error(
+      messages[error.message ?? ""] ??
+        "Couldn't reach the market. Please try again."
+    );
   }
   return data as T;
 }
