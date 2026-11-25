@@ -54,9 +54,9 @@
     "artwork": "/assets/events/blackout/cards/ken-kaneki.webp"
   },
   {
-    "id": "blackout-eren-yeager",
-    "name": "Eren Yeager (Blackout)",
-    "anime": "Attack on Titan",
-    "artwork": "/assets/events/blackout/cards/eren-yeager.webp"
+    "id": "blackout-gojo-satoru",
+    "name": "Satoru Gojo (Blackout)",
+    "anime": "JUJUTSU KAISEN",
+    "artwork": "https://media1.tenor.com/m/1zjQ5voYjwAAAAd/10-%C4%91i%E1%BB%83m.gif"
   }
 ]
