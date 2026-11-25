@@ -30,7 +30,7 @@ begin
     ('manual', 'blackout-guts', 'Guts (Blackout)', 'ANIME/MANGA', 'Berserk', 'LR', '/assets/events/blackout/cards/guts.webp', true),
     ('manual', 'blackout-sasuke-uchiha', 'Sasuke Uchiha (Blackout)', 'ANIME/MANGA', 'Naruto', 'LR', '/assets/events/blackout/cards/sasuke-uchiha.webp', true),
     ('manual', 'blackout-ken-kaneki', 'Ken Kaneki (Blackout)', 'ANIME/MANGA', 'Tokyo Ghoul', 'LR', '/assets/events/blackout/cards/ken-kaneki.webp', true),
-    ('manual', 'blackout-eren-yeager', 'Eren Yeager (Blackout)', 'ANIME/MANGA', 'Attack on Titan', 'LR', '/assets/events/blackout/cards/eren-yeager.webp', true)
+    ('manual', 'blackout-gojo-satoru', 'Satoru Gojo (Blackout)', 'ANIME/MANGA', 'JUJUTSU KAISEN', 'LR', 'https://media1.tenor.com/m/1zjQ5voYjwAAAAd/10-%C4%91i%E1%BB%83m.gif', true)
   on conflict (source, source_id) do update
   set nom = excluded.nom, image_url = excluded.image_url
   where cards.event_only and cards.rarete_base = 'LR'
@@ -48,7 +48,7 @@ begin
     ('blackout-guts', 'Guts (Blackout)', '/assets/events/blackout/cards/guts.webp'),
     ('blackout-sasuke-uchiha', 'Sasuke Uchiha (Blackout)', '/assets/events/blackout/cards/sasuke-uchiha.webp'),
     ('blackout-ken-kaneki', 'Ken Kaneki (Blackout)', '/assets/events/blackout/cards/ken-kaneki.webp'),
-    ('blackout-eren-yeager', 'Eren Yeager (Blackout)', '/assets/events/blackout/cards/eren-yeager.webp')
+    ('blackout-gojo-satoru', 'Satoru Gojo (Blackout)', 'https://media1.tenor.com/m/1zjQ5voYjwAAAAd/10-%C4%91i%E1%BB%83m.gif')
     ) as expected(source_id, nom, image_url)
     where not exists (
       select 1 from public.cards c
