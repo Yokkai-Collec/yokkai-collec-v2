@@ -104,6 +104,9 @@
 .yk-card-art img[src$="/assets/events/blackout/cards/sosuke-aizen.webp"] {
   object-position: center top;
 }
+.yk-card-art img[src$="/assets/events/blackout/cards/satoru-gojo.gif"] {
+  object-position: 75% center;
+}
 /* Custom art layers over its catalogue placeholder until it is painted. */
 .yk-card-art[data-art-layers] > * {
   position: absolute;
