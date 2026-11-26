@@ -168,7 +168,7 @@
     "backPurchaseSuccess": "« {name} » acheté. Tu peux l’activer ici pour tes invocations.",
     "emptyCategory": "Aucun article dans ce rayon.",
     "lightningEligibility": "Utilisable uniquement sur les cartes Infinity, Shiny et les éditions spéciales.",
-    "reflectionEligibility": "Compatible avec tous les types de cartes.",
+    "allCardsEligibility": "Compatible avec tous les types de cartes.",
     "customize": "Personnaliser la carte",
     "livePreview": "Aperçu en direct",
     "backToCardDetails": "Retour aux détails",

@@ -168,7 +168,7 @@
     "backPurchaseSuccess": "You bought “{name}”. You can activate it here for pack openings.",
     "emptyCategory": "No items in this section.",
     "lightningEligibility": "Can only be used on Infinity, Shiny and Special Edition cards.",
-    "reflectionEligibility": "Compatible with all card types.",
+    "allCardsEligibility": "Compatible with all card types.",
     "customize": "Customize card",
     "livePreview": "Live preview",
     "backToCardDetails": "Back to card details",
