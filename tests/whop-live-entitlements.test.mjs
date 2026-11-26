@@ -149,6 +149,27 @@ test("Whop import only bridges the paid Stripe window and requires undisputed pa
   });
 });
 
+test("Whop payments verify the seller using the flat account_id response", async () => {
+  const payment = { ...paid, account: undefined, account_id: config.account };
+  const account = { ...row, stripe_paid_until: null };
+  const verify = payments =>
+    verifyWhopLiveAccess(
+      account,
+      config,
+      provider(membership, payments).fetch,
+      now
+    );
+
+  assert.equal((await verify([payment])).accessUntil, time(29.9));
+  for (const wrongSeller of [
+    { ...payment, account_id: "biz_other" },
+    { ...payment, account_id: undefined },
+    { ...payment, account: { id: "biz_other" } }
+  ]) {
+    await assert.rejects(verify([wrongSeller]), /PAYMENT_MISMATCH/);
+  }
+});
+
 test("the account deletion adapter only confirms a matching terminal Whop membership", async () => {
   const calls = [];
   const db = {
