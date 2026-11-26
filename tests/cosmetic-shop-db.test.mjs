@@ -23,7 +23,7 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
   ).rows[0].id;
   const card = (
     await db.query(
-      "insert into public.user_cards(user_id,card_id,rarity) values($1,$2,'LR') returning id",
+      "insert into public.user_cards(user_id,card_id,rarity) values($1,$2,'SSR') returning id",
       [user, type]
     )
   ).rows[0].id;
@@ -34,7 +34,7 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
   ).rows[0].id;
   const ssrCard = (
     await db.query(
-      "insert into public.user_cards(user_id,card_id,rarity) values($1,$2,'SSR') returning id",
+      "insert into public.user_cards(user_id,card_id,rarity) values($1,$2,'LR') returning id",
       [user, ssrType]
     )
   ).rows[0].id;

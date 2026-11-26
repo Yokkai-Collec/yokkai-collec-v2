@@ -1,7 +1,7 @@
 begin;
 set local lock_timeout = '3s';
 
-create function public.can_equip_card_cosmetic(
+create or replace function public.can_equip_card_cosmetic(
   p_cosmetic_id text, p_rarity public.card_rarity, p_is_evolved boolean
 ) returns boolean
 language sql immutable strict set search_path = '' as $$
@@ -28,8 +28,10 @@ begin
   if exists(select 1 from public.account_deletion_log where user_id = player) then raise exception 'ACCOUNT_DELETED'; end if;
   if p_kind is null or p_kind not in ('animation', 'filter') then raise exception 'INVALID_COSMETIC_KIND'; end if;
 
-  select uc.rarity, uc.is_evolved into card_rarity, card_is_evolved
+  -- The collection displays catalogue rarity even after a rarity correction.
+  select c.rarete_base, uc.is_evolved into card_rarity, card_is_evolved
   from public.user_cards uc
+  join public.cards c on c.id = uc.card_id
   where uc.id = p_card_id and uc.user_id = player
   for update of uc;
   if not found then raise exception 'CARD_NOT_OWNED'; end if;
@@ -63,8 +65,8 @@ $$;
 
 -- Release previously equipped copies that no longer match their card.
 delete from public.card_cosmetic_equipment e
-using public.user_cards uc
+using public.user_cards uc join public.cards c on c.id = uc.card_id
 where e.card_id = uc.id
-  and not public.can_equip_card_cosmetic(e.cosmetic_id, uc.rarity, uc.is_evolved);
+  and not public.can_equip_card_cosmetic(e.cosmetic_id, c.rarete_base, uc.is_evolved);
 
 commit;
