@@ -105,6 +105,7 @@ export function CosmeticShop({
   const format = useFormatter();
   const [shop, setShop] = useState(initial);
   const [selected, setSelected] = useState<CosmeticShopItem | null>(null);
+  const selectedFamily = selected ? offerFamily(selected.id) : undefined;
   const [quantity, setQuantity] = useState("1");
   const [pending, setPending] = useState(false);
   const [failure, setFailure] = useState<Notice>();
@@ -370,6 +371,9 @@ export function CosmeticShop({
                   const canAfford = shop.balance >= item.price;
                   const ownedBack = item.kind === "back" && item.quantity > 0;
                   const activeBack = shop.invocationBack === item.id;
+                  const eligibilityId = family
+                    ? `shop-${family}-eligibility`
+                    : undefined;
                   return (
                     <li
                       key={key}
@@ -382,6 +386,14 @@ export function CosmeticShop({
                       </div>
                       <div className="yk-cosmetic-offer-body">
                         <h3>{title}</h3>
+                        {family && (
+                          <p
+                            className="yk-cosmetic-eligibility"
+                            id={eligibilityId}
+                          >
+                            {t(`${family}Eligibility`)}
+                          </p>
+                        )}
                         {family && color && (
                           <div className="yk-cosmetic-options">
                             <div
@@ -444,11 +456,6 @@ export function CosmeticShop({
                             </p>
                           </div>
                         )}
-                        {family === "lightning" && (
-                          <p className="yk-cosmetic-eligibility">
-                            {t("lightningEligibility")}
-                          </p>
-                        )}
                         {item.kind !== "back" && item.quantity > 0 && (
                           <p className="yk-cosmetic-offer-owned">
                             {t("copiesOwned", {
@@ -475,6 +482,7 @@ export function CosmeticShop({
                               <Button
                                 variant="primary"
                                 disabled={pending || !canAfford}
+                                aria-describedby={eligibilityId}
                                 aria-label={
                                   !canAfford
                                     ? t("insufficient")
@@ -524,8 +532,13 @@ export function CosmeticShop({
                 <CosmeticCardPreview item={selected} tier={view} />
                 <div>
                   <h3>{t(`items.${selected.id}`)}</h3>
-                  {CARD_COSMETIC_DISPLAY[selected.id]?.lightningColor && (
-                    <p>{t("lightningEligibility")}</p>
+                  {selectedFamily && (
+                    <p
+                      className="yk-cosmetic-eligibility"
+                      id="shop-checkout-eligibility"
+                    >
+                      {t(`${selectedFamily}Eligibility`)}
+                    </p>
                   )}
                 </div>
               </div>
@@ -601,6 +614,9 @@ export function CosmeticShop({
               <Button
                 variant="primary"
                 disabled={pending || !canPurchase}
+                aria-describedby={
+                  selectedFamily ? "shop-checkout-eligibility" : undefined
+                }
                 onClick={() => void purchase()}
               >
                 {t(pending ? "purchasing" : "confirm")}

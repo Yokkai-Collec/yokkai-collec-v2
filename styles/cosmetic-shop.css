@@ -416,8 +416,9 @@
 }
 
 .yk-cosmetic-eligibility {
-  color: var(--color-ink-2);
+  color: var(--color-ink);
   font-size: 0.8rem;
+  font-weight: 600;
   line-height: 1.45;
 }
 
