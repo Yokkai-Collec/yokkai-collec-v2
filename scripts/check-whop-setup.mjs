@@ -13,10 +13,12 @@ export async function checkWhopSetup(env, request = fetch) {
   const accountId = env.WHOP_ACCOUNT_ID ?? "";
   const planId = env.WHOP_PRO_PLAN_ID ?? "";
   const key = env.WHOP_API_KEY ?? "";
+  const taxType = env.WHOP_EXPECTED_TAX_TYPE ?? "exclusive";
   if (
     !Object.hasOwn(apiOrigins, mode) ||
     !/^biz_[A-Za-z0-9]+$/.test(accountId) ||
     !/^plan_[A-Za-z0-9]+$/.test(planId) ||
+    !["inclusive", "exclusive"].includes(taxType) ||
     !key ||
     /\s/.test(key)
   )
@@ -63,7 +65,8 @@ export async function checkWhopSetup(env, request = fetch) {
     variant.renewal_price !== 4.99 ||
     variant.initial_price !== 0 ||
     !trialMatches ||
-    variant.tax_type !== "exclusive"
+    variant.tax_type !== taxType ||
+    (taxType === "inclusive" && variant.collect_tax !== true)
   )
     throw new Error("WHOP_SETUP_PLAN_TERMS_MISMATCH");
 
@@ -74,7 +77,7 @@ export async function checkWhopSetup(env, request = fetch) {
     currency: "eur",
     billingPeriodDays: 30,
     trialDays,
-    taxType: "exclusive"
+    taxType
   };
 }
 

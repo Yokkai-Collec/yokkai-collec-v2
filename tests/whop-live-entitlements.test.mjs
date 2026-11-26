@@ -517,6 +517,37 @@ test("an eligible Whop trial grants access for its verified period and cannot be
   );
 });
 
+test("Whop verifies the tax-inclusive total against the linked buyer and plan", async () => {
+  const player = { ...row, stripe_paid_until: null };
+  const payment = {
+    ...paid,
+    member_id: row.member_id,
+    variant_id: row.variant_id,
+    tax_behavior: "inclusive",
+    subtotal: { amount: "4.16", currency: "eur" },
+    tax_amount: { amount: "0.83", currency: "eur" },
+    total: { amount: "4.99", currency: "eur" }
+  };
+  const verify = item =>
+    verifyWhopLiveAccess(
+      player,
+      config,
+      provider(membership, [item]).fetch,
+      now
+    );
+
+  assert.equal((await verify(payment)).accessUntil, time(29.9));
+  for (const invalid of [
+    { total: null },
+    { total: { amount: "1.99", currency: "eur" } },
+    { member_id: "mber_other" },
+    { variant_id: "plan_other" },
+    { refunded_amount: { amount: "1.00" } }
+  ]) {
+    assert.equal((await verify({ ...payment, ...invalid })).accessUntil, null);
+  }
+});
+
 test("a localized Whop renewal must still match the paid membership and its EUR offer", async () => {
   const newUser = { ...row, stripe_paid_until: null };
   const eurOffer = {
@@ -579,6 +610,21 @@ test("Whop applies a verified Black Friday code only on the first payment for th
   assert.equal(
     (await verify(firstPeriod, discount)).accessUntil,
     firstPeriod.current_period_end
+  );
+  const inclusiveDiscount = {
+    ...discount,
+    tax_behavior: "inclusive",
+    subtotal: { amount: "4.99", currency: "eur" },
+    total: { amount: "2.99", currency: "eur" }
+  };
+  assert.equal(
+    (await verify(firstPeriod, inclusiveDiscount)).accessUntil,
+    firstPeriod.current_period_end
+  );
+  assert.equal(
+    (await verify(firstPeriod, { ...inclusiveDiscount, promo_code_id: null }))
+      .accessUntil,
+    null
   );
   assert.equal(
     (await verify(firstPeriod, { ...discount, promo_code_id: null }))
