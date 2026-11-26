@@ -640,6 +640,9 @@
 .yk-evolved-lightning path:nth-child(4) {
   animation-delay: -3.6s;
 }
+.yk-evolved-lightning path:nth-child(5) {
+  animation-delay: -0.6s;
+}
 @keyframes yk-evolved-lightning {
   0%,
   10%,
