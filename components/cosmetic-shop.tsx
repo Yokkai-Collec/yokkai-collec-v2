@@ -12,8 +12,9 @@ import { AUTH_EVOLUTION_CARDS } from "@/lib/auth/showcase-cards";
 import {
   CARD_COSMETIC_DISPLAY,
   CARD_COSMETIC_COLOR_ORDER,
-  CARD_COSMETIC_ELIGIBILITY,
   CARD_COSMETIC_TIERS,
+  cardCosmeticEligibility,
+  cosmeticNameId,
   cosmeticOfferAnchor,
   replayCardCosmeticColor,
   type CardCosmeticColorFamily,
@@ -26,11 +27,6 @@ export type CosmeticShopState = CardCosmeticShop;
 type CosmeticShopItem = CardCosmeticShop["items"][number];
 type ShopView = CardCosmeticTier | "backs";
 
-const defaultFinish = {
-  reflection: "infinity_reflection_original",
-  lightning: "infinity_lightning"
-} satisfies Record<CardCosmeticColorFamily, string>;
-
 function offerColor(item: CosmeticShopItem) {
   const display = CARD_COSMETIC_DISPLAY[item.id];
   return display?.reflectionColor ?? display?.lightningColor;
@@ -42,10 +38,8 @@ function offerFamily(id: string): CardCosmeticColorFamily | undefined {
   if (display?.lightningColor) return "lightning";
 }
 
-function offerEligibility(item: CosmeticShopItem) {
-  if (item.kind === "back") return;
-  const tier = CARD_COSMETIC_DISPLAY[item.id]?.tier;
-  return tier ? CARD_COSMETIC_ELIGIBILITY[tier] : "allCardsEligibility";
+function offerGroupKey(id: string, family: CardCosmeticColorFamily) {
+  return `${family}-${CARD_COSMETIC_DISPLAY[id]?.infinityRarity}`;
 }
 
 function CosmeticCardPreview({
@@ -55,15 +49,15 @@ function CosmeticCardPreview({
   item: CosmeticShopItem;
   tier: ShopView;
 }) {
-  const reflection = CARD_COSMETIC_DISPLAY[item.id]?.reflectionColor;
+  const infinityRarity = CARD_COSMETIC_DISPLAY[item.id]?.infinityRarity;
   return (
     <div className="yk-cosmetic-preview-card" aria-hidden="true">
       {item.kind === "back" ? (
         <CardBack cosmetic={item.id} />
-      ) : reflection ? (
+      ) : infinityRarity ? (
         <YokaiCard
-          {...AUTH_EVOLUTION_CARDS[tier === "lr" ? 0 : 1]}
-          isEvolved={tier === "special"}
+          {...AUTH_EVOLUTION_CARDS[infinityRarity === "LR" ? 0 : 1]}
+          isEvolved
           animated={false}
           cosmetics={{ animation: item.id }}
         />
@@ -104,15 +98,18 @@ export function CosmeticShop({
         ? (CARD_COSMETIC_DISPLAY[offer.id]?.tier ?? "ssr")
         : "ssr"
   );
-  const [finishes, setFinishes] = useState(() => {
-    if (!offer) return defaultFinish;
+  const [finishes, setFinishes] = useState<Record<string, string>>(() => {
+    if (!offer) return {};
     const family = offerFamily(offer.id);
-    return family ? { ...defaultFinish, [family]: offer.id } : defaultFinish;
+    return family ? { [offerGroupKey(offer.id, family)]: offer.id } : {};
   });
   const format = useFormatter();
   const [shop, setShop] = useState(initial);
   const [selected, setSelected] = useState<CosmeticShopItem | null>(null);
-  const selectedEligibility = selected ? offerEligibility(selected) : undefined;
+  const selectedEligibility =
+    selected && selected.kind !== "back"
+      ? cardCosmeticEligibility(selected.id)
+      : undefined;
   const [quantity, setQuantity] = useState("1");
   const [pending, setPending] = useState(false);
   const [failure, setFailure] = useState<Notice>();
@@ -136,7 +133,7 @@ export function CosmeticShop({
     shop?.items.filter(item => {
       const display = CARD_COSMETIC_DISPLAY[item.id];
       return (
-        t.has(`items.${item.id}`) &&
+        t.has(`items.${cosmeticNameId(item.id)}`) &&
         (view === "backs"
           ? item.kind === "back"
           : item.kind === "animation" &&
@@ -149,10 +146,18 @@ export function CosmeticShop({
   >();
   for (const item of visibleItems) {
     const family = offerFamily(item.id);
-    const key = family ?? item.id;
+    const key = family ? offerGroupKey(item.id, family) : item.id;
     const group = products.get(key);
     if (group) group.variants.push(item);
     else products.set(key, { family, variants: [item] });
+  }
+
+  function offerName(id: string, family?: CardCosmeticColorFamily) {
+    const name = family
+      ? t(`families.${family}`)
+      : t(`items.${cosmeticNameId(id)}`);
+    const rarity = CARD_COSMETIC_DISPLAY[id]?.infinityRarity;
+    return rarity ? t("cosmeticWithRarity", { name, rarity }) : name;
   }
 
   async function purchase() {
@@ -316,10 +321,10 @@ export function CosmeticShop({
               <p className="yk-cosmetic-shop-success" role="status">
                 {CARD_COSMETIC_DISPLAY[purchaseResult.id]?.kind === "back"
                   ? t("backPurchaseSuccess", {
-                      name: t(`items.${purchaseResult.id}`)
+                      name: offerName(purchaseResult.id)
                     })
                   : t("purchaseSuccess", {
-                      name: t(`items.${purchaseResult.id}`),
+                      name: offerName(purchaseResult.id),
                       quantity: purchaseResult.quantity
                     })}
               </p>
@@ -364,20 +369,24 @@ export function CosmeticShop({
                   </li>
                 )}
                 {Array.from(products, ([key, { family, variants }]) => {
+                  const sortedVariants = [...variants].sort(
+                    (a, b) =>
+                      CARD_COSMETIC_COLOR_ORDER.indexOf(offerColor(a) ?? "") -
+                      CARD_COSMETIC_COLOR_ORDER.indexOf(offerColor(b) ?? "")
+                  );
                   const item =
-                    (family &&
-                      variants.find(
-                        variant => variant.id === finishes[family]
-                      )) ||
-                    variants[0];
+                    sortedVariants.find(
+                      variant => variant.id === finishes[key]
+                    ) ?? sortedVariants[0];
                   const color = offerColor(item);
-                  const title = family
-                    ? t(`families.${family}`)
-                    : t(`items.${item.id}`);
+                  const title = offerName(item.id, family);
                   const canAfford = shop.balance >= item.price;
                   const ownedBack = item.kind === "back" && item.quantity > 0;
                   const activeBack = shop.invocationBack === item.id;
-                  const eligibility = offerEligibility(item);
+                  const eligibility =
+                    item.kind === "back"
+                      ? undefined
+                      : cardCosmeticEligibility(item.id);
                   const eligibilityId = eligibility
                     ? `shop-${key}-eligibility`
                     : undefined;
@@ -408,52 +417,42 @@ export function CosmeticShop({
                               role="group"
                               aria-label={t("chooseColor", { name: title })}
                             >
-                              {[...variants]
-                                .sort(
-                                  (a, b) =>
-                                    CARD_COSMETIC_COLOR_ORDER.indexOf(
-                                      offerColor(a) ?? ""
-                                    ) -
-                                    CARD_COSMETIC_COLOR_ORDER.indexOf(
-                                      offerColor(b) ?? ""
-                                    )
-                                )
-                                .map(variant => {
-                                  const variantColor = offerColor(variant);
-                                  if (!variantColor) return null;
-                                  const label = t(`colors.${variantColor}`);
-                                  return (
-                                    <Button
-                                      key={variant.id}
-                                      variant={
-                                        item.id === variant.id
-                                          ? "primary"
-                                          : "secondary"
-                                      }
-                                      className="yk-cosmetic-swatch"
-                                      data-color={variantColor}
-                                      aria-label={label}
-                                      title={label}
-                                      aria-pressed={item.id === variant.id}
-                                      onClick={event => {
-                                        replayCardCosmeticColor(
-                                          event.currentTarget
-                                            .closest(".yk-cosmetic-offer")
-                                            ?.querySelector(
-                                              ".yk-cosmetic-offer-art"
-                                            ),
-                                          family
-                                        );
-                                        setFinishes(current => ({
-                                          ...current,
-                                          [family]: variant.id
-                                        }));
-                                      }}
-                                    >
-                                      <span aria-hidden="true" />
-                                    </Button>
-                                  );
-                                })}
+                              {sortedVariants.map(variant => {
+                                const variantColor = offerColor(variant);
+                                if (!variantColor) return null;
+                                const label = t(`colors.${variantColor}`);
+                                return (
+                                  <Button
+                                    key={variant.id}
+                                    variant={
+                                      item.id === variant.id
+                                        ? "primary"
+                                        : "secondary"
+                                    }
+                                    className="yk-cosmetic-swatch"
+                                    data-color={variantColor}
+                                    aria-label={label}
+                                    title={label}
+                                    aria-pressed={item.id === variant.id}
+                                    onClick={event => {
+                                      replayCardCosmeticColor(
+                                        event.currentTarget
+                                          .closest(".yk-cosmetic-offer")
+                                          ?.querySelector(
+                                            ".yk-cosmetic-offer-art"
+                                          ),
+                                        family
+                                      );
+                                      setFinishes(current => ({
+                                        ...current,
+                                        [key]: variant.id
+                                      }));
+                                    }}
+                                  >
+                                    <span aria-hidden="true" />
+                                  </Button>
+                                );
+                              })}
                             </div>
                             <p
                               className="yk-cosmetic-selected-color"
@@ -494,7 +493,7 @@ export function CosmeticShop({
                                   !canAfford
                                     ? t("insufficient")
                                     : t("buyItem", {
-                                        name: t(`items.${item.id}`)
+                                        name: offerName(item.id)
                                       })
                                 }
                                 onClick={() => {
@@ -538,7 +537,7 @@ export function CosmeticShop({
               <div className="yk-cosmetic-checkout-product">
                 <CosmeticCardPreview item={selected} tier={view} />
                 <div>
-                  <h3>{t(`items.${selected.id}`)}</h3>
+                  <h3>{offerName(selected.id)}</h3>
                   {selectedEligibility && (
                     <p
                       className="yk-cosmetic-eligibility"

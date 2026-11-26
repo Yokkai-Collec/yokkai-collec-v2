@@ -11,6 +11,19 @@ export const CARD_REFLECTION_COLORS = [
   "gold"
 ] as const;
 type CardReflectionColor = "original" | (typeof CARD_REFLECTION_COLORS)[number];
+type CardLightningColor =
+  "white" | "violet" | "blue" | "gold" | "red" | "black";
+type InfinityRarity = "SSR" | "LR";
+
+const LIGHTNING_COLORS = [
+  "white",
+  "violet",
+  "blue",
+  "gold",
+  "red",
+  "black"
+] as const;
+const INFINITY_RARITIES = ["LR", "SSR"] as const;
 
 export const CARD_SHOWCASE_SCENES = [
   "velvet",
@@ -35,7 +48,8 @@ export const CARD_COSMETIC_DISPLAY: Readonly<
     {
       kind: CardCosmeticKind;
       tier?: CardCosmeticTier;
-      lightningColor?: "white" | "violet" | "blue" | "gold" | "red" | "black";
+      infinityRarity?: InfinityRarity;
+      lightningColor?: CardLightningColor;
       reflectionColor?: CardReflectionColor;
       showcaseScene?: CardShowcaseScene;
     }
@@ -43,41 +57,32 @@ export const CARD_COSMETIC_DISPLAY: Readonly<
 > = {
   prism_sweep: { kind: "animation" },
   ember_aura: { kind: "animation" },
-  infinity_lightning: {
-    kind: "animation",
-    tier: "special",
-    lightningColor: "white"
-  },
-  infinity_lightning_violet: {
-    kind: "animation",
-    tier: "special",
-    lightningColor: "violet"
-  },
-  infinity_lightning_blue: {
-    kind: "animation",
-    tier: "special",
-    lightningColor: "blue"
-  },
-  infinity_lightning_gold: {
-    kind: "animation",
-    tier: "special",
-    lightningColor: "gold"
-  },
-  infinity_lightning_red: {
-    kind: "animation",
-    tier: "special",
-    lightningColor: "red"
-  },
-  infinity_lightning_black: {
-    kind: "animation",
-    tier: "special",
-    lightningColor: "black"
-  },
   ...Object.fromEntries(
-    (["original", ...CARD_REFLECTION_COLORS] as const).map(color => [
-      reflectionCosmeticId(color),
-      { kind: "animation", tier: "special", reflectionColor: color } as const
-    ])
+    INFINITY_RARITIES.flatMap(infinityRarity => {
+      const suffix = infinityRarity === "SSR" ? "_ssr" : "";
+      return [
+        ...LIGHTNING_COLORS.map(lightningColor => [
+          `infinity_lightning${lightningColor === "white" ? "" : `_${lightningColor}`}${suffix}`,
+          {
+            kind: "animation",
+            tier: "special",
+            infinityRarity,
+            lightningColor
+          } as const
+        ]),
+        ...(["original", ...CARD_REFLECTION_COLORS] as const).map(
+          reflectionColor => [
+            `${reflectionCosmeticId(reflectionColor)}${suffix}`,
+            {
+              kind: "animation",
+              tier: "special",
+              infinityRarity,
+              reflectionColor
+            } as const
+          ]
+        )
+      ];
+    })
   ),
   ...Object.fromEntries(
     CARD_SHOWCASE_SCENES.map(scene => [
@@ -93,20 +98,34 @@ export const CARD_COSMETIC_DISPLAY: Readonly<
   midnight_sakura: { kind: "back" }
 };
 
-export const CARD_COSMETIC_ELIGIBILITY = {
-  ssr: "ssrEligibility",
-  lr: "lrEligibility",
-  special: "infinityEligibility"
-} as const satisfies Record<CardCosmeticTier, string>;
+export function cosmeticNameId(id: string) {
+  return CARD_COSMETIC_DISPLAY[id]?.infinityRarity === "SSR"
+    ? id.slice(0, -4)
+    : id;
+}
+
+export function cardCosmeticEligibility(id: string) {
+  const display = CARD_COSMETIC_DISPLAY[id];
+  if (display?.infinityRarity) {
+    return display.infinityRarity === "SSR"
+      ? "infinitySsrEligibility"
+      : "infinityLrEligibility";
+  }
+  if (display?.tier === "ssr") return "ssrEligibility";
+  if (display?.tier === "lr") return "lrEligibility";
+  return "allCardsEligibility";
+}
 
 export function canEquipCardCosmetic(
-  tier: CardCosmeticTier | undefined,
+  id: string | null,
   rarity: string,
   isEvolved: boolean
 ) {
-  if (tier === "special")
-    return isEvolved && (rarity === "SSR" || rarity === "LR");
-  return !tier || rarity.toLowerCase() === tier;
+  if (!id) return true;
+  const display = CARD_COSMETIC_DISPLAY[id];
+  if (display?.infinityRarity)
+    return isEvolved && rarity === display.infinityRarity;
+  return !display?.tier || rarity.toLowerCase() === display.tier;
 }
 
 export type PerCardCosmeticKind = Exclude<CardCosmeticKind, "back">;

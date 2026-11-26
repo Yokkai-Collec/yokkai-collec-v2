@@ -7,8 +7,9 @@ import { Button } from "@/components/ui";
 import {
   CARD_COSMETIC_DISPLAY,
   CARD_COSMETIC_COLOR_ORDER,
-  CARD_COSMETIC_ELIGIBILITY,
   canEquipCardCosmetic,
+  cardCosmeticEligibility,
+  cosmeticNameId,
   cosmeticOfferAnchor,
   type CardCosmeticColorFamily,
   type CardCosmeticInventory,
@@ -73,8 +74,7 @@ export function CardCustomizer({
   const chosen = draft ? draft.id : current;
   const selectedCopies = chosen ? (copies?.[chosen]?.available ?? 0) : 0;
   const changed = chosen !== current;
-  const chosenTier = chosen ? CARD_COSMETIC_DISPLAY[chosen]?.tier : undefined;
-  const eligible = canEquipCardCosmetic(chosenTier, rarity, isEvolved);
+  const eligible = canEquipCardCosmetic(chosen, rarity, isEvolved);
   const canApply =
     Boolean(copies) &&
     changed &&
@@ -89,9 +89,10 @@ export function CardCustomizer({
     .filter(
       ([id, cosmetic]) =>
         !HIDDEN_CUSTOMIZATION_EFFECTS.has(id) &&
+        (!cosmetic.infinityRarity || cosmetic.infinityRarity === rarity) &&
         ((cosmetic.kind === "animation" && (copies?.[id] || onSale.has(id))) ||
           (cosmetic.kind === "filter" && copies?.[id])) &&
-        t.has(`items.${id}`)
+        t.has(`items.${cosmeticNameId(id)}`)
     )
     .sort(
       ([a], [b]) => Number(Boolean(copies?.[b])) - Number(Boolean(copies?.[a]))
@@ -204,10 +205,17 @@ export function CardCustomizer({
               const { id, cosmetic, color } = variant;
               const applied = id === equipped?.[cosmetic.kind];
               const stock = copies[id];
-              const tier = cosmetic.tier;
-              const compatible = canEquipCardCosmetic(tier, rarity, isEvolved);
+              const compatible = canEquipCardCosmetic(id, rarity, isEvolved);
               const active = draft ? chosen === id : applied;
-              const label = family ? t(`families.${family}`) : t(`items.${id}`);
+              const name = family
+                ? t(`families.${family}`)
+                : t(`items.${cosmeticNameId(id)}`);
+              const label = cosmetic.infinityRarity
+                ? t("cosmeticWithRarity", {
+                    name,
+                    rarity: cosmetic.infinityRarity
+                  })
+                : name;
               const attributes = {
                 "data-cosmetic": id,
                 "data-scene": cosmetic.showcaseScene,
@@ -216,8 +224,8 @@ export function CardCustomizer({
               };
               const status = applied
                 ? t("equippedOnCard")
-                : tier && !compatible
-                  ? t(CARD_COSMETIC_ELIGIBILITY[tier])
+                : !compatible
+                  ? t(cardCosmeticEligibility(id))
                   : !stock
                     ? t("notOwned")
                     : t("availableCopies", { count: stock.available });
@@ -319,8 +327,8 @@ export function CardCustomizer({
         <p aria-live="polite">
           {feedback
             ? t(feedback)
-            : changed && chosenTier && !eligible
-              ? t(CARD_COSMETIC_ELIGIBILITY[chosenTier])
+            : changed && chosen && !eligible
+              ? t(cardCosmeticEligibility(chosen))
               : changed && chosen && !copies?.[chosen]
                 ? t("notOwned")
                 : changed && chosen && selectedCopies === 0
