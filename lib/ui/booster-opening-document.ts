@@ -4,12 +4,27 @@ export const BLACKOUT_BOOSTER_IMAGE = "/assets/chrome-regular-booster-v1.png";
 
 export const SUNSET_BOOSTER_IMAGE = "/assets/events/gta-sunset/booster.png";
 
+export const DEFAULT_INVOCATION_BACK = "/assets/bubble-card-back-v1.png";
+const INVOCATION_BACKS: Readonly<Record<string, string>> = {
+  obsidian_seal: "/assets/card-backs/obsidian-seal.webp",
+  astral_atlas: "/assets/card-backs/astral-atlas.webp",
+  violet_mist: "/assets/card-backs/violet-mist.webp",
+  midnight_sakura: "/assets/card-backs/midnight-sakura.webp"
+};
+
+export function invocationBackImage(cosmetic?: string | null) {
+  return cosmetic && Object.hasOwn(INVOCATION_BACKS, cosmetic)
+    ? INVOCATION_BACKS[cosmetic]
+    : DEFAULT_INVOCATION_BACK;
+}
+
 // Preserve the supplied artwork; adapt startup and composite-only playback.
 export function boosterOpeningDocument(
   source: string,
   parentOrigin: string,
   kind: BoosterKind,
-  waitForClick = false
+  waitForClick = false,
+  invocationBack?: string | null
 ) {
   if (
     kind !== "regular" &&
@@ -65,7 +80,7 @@ export function boosterOpeningDocument(
     throw new Error("Invalid booster asset");
   let document = source.replaceAll(
     "__CARD_BACK__",
-    new URL("/assets/bubble-card-back-v1.png", origin).href
+    new URL(invocationBackImage(invocationBack), origin).href
   );
   if (sunset || blackout) {
     const fan =

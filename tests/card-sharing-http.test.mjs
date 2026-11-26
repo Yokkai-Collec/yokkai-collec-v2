@@ -39,8 +39,13 @@ const { cardShareImageResponse } = load("lib/server/card-share-image-route.ts");
 const pageShell = {
   "@/components/yokai-card": load("components/yokai-card.tsx", {
     require(name) {
-      if (name === "@/components/pro-access")
-        return { useOwnProfileStyle: () => null };
+      if (name === "@/components/invocation-card-back")
+        return { useInvocationCardBack: () => null };
+      if (name === "@/components/card-showcase-effect")
+        return { CardShowcaseEffect: () => null };
+      if (name === "@/lib/ui/card-cosmetics")
+        return load("lib/ui/card-cosmetics.ts");
+      if (name === "@/lib/ui/booster-opening-document") return {};
       if (name.endsWith(".css")) return {};
       return require(name);
     }

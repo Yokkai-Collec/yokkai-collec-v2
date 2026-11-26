@@ -67,7 +67,8 @@ export async function GET(request: Request) {
         await asset,
         parentOrigin,
         kind,
-        url.searchParams.get("gesture") === "click"
+        url.searchParams.get("gesture") === "click",
+        url.searchParams.get("back")
       ),
       {
         headers

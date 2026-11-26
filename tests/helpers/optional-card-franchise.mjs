@@ -35,6 +35,13 @@ export function load(path, imports = {}) {
       if (name === "next-intl") return intl;
       if (name in imports) return imports[name];
       if (name === "@/lib/ui/card-rarity-label") return cardRarityLabels;
+      if (name === "@/components/invocation-card-back")
+        return { useInvocationCardBack: () => null };
+      if (name === "@/components/card-showcase-effect")
+        return { CardShowcaseEffect: () => null };
+      if (name === "@/lib/ui/card-cosmetics")
+        return load("lib/ui/card-cosmetics.ts");
+      if (name === "@/lib/ui/booster-opening-document") return {};
       if (name.startsWith("react") || name.startsWith("node:"))
         return require(name);
       if (name.endsWith(".css") || name === "server-only") return {};

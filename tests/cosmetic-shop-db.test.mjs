@@ -52,8 +52,13 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
     call(player, "select public.set_card_cosmetic($1,$2,$3)", [copy, kind, id]);
   const inventory = player =>
     call(player, "select public.get_my_card_cosmetics() result");
+  const chooseBack = (player, id) =>
+    call(player, "select public.set_my_invocation_card_back($1) result", [id]);
+  const selectedBack = player =>
+    call(player, "select cosmetic_id result from public.invocation_card_backs");
 
   const initial = await shop(user);
+  assert.equal(initial.invocationBack, null);
   assert.equal(initial.items.length, 22);
   assert.ok(!initial.items.some(item => item.id === "prism_sweep"));
   await assert.rejects(buy("prism_sweep", 450), /COSMETIC_UNAVAILABLE/);
@@ -162,14 +167,39 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
     [250, 650, 2700]
   );
 
-  await assert.rejects(equip(other, "back", "obsidian_seal"), /CARD_NOT_OWNED/);
+  await assert.rejects(
+    equip(other, "animation", "showcase_cyber"),
+    /CARD_NOT_OWNED/
+  );
+  await assert.rejects(
+    equip(user, "back", "obsidian_seal"),
+    /INVALID_COSMETIC_KIND/
+  );
+  await assert.rejects(
+    chooseBack(other, "obsidian_seal"),
+    /COSMETIC_NOT_OWNED/
+  );
+  await assert.rejects(
+    chooseBack(user, "showcase_cyber"),
+    /COSMETIC_NOT_OWNED/
+  );
+  await assert.rejects(buy("obsidian_seal", 650), /COSMETIC_ALREADY_OWNED/);
+  await assert.rejects(
+    buy("astral_atlas", 1200, 2),
+    /INVALID_COSMETIC_QUANTITY/
+  );
   await assert.rejects(
     equip(user, "filter", "obsidian_seal"),
     /COSMETIC_NOT_OWNED/
   );
   await equip(user, "animation", "showcase_cyber");
   await equip(user, "filter", "silver_screen");
-  await equip(user, "back", "obsidian_seal");
+  assert.equal(
+    (await chooseBack(user, "obsidian_seal")).invocationBack,
+    "obsidian_seal"
+  );
+  assert.equal(await selectedBack(user), "obsidian_seal");
+  assert.equal(await selectedBack(other), undefined);
   const moreCards = (
     await db.query(
       "insert into public.user_cards(user_id,card_id,rarity) select $1,$2,'LR' from generate_series(1,3) returning id",
@@ -193,13 +223,11 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
   await equip(user, "animation", null, moreCards[2]);
   assert.deepEqual((await inventory(user)).equipped[card], {
     animation: "showcase_cyber",
-    filter: "silver_screen",
-    back: "obsidian_seal"
+    filter: "silver_screen"
   });
   await equip(user, "filter", null);
   assert.deepEqual((await inventory(user)).equipped[card], {
-    animation: "showcase_cyber",
-    back: "obsidian_seal"
+    animation: "showcase_cyber"
   });
 
   await db.query("update public.user_cards set user_id=$1 where id=$2", [
@@ -208,6 +236,7 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
   ]);
   assert.deepEqual((await inventory(user)).equipped, {});
   assert.deepEqual((await inventory(other)).equipped, {});
+  assert.equal((await shop(user)).invocationBack, "obsidian_seal");
   assert.deepEqual((await inventory(user)).copies, {
     obsidian_seal: { quantity: 1, available: 1 },
     showcase_cyber: { quantity: 3, available: 3 },
@@ -224,8 +253,8 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
   ]) {
     const purchased = await buy(id, price, 1, randomUUID(), other);
     assert.equal(purchased.items.find(item => item.id === id).quantity, 1);
-    await equip(other, "back", id);
-    assert.deepEqual((await inventory(other)).equipped[card], { back: id });
+    assert.equal((await chooseBack(other, id)).invocationBack, id);
+    assert.equal(await selectedBack(other), id);
   }
   await assert.rejects(
     equip(other, "animation", "infinity_lightning"),
@@ -247,9 +276,10 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
     equip(other, "animation", "infinity_lightning"),
     /COSMETIC_CARD_INELIGIBLE/
   );
-  assert.deepEqual((await inventory(other)).equipped[card], {
-    back: "midnight_sakura"
-  });
+  assert.deepEqual((await inventory(other)).equipped[card], undefined);
+  assert.equal((await chooseBack(other, null)).invocationBack, null);
+  assert.equal(await selectedBack(other), undefined);
+  assert.equal(await selectedBack(user), "obsidian_seal");
 
   for (const { name, rarity, shiny, evolved, edition, eligible } of [
     { name: "common", rarity: "C" },

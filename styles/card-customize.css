@@ -56,28 +56,6 @@
   margin-top: 0.25rem;
 }
 
-.yk-customize-tabs {
-  flex: 1 1 13rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  padding: 0.25rem;
-  border: 1px solid #9eabcc29;
-  border-radius: 0.8rem;
-  background: #080d17;
-}
-
-.yk-customize-tabs button {
-  min-height: 44px;
-  flex: 1 1 auto;
-  padding: 0.35rem 0.6rem;
-  border-radius: 0.55rem;
-  color: var(--color-ink-2);
-  font-size: 0.86rem;
-  font-weight: 650;
-}
-
-.yk-customize-tabs button[aria-pressed="true"],
 .yk-customize-default[aria-pressed="true"] {
   background: #1f2a3d;
   color: var(--color-ink);
@@ -253,11 +231,6 @@
   font-size: 0.76rem;
   font-weight: 650;
   line-height: 1.2;
-}
-
-.yk-customize-thumb .yk-card-back {
-  width: 2.15rem;
-  border-radius: 0.22rem;
 }
 
 :is(.yk-customize-option, .yk-customize-swatch)[data-color="blue"] {

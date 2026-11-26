@@ -124,6 +124,7 @@ const allowlist = {
   "public.buy_card_cosmetic(text, integer, integer, uuid)": ["authenticated"], // Price-checked and retry-safe purchase for the caller.
   "public.get_my_card_cosmetics()": ["authenticated"], // Own purchases and owned card loadouts only.
   "public.set_card_cosmetic(uuid, text, text)": ["authenticated"], // Equips an owned cosmetic on an owned card.
+  "public.set_my_invocation_card_back(text)": ["authenticated"], // Selects a card back owned by the caller.
   "public.get_blackout_event()": ["authenticated"], // Scheduled event and current player wallet only.
   "public.buy_blackout_packs(integer, uuid)": ["authenticated"], // Purchases against the caller’s wallet during the event.
   "public.open_blackout_booster(uuid)": ["authenticated"], // Consumes only the caller’s credit and writes their own collection.

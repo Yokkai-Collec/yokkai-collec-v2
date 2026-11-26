@@ -4,24 +4,25 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui";
-import { CardBack } from "@/components/yokai-card";
 import {
   CARD_COSMETIC_DISPLAY,
   CARD_COSMETIC_COLOR_ORDER,
   cosmeticOfferAnchor,
   type CardCosmeticColorFamily,
   type CardCosmeticInventory,
-  type CardCosmeticKind,
+  type PerCardCosmeticKind,
   type CardCosmeticShop
 } from "@/lib/ui/card-cosmetics";
 import { createClient } from "@/utils/supabase/client";
 import "@/styles/card-customize.css";
 
 type Feedback = "saved" | "copiesExhausted" | "equipFailed";
-type Choice = { kind: CardCosmeticKind; id: string | null };
+type Choice = { kind: PerCardCosmeticKind; id: string | null };
 type Variant = {
   id: string;
-  cosmetic: (typeof CARD_COSMETIC_DISPLAY)[string];
+  cosmetic: (typeof CARD_COSMETIC_DISPLAY)[string] & {
+    kind: PerCardCosmeticKind;
+  };
   color?: string;
 };
 const HIDDEN_CUSTOMIZATION_EFFECTS = new Set([
@@ -45,11 +46,10 @@ export function CardCustomizer({
   offers: CardCosmeticShop["items"];
   lightningEligible: boolean;
   onInventory: (inventory: CardCosmeticInventory) => void;
-  onPreview: (choice: Choice | undefined, showBack: boolean) => void;
+  onPreview: (choice: Choice | undefined) => void;
   onBack: () => void;
 }) {
   const t = useTranslations("cosmeticShop");
-  const [tab, setTab] = useState<"animation" | "back">("animation");
   const [finishes, setFinishes] = useState<
     Partial<Record<CardCosmeticColorFamily, string>>
   >({});
@@ -63,7 +63,7 @@ export function CardCustomizer({
   useEffect(() => {
     heading.current?.focus({ preventScroll: true });
   }, []);
-  const kind = draft?.kind ?? tab;
+  const kind = draft?.kind ?? "animation";
   const current = equipped?.[kind] ?? null;
   const chosen = draft ? draft.id : current;
   const selectedCopies = chosen ? (copies?.[chosen]?.available ?? 0) : 0;
@@ -89,10 +89,8 @@ export function CardCustomizer({
     .filter(
       ([id, cosmetic]) =>
         !HIDDEN_CUSTOMIZATION_EFFECTS.has(id) &&
-        ((cosmetic.kind === tab && (copies?.[id] || onSale.has(id))) ||
-          (tab === "animation" &&
-            cosmetic.kind === "filter" &&
-            copies?.[id])) &&
+        ((cosmetic.kind === "animation" && (copies?.[id] || onSale.has(id))) ||
+          (cosmetic.kind === "filter" && copies?.[id])) &&
         t.has(`items.${id}`)
     )
     .sort(
@@ -103,6 +101,8 @@ export function CardCustomizer({
     { family?: CardCosmeticColorFamily; variants: Variant[] }
   >();
   for (const [id, cosmetic] of products) {
+    const kind = cosmetic.kind;
+    if (kind === "back") continue;
     const family = cosmetic.reflectionColor
       ? "reflection"
       : cosmetic.lightningColor
@@ -111,7 +111,7 @@ export function CardCustomizer({
     const key = family ?? id;
     const variant = {
       id,
-      cosmetic,
+      cosmetic: { ...cosmetic, kind },
       color: cosmetic.reflectionColor ?? cosmetic.lightningColor
     };
     const group = groups.get(key);
@@ -122,10 +122,10 @@ export function CardCustomizer({
     ([, a], [, b]) => Number(Boolean(b.family)) - Number(Boolean(a.family))
   );
 
-  function choose(kind: CardCosmeticKind, id: string | null) {
+  function choose(kind: PerCardCosmeticKind, id: string | null) {
     const choice = { kind, id };
     setDraft(choice);
-    onPreview(choice, kind === "back");
+    onPreview(choice);
     setFeedback(undefined);
   }
 
@@ -143,7 +143,7 @@ export function CardCustomizer({
       });
       if (!error && data) {
         onInventory(data as CardCosmeticInventory);
-        onPreview(undefined, kind === "back");
+        onPreview(undefined);
         setFeedback("saved");
       } else if (error?.message === "COSMETIC_COPIES_EXHAUSTED") {
         setFeedback("copiesExhausted");
@@ -177,29 +177,6 @@ export function CardCustomizer({
       {copies ? (
         <>
           <div className="yk-customize-toolbar">
-            <div
-              className="yk-customize-tabs"
-              role="group"
-              aria-label={t("cosmeticCategories")}
-            >
-              {(["animation", "back"] as const).map(category => (
-                <button
-                  key={category}
-                  type="button"
-                  disabled={busy}
-                  aria-pressed={category === tab}
-                  onClick={() => {
-                    if (category === tab) return;
-                    setDraft(undefined);
-                    setTab(category);
-                    onPreview(undefined, category === "back");
-                    setFeedback(undefined);
-                  }}
-                >
-                  {t(`kinds.${category}`)}
-                </button>
-              ))}
-            </div>
             <button
               type="button"
               className="yk-customize-default"
@@ -245,9 +222,7 @@ export function CardCustomizer({
                     : t("availableCopies", { count: stock.available });
               const tile = (
                 <>
-                  <span className="yk-customize-thumb" aria-hidden="true">
-                    {cosmetic.kind === "back" && <CardBack cosmetic={id} />}
-                  </span>
+                  <span className="yk-customize-thumb" aria-hidden="true" />
                   <strong>{label}</strong>
                 </>
               );

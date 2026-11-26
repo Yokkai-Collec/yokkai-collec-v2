@@ -3,8 +3,10 @@
 import { formatLicenseName } from "@/lib/ui/license-name";
 import { useTranslations } from "next-intl";
 import { CardShowcaseEffect } from "@/components/card-showcase-effect";
+import { useInvocationCardBack } from "@/components/invocation-card-back";
 
 import { cardRarityLabel } from "@/lib/ui/card-rarity-label";
+import { invocationBackImage } from "@/lib/ui/booster-opening-document";
 import type { FirstLrCopySource } from "@/lib/data/first-lr-copies";
 import { useEffect, useState } from "react";
 import type { CSSProperties, ReactNode, SyntheticEvent } from "react";
@@ -540,23 +542,19 @@ export function CardBack({
   cosmetic?: string;
 }) {
   const t = useTranslations("collectionShared");
-  const style = useOwnProfileStyle();
+  const invocationBack = useInvocationCardBack();
+  const back = cosmetic ?? invocationBack;
   return (
     <div
       role="img"
       aria-label={t("cardBack")}
       className={`yk-card-back ${className}`}
-      data-cosmetic-back={cosmetic}
+      data-cosmetic-back={back ?? undefined}
       style={
-        !cosmetic && style?.cardBackUrl
-          ? {
-              backgroundImage: `url(${JSON.stringify(style.cardBackUrl)})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center"
-            }
+        back
+          ? { backgroundImage: `url(${invocationBackImage(back)})` }
           : undefined
       }
     />
   );
 }
-import { useOwnProfileStyle } from "@/components/pro-access";

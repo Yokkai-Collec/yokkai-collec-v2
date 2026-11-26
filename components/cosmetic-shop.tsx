@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
 import { useRef, useState, type ReactNode } from "react";
+import { setInvocationCardBack } from "@/app/shop/actions";
 import { CardBack, YokaiCard } from "@/components/yokai-card";
 import { Topbar } from "@/components/topbar";
 import { Button, Karas, Modal } from "@/components/ui";
@@ -68,7 +69,7 @@ function CosmeticCardPreview({
           isEvolved={tier === "special"}
           image="/assets/premium-examples/gojo-original.png"
           animated={false}
-          cosmetics={{ [item.kind]: item.id }}
+          cosmetics={{ animation: item.id }}
         />
       )}
     </div>
@@ -107,6 +108,7 @@ export function CosmeticShop({
   const [quantity, setQuantity] = useState("1");
   const [pending, setPending] = useState(false);
   const [failure, setFailure] = useState<Notice>();
+  const [backFeedback, setBackFeedback] = useState<"saved" | "failed">();
   const [purchaseResult, setPurchaseResult] = useState<{
     id: string;
     quantity: number;
@@ -115,7 +117,11 @@ export function CosmeticShop({
   const requestId = useRef<string>(null);
   const units = Number(quantity);
   const maxQuantity =
-    selected && shop ? Math.floor(shop.balance / selected.price) : 0;
+    selected && shop
+      ? selected.kind === "back"
+        ? Number(shop.balance >= selected.price && selected.quantity === 0)
+        : Math.floor(shop.balance / selected.price)
+      : 0;
   const canPurchase =
     Number.isInteger(units) && units > 0 && units <= maxQuantity;
   const visibleItems =
@@ -185,6 +191,27 @@ export function CosmeticShop({
       invalidatePlayerSnapshots(["balance", "profile"]);
     } catch {
       setFailure("purchaseFailed");
+    } finally {
+      purchasing.current = false;
+      setPending(false);
+    }
+  }
+
+  async function chooseInvocationBack(id: string | null) {
+    if (purchasing.current) return;
+    purchasing.current = true;
+    setPending(true);
+    setBackFeedback(undefined);
+    try {
+      const data = await setInvocationCardBack(id);
+      if (!data) {
+        setBackFeedback("failed");
+      } else {
+        setShop(data);
+        setBackFeedback("saved");
+      }
+    } catch {
+      setBackFeedback("failed");
     } finally {
       purchasing.current = false;
       setPending(false);
@@ -277,15 +304,55 @@ export function CosmeticShop({
             </div>
             {purchaseResult && (
               <p className="yk-cosmetic-shop-success" role="status">
-                {t("purchaseSuccess", {
-                  name: t(`items.${purchaseResult.id}`),
-                  quantity: purchaseResult.quantity
-                })}
+                {CARD_COSMETIC_DISPLAY[purchaseResult.id]?.kind === "back"
+                  ? t("backPurchaseSuccess", {
+                      name: t(`items.${purchaseResult.id}`)
+                    })
+                  : t("purchaseSuccess", {
+                      name: t(`items.${purchaseResult.id}`),
+                      quantity: purchaseResult.quantity
+                    })}
+              </p>
+            )}
+            {view === "backs" && backFeedback && (
+              <p className="yk-cosmetic-shop-success" role="status">
+                {t(
+                  backFeedback === "saved"
+                    ? "invocationBackSaved"
+                    : "invocationBackFailed"
+                )}
               </p>
             )}
             {!selected && failure && <p role="alert">{t(failure)}</p>}
-            {shop && products.size ? (
+            {shop && (products.size > 0 || view === "backs") ? (
               <ul className="yk-cosmetic-shop-grid">
+                {view === "backs" && (
+                  <li className="yk-cosmetic-offer" data-kind="back">
+                    <div className="yk-cosmetic-offer-art">
+                      <div
+                        className="yk-cosmetic-preview-card"
+                        aria-hidden="true"
+                      >
+                        <CardBack />
+                      </div>
+                    </div>
+                    <div className="yk-cosmetic-offer-body">
+                      <h3>{t("defaultInvocationBack")}</h3>
+                      <div className="yk-cosmetic-offer-actions">
+                        <Button
+                          disabled={pending || !shop.invocationBack}
+                          onClick={() => void chooseInvocationBack(null)}
+                        >
+                          {t(
+                            shop.invocationBack
+                              ? "useInvocationBack"
+                              : "activeInvocationBack"
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </li>
+                )}
                 {Array.from(products, ([key, { family, variants }]) => {
                   const item =
                     (family &&
@@ -298,6 +365,8 @@ export function CosmeticShop({
                     ? t(`families.${family}`)
                     : t(`items.${item.id}`);
                   const canAfford = shop.balance >= item.price;
+                  const ownedBack = item.kind === "back" && item.quantity > 0;
+                  const activeBack = shop.invocationBack === item.id;
                   return (
                     <li
                       key={key}
@@ -373,7 +442,7 @@ export function CosmeticShop({
                             {t("lightningEligibility")}
                           </p>
                         )}
-                        {item.quantity > 0 && (
+                        {item.kind !== "back" && item.quantity > 0 && (
                           <p className="yk-cosmetic-offer-owned">
                             {t("copiesOwned", {
                               quantity: item.quantity,
@@ -382,26 +451,41 @@ export function CosmeticShop({
                           </p>
                         )}
                         <div className="yk-cosmetic-offer-actions">
-                          <Karas amount={item.price} />
-                          <Button
-                            variant="primary"
-                            disabled={!canAfford}
-                            aria-label={
-                              !canAfford
-                                ? t("insufficient")
-                                : t("buyItem", {
-                                    name: t(`items.${item.id}`)
-                                  })
-                            }
-                            onClick={() => {
-                              setFailure(undefined);
-                              setPurchaseResult(undefined);
-                              setSelected(item);
-                              changeQuantity("1");
-                            }}
-                          >
-                            {!canAfford ? t("insufficientShort") : t("buy")}
-                          </Button>
+                          {ownedBack ? (
+                            <Button
+                              disabled={pending || activeBack}
+                              onClick={() => void chooseInvocationBack(item.id)}
+                            >
+                              {t(
+                                activeBack
+                                  ? "activeInvocationBack"
+                                  : "useInvocationBack"
+                              )}
+                            </Button>
+                          ) : (
+                            <>
+                              <Karas amount={item.price} />
+                              <Button
+                                variant="primary"
+                                disabled={pending || !canAfford}
+                                aria-label={
+                                  !canAfford
+                                    ? t("insufficient")
+                                    : t("buyItem", {
+                                        name: t(`items.${item.id}`)
+                                      })
+                                }
+                                onClick={() => {
+                                  setFailure(undefined);
+                                  setPurchaseResult(undefined);
+                                  setSelected(item);
+                                  changeQuantity("1");
+                                }}
+                              >
+                                {!canAfford ? t("insufficientShort") : t("buy")}
+                              </Button>
+                            </>
+                          )}
                         </div>
                       </div>
                     </li>
@@ -438,40 +522,42 @@ export function CosmeticShop({
                   )}
                 </div>
               </div>
-              <div className="yk-cosmetic-quantity">
-                <div>
-                  <label htmlFor="shop-cosmetic-quantity">
-                    {t("quantity")}
-                  </label>
-                  <p>{t("copiesPerCard")}</p>
+              {selected.kind !== "back" && (
+                <div className="yk-cosmetic-quantity">
+                  <div>
+                    <label htmlFor="shop-cosmetic-quantity">
+                      {t("quantity")}
+                    </label>
+                    <p>{t("copiesPerCard")}</p>
+                  </div>
+                  <div className="yk-cosmetic-quantity-controls">
+                    <button
+                      type="button"
+                      aria-label={t("lessCopies")}
+                      disabled={pending || units <= 1}
+                      onClick={() => changeQuantity(String(units - 1))}
+                    >
+                      −
+                    </button>
+                    <input
+                      id="shop-cosmetic-quantity"
+                      type="text"
+                      inputMode="numeric"
+                      value={quantity}
+                      disabled={pending}
+                      onChange={event => changeQuantity(event.target.value)}
+                    />
+                    <button
+                      type="button"
+                      aria-label={t("moreCopies")}
+                      disabled={pending || units >= maxQuantity}
+                      onClick={() => changeQuantity(String(units + 1))}
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
-                <div className="yk-cosmetic-quantity-controls">
-                  <button
-                    type="button"
-                    aria-label={t("lessCopies")}
-                    disabled={pending || units <= 1}
-                    onClick={() => changeQuantity(String(units - 1))}
-                  >
-                    −
-                  </button>
-                  <input
-                    id="shop-cosmetic-quantity"
-                    type="text"
-                    inputMode="numeric"
-                    value={quantity}
-                    disabled={pending}
-                    onChange={event => changeQuantity(event.target.value)}
-                  />
-                  <button
-                    type="button"
-                    aria-label={t("moreCopies")}
-                    disabled={pending || units >= maxQuantity}
-                    onClick={() => changeQuantity(String(units + 1))}
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
+              )}
               <dl>
                 <div>
                   <dt>{t("unitPrice")}</dt>

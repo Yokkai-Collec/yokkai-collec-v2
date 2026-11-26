@@ -40,7 +40,7 @@ import { CardCustomizer } from "@/components/card-customizer";
 import { createClient } from "@/utils/supabase/client";
 import type {
   CardCosmeticInventory,
-  CardCosmeticKind,
+  PerCardCosmeticKind,
   CardCosmeticShop
 } from "@/lib/ui/card-cosmetics";
 import { CardShell } from "@/components/card-shell";
@@ -341,7 +341,6 @@ export function CollectionView({
   function viewCopy(card: CollectedCard) {
     setCustomizing(false);
     setCosmeticPreview(undefined);
-    setCardFlipped(false);
     setSelectedId(card.instanceId);
     setPinned(card);
     const next = {
@@ -358,9 +357,8 @@ export function CollectionView({
   const [cardCosmetics, setCardCosmetics] =
     useState<CardCosmeticInventory | null>(null);
   const [customizing, setCustomizing] = useState(false);
-  const [cardFlipped, setCardFlipped] = useState(false);
   const [cosmeticPreview, setCosmeticPreview] = useState<{
-    kind: CardCosmeticKind;
+    kind: PerCardCosmeticKind;
     id: string | null;
   }>();
   const [cosmeticOffers, setCosmeticOffers] = useState<
@@ -960,7 +958,6 @@ export function CollectionView({
       : undefined;
   function closeDetail() {
     setCustomizing(false);
-    setCardFlipped(false);
     setCosmeticPreview(undefined);
     setSelectedId(null);
     setPinned(null);
@@ -2614,19 +2611,13 @@ export function CollectionView({
               {!readOnly && !localPreview && pathname === "/collection" ? (
                 <CardCosmeticEntry
                   key={selected.instanceId}
-                  back={detailCosmetics?.back}
                   animationPreview={
                     cosmeticPreview?.kind === "animation"
                       ? cosmeticPreview
                       : undefined
                   }
-                  flipped={cardFlipped}
-                  onFlip={() => setCardFlipped(value => !value)}
                   customizing={customizing}
-                  onCustomize={() => {
-                    setCardFlipped(false);
-                    setCustomizing(true);
-                  }}
+                  onCustomize={() => setCustomizing(true)}
                   customizeButtonRef={customizeButtonRef}
                 >
                   <YokaiCard
@@ -3001,10 +2992,7 @@ export function CollectionView({
                   Boolean(cardCosmetics?.specialEditions?.includes(selected.id))
                 }
                 onInventory={setCardCosmetics}
-                onPreview={(preview, showBack) => {
-                  setCosmeticPreview(preview);
-                  setCardFlipped(showBack);
-                }}
+                onPreview={setCosmeticPreview}
                 onBack={backToCardDetails}
               />
             )}

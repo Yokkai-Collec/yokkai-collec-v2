@@ -65,6 +65,34 @@ const asset = read("data/booster-opening/reveal.html").replaceAll("\r\n", "\n");
 const { boosterOpeningDocument } = load("lib/ui/booster-opening-document.ts");
 const documentFor = kind =>
   boosterOpeningDocument(asset, "https://yokkai-collec.com", kind);
+
+test("the opening fan preloads only an allowed invocation card back", () => {
+  for (const kind of ["regular", "decision", "sunset", "blackout"]) {
+    const source = boosterOpeningDocument(
+      asset,
+      "https://yokkai-collec.com",
+      kind,
+      false,
+      "violet_mist"
+    );
+    assert.match(
+      source,
+      /https:\/\/yokkai-collec\.com\/assets\/card-backs\/violet-mist\.webp/
+    );
+    assert.doesNotMatch(source, /bubble-card-back-v1\.png/);
+  }
+  for (const value of ["__proto__", "https://other.example/image.png"]) {
+    const source = boosterOpeningDocument(
+      asset,
+      "https://yokkai-collec.com",
+      "regular",
+      false,
+      value
+    );
+    assert.match(source, /\/assets\/bubble-card-back-v1\.png/);
+  }
+});
+
 function descendants(element) {
   if (!element || typeof element !== "object") return [];
   return [
@@ -447,6 +475,9 @@ test("sandbox player scopes messages and cleans up; failure/timeout/completion r
       "components/booster-opening.tsx",
       {
         react: state.react,
+        "@/components/invocation-card-back": {
+          useInvocationCardBack: () => null
+        },
         "@/lib/ui/booster-opening-document": {
           SUNSET_BOOSTER_IMAGE: "/assets/events/gta-sunset/booster.png"
         }

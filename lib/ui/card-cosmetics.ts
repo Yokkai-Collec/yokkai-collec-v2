@@ -93,7 +93,8 @@ export const CARD_COSMETIC_DISPLAY: Readonly<
   midnight_sakura: { kind: "back" }
 };
 
-export type CardCosmeticLoadout = Partial<Record<CardCosmeticKind, string>>;
+export type PerCardCosmeticKind = Exclude<CardCosmeticKind, "back">;
+export type CardCosmeticLoadout = Partial<Record<PerCardCosmeticKind, string>>;
 export type CardCosmeticColorFamily = "reflection" | "lightning";
 
 export function cosmeticOfferAnchor(id: string) {
@@ -139,6 +140,7 @@ export type CardCosmeticInventory = {
 
 export type CardCosmeticShop = {
   balance: number;
+  invocationBack?: string | null;
   items: ({
     id: string;
     kind: CardCosmeticKind;
