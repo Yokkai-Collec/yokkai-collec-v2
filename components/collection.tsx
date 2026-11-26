@@ -2986,11 +2986,8 @@ export function CollectionView({
                 instanceId={selected.instanceId}
                 inventory={cardCosmetics}
                 offers={cosmeticOffers}
-                lightningEligible={
-                  selected.shiny ||
-                  selected.isEvolved ||
-                  Boolean(cardCosmetics?.specialEditions?.includes(selected.id))
-                }
+                rarity={selected.rarity}
+                isEvolved={selected.isEvolved}
                 onInventory={setCardCosmetics}
                 onPreview={setCosmeticPreview}
                 onBack={backToCardDetails}

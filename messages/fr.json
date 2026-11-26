@@ -150,14 +150,14 @@
     "tiers": {
       "ssr": "Cartes SSR",
       "lr": "Cartes LR",
-      "special": "Cartes spéciales"
+      "special": "Cartes Infinity"
     },
     "tierHeadings": {
       "ssr": "Animations pour cartes SSR",
       "lr": "Animations pour cartes LR",
-      "special": "Animations pour cartes spéciales"
+      "special": "Animations pour cartes Infinity"
     },
-    "specialTierDetail": "Infinity, Shiny et éditions limitées",
+    "specialTierDetail": "SSR et LR évoluées",
     "standardTierDetail": "Animations",
     "backsTierDetail": "Pour tes invocations",
     "defaultInvocationBack": "Dos Yokkai",
@@ -167,7 +167,9 @@
     "invocationBackFailed": "Impossible de changer ton dos d’invocation. Réessaie.",
     "backPurchaseSuccess": "« {name} » acheté. Tu peux l’activer ici pour tes invocations.",
     "emptyCategory": "Aucun article dans ce rayon.",
-    "lightningEligibility": "Utilisable uniquement sur les cartes Infinity, Shiny et les éditions spéciales.",
+    "infinityEligibility": "Utilisable uniquement sur les cartes SSR et LR évoluées en Infinity.",
+    "ssrEligibility": "Utilisable uniquement sur les cartes SSR.",
+    "lrEligibility": "Utilisable uniquement sur les cartes LR.",
     "allCardsEligibility": "Compatible avec tous les types de cartes.",
     "customize": "Personnaliser la carte",
     "livePreview": "Aperçu en direct",
@@ -176,7 +178,6 @@
     "tryCosmetics": "Sélectionne un cosmétique pour l’essayer sur ta carte.",
     "notOwned": "Non possédé",
     "equippedOnCard": "Équipé sur cette carte",
-    "specialCardsOnly": "Cartes spéciales uniquement",
     "availableCopies": "{count, plural, =0 {Tous équipés} one {# exemplaire disponible} other {# exemplaires disponibles}}",
     "previewOnly": "Aperçu en cours",
     "applyCosmetic": "Appliquer",

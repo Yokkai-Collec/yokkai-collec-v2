@@ -150,14 +150,14 @@
     "tiers": {
       "ssr": "SSR cards",
       "lr": "LR cards",
-      "special": "Special cards"
+      "special": "Infinity cards"
     },
     "tierHeadings": {
       "ssr": "Animations for SSR cards",
       "lr": "Animations for LR cards",
-      "special": "Animations for special cards"
+      "special": "Animations for Infinity cards"
     },
-    "specialTierDetail": "Infinity, Shiny and limited editions",
+    "specialTierDetail": "SSR and LR after evolution",
     "standardTierDetail": "Animations",
     "backsTierDetail": "For pack openings",
     "defaultInvocationBack": "Yokkai card back",
@@ -167,7 +167,9 @@
     "invocationBackFailed": "Could not change your card back. Try again.",
     "backPurchaseSuccess": "You bought “{name}”. You can activate it here for pack openings.",
     "emptyCategory": "No items in this section.",
-    "lightningEligibility": "Can only be used on Infinity, Shiny and Special Edition cards.",
+    "infinityEligibility": "Can only be used on SSR and LR cards evolved to Infinity.",
+    "ssrEligibility": "Can only be used on SSR cards.",
+    "lrEligibility": "Can only be used on LR cards.",
     "allCardsEligibility": "Compatible with all card types.",
     "customize": "Customize card",
     "livePreview": "Live preview",
@@ -176,7 +178,6 @@
     "tryCosmetics": "Select a cosmetic to try it on your card.",
     "notOwned": "Not owned",
     "equippedOnCard": "Equipped on this card",
-    "specialCardsOnly": "Special cards only",
     "availableCopies": "{count, plural, =0 {All copies equipped} one {# copy available} other {# copies available}}",
     "previewOnly": "Previewing",
     "applyCosmetic": "Apply",

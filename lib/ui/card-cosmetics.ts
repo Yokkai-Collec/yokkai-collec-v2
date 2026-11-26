@@ -76,7 +76,7 @@ export const CARD_COSMETIC_DISPLAY: Readonly<
   ...Object.fromEntries(
     (["original", ...CARD_REFLECTION_COLORS] as const).map(color => [
       reflectionCosmeticId(color),
-      { kind: "animation", reflectionColor: color } as const
+      { kind: "animation", tier: "special", reflectionColor: color } as const
     ])
   ),
   ...Object.fromEntries(
@@ -92,6 +92,22 @@ export const CARD_COSMETIC_DISPLAY: Readonly<
   violet_mist: { kind: "back" },
   midnight_sakura: { kind: "back" }
 };
+
+export const CARD_COSMETIC_ELIGIBILITY = {
+  ssr: "ssrEligibility",
+  lr: "lrEligibility",
+  special: "infinityEligibility"
+} as const satisfies Record<CardCosmeticTier, string>;
+
+export function canEquipCardCosmetic(
+  tier: CardCosmeticTier | undefined,
+  rarity: string,
+  isEvolved: boolean
+) {
+  if (tier === "special")
+    return isEvolved && (rarity === "SSR" || rarity === "LR");
+  return !tier || rarity.toLowerCase() === tier;
+}
 
 export type PerCardCosmeticKind = Exclude<CardCosmeticKind, "back">;
 export type CardCosmeticLoadout = Partial<Record<PerCardCosmeticKind, string>>;

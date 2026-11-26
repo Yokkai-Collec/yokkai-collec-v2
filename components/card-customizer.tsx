@@ -7,6 +7,8 @@ import { Button } from "@/components/ui";
 import {
   CARD_COSMETIC_DISPLAY,
   CARD_COSMETIC_COLOR_ORDER,
+  CARD_COSMETIC_ELIGIBILITY,
+  canEquipCardCosmetic,
   cosmeticOfferAnchor,
   type CardCosmeticColorFamily,
   type CardCosmeticInventory,
@@ -14,6 +16,7 @@ import {
   type CardCosmeticShop
 } from "@/lib/ui/card-cosmetics";
 import { createClient } from "@/utils/supabase/client";
+import type { Rarity } from "@/lib/data/cards";
 import "@/styles/card-customize.css";
 
 type Feedback = "saved" | "copiesExhausted" | "equipFailed";
@@ -36,7 +39,8 @@ export function CardCustomizer({
   instanceId,
   inventory,
   offers,
-  lightningEligible,
+  rarity,
+  isEvolved,
   onInventory,
   onPreview,
   onBack
@@ -44,7 +48,8 @@ export function CardCustomizer({
   instanceId: string;
   inventory: CardCosmeticInventory | null;
   offers: CardCosmeticShop["items"];
-  lightningEligible: boolean;
+  rarity: Rarity;
+  isEvolved: boolean;
   onInventory: (inventory: CardCosmeticInventory) => void;
   onPreview: (choice: Choice | undefined) => void;
   onBack: () => void;
@@ -68,10 +73,8 @@ export function CardCustomizer({
   const chosen = draft ? draft.id : current;
   const selectedCopies = chosen ? (copies?.[chosen]?.available ?? 0) : 0;
   const changed = chosen !== current;
-  const eligible =
-    !chosen ||
-    !CARD_COSMETIC_DISPLAY[chosen]?.lightningColor ||
-    lightningEligible;
+  const chosenTier = chosen ? CARD_COSMETIC_DISPLAY[chosen]?.tier : undefined;
+  const eligible = canEquipCardCosmetic(chosenTier, rarity, isEvolved);
   const canApply =
     Boolean(copies) &&
     changed &&
@@ -79,10 +82,7 @@ export function CardCustomizer({
     (chosen === null || selectedCopies > 0);
   const onSale = new Set(offers.map(offer => offer.id));
   const toShop =
-    changed &&
-    chosen &&
-    onSale.has(chosen) &&
-    (!copies?.[chosen] || (eligible && selectedCopies === 0))
+    changed && chosen && eligible && onSale.has(chosen) && selectedCopies === 0
       ? `/shop?cosmetic=${encodeURIComponent(chosen)}#${cosmeticOfferAnchor(chosen)}`
       : undefined;
   const products = Object.entries(CARD_COSMETIC_DISPLAY)
@@ -204,7 +204,8 @@ export function CardCustomizer({
               const { id, cosmetic, color } = variant;
               const applied = id === equipped?.[cosmetic.kind];
               const stock = copies[id];
-              const compatible = !cosmetic.lightningColor || lightningEligible;
+              const tier = cosmetic.tier;
+              const compatible = canEquipCardCosmetic(tier, rarity, isEvolved);
               const active = draft ? chosen === id : applied;
               const label = family ? t(`families.${family}`) : t(`items.${id}`);
               const attributes = {
@@ -215,10 +216,10 @@ export function CardCustomizer({
               };
               const status = applied
                 ? t("equippedOnCard")
-                : !stock
-                  ? t("notOwned")
-                  : !compatible
-                    ? t("specialCardsOnly")
+                : tier && !compatible
+                  ? t(CARD_COSMETIC_ELIGIBILITY[tier])
+                  : !stock
+                    ? t("notOwned")
                     : t("availableCopies", { count: stock.available });
               const tile = (
                 <>
@@ -318,10 +319,10 @@ export function CardCustomizer({
         <p aria-live="polite">
           {feedback
             ? t(feedback)
-            : changed && chosen && !copies?.[chosen]
-              ? t("notOwned")
-              : changed && !eligible
-                ? t("lightningEligibility")
+            : changed && chosenTier && !eligible
+              ? t(CARD_COSMETIC_ELIGIBILITY[chosenTier])
+              : changed && chosen && !copies?.[chosen]
+                ? t("notOwned")
                 : changed && chosen && selectedCopies === 0
                   ? t("copiesExhausted")
                   : changed

@@ -27,6 +27,17 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
       [user, type]
     )
   ).rows[0].id;
+  const ssrType = (
+    await db.query(
+      "insert into public.cards(source_id,nom,categorie,rarete_base,image_url,source) values('test-shop-ssr','SSR Card','ANIME/MANGA','SSR','https://example.test/ssr.png','test') returning id"
+    )
+  ).rows[0].id;
+  const ssrCard = (
+    await db.query(
+      "insert into public.user_cards(user_id,card_id,rarity) values($1,$2,'SSR') returning id",
+      [user, ssrType]
+    )
+  ).rows[0].id;
   const call = async (player, sql, bindings = []) => {
     await db.query("select set_config('request.jwt.claim.sub',$1,false)", [
       player
@@ -193,7 +204,11 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
     /COSMETIC_NOT_OWNED/
   );
   await equip(user, "animation", "showcase_cyber");
-  await equip(user, "filter", "silver_screen");
+  await assert.rejects(
+    equip(user, "filter", "silver_screen"),
+    /COSMETIC_CARD_INELIGIBLE/
+  );
+  await equip(user, "filter", "silver_screen", ssrCard);
   assert.equal(
     (await chooseBack(user, "obsidian_seal")).invocationBack,
     "obsidian_seal"
@@ -221,14 +236,16 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
   await equip(user, "animation", "showcase_cyber", moreCards[2]);
   await equip(user, "animation", null, moreCards[1]);
   await equip(user, "animation", null, moreCards[2]);
-  assert.deepEqual((await inventory(user)).equipped[card], {
+  await equip(user, "animation", "showcase_cyber", ssrCard);
+  assert.deepEqual((await inventory(user)).equipped[ssrCard], {
     animation: "showcase_cyber",
     filter: "silver_screen"
   });
-  await equip(user, "filter", null);
-  assert.deepEqual((await inventory(user)).equipped[card], {
+  await equip(user, "filter", null, ssrCard);
+  assert.deepEqual((await inventory(user)).equipped[ssrCard], {
     animation: "showcase_cyber"
   });
+  await equip(user, "animation", null, ssrCard);
 
   await db.query("update public.user_cards set user_id=$1 where id=$2", [
     other,
@@ -281,12 +298,20 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
   assert.equal(await selectedBack(other), undefined);
   assert.equal(await selectedBack(user), "obsidian_seal");
 
+  const copiesByName = {};
   for (const { name, rarity, shiny, evolved, edition, eligible } of [
     { name: "common", rarity: "C" },
     { name: "normal-ssr", rarity: "SSR" },
-    { name: "shiny", rarity: "LR", shiny: true, eligible: true },
-    { name: "infinity", rarity: "LR", evolved: true, eligible: true },
-    { name: "edition", rarity: "LR", edition: true, eligible: true }
+    { name: "shiny", rarity: "LR", shiny: true },
+    { name: "infinity-lr", rarity: "LR", evolved: true, eligible: true },
+    {
+      name: "infinity-ssr",
+      rarity: "SSR",
+      shiny: true,
+      evolved: true,
+      eligible: true
+    },
+    { name: "edition", rarity: "LR", edition: true }
   ]) {
     const catalogueId = (
       await db.query(
@@ -300,6 +325,7 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
         [other, catalogueId, rarity, Boolean(shiny), Boolean(evolved)]
       )
     ).rows[0].id;
+    copiesByName[name] = copy;
     if (eligible) {
       await equip(other, "animation", "infinity_lightning", copy);
       assert.deepEqual((await inventory(other)).equipped[copy], {
@@ -317,11 +343,20 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
     }
   }
 
-  const specialCopy = await db.query(
-    "select id from public.user_cards where user_id=$1 and is_evolved limit 1",
+  const eligibleCard = copiesByName["infinity-lr"];
+  const eligibleSsr = copiesByName["infinity-ssr"];
+  const originalSsr = copiesByName["normal-ssr"];
+  await db.query(
+    "update public.user_profiles set karas_balance=400 where user_id=$1",
     [other]
   );
-  const eligibleCard = specialCopy.rows[0].id;
+  await buy("violet_dusk", 400, 1, randomUUID(), other);
+  await assert.rejects(
+    equip(other, "filter", "violet_dusk", originalSsr),
+    /COSMETIC_CARD_INELIGIBLE/
+  );
+  await equip(other, "filter", "violet_dusk", card);
+  assert.equal((await inventory(other)).equipped[card].filter, "violet_dusk");
   await db.query(
     "update public.user_profiles set karas_balance=4500 where user_id=$1",
     [other]
@@ -349,7 +384,7 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
   assert.equal((await shop(other)).balance, 0);
   assert.deepEqual((await inventory(other)).copies.infinity_lightning, {
     quantity: 3,
-    available: 1
+    available: 2
   });
 
   await db.query(
@@ -364,16 +399,28 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
     other
   );
   assert.equal(reflections.balance, 0);
-  await equip(other, "animation", "infinity_reflection_blue", card);
-  await equip(other, "animation", "infinity_reflection_blue", eligibleCard);
+  for (const incompatible of [
+    card,
+    originalSsr,
+    copiesByName.shiny,
+    copiesByName.edition
+  ]) {
+    await assert.rejects(
+      equip(other, "animation", "infinity_reflection_blue", incompatible),
+      /COSMETIC_CARD_INELIGIBLE/
+    );
+  }
+  for (const compatible of [eligibleCard, eligibleSsr]) {
+    await equip(other, "animation", "infinity_reflection_blue", compatible);
+    assert.equal(
+      (await inventory(other)).equipped[compatible].animation,
+      "infinity_reflection_blue"
+    );
+  }
   assert.deepEqual((await inventory(other)).copies.infinity_reflection_blue, {
     quantity: 2,
     available: 0
   });
-  assert.equal(
-    (await inventory(other)).equipped[card].animation,
-    "infinity_reflection_blue"
-  );
 
   await db.query(
     "update public.user_profiles set karas_balance=1800 where user_id=$1",
@@ -387,14 +434,12 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
     other
   );
   assert.equal(original.balance, 0);
-  const originalSsr = (
-    await db.query(
-      "select id from public.user_cards where user_id=$1 and rarity='SSR' and not is_evolved and not is_shiny limit 1",
-      [other]
-    )
-  ).rows[0].id;
-  await equip(other, "animation", "infinity_reflection_original", originalSsr);
-  await equip(other, "animation", "infinity_reflection_original", card);
+  await assert.rejects(
+    equip(other, "animation", "infinity_reflection_original", originalSsr),
+    /COSMETIC_CARD_INELIGIBLE/
+  );
+  await equip(other, "animation", "infinity_reflection_original", eligibleSsr);
+  await equip(other, "animation", "infinity_reflection_original", eligibleCard);
   assert.deepEqual(
     (await inventory(other)).copies.infinity_reflection_original,
     {
@@ -404,7 +449,7 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
   );
   assert.equal(
     (await inventory(other)).copies.infinity_reflection_blue.available,
-    1
+    2
   );
 
   const privateAccess = call(

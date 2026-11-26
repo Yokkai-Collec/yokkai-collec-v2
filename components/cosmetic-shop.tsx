@@ -12,6 +12,7 @@ import { AUTH_EVOLUTION_CARDS } from "@/lib/auth/showcase-cards";
 import {
   CARD_COSMETIC_DISPLAY,
   CARD_COSMETIC_COLOR_ORDER,
+  CARD_COSMETIC_ELIGIBILITY,
   CARD_COSMETIC_TIERS,
   cosmeticOfferAnchor,
   replayCardCosmeticColor,
@@ -43,9 +44,8 @@ function offerFamily(id: string): CardCosmeticColorFamily | undefined {
 
 function offerEligibility(item: CosmeticShopItem) {
   if (item.kind === "back") return;
-  return CARD_COSMETIC_DISPLAY[item.id]?.lightningColor
-    ? "lightningEligibility"
-    : "allCardsEligibility";
+  const tier = CARD_COSMETIC_DISPLAY[item.id]?.tier;
+  return tier ? CARD_COSMETIC_ELIGIBILITY[tier] : "allCardsEligibility";
 }
 
 function CosmeticCardPreview({
@@ -140,8 +140,7 @@ export function CosmeticShop({
         (view === "backs"
           ? item.kind === "back"
           : item.kind === "animation" &&
-            (display?.tier === view ||
-              Boolean(display?.reflectionColor || display?.showcaseScene)))
+            (display?.tier === view || Boolean(display?.showcaseScene)))
       );
     }) ?? [];
   const products = new Map<
