@@ -42,22 +42,9 @@
 }
 
 .yk-cosmetic-collection-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.65rem;
-  min-height: 44px;
   margin-top: 0.85rem;
-  padding-inline: 0.8rem;
-  border: 1px solid #bcb4f044;
-  border-radius: 0.65rem;
-  background: #c1aff813;
-  color: #eeebff;
-  font-size: 0.8rem;
-  font-weight: 650;
-}
-
-.yk-cosmetic-collection-link:hover {
-  background: #c1aff829;
+  max-width: 100%;
+  text-align: center;
 }
 
 .yk-cosmetic-shop-hero-art {
@@ -341,18 +328,13 @@
 .yk-cosmetic-swatch-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.12rem;
-  margin-inline-start: -0.25rem;
+  gap: 0.25rem;
 }
 
-.yk-cosmetic-swatch {
-  display: grid;
-  place-items: center;
+.yk-cosmetic-swatch.yk-button {
   flex: 0 0 44px;
   width: 44px;
-  height: 44px;
-  border: 1px solid transparent;
-  border-radius: 0.65rem;
+  padding: 0;
 }
 
 .yk-cosmetic-swatch > span {
@@ -377,20 +359,6 @@
 
 .yk-cosmetic-swatch[data-color="black"] > span {
   background: linear-gradient(140deg, #73687d, #15121c 60%);
-}
-
-.yk-cosmetic-swatch:hover,
-.yk-cosmetic-swatch[aria-pressed="true"] {
-  background: color-mix(in srgb, var(--finish-color) 13%, #131421);
-}
-
-.yk-cosmetic-swatch[aria-pressed="true"] {
-  border-color: var(--finish-color);
-}
-
-.yk-cosmetic-swatch:focus-visible {
-  outline: 2px solid var(--color-ink);
-  outline-offset: -3px;
 }
 
 .yk-cosmetic-selected-color {
@@ -422,28 +390,8 @@
 .yk-cosmetic-offer-actions .yk-button,
 .yk-cosmetic-checkout .yk-button {
   min-width: 0;
-  min-height: 44px;
-  padding-inline: 0.85rem;
-  border-color: #bdb2ed5e;
-  border-radius: 0.55rem;
-  background: #e2daf7;
-  color: #181127;
-  box-shadow: none;
   white-space: normal;
   text-align: center;
-}
-
-.yk-cosmetic-offer-actions .yk-button:not(:disabled):hover,
-.yk-cosmetic-checkout .yk-button:not(:disabled):hover {
-  background: #f0e9ff;
-  color: #181127;
-}
-
-.yk-cosmetic-offer-actions .yk-button:disabled {
-  background: #1a1d2c;
-  border-color: #a7a2d82c;
-  color: #a9a8bf;
-  opacity: 1;
 }
 
 .yk-cosmetic-offer-owned,
@@ -511,28 +459,21 @@
 .yk-cosmetic-quantity-controls {
   display: grid;
   grid-template-columns: 44px minmax(3.1rem, 5rem) 44px;
-  min-height: 44px;
-  overflow: hidden;
-  border: 1px solid #a7a2d851;
-  border-radius: 0.65rem;
-  background: #10121e;
-  color: var(--color-ink);
+  gap: 0.5rem;
 }
 
-.yk-cosmetic-quantity-controls button:disabled {
-  opacity: 0.4;
+.yk-cosmetic-quantity-controls .yk-button {
+  padding: 0;
 }
 
 .yk-cosmetic-quantity-controls input {
   width: 100%;
-  border-inline: 1px solid #a7a2d851;
-  background: transparent;
+  border: 1px solid var(--color-veil);
+  border-radius: var(--radius-input);
+  background: var(--color-surface);
+  color: var(--color-ink);
   font-variant-numeric: tabular-nums;
   text-align: center;
-}
-
-.yk-cosmetic-quantity-controls :focus-visible {
-  outline-offset: -3px;
 }
 
 .yk-cosmetic-checkout dl > div {

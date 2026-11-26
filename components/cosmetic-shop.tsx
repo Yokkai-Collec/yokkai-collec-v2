@@ -233,7 +233,10 @@ export function CosmeticShop({
           <div className="yk-cosmetic-shop-intro">
             <h1 className="yk-title">{t("title")}</h1>
             <p>{t("description")}</p>
-            <Link href="/collection" className="yk-cosmetic-collection-link">
+            <Link
+              href="/collection"
+              className="yk-button yk-button-secondary yk-cosmetic-collection-link"
+            >
               {t("myCollection")}
               <span aria-hidden="true">↗</span>
             </Link>
@@ -401,9 +404,13 @@ export function CosmeticShop({
                                   if (!variantColor) return null;
                                   const label = t(`colors.${variantColor}`);
                                   return (
-                                    <button
+                                    <Button
                                       key={variant.id}
-                                      type="button"
+                                      variant={
+                                        item.id === variant.id
+                                          ? "primary"
+                                          : "secondary"
+                                      }
                                       className="yk-cosmetic-swatch"
                                       data-color={variantColor}
                                       aria-label={label}
@@ -425,7 +432,7 @@ export function CosmeticShop({
                                       }}
                                     >
                                       <span aria-hidden="true" />
-                                    </button>
+                                    </Button>
                                   );
                                 })}
                             </div>
@@ -531,14 +538,14 @@ export function CosmeticShop({
                     <p>{t("copiesPerCard")}</p>
                   </div>
                   <div className="yk-cosmetic-quantity-controls">
-                    <button
-                      type="button"
+                    <Button
+                      variant="secondary"
                       aria-label={t("lessCopies")}
                       disabled={pending || units <= 1}
                       onClick={() => changeQuantity(String(units - 1))}
                     >
                       −
-                    </button>
+                    </Button>
                     <input
                       id="shop-cosmetic-quantity"
                       type="text"
@@ -547,14 +554,14 @@ export function CosmeticShop({
                       disabled={pending}
                       onChange={event => changeQuantity(event.target.value)}
                     />
-                    <button
-                      type="button"
+                    <Button
+                      variant="secondary"
                       aria-label={t("moreCopies")}
                       disabled={pending || units >= maxQuantity}
                       onClick={() => changeQuantity(String(units + 1))}
                     >
                       +
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}
