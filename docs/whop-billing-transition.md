@@ -1,6 +1,6 @@
 # Préparation du passage de Stripe à Whop
 
-L’offre [Yokkai Collec' Pro](https://whop.com/checkout/plan_9Kh2sFBJpQR9Q) affiche 4,99 € par mois hors taxes, sans essai. Le 21 novembre 2026, Stripe comptait 19 abonnements actifs à l’offre Yokkai Pro, dont 16 candidats au transfert par carte et 3 déjà programmés pour s’arrêter. Le rapport de prévisualisation Whop déterminera l’éligibilité au moment du transfert.
+L’offre [Yokkai Collec' Pro](https://whop.com/checkout/plan_9Kh2sFBJpQR9Q) a été lancée à 4,99 € par mois hors taxes, sans essai. Le 21 novembre 2026, Stripe comptait 19 abonnements actifs à l’offre Yokkai Pro, dont 16 candidats au transfert par carte et 3 déjà programmés pour s’arrêter. Le rapport de prévisualisation Whop déterminera l’éligibilité au moment du transfert.
 
 ## Vérifier une offre
 
@@ -45,5 +45,11 @@ Le script appelle uniquement `GET /variants/{id}` sur l’hôte de l’environne
 - Appliquer `20261121220000_whop_live_checkout.sql` avant le déploiement.
 - Dans Coolify, définir `WHOP_LIVE_PLAN_ID` sur l’offre Pro de production. Activer `WHOP_LIVE_CHECKOUT_ENABLED=true` et fermer `STRIPE_CHECKOUT_ENABLED=false` dans le même déploiement. Garder `STRIPE_BILLING_ENABLED=true`, son webhook et sa tâche de réconciliation. La clé Whop utilise la création de checkout, la lecture des adhésions/paiements et l’annulation pour les suppressions demandées.
 - Le client authentifié reçoit un lien privé dont la référence aléatoire est conservée par Yokkai. Le serveur la rapproche d’une adhésion Whop vérifiée. Les achats existants et les sessions Stripe encore ouvertes bloquent un second checkout. La réconciliation planifiée rattrape les retours navigateur manqués.
-- Les paramètres affichent le prestataire de l’abonnement. Les nouveaux abonnés sont facturés 4,99 € hors taxes tous les 30 jours par Whop. Le premier paiement est dû dès la souscription.
+- Les paramètres affichent le prestataire de l’abonnement. Whop facture tous les 30 jours, dès la souscription pour le premier paiement.
 - Pendant la transition, vérifier les deux prestataires et le compteur d’échecs de la tâche de réconciliation. Pour fermer temporairement les nouvelles ventes, désactiver `WHOP_LIVE_CHECKOUT_ENABLED` et garder la synchronisation des adhésions déjà créées active.
+
+## Passer le tarif Whop à 4,99 € TTC
+
+- Déployer la vérification qui accepte les anciens paiements hors taxes et utilise le total Whop pour les paiements taxes incluses.
+- Sur le tarif Pro, définir le traitement des taxes sur `inclusive`, en gardant la collecte des taxes, le prix de 4,99 € et la même référence de tarif.
+- Confirmer le réglage avec `WHOP_MODE=production` et `WHOP_EXPECTED_TAX_TYPE=inclusive` dans le script de lecture. Vérifier le total du checkout, le montant avec le code Black Friday et le prochain montant de renouvellement d’un abonnement existant. Le changement de tarif ne rectifie pas les paiements déjà encaissés.

@@ -65,6 +65,22 @@ test("Whop provisioning reads only the expected variant on the selected host", a
   }
 });
 
+test("Whop provisioning verifies inclusive pricing with tax collection enabled", async () => {
+  const inclusive = { ...env, WHOP_EXPECTED_TAX_TYPE: "inclusive" };
+  const offer = { ...variant, tax_type: "inclusive", collect_tax: true };
+  const result = await checkWhopSetup(inclusive, async () =>
+    Response.json(offer)
+  );
+
+  assert.equal(result.taxType, "inclusive");
+  await assert.rejects(
+    checkWhopSetup(inclusive, async () =>
+      Response.json({ ...offer, collect_tax: false })
+    ),
+    { message: "WHOP_SETUP_PLAN_TERMS_MISMATCH" }
+  );
+});
+
 test("Whop provisioning rejects missing settings, account drift and changed terms", async () => {
   await assert.rejects(
     checkWhopSetup({ ...env, WHOP_PRO_PLAN_ID: "" }, () => {
