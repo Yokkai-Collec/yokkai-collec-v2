@@ -378,7 +378,8 @@
 .yk-customize-option[data-cosmetic="cracked_glass"] > .yk-customize-thumb {
   background:
     var(--glass-cracks) center / 100% 100% no-repeat,
-    linear-gradient(135deg, #121b30, #263553 62%, #101724);
+    linear-gradient(135deg, #080e1a, #121e33 62%, #0a1020);
+  filter: brightness(1.25);
 }
 
 .yk-customize-option[data-scene="sakura"] > .yk-customize-thumb {

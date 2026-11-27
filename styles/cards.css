@@ -1005,9 +1005,10 @@
 }
 
 .yk-card-cosmetic-motion[data-cosmetic-animation="cracked_glass"] {
-  z-index: 2;
+  z-index: 3;
   background: var(--glass-cracks) center / 100% 100% no-repeat;
-  opacity: 0.82;
+  filter: brightness(1.65) drop-shadow(0 0 0.45px #daf0ff88)
+    drop-shadow(0 0.55px 0.6px #08101eb3);
 }
 
 .yk-card-cosmetic-motion[data-cosmetic-animation="cracked_glass"]::after {
@@ -1015,22 +1016,24 @@
   inset: 0;
   background: linear-gradient(
       133deg,
-      transparent 42%,
-      #f2faffb3 50%,
-      transparent 57%
+      transparent 37%,
+      #d5f1ff99 46%,
+      #fff 50%,
+      #e6f6ff80 55%,
+      transparent 63%
     )
     100% center / 250% 100% no-repeat;
   mask: var(--glass-cracks) center / 100% 100% no-repeat;
-  animation: yk-cracked-glass-sheen 6.5s ease-in-out infinite;
+  animation: yk-cracked-glass-sheen 4.6s ease-in-out infinite;
   content: "";
 }
 
 @keyframes yk-cracked-glass-sheen {
   0%,
-  42% {
+  25% {
     background-position: 100% center;
   }
-  75%,
+  69%,
   100% {
     background-position: 0 center;
   }
