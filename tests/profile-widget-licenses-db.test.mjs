@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { replayMigrations } from "../scripts/replay-migrations.mjs";
+import { replayCatalogueFixtures } from "./helpers/replay-catalogue-fixtures.mjs";
 
 test("profile license choices are category-scoped, paginated and validated against the catalogue", async t => {
-  const { db } = await replayMigrations();
+  const { db } = await replayCatalogueFixtures();
   t.after(() => db.close());
   const owner = "73000000-0000-4000-8000-000000000001";
   await db.query(

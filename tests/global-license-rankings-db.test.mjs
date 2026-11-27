@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { replayMigrations } from "../scripts/replay-migrations.mjs";
+import { replayCatalogueFixtures } from "./helpers/replay-catalogue-fixtures.mjs";
 
 const id = n => `ab910000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const key = name =>
@@ -10,7 +10,7 @@ const key = name =>
     .update("ANIME/MANGA\x1f" + name)
     .digest("hex");
 test("global license and distinct-card rankings cover the whole catalogue without multiplying copies, memberships or private data", async t => {
-  const { db } = await replayMigrations();
+  const { db } = await replayCatalogueFixtures();
   t.after(() => db.close());
   await db.exec(`insert into auth.users(id,raw_user_meta_data)
     select ('ab910000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,jsonb_build_object('pseudo','GlobalRank'||lpad(n::text,3,'0')) from generate_series(1,10)n;

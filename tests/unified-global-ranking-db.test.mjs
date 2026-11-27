@@ -1,10 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { replayMigrations } from "../scripts/replay-migrations.mjs";
+import { replayCatalogueFixtures } from "./helpers/replay-catalogue-fixtures.mjs";
 
 const id = n => `ab920000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 test("unified global ranks use distinct cards to break completed-license ties while keeping old modes and privacy intact", async t => {
-  const { db } = await replayMigrations();
+  const { db } = await replayCatalogueFixtures();
   t.after(() => db.close());
   await db.exec(`insert into auth.users(id,raw_user_meta_data) select ('ab920000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,jsonb_build_object('pseudo','Unified'||n) from generate_series(1,8)n;
  alter table auth.users add column if not exists banned_until timestamptz;

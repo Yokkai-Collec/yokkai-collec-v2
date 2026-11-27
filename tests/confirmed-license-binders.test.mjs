@@ -1,12 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { replayMigrations } from "../scripts/replay-migrations.mjs";
+import { replayCatalogueFixtures } from "./helpers/replay-catalogue-fixtures.mjs";
 import { prepareLicenseSeed } from "../scripts/prepare-license-binder-seed.mjs";
 import { anilistEvidenceDigest } from "../scripts/anilist-import-provenance.mjs";
 
 test("a confirmed license groups every provenance while preserving sources, favorites, exceptions and rollback", async t => {
-  const { db } = await replayMigrations();
+  const { db } = await replayCatalogueFixtures();
   t.after(() => db.close());
   const owner = "a9100000-0000-4000-8000-000000000001";
   await db.query(

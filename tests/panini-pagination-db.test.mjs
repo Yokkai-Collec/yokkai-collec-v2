@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { replayMigrations } from "../scripts/replay-migrations.mjs";
+import { replayCatalogueFixtures } from "./helpers/replay-catalogue-fixtures.mjs";
 
 const player = "70000000-0000-4000-8000-000000000001";
 const friend = "70000000-0000-4000-8000-000000000002";
 const outsider = "70000000-0000-4000-8000-000000000003";
 
 test("les albums Panini sont paginés et leurs cartes chargées à la demande", async t => {
-  const { db } = await replayMigrations();
+  const { db } = await replayCatalogueFixtures();
   t.after(() => db.close());
 
   await db.query(
@@ -170,7 +170,7 @@ test("les albums Panini sont paginés et leurs cartes chargées à la demande", 
 });
 
 test("un ami voit les albums Panini du propriétaire sans confondre les possessions", async t => {
-  const { db } = await replayMigrations();
+  const { db } = await replayCatalogueFixtures();
   t.after(() => db.close());
 
   for (const [id, pseudo] of [

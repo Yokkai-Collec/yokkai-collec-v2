@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { replayMigrations } from "../scripts/replay-migrations.mjs";
+import { replayCatalogueFixtures } from "./helpers/replay-catalogue-fixtures.mjs";
 import { prepareDiscordLicenseMerges } from "../scripts/prepare-discord-license-merges.mjs";
 
 const mapping = JSON.parse(
@@ -104,7 +104,7 @@ test("the reviewed list generates the exact offline recipe and preserves the con
 });
 
 test("all reviewed merges preserve source cards, secondary memberships, proofs and player preferences; counts and category filters stay correct", async t => {
-  const { db } = await replayMigrations();
+  const { db } = await replayCatalogueFixtures();
   t.after(() => db.close());
   await activateFixture(db);
   await db.query(
@@ -368,7 +368,7 @@ test("all reviewed merges preserve source cards, secondary memberships, proofs a
 });
 
 test("Sonico deletion removes only four audited cards and the reviewed owned copy; changed references abort the entire transaction", async t => {
-  const { db } = await replayMigrations();
+  const { db } = await replayCatalogueFixtures();
   t.after(() => db.close());
   await activateFixture(db);
   await db.query(
