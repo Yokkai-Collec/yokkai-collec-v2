@@ -6,7 +6,10 @@ import { CardShowcaseEffect } from "@/components/card-showcase-effect";
 import { useInvocationCardBack } from "@/components/invocation-card-back";
 
 import { cardRarityLabel } from "@/lib/ui/card-rarity-label";
-import { invocationBackImage } from "@/lib/ui/booster-opening-document";
+import {
+  invocationBackFrame,
+  invocationBackImage
+} from "@/lib/ui/booster-opening-document";
 import type { FirstLrCopySource } from "@/lib/data/first-lr-copies";
 import { useEffect, useState } from "react";
 import type { CSSProperties, ReactNode, SyntheticEvent } from "react";
@@ -547,6 +550,7 @@ export function CardBack({
   const t = useTranslations("collectionShared");
   const invocationBack = useInvocationCardBack();
   const back = cosmetic ?? invocationBack;
+  const frame = invocationBackFrame(back);
   return (
     <div
       role="img"
@@ -554,9 +558,10 @@ export function CardBack({
       className={`yk-card-back ${className}`}
       data-cosmetic-back={back ?? undefined}
       style={
-        back
+        frame ??
+        (back
           ? { backgroundImage: `url(${invocationBackImage(back)})` }
-          : undefined
+          : undefined)
       }
     />
   );
