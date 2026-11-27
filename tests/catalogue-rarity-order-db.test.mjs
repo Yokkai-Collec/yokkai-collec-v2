@@ -1,9 +1,9 @@
 ﻿import assert from "node:assert/strict";
 import test from "node:test";
-import { replayMigrations } from "../scripts/replay-migrations.mjs";
+import { replayCatalogueFixtures } from "./helpers/replay-catalogue-fixtures.mjs";
 
 test("catalogue rarity/name ordering is global, stable and shared by search, filters and pages", async t => {
-  const { db } = await replayMigrations();
+  const { db } = await replayCatalogueFixtures();
   t.after(() => db.close());
   for (const rarity of ["C", "R", "SR", "SSR", "LR"])
     for (const [index, name] of ["Zelda", "Alice", "Alice"].entries())

@@ -3,7 +3,7 @@ import test from "node:test";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import ts from "typescript";
-import { replayMigrations } from "../scripts/replay-migrations.mjs";
+import { replayCatalogueFixtures } from "./helpers/replay-catalogue-fixtures.mjs";
 
 function load(path, require, env = {}) {
   const exports = {};
@@ -115,7 +115,7 @@ test("catalogue text queries avoid album aliases with stable binders enabled, re
 });
 
 test("kingdom regression distinguishes attached secondary licenses from Naruto/One Piece album aliases, for anonymous and signed-in readers", async t => {
-  const { db } = await replayMigrations();
+  const { db } = await replayCatalogueFixtures();
   t.after(() => db.close());
   const naruto = "f8200000-0000-4000-8000-000000000001",
     piece = "f8200000-0000-4000-8000-000000000002";

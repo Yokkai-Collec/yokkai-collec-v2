@@ -6,7 +6,7 @@ import { createRequire } from "node:module";
 import vm from "node:vm";
 import ts from "typescript";
 import * as importer from "../../scripts/import-cards.mjs";
-import { replayMigrations } from "../../scripts/replay-migrations.mjs";
+import { replayCatalogueFixtures } from "./replay-catalogue-fixtures.mjs";
 import { cardRarityLabels } from "./card-rarity-labels.mjs";
 
 const require = createRequire(import.meta.url);
@@ -61,7 +61,7 @@ export async function assertAdminEmptyLicense(
   secondaryLicenses = [],
   category = "ARTIST"
 ) {
-  const { db } = await replayMigrations();
+  const { db } = await replayCatalogueFixtures();
   t.after(() => db.close());
   const admin = "10000000-0000-4000-8000-000000000001";
   await db.query(

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { replayMigrations } from "../scripts/replay-migrations.mjs";
+import { replayCatalogueFixtures } from "./helpers/replay-catalogue-fixtures.mjs";
 
 const owner = "10000000-0000-4000-8000-000000000001";
 const bidder = "10000000-0000-4000-8000-000000000002";
@@ -14,7 +14,7 @@ const copyB = "30000000-0000-4000-8000-00000000000b";
 const copyC = "30000000-0000-4000-8000-00000000000c";
 
 test("admin_delete_cards supprime en bloc avec les règles de admin_delete_card, tout ou rien", async t => {
-  const { db } = await replayMigrations();
+  const { db } = await replayCatalogueFixtures();
   t.after(() => db.close());
 
   await db.query(

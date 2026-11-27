@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { replayMigrations } from "../scripts/replay-migrations.mjs";
+import { replayCatalogueFixtures } from "./helpers/replay-catalogue-fixtures.mjs";
 
 const viewer = "81000000-0000-4000-8000-000000000001";
 const owner = "81000000-0000-4000-8000-000000000002";
 const stranger = "81000000-0000-4000-8000-000000000003";
 
 test("les favoris du joueur consulté précèdent la pagination sans révéler de profil privé", async t => {
-  const { db } = await replayMigrations();
+  const { db } = await replayCatalogueFixtures();
   t.after(() => db.close());
   for (const [id, pseudo] of [
     [viewer, "BinderViewer"],

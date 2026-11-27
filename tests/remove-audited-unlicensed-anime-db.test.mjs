@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { replayMigrations } from "../scripts/replay-migrations.mjs";
+import { replayCatalogueFixtures } from "./helpers/replay-catalogue-fixtures.mjs";
 
 const source = readFileSync(
   new URL(
@@ -76,7 +76,7 @@ const count = async (db, table) =>
   );
 
 test("suppression auditée : garde exacte de production, aucun changement pour un autre jeu de cartes", async t => {
-  const { db } = await replayMigrations();
+  const { db } = await replayCatalogueFixtures();
   t.after(() => db.close());
   assert.match(source, /expected_count constant integer := 15406;/);
   assert.match(
@@ -103,7 +103,7 @@ test("suppression auditée : garde exacte de production, aucun changement pour u
 });
 
 test("suppression auditée : copies, wishlist et dépendances nettoyées, autres cartes et images conservées", async t => {
-  const { db } = await replayMigrations();
+  const { db } = await replayCatalogueFixtures();
   t.after(() => db.close());
   await seed(db);
   await db.query(
@@ -225,7 +225,7 @@ test("suppression auditée : copies, wishlist et dépendances nettoyées, autres
 });
 
 test("suppression auditée : une nouvelle enchère active annule toute l'opération sans mouvement de solde", async t => {
-  const { db } = await replayMigrations();
+  const { db } = await replayCatalogueFixtures();
   t.after(() => db.close());
   await seed(db);
   await db.query(

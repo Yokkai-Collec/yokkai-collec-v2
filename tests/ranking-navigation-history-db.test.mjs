@@ -1,9 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { replayMigrations } from "../scripts/replay-migrations.mjs";
+import { replayCatalogueFixtures } from "./helpers/replay-catalogue-fixtures.mjs";
 const id = n => "ad930000-0000-4000-8000-" + String(n).padStart(12, "0");
 test("ranking navigation is alphabetic before paging; observed history remains private and respects the original visibility", async t => {
-  const { db } = await replayMigrations();
+  const { db } = await replayCatalogueFixtures();
   t.after(() => db.close());
   for (let n = 1; n <= 5; n++)
     await db.query(
