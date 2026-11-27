@@ -997,6 +997,51 @@
   pointer-events: none;
 }
 
+:is(
+  [data-cosmetic-animation="cracked_glass"],
+  .yk-customize-option[data-cosmetic="cracked_glass"]
+) {
+  --glass-cracks: url("/assets/card-effects/cracked-glass.webp");
+}
+
+.yk-card-cosmetic-motion[data-cosmetic-animation="cracked_glass"] {
+  z-index: 2;
+  background: var(--glass-cracks) center / 100% 100% no-repeat;
+  opacity: 0.82;
+}
+
+.yk-card-cosmetic-motion[data-cosmetic-animation="cracked_glass"]::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+      133deg,
+      transparent 42%,
+      #f2faffb3 50%,
+      transparent 57%
+    )
+    100% center / 250% 100% no-repeat;
+  mask: var(--glass-cracks) center / 100% 100% no-repeat;
+  animation: yk-cracked-glass-sheen 6.5s ease-in-out infinite;
+  content: "";
+}
+
+@keyframes yk-cracked-glass-sheen {
+  0%,
+  42% {
+    background-position: 100% center;
+  }
+  75%,
+  100% {
+    background-position: 0 center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yk-card-cosmetic-motion[data-cosmetic-animation="cracked_glass"]::after {
+    display: none;
+  }
+}
+
 .yk-card-cosmetic-motion[data-cosmetic-animation="prism_sweep"] {
   background: linear-gradient(
     115deg,

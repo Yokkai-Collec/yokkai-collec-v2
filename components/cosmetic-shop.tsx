@@ -52,6 +52,7 @@ function CosmeticCardPreview({
   tier: ShopView;
 }) {
   const infinityRarity = CARD_COSMETIC_DISPLAY[item.id]?.infinityRarity;
+  const crackedGlass = CARD_COSMETIC_DISPLAY[item.id]?.crackedGlass;
   return (
     <div className="yk-cosmetic-preview-card" aria-hidden="true">
       {item.kind === "back" ? (
@@ -65,12 +66,16 @@ function CosmeticCardPreview({
         />
       ) : (
         <YokaiCard
-          name="Satoru Gojo"
+          name={crackedGlass ? "Monkey D. Luffy" : "Satoru Gojo"}
           category="ANIME/MANGA"
-          anime="Jujutsu Kaisen"
+          anime={crackedGlass ? "One Piece" : "Jujutsu Kaisen"}
           rarity={tier === "ssr" ? "SSR" : "LR"}
           isEvolved={tier === "special"}
-          image="/assets/premium-examples/gojo-original.png"
+          image={
+            crackedGlass
+              ? "/assets/landing/luffy.webp"
+              : "/assets/premium-examples/gojo-original.png"
+          }
           animated={false}
           cosmetics={{ animation: item.id }}
         />
@@ -144,7 +149,11 @@ export function CosmeticShop({
           ? item.kind === "back"
           : item.kind === "animation" &&
             (display?.tier === view ||
-              Boolean(display?.showcaseScene || display?.frameHalo)))
+              Boolean(
+                display?.showcaseScene ||
+                display?.frameHalo ||
+                display?.crackedGlass
+              )))
       );
     }) ?? [];
   const products = new Map<

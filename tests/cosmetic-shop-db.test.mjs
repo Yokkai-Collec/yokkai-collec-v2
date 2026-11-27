@@ -71,7 +71,17 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
 
   const initial = await shop(user);
   assert.equal(initial.invocationBack, null);
-  assert.equal(initial.items.length, 34);
+  assert.equal(initial.items.length, 35);
+  assert.deepEqual(
+    initial.items.find(item => item.id === "cracked_glass"),
+    {
+      id: "cracked_glass",
+      kind: "animation",
+      price: 900,
+      quantity: 0,
+      available: 0
+    }
+  );
   assert.deepEqual(
     initial.items.find(item => item.id === "frame_halo"),
     {
@@ -592,6 +602,20 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
     new Set(pageCopies(await cosmeticPage(other, "frame_halo", true))),
     new Set([copiesByName.common, copiesByName.shiny])
   );
+  await db.query(
+    "update public.user_profiles set karas_balance=900 where user_id=$1",
+    [other]
+  );
+  await buy("cracked_glass", 900, 1, randomUUID(), other);
+  await equip(other, "animation", "cracked_glass", copiesByName.common);
+  assert.deepEqual(
+    pageCopies(await cosmeticPage(other, "cracked_glass", true)),
+    [copiesByName.common]
+  );
+  assert.deepEqual((await inventory(other)).copies.frame_halo, {
+    quantity: 2,
+    available: 1
+  });
   await db.query(
     "insert into public.card_cosmetic_purchases(user_id,cosmetic_id,price_paid) values($1,'prism_sweep',450)",
     [other]

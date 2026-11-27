@@ -53,12 +53,14 @@ export const CARD_COSMETIC_DISPLAY: Readonly<
       reflectionColor?: CardReflectionColor;
       showcaseScene?: CardShowcaseScene;
       frameHalo?: true;
+      crackedGlass?: true;
     }
   >
 > = {
   prism_sweep: { kind: "animation" },
   ember_aura: { kind: "animation" },
   frame_halo: { kind: "animation", frameHalo: true },
+  cracked_glass: { kind: "animation", crackedGlass: true },
   ...Object.fromEntries(
     INFINITY_RARITIES.flatMap(infinityRarity => {
       const suffix = infinityRarity === "SSR" ? "_ssr" : "";
