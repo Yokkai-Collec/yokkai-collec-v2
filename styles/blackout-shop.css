@@ -243,7 +243,7 @@
   min-width: 0;
 }
 
-.yk-blackout-roster ul {
+.yk-blackout-roster > ul {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 90px), 1fr));
   gap: clamp(8px, 0.85vw, 14px);
@@ -256,7 +256,7 @@
 }
 
 @container (min-width: 660px) {
-  .yk-blackout-roster ul {
+  .yk-blackout-roster > ul {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
@@ -282,7 +282,7 @@
     grid-template-columns: minmax(0, 1fr) clamp(18.25rem, 26vw, 24rem);
   }
 
-  .yk-blackout-roster ul {
+  .yk-blackout-roster > ul {
     /* Fit two rows of 5:7 cards beneath the navigation and page heading. */
     grid-template-columns: repeat(
       5,
