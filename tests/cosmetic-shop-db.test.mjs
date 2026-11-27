@@ -71,7 +71,17 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
 
   const initial = await shop(user);
   assert.equal(initial.invocationBack, null);
-  assert.equal(initial.items.length, 33);
+  assert.equal(initial.items.length, 34);
+  assert.deepEqual(
+    initial.items.find(item => item.id === "frame_halo"),
+    {
+      id: "frame_halo",
+      kind: "animation",
+      price: 900,
+      quantity: 0,
+      available: 0
+    }
+  );
   assert.ok(!initial.items.some(item => item.id === "prism_sweep"));
   await assert.rejects(buy("prism_sweep", 450), /COSMETIC_UNAVAILABLE/);
   await assert.rejects(buy("ember_aura", 900), /COSMETIC_UNAVAILABLE/);
@@ -362,6 +372,39 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
   const eligibleCard = copiesByName["infinity-lr"];
   const eligibleSsr = copiesByName["infinity-ssr"];
   const originalSsr = copiesByName["normal-ssr"];
+  const cosmeticPage = (player, id, equippedOnly = false) =>
+    call(
+      player,
+      "select public.get_collection_groups_page(p_cosmetic_id=>$1,p_cosmetic_equipped_only=>$2) result",
+      [id, equippedOnly]
+    );
+  const pageCopies = page =>
+    page.groups.flatMap(group => group.copies.map(copy => copy.instanceId));
+  assert.deepEqual(
+    pageCopies(await cosmeticPage(other, "infinity_lightning_ssr")),
+    [eligibleSsr]
+  );
+  assert.deepEqual(
+    pageCopies(await cosmeticPage(other, "infinity_lightning")),
+    [eligibleCard]
+  );
+  assert.deepEqual(
+    pageCopies(await cosmeticPage(other, "infinity_lightning_ssr", true)),
+    [eligibleSsr]
+  );
+  assert.deepEqual(
+    pageCopies(await cosmeticPage(user, "infinity_lightning_ssr", true)),
+    []
+  );
+  await assert.rejects(
+    cosmeticPage(other, "obsidian_seal"),
+    /COLLECTION_PAGE_INVALID/
+  );
+  await equip(other, "animation", null, eligibleSsr);
+  assert.deepEqual(
+    pageCopies(await cosmeticPage(other, "infinity_lightning_ssr", true)),
+    []
+  );
   await db.query(
     "update public.user_profiles set karas_balance=400 where user_id=$1",
     [other]
@@ -534,6 +577,21 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
     quantity: 2,
     available: 0
   });
+  await db.query(
+    "update public.user_profiles set karas_balance=1800 where user_id=$1",
+    [other]
+  );
+  await buy("frame_halo", 900, 2, randomUUID(), other);
+  await equip(other, "animation", "frame_halo", copiesByName.common);
+  await equip(other, "animation", "frame_halo", copiesByName.shiny);
+  assert.deepEqual((await inventory(other)).copies.frame_halo, {
+    quantity: 2,
+    available: 0
+  });
+  assert.deepEqual(
+    new Set(pageCopies(await cosmeticPage(other, "frame_halo", true))),
+    new Set([copiesByName.common, copiesByName.shiny])
+  );
   await db.query(
     "insert into public.card_cosmetic_purchases(user_id,cosmetic_id,price_paid) values($1,'prism_sweep',450)",
     [other]

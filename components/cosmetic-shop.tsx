@@ -5,6 +5,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { useRef, useState, type ReactNode } from "react";
 import { setInvocationCardBack } from "@/app/shop/actions";
 import { CardBack, YokaiCard } from "@/components/yokai-card";
+import { CardBackInvocationPreview } from "@/components/card-back-invocation-preview";
 import { Topbar } from "@/components/topbar";
 import { Button, Karas, Modal } from "@/components/ui";
 import { invalidatePlayerSnapshots } from "@/lib/data/cards";
@@ -14,6 +15,7 @@ import {
   CARD_COSMETIC_COLOR_ORDER,
   CARD_COSMETIC_TIERS,
   cardCosmeticEligibility,
+  cosmeticCollectionHref,
   cosmeticNameId,
   cosmeticOfferAnchor,
   replayCardCosmeticColor,
@@ -106,6 +108,10 @@ export function CosmeticShop({
   const format = useFormatter();
   const [shop, setShop] = useState(initial);
   const [selected, setSelected] = useState<CosmeticShopItem | null>(null);
+  const [backPreview, setBackPreview] = useState<{
+    id?: string;
+    name: string;
+  } | null>(null);
   const selectedEligibility =
     selected && selected.kind !== "back"
       ? cardCosmeticEligibility(selected.id)
@@ -137,7 +143,8 @@ export function CosmeticShop({
         (view === "backs"
           ? item.kind === "back"
           : item.kind === "animation" &&
-            (display?.tier === view || Boolean(display?.showcaseScene)))
+            (display?.tier === view ||
+              Boolean(display?.showcaseScene || display?.frameHalo)))
       );
     }) ?? [];
   const products = new Map<
@@ -353,6 +360,14 @@ export function CosmeticShop({
                     </div>
                     <div className="yk-cosmetic-offer-body">
                       <h3>{t("defaultInvocationBack")}</h3>
+                      <Button
+                        variant="secondary"
+                        onClick={() =>
+                          setBackPreview({ name: t("defaultInvocationBack") })
+                        }
+                      >
+                        {t("previewInInvocation")}
+                      </Button>
                       <div className="yk-cosmetic-offer-actions">
                         <Button
                           disabled={pending || !shop.invocationBack}
@@ -470,6 +485,41 @@ export function CosmeticShop({
                             })}
                           </p>
                         )}
+                        <div className="yk-cosmetic-offer-links">
+                          {item.kind === "back" ? (
+                            <Button
+                              variant="secondary"
+                              onClick={() =>
+                                setBackPreview({ id: item.id, name: title })
+                              }
+                            >
+                              {t("previewInInvocation")}
+                            </Button>
+                          ) : (
+                            <>
+                              <Link
+                                className="yk-button yk-button-secondary"
+                                href={cosmeticCollectionHref({
+                                  id: item.id,
+                                  equippedOnly: false
+                                })}
+                              >
+                                {t("viewCompatibleCards")}
+                              </Link>
+                              {item.quantity > 0 && item.available === 0 && (
+                                <Link
+                                  className="yk-button yk-button-secondary"
+                                  href={cosmeticCollectionHref({
+                                    id: item.id,
+                                    equippedOnly: true
+                                  })}
+                                >
+                                  {t("viewEquippedCards")}
+                                </Link>
+                              )}
+                            </>
+                          )}
+                        </div>
                         <div className="yk-cosmetic-offer-actions">
                           {ownedBack ? (
                             <Button
@@ -628,6 +678,18 @@ export function CosmeticShop({
                 {t(pending ? "purchasing" : "confirm")}
               </Button>
             </div>
+          )}
+        </Modal>
+        <Modal
+          open={backPreview !== null}
+          title={t("previewInInvocation")}
+          onClose={() => setBackPreview(null)}
+        >
+          {backPreview && (
+            <CardBackInvocationPreview
+              id={backPreview.id}
+              name={backPreview.name}
+            />
           )}
         </Modal>
       </main>

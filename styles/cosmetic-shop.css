@@ -387,6 +387,126 @@
   font-size: 0.95rem;
 }
 
+.yk-cosmetic-offer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  max-width: 100%;
+  margin-top: 0.4rem;
+}
+
+.yk-cosmetic-offer-links .yk-button {
+  max-width: 100%;
+  padding-inline: 0.7rem;
+  text-align: center;
+  white-space: normal;
+}
+
+.yk-invocation-preview {
+  display: grid;
+  justify-items: center;
+  gap: 0.8rem;
+  text-align: center;
+  color: var(--color-ink-2);
+}
+
+.yk-invocation-preview-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(100%, 28rem);
+  min-height: clamp(13rem, 50vw, 19rem);
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 0.8rem;
+  background: radial-gradient(ellipse at 50% 73%, #263966, #0b1221 70%);
+}
+
+.yk-invocation-preview-pack {
+  position: absolute;
+  width: min(35%, 8rem);
+  height: auto;
+  z-index: 2;
+  animation: yk-invocation-preview-pack 0.85s ease-in-out both;
+}
+
+.yk-invocation-preview-deck {
+  position: relative;
+  width: min(43%, 10rem);
+  aspect-ratio: 5 / 7;
+  perspective: 48rem;
+  animation: yk-invocation-preview-deck 0.6s 0.3s ease-out both;
+}
+
+.yk-invocation-preview-left,
+.yk-invocation-preview-right,
+.yk-invocation-preview-turn,
+.yk-invocation-preview-back,
+.yk-invocation-preview-front {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+}
+
+.yk-invocation-preview-left {
+  transform: translateX(-25%) rotate(-13deg);
+}
+.yk-invocation-preview-right {
+  transform: translateX(25%) rotate(13deg);
+}
+
+.yk-invocation-preview-turn {
+  transform-style: preserve-3d;
+  transition: transform 0.55s ease-in-out;
+}
+
+.yk-invocation-preview-stage[data-revealed="true"] .yk-invocation-preview-turn {
+  transform: rotateY(180deg);
+}
+
+.yk-invocation-preview-back,
+.yk-invocation-preview-front {
+  backface-visibility: hidden;
+}
+.yk-invocation-preview-front {
+  transform: rotateY(180deg);
+}
+
+@keyframes yk-invocation-preview-pack {
+  0%,
+  40% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-135%) rotate(-12deg);
+  }
+}
+
+@keyframes yk-invocation-preview-deck {
+  from {
+    opacity: 0;
+    transform: translateY(24%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yk-invocation-preview-pack {
+    display: none;
+  }
+  .yk-invocation-preview-deck {
+    animation: none;
+  }
+  .yk-invocation-preview-turn {
+    transition: none;
+  }
+}
+
 .yk-cosmetic-offer-actions .yk-button,
 .yk-cosmetic-checkout .yk-button {
   min-width: 0;

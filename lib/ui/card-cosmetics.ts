@@ -52,11 +52,13 @@ export const CARD_COSMETIC_DISPLAY: Readonly<
       lightningColor?: CardLightningColor;
       reflectionColor?: CardReflectionColor;
       showcaseScene?: CardShowcaseScene;
+      frameHalo?: true;
     }
   >
 > = {
   prism_sweep: { kind: "animation" },
   ember_aura: { kind: "animation" },
+  frame_halo: { kind: "animation", frameHalo: true },
   ...Object.fromEntries(
     INFINITY_RARITIES.flatMap(infinityRarity => {
       const suffix = infinityRarity === "SSR" ? "_ssr" : "";
@@ -134,6 +136,27 @@ export type CardCosmeticColorFamily = "reflection" | "lightning";
 
 export function cosmeticOfferAnchor(id: string) {
   return `shop-cosmetic-${id}`;
+}
+
+export type CosmeticCollectionFilter = { id: string; equippedOnly: boolean };
+
+export function cosmeticCollectionHref(filter: CosmeticCollectionFilter) {
+  const params = new URLSearchParams({ cosmetic: filter.id });
+  if (filter.equippedOnly) params.set("equipped", "1");
+  return `/collection?${params}`;
+}
+
+export function readCosmeticCollectionFilter(
+  params: URLSearchParams
+): CosmeticCollectionFilter | null {
+  const id = params.get("cosmetic");
+  if (
+    !id ||
+    !Object.hasOwn(CARD_COSMETIC_DISPLAY, id) ||
+    CARD_COSMETIC_DISPLAY[id].kind === "back"
+  )
+    return null;
+  return { id, equippedOnly: params.get("equipped") === "1" };
 }
 
 export const CARD_COSMETIC_COLOR_ORDER = [

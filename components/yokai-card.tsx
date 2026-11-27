@@ -518,6 +518,9 @@ export function YokaiCard({
           </div>
         </div>
       </div>
+      {animationStyle?.frameHalo && (
+        <span className="yk-card-frame-halo" aria-hidden="true" />
+      )}
       {rarity === "LR" &&
         !blackoutPreview &&
         Boolean(firstLrCopy || instanceId || copyInstanceIds?.length) && (

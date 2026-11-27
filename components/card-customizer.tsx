@@ -42,6 +42,8 @@ export function CardCustomizer({
   offers,
   rarity,
   isEvolved,
+  equippedFilterId,
+  onViewEquipped,
   onInventory,
   onPreview,
   onBack
@@ -51,6 +53,8 @@ export function CardCustomizer({
   offers: CardCosmeticShop["items"];
   rarity: Rarity;
   isEvolved: boolean;
+  equippedFilterId?: string;
+  onViewEquipped: (id: string) => void;
   onInventory: (inventory: CardCosmeticInventory) => void;
   onPreview: (choice: Choice | undefined) => void;
   onBack: () => void;
@@ -73,6 +77,14 @@ export function CardCustomizer({
   const current = equipped?.[kind] ?? null;
   const chosen = draft ? draft.id : current;
   const selectedCopies = chosen ? (copies?.[chosen]?.available ?? 0) : 0;
+  const allCopiesEquipped = Boolean(
+    chosen && copies?.[chosen]?.quantity && selectedCopies === 0
+  );
+  const removableKind = equippedFilterId
+    ? (Object.entries(equipped ?? {}).find(
+        ([, id]) => id === equippedFilterId
+      )?.[0] as PerCardCosmeticKind | undefined)
+    : undefined;
   const changed = chosen !== current;
   const eligible = canEquipCardCosmetic(chosen, rarity, isEvolved);
   const canApply =
@@ -187,6 +199,16 @@ export function CardCustomizer({
             >
               {t("defaultLook")}
             </button>
+            {removableKind && (
+              <button
+                type="button"
+                className="yk-customize-default"
+                disabled={busy}
+                onClick={() => choose(removableKind, null)}
+              >
+                {t("removeEquippedEffect")}
+              </button>
+            )}
           </div>
           <div className="yk-customize-options">
             {tiles.map(([key, { family, variants }]) => {
@@ -337,6 +359,15 @@ export function CardCustomizer({
                     ? t("previewOnly")
                     : null}
         </p>
+        {changed && allCopiesEquipped && chosen && (
+          <Button
+            variant="secondary"
+            disabled={busy}
+            onClick={() => onViewEquipped(chosen)}
+          >
+            {t("viewEquippedCards")}
+          </Button>
+        )}
         <Button variant="secondary" onClick={onBack} disabled={busy}>
           {t("backToCardDetails")}
         </Button>

@@ -38,10 +38,16 @@ import { isBlackoutCard, YokaiCard } from "@/components/yokai-card";
 import { CardCosmeticEntry } from "@/components/card-cosmetic-editor";
 import { CardCustomizer } from "@/components/card-customizer";
 import { createClient } from "@/utils/supabase/client";
-import type {
-  CardCosmeticInventory,
-  PerCardCosmeticKind,
-  CardCosmeticShop
+import {
+  CARD_COSMETIC_DISPLAY,
+  canEquipCardCosmetic,
+  cosmeticCollectionHref,
+  cosmeticNameId,
+  readCosmeticCollectionFilter,
+  type CardCosmeticInventory,
+  type CosmeticCollectionFilter,
+  type PerCardCosmeticKind,
+  type CardCosmeticShop
 } from "@/lib/ui/card-cosmetics";
 import { CardShell } from "@/components/card-shell";
 import { CollectionLoading } from "@/components/collection-loading";
@@ -308,6 +314,7 @@ export function CollectionView({
 }) {
   const tError = useTranslations();
   const tc = useTranslations("collectionUi");
+  const tCosmetic = useTranslations("cosmeticShop");
   const tf = useTranslations("licenseFolders");
   const format = useFormatter();
   const formatDate = (value: string, long = false) =>
@@ -356,6 +363,9 @@ export function CollectionView({
   const localPreview = previewOnly && process.env.NODE_ENV === "development";
   const [cardCosmetics, setCardCosmetics] =
     useState<CardCosmeticInventory | null>(null);
+  const [cosmeticFilter, setCosmeticFilter] =
+    useState<CosmeticCollectionFilter | null>(null);
+  const [cosmeticPageRevision, setCosmeticPageRevision] = useState(0);
   const [customizing, setCustomizing] = useState(false);
   const [cosmeticPreview, setCosmeticPreview] = useState<{
     kind: PerCardCosmeticKind;
@@ -477,6 +487,12 @@ export function CollectionView({
     if (readOnly) return;
     const sync = (initial = false) => {
       const p = new URLSearchParams(window.location.search);
+      if (pathname === "/collection") {
+        setCosmeticFilter(
+          p.get("view") === "binders" ? null : readCosmeticCollectionFilter(p)
+        );
+        setPage(1);
+      }
       if (p.get("view") === "binders") {
         setViewMode("panini");
         setSelectedLicense(p.get("binder"));
@@ -491,8 +507,9 @@ export function CollectionView({
     const onBack = () => sync();
     window.addEventListener("popstate", onBack);
     return () => window.removeEventListener("popstate", onBack);
-  }, [readOnly]);
+  }, [readOnly, pathname]);
   function navigateBinder(binder?: { binderKey?: string; license: string }) {
+    setCosmeticFilter(null);
     setViewMode("panini");
     setSelectedLicense(binder ? (binder.binderKey ?? binder.license) : null);
     setLinkedBinderName(binder?.license ?? "");
@@ -535,7 +552,11 @@ export function CollectionView({
   );
   // Server pages: the evolved copy is shown before the next page read.
   const [pinned, setPinned] = useState<CollectedCard | null>(null);
-  const remote = useCollectionPages(pages, {
+  const activePages = pages && {
+    ...pages,
+    version: pages.version + cosmeticPageRevision
+  };
+  const remote = useCollectionPages(activePages, {
     filters: {
       query,
       category,
@@ -545,6 +566,7 @@ export function CollectionView({
       auctionOnly,
       lockedOnly,
       duplicatesOnly,
+      cosmetic: cosmeticFilter,
       sort
     },
     page,
@@ -565,7 +587,7 @@ export function CollectionView({
   );
   const selected = seenCards.find(c => c.instanceId === selectedId);
   const groupCopies = useCollectionGroupCopies(
-    pages,
+    activePages,
     pages && selected ? collectionGroupKey(selected) : null
   );
   const sourceCards = useMemo(() => {
@@ -600,11 +622,24 @@ export function CollectionView({
           sort
         },
         instanceId => !!presentation[instanceId]?.frozen
-      ),
+      ).filter(card => {
+        if (!cosmeticFilter) return true;
+        if (cosmeticFilter.equippedOnly)
+          return Object.values(
+            cardCosmetics?.equipped[card.instanceId] ?? {}
+          ).includes(cosmeticFilter.id);
+        return canEquipCardCosmetic(
+          cosmeticFilter.id,
+          card.rarity,
+          card.isEvolved
+        );
+      }),
     [
       auctionOnly,
       lockedOnly,
       duplicatesOnly,
+      cosmeticFilter,
+      cardCosmetics,
       cards,
       remote,
       category,
@@ -970,6 +1005,23 @@ export function CollectionView({
     requestAnimationFrame(() =>
       customizeButtonRef.current?.focus({ preventScroll: true })
     );
+  }
+
+  function changeCosmeticFilter(filter: CosmeticCollectionFilter | null) {
+    setCosmeticFilter(filter);
+    setPage(1);
+    window.history.pushState(
+      null,
+      "",
+      filter ? cosmeticCollectionHref(filter) : "/collection"
+    );
+  }
+
+  function viewEquippedCosmetic(id: string) {
+    closeDetail();
+    resetFilters();
+    setViewMode("grid");
+    changeCosmeticFilter({ id, equippedOnly: true });
   }
   function toggleGroup(groupCards: CollectedCard[]) {
     setSelection(current => {
@@ -1549,6 +1601,7 @@ export function CollectionView({
         onClick={() => {
           setViewMode("grid");
           setSelectedLicense(null);
+          setCosmeticFilter(null);
           setSelecting(false);
           setSelection(new Set());
           if (!readOnly && !localPreview)
@@ -1595,6 +1648,13 @@ export function CollectionView({
       </button>
     </nav>
   );
+  const filteredCosmeticName =
+    cosmeticFilter &&
+    (() => {
+      const name = tCosmetic(`items.${cosmeticNameId(cosmeticFilter.id)}`);
+      const rarity = CARD_COSMETIC_DISPLAY[cosmeticFilter.id]?.infinityRarity;
+      return rarity ? tCosmetic("cosmeticWithRarity", { name, rarity }) : name;
+    })();
   const toolbar = (
     <div className="yk-collection-toolbar">
       <button
@@ -1766,6 +1826,27 @@ export function CollectionView({
             </aside>
             <div className="yk-collection-main">
               {!pageHeading && toolbar}
+              {cosmeticFilter && viewMode === "grid" && (
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-panel border border-veil bg-surface p-3">
+                  <p
+                    role="status"
+                    className="min-w-0 wrap-anywhere text-sm font-semibold"
+                  >
+                    {tCosmetic(
+                      cosmeticFilter.equippedOnly
+                        ? "equippedCollectionFilter"
+                        : "compatibleCollectionFilter",
+                      { name: filteredCosmeticName ?? "" }
+                    )}
+                  </p>
+                  <Button
+                    variant="secondary"
+                    onClick={() => changeCosmeticFilter(null)}
+                  >
+                    {tCosmetic("clearCosmeticFilter")}
+                  </Button>
+                </div>
+              )}
               {viewMode === "panini" ? (
                 <section
                   className="yk-panini"
@@ -2290,7 +2371,8 @@ export function CollectionView({
                     </>
                   )}
                 </section>
-              ) : (remote ? remote.error : loadError) && ownedCopies === 0 ? (
+              ) : (remote ? remote.error : loadError) &&
+                (ownedCopies === 0 || cosmeticFilter) ? (
                 <div
                   role="alert"
                   className="rounded-panel border border-danger/40 px-6 py-12 text-center"
@@ -2299,7 +2381,7 @@ export function CollectionView({
                     {tc("yourCardsCouldntLoad")}
                   </p>
                   <p className="mt-3 text-sm text-ink-2">
-                    {tError(gameErrorKey(loadError))}
+                    {tError(gameErrorKey(remote?.error || loadError))}
                   </p>
                   {onRetryLoad && (
                     <Button
@@ -2316,11 +2398,17 @@ export function CollectionView({
               ) : matchingGroups === 0 ? (
                 <div className="rounded-panel border border-dashed border-veil-strong px-6 py-16 text-center">
                   <p className="font-display text-xl">
-                    {ownedCopies === 0
-                      ? tc("yourCollectionIsEmptyOpenYourFirstPack")
-                      : tc("noCardsMatchTheseFilters")}
+                    {cosmeticFilter
+                      ? tCosmetic(
+                          cosmeticFilter.equippedOnly
+                            ? "noEquippedCards"
+                            : "noCompatibleCards"
+                        )
+                      : ownedCopies === 0
+                        ? tc("yourCollectionIsEmptyOpenYourFirstPack")
+                        : tc("noCardsMatchTheseFilters")}
                   </p>
-                  {ownedCopies === 0 ? (
+                  {cosmeticFilter ? null : ownedCopies === 0 ? (
                     <Link
                       href="/boosters"
                       className="yk-button yk-button-primary mt-6"
@@ -2988,7 +3076,15 @@ export function CollectionView({
                 offers={cosmeticOffers}
                 rarity={selected.rarity}
                 isEvolved={selected.isEvolved}
-                onInventory={setCardCosmetics}
+                equippedFilterId={
+                  cosmeticFilter?.equippedOnly ? cosmeticFilter.id : undefined
+                }
+                onViewEquipped={viewEquippedCosmetic}
+                onInventory={inventory => {
+                  setCardCosmetics(inventory);
+                  if (cosmeticFilter?.equippedOnly)
+                    setCosmeticPageRevision(revision => revision + 1);
+                }}
                 onPreview={setCosmeticPreview}
                 onBack={backToCardDetails}
               />
