@@ -202,7 +202,7 @@ export function isBlackoutCard({
 }: Pick<YokaiCardProps, "id" | "image" | "catalogueImage">) {
   return (
     Boolean(id?.startsWith("blackout-")) ||
-    /^\/assets\/events\/blackout\/cards\/[a-z0-9-]+\.webp$/.test(
+    /^\/assets\/events\/blackout\/cards\/[a-z0-9-]+\.(?:webp|gif)$/.test(
       catalogueImage ?? image ?? ""
     )
   );

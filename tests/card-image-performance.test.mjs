@@ -54,6 +54,33 @@ function load(input = source) {
   return exports.YokaiCard;
 }
 
+test("Blackout catalogue art keeps the Blackout frame for GIF and WebP cards", () => {
+  const YokaiCard = load();
+  const renderCard = (image, catalogueImage) =>
+    renderToStaticMarkup(
+      React.createElement(YokaiCard, {
+        id: "b8341284-d4bc-4095-b2a9-fbc29be4e12b",
+        name: "Satoru Gojo",
+        category: "ANIME/MANGA",
+        rarity: "LR",
+        image,
+        catalogueImage
+      })
+    );
+  const gojoGif = "/assets/events/blackout/cards/satoru-gojo.gif";
+  const regularGif = "/assets/cards/satoru-gojo.gif";
+
+  for (const card of [
+    renderCard(gojoGif),
+    renderCard("/assets/events/blackout/cards/example.webp"),
+    renderCard(regularGif, gojoGif)
+  ]) {
+    assert.match(card, /data-blackout="true"/);
+    assert.match(card, /class="yk-card yk-rarity-LR yk-evolved\b/);
+  }
+  assert.doesNotMatch(renderCard(regularGif), /data-blackout|yk-evolved/);
+});
+
 // Product decision (PhyesGG, 2026-11-05): grid tiles of catalogue art hosted on
 // our public Storage load a resized WebP at quality 85 (2x density). Details
 // and every other source keep exactly the original, never recompressed.
