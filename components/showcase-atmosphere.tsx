@@ -581,7 +581,7 @@ function ShowcaseVhsCrtEffect({
       const activeBurst = now < burstUntil || Math.sin(now * 0.00052) > 0.97;
       if (activeBurst) {
         burstUntil = Math.max(burstUntil, now + 320);
-        const bands = onCard ? 6 : mobile ? 8 : 15;
+        const bands = mobile ? 8 : 15;
         for (let index = 0; index < bands; index++) {
           const y = Math.random() * height;
           const bandHeight = random(1, mobile ? 4 : 6);
@@ -614,7 +614,7 @@ function ShowcaseVhsCrtEffect({
         frame = 0;
         return;
       }
-      if (now - last >= (onCard ? 75 : 55)) {
+      if (now - last >= 55) {
         last = now;
         draw(now);
       }
@@ -672,16 +672,18 @@ function ShowcaseVhsCrtEffect({
       document.removeEventListener("visibilitychange", onVisibilityChange);
       reducedMotion.removeEventListener("change", onMotionChange);
     };
-  }, [onCard, power]);
+  }, [power]);
 
   const visualStyle = { "--yk-vhs-power": power } as CSSProperties;
   return (
     <>
-      <span
-        className="yk-showcase-vhs-crt-backdrop"
-        style={{ opacity: 0.38 + power * 0.46 }}
-        aria-hidden="true"
-      />
+      {!onCard && (
+        <span
+          className="yk-showcase-vhs-crt-backdrop"
+          style={{ opacity: 0.38 + power * 0.46 }}
+          aria-hidden="true"
+        />
+      )}
       <div
         ref={layerRef}
         className="yk-showcase-vhs-crt"
@@ -702,10 +704,12 @@ function ShowcaseVhsCrtEffect({
         {!onCard && <span className="yk-showcase-vhs-flicker" />}
         <span className="yk-showcase-vhs-glare" />
         <span className="yk-showcase-vhs-vignette" />
-        <span className="yk-showcase-vhs-osd">
-          <b>●</b> REC&nbsp;&nbsp; PAUSE ∥ &nbsp;&nbsp; PLAY ▷ &nbsp;&nbsp; SP
-          00:03:24
-        </span>
+        {!onCard && (
+          <span className="yk-showcase-vhs-osd">
+            <b>●</b> REC&nbsp;&nbsp; PAUSE ∥ &nbsp;&nbsp; PLAY ▷ &nbsp;&nbsp; SP
+            00:03:24
+          </span>
+        )}
       </div>
     </>
   );

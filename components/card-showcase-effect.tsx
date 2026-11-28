@@ -35,7 +35,9 @@ export function CardShowcaseEffect({ scene }: { scene: CardShowcaseScene }) {
         <ShowcaseAtmosphere
           key={scene}
           scene={scene}
-          intensity={scene === "vhs" || scene === "lightning" ? 75 : 100}
+          intensity={
+            scene === "vhs" ? undefined : scene === "lightning" ? 75 : 100
+          }
           onCard
         />
       )}
