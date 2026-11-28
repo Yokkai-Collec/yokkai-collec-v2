@@ -60,7 +60,47 @@
 }
 
 .yk-card-showcase-effect .yk-showcase-vhs-crt {
-  opacity: 0.68;
+  opacity: 0.76;
+}
+
+.yk-card-showcase-effect .yk-showcase-vhs-scanlines {
+  opacity: 0.7;
+}
+
+.yk-card-showcase-effect .yk-showcase-vhs-static {
+  opacity: 0.25;
+}
+
+.yk-card-showcase-effect .yk-showcase-vhs-rolling {
+  opacity: 0.54;
+  animation-duration: 10s;
+}
+
+.yk-card-showcase-effect .yk-showcase-vhs-tracking {
+  animation-duration: 12s;
+}
+
+.yk-card-showcase-effect .yk-showcase-vhs-tear-canvas {
+  opacity: 0.75;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .yk-card-interior:has(> [data-card-scene="vhs"])
+    > .yk-card-art
+    > :is(img, video) {
+    animation: yk-card-vhs-signal-slip 4s steps(1, end) infinite;
+  }
+}
+
+@keyframes yk-card-vhs-signal-slip {
+  0%,
+  36%,
+  100% {
+    filter: none;
+  }
+  30% {
+    filter: url("/assets/card-effects/vhs-signal-slip.svg#signal-slip");
+  }
 }
 
 .yk-card-showcase-effect[data-card-scene="mist"] {

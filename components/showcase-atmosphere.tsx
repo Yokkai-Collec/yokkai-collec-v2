@@ -149,7 +149,8 @@ export function ShowcaseAtmosphere({
     return (
       <ShowcaseCelestialFeathersEffect intensity={intensity} onCard={onCard} />
     );
-  if (scene === "vhs") return <ShowcaseVhsCrtEffect intensity={intensity} />;
+  if (scene === "vhs")
+    return <ShowcaseVhsCrtEffect intensity={intensity} onCard={onCard} />;
   if (scene === "cyber" || scene === "sakura")
     return (
       <ShowcaseParticleEffect
@@ -510,7 +511,13 @@ function ShowcaseCelestialFeathersEffect({
 }
 
 /** Faithful V2 cassette treatment: animated grain and short tracking tears. */
-function ShowcaseVhsCrtEffect({ intensity }: { intensity: number }) {
+function ShowcaseVhsCrtEffect({
+  intensity,
+  onCard
+}: {
+  intensity: number;
+  onCard?: boolean;
+}) {
   const layerRef = useRef<HTMLDivElement>(null);
   const staticRef = useRef<HTMLCanvasElement>(null);
   const tearRef = useRef<HTMLCanvasElement>(null);
@@ -574,7 +581,7 @@ function ShowcaseVhsCrtEffect({ intensity }: { intensity: number }) {
       const activeBurst = now < burstUntil || Math.sin(now * 0.00052) > 0.97;
       if (activeBurst) {
         burstUntil = Math.max(burstUntil, now + 320);
-        const bands = mobile ? 8 : 15;
+        const bands = onCard ? 6 : mobile ? 8 : 15;
         for (let index = 0; index < bands; index++) {
           const y = Math.random() * height;
           const bandHeight = random(1, mobile ? 4 : 6);
@@ -607,7 +614,7 @@ function ShowcaseVhsCrtEffect({ intensity }: { intensity: number }) {
         frame = 0;
         return;
       }
-      if (now - last >= 55) {
+      if (now - last >= (onCard ? 75 : 55)) {
         last = now;
         draw(now);
       }
@@ -665,7 +672,7 @@ function ShowcaseVhsCrtEffect({ intensity }: { intensity: number }) {
       document.removeEventListener("visibilitychange", onVisibilityChange);
       reducedMotion.removeEventListener("change", onMotionChange);
     };
-  }, [power]);
+  }, [onCard, power]);
 
   const visualStyle = { "--yk-vhs-power": power } as CSSProperties;
   return (
@@ -692,7 +699,7 @@ function ShowcaseVhsCrtEffect({ intensity }: { intensity: number }) {
         <canvas ref={staticRef} className="yk-showcase-vhs-static" />
         <canvas ref={tearRef} className="yk-showcase-vhs-tear-canvas" />
         <span className="yk-showcase-vhs-noise-pulse" />
-        <span className="yk-showcase-vhs-flicker" />
+        {!onCard && <span className="yk-showcase-vhs-flicker" />}
         <span className="yk-showcase-vhs-glare" />
         <span className="yk-showcase-vhs-vignette" />
         <span className="yk-showcase-vhs-osd">

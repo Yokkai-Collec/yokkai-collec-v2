@@ -150,9 +150,56 @@
   pointer-events: none;
 }
 .yk-card-badges {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 2cqw;
+}
+.yk-card-vhs-hud {
+  position: absolute;
+  inset-block-start: calc(100% + clamp(3px, 1.8cqw, 5px));
+  inset-inline-end: 0;
+  display: grid;
+  justify-items: end;
+  gap: clamp(2px, 1.2cqw, 4px);
+  pointer-events: none;
+}
+.yk-card-vhs-rec {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  color: #fff5f6;
+  font:
+    700 clamp(6px, 4.5cqw, 12px) / 1 ui-monospace,
+    monospace;
+  letter-spacing: 0.08em;
+  text-shadow:
+    0 1px 2px #000,
+    0 0 5px #000;
+}
+.yk-card-vhs-rec::before {
+  content: "";
+  inline-size: 0.52em;
+  block-size: 0.52em;
+  border-radius: 50%;
+  background: #ff4259;
+  box-shadow: 0 0 0.35em #ff4259b0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .yk-card-vhs-rec::before {
+    animation: yk-card-vhs-rec-blink 2.8s ease-in-out infinite;
+  }
+}
+@keyframes yk-card-vhs-rec-blink {
+  0%,
+  25%,
+  100% {
+    opacity: 1;
+  }
+  55%,
+  70% {
+    opacity: 0.28;
+  }
 }
 .yk-card-copy-status {
   position: absolute;
@@ -1002,13 +1049,26 @@
   .yk-customize-option[data-cosmetic="cracked_glass"]
 ) {
   --glass-cracks: url("/assets/card-effects/cracked-glass.webp");
+  --glass-detail: url("/assets/card-effects/cracked-glass-detail.webp");
+  /* Fade the two impact cores while keeping the surrounding fractures sharp. */
+  --glass-impact-mask:
+    radial-gradient(ellipse 8% 6% at 85.4% 22.8%, #0006, #000a 40%, #000 94%),
+    radial-gradient(ellipse 6% 4.5% at 13.2% 78.8%, #0006, #000a 40%, #000 94%);
+}
+
+.yk-card-cosmetic-motion[data-cosmetic-animation="cracked_glass"],
+.yk-customize-option[data-cosmetic="cracked_glass"]
+  .yk-customize-sample::before {
+  background:
+    var(--glass-detail) center / 100% 100% no-repeat,
+    var(--glass-cracks) center / 100% 100% no-repeat;
+  filter: brightness(1.25) drop-shadow(0.45px 0.65px 0.3px #08101eb3);
+  mask: var(--glass-impact-mask);
+  mask-composite: intersect;
 }
 
 .yk-card-cosmetic-motion[data-cosmetic-animation="cracked_glass"] {
   z-index: 3;
-  background: var(--glass-cracks) center / 100% 100% no-repeat;
-  filter: brightness(1.65) drop-shadow(0 0 0.45px #daf0ff88)
-    drop-shadow(0 0.55px 0.6px #08101eb3);
 }
 
 .yk-card-cosmetic-motion[data-cosmetic-animation="cracked_glass"]::after {
@@ -1017,9 +1077,9 @@
   background: linear-gradient(
       133deg,
       transparent 37%,
-      #d5f1ff99 46%,
-      #fff 50%,
-      #e6f6ff80 55%,
+      #d5f1ff18 46%,
+      #e6f6ff4d 50%,
+      #d5f1ff18 55%,
       transparent 63%
     )
     100% center / 250% 100% no-repeat;
@@ -1067,6 +1127,112 @@
   );
   box-shadow: inset 0 -12px 27px #f0793070;
   animation: yk-cosmetic-ember 3.6s ease-in-out infinite alternate;
+}
+
+:is(
+  [data-cosmetic-animation="burned_card"],
+  .yk-customize-option[data-cosmetic="burned_card"]
+) {
+  --consumed-paper: url("/assets/card-effects/consumed-paper.webp");
+}
+
+.yk-card-cosmetic-motion[data-cosmetic-animation="burned_card"] {
+  z-index: 3;
+}
+
+.yk-card-cosmetic-motion[data-consumed-visible] {
+  --consumed-fire-content: "";
+}
+
+.yk-consumed-paper {
+  position: absolute;
+  inset: 0;
+  background: var(--consumed-paper) center / 100% 100% no-repeat;
+}
+
+.yk-consumed-ember {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 31.3846%;
+  height: 27.4725%;
+  overflow: hidden;
+}
+
+.yk-consumed-ember::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4800%;
+  height: 300%;
+  /* Each corner uses three rows of 48 frames from the shared atlas. */
+  background: url("/assets/card-effects/consumed-paper-fluid.webp") left
+    var(--ember-row, 0%) / 100% 200% no-repeat;
+  content: var(--consumed-fire-content, none);
+  --ember-loop: var(--ember-cycle, 5.4s);
+  animation:
+    yk-consumed-fire-front calc(var(--ember-loop) / 3) steps(48, end)
+      var(--ember-delay, -0.42s) infinite,
+    yk-consumed-fire-row var(--ember-loop) steps(3, end)
+      var(--ember-delay, -0.42s) infinite;
+}
+
+.yk-consumed-ember[data-ember$="-right"] {
+  right: 0;
+  left: auto;
+}
+
+.yk-consumed-ember[data-ember^="lower-"] {
+  top: auto;
+  bottom: 0;
+  --ember-row: 100%;
+}
+
+.yk-consumed-ember:is([data-ember="upper-right"], [data-ember="lower-left"]) {
+  transform: scaleX(-1);
+}
+
+.yk-consumed-ember[data-ember="upper-right"] {
+  width: 25%;
+  height: 24%;
+  opacity: 0.73;
+  --ember-cycle: 6s;
+  --ember-delay: -4.3s;
+}
+
+.yk-consumed-ember[data-ember="lower-left"] {
+  width: 24%;
+  height: 23%;
+  opacity: 0.61;
+  --ember-cycle: 6.5s;
+  --ember-delay: -3s;
+}
+
+.yk-consumed-ember[data-ember="lower-right"] {
+  opacity: 0.94;
+  --ember-cycle: 5.8s;
+  --ember-delay: -1.8s;
+}
+
+@keyframes yk-consumed-fire-front {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes yk-consumed-fire-row {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 0 -100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yk-consumed-ember::before {
+    animation: none;
+    transform: translateX(-37.5%);
+    translate: 0 -33.333333%;
+  }
 }
 
 @keyframes yk-cosmetic-prism {

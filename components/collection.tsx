@@ -367,6 +367,7 @@ export function CollectionView({
     useState<CosmeticCollectionFilter | null>(null);
   const [cosmeticPageRevision, setCosmeticPageRevision] = useState(0);
   const [customizing, setCustomizing] = useState(false);
+  const [cosmeticBusy, setCosmeticBusy] = useState(false);
   const [cosmeticPreview, setCosmeticPreview] = useState<{
     kind: PerCardCosmeticKind;
     id: string | null;
@@ -1002,9 +1003,11 @@ export function CollectionView({
   function backToCardDetails() {
     setCustomizing(false);
     setCosmeticPreview(undefined);
-    requestAnimationFrame(() =>
-      customizeButtonRef.current?.focus({ preventScroll: true })
-    );
+    requestAnimationFrame(() => {
+      const button = customizeButtonRef.current;
+      button?.closest("dialog")?.scrollTo(0, 0);
+      button?.focus();
+    });
   }
 
   function changeCosmeticFilter(filter: CosmeticCollectionFilter | null) {
@@ -2684,10 +2687,12 @@ export function CollectionView({
       <Modal
         open={!!selected && !discardConfirm && !auctionOpen && !evolveConfirm}
         onClose={closeDetail}
-        title={tc("cardDetails")}
-        hideTitle={!detailOnly && !readOnly}
+        title={customizing ? tCosmetic("customize") : tc("cardDetails")}
+        hideTitle={!customizing && !detailOnly && !readOnly}
         headerActions={
-          !detailOnly && !readOnly ? detailUtilityActions : undefined
+          !customizing && !detailOnly && !readOnly
+            ? detailUtilityActions
+            : undefined
         }
         className={`yk-card-detail-modal ${!detailOnly && !readOnly ? "yk-card-detail-compact" : ""}${customizing ? " yk-card-detail-customizing" : ""}`}
       >
@@ -2705,7 +2710,9 @@ export function CollectionView({
                       : undefined
                   }
                   customizing={customizing}
+                  busy={cosmeticBusy}
                   onCustomize={() => setCustomizing(true)}
+                  onBack={backToCardDetails}
                   customizeButtonRef={customizeButtonRef}
                 >
                   <YokaiCard
@@ -2726,7 +2733,7 @@ export function CollectionView({
                   />
                 </div>
               )}
-              {!readOnly && onMoveCard && (
+              {!customizing && !readOnly && onMoveCard && (
                 <div className="yk-detail-folder">
                   <label
                     htmlFor="detail-card-folder"
@@ -3076,6 +3083,8 @@ export function CollectionView({
                 offers={cosmeticOffers}
                 rarity={selected.rarity}
                 isEvolved={selected.isEvolved}
+                busy={cosmeticBusy}
+                onBusyChange={setCosmeticBusy}
                 equippedFilterId={
                   cosmeticFilter?.equippedOnly ? cosmeticFilter.id : undefined
                 }
@@ -3086,7 +3095,6 @@ export function CollectionView({
                     setCosmeticPageRevision(revision => revision + 1);
                 }}
                 onPreview={setCosmeticPreview}
-                onBack={backToCardDetails}
               />
             )}
           </div>

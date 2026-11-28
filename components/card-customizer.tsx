@@ -17,8 +17,8 @@ import {
   type CardCosmeticShop
 } from "@/lib/ui/card-cosmetics";
 import { createClient } from "@/utils/supabase/client";
+import { publishPlayerSnapshotInvalidation } from "@/lib/data/player-state";
 import type { Rarity } from "@/lib/data/cards";
-import "@/styles/card-customize.css";
 
 type Feedback = "saved" | "copiesExhausted" | "equipFailed";
 type Choice = { kind: PerCardCosmeticKind; id: string | null };
@@ -43,10 +43,11 @@ export function CardCustomizer({
   rarity,
   isEvolved,
   equippedFilterId,
+  busy,
+  onBusyChange,
   onViewEquipped,
   onInventory,
-  onPreview,
-  onBack
+  onPreview
 }: {
   instanceId: string;
   inventory: CardCosmeticInventory | null;
@@ -54,10 +55,11 @@ export function CardCustomizer({
   rarity: Rarity;
   isEvolved: boolean;
   equippedFilterId?: string;
+  busy: boolean;
+  onBusyChange: (busy: boolean) => void;
   onViewEquipped: (id: string) => void;
   onInventory: (inventory: CardCosmeticInventory) => void;
   onPreview: (choice: Choice | undefined) => void;
-  onBack: () => void;
 }) {
   const t = useTranslations("cosmeticShop");
   const [finishes, setFinishes] = useState<
@@ -67,24 +69,32 @@ export function CardCustomizer({
   const equipped = inventory?.equipped[instanceId];
   const [draft, setDraft] = useState<Choice>();
   const [feedback, setFeedback] = useState<Feedback>();
-  const [busy, setBusy] = useState(false);
   const saving = useRef(false);
-  const heading = useRef<HTMLHeadingElement>(null);
+  const panel = useRef<HTMLElement>(null);
   useEffect(() => {
-    heading.current?.focus({ preventScroll: true });
+    panel.current?.closest("dialog")?.scrollTo(0, 0);
+    panel.current?.focus({ preventScroll: true });
   }, []);
-  const kind = draft?.kind ?? "animation";
+  const filteredKind = equippedFilterId
+    ? (Object.entries(equipped ?? {}).find(
+        ([, id]) => id === equippedFilterId
+      )?.[0] as PerCardCosmeticKind | undefined)
+    : undefined;
+  const equippedKind =
+    filteredKind ??
+    (equipped?.animation
+      ? "animation"
+      : equipped?.filter
+        ? "filter"
+        : undefined);
+  const kind = draft?.kind ?? equippedKind ?? "animation";
   const current = equipped?.[kind] ?? null;
+  const removableKind = current ? kind : equippedKind;
   const chosen = draft ? draft.id : current;
   const selectedCopies = chosen ? (copies?.[chosen]?.available ?? 0) : 0;
   const allCopiesEquipped = Boolean(
     chosen && copies?.[chosen]?.quantity && selectedCopies === 0
   );
-  const removableKind = equippedFilterId
-    ? (Object.entries(equipped ?? {}).find(
-        ([, id]) => id === equippedFilterId
-      )?.[0] as PerCardCosmeticKind | undefined)
-    : undefined;
   const changed = chosen !== current;
   const eligible = canEquipCardCosmetic(chosen, rarity, isEvolved);
   const canApply =
@@ -101,7 +111,7 @@ export function CardCustomizer({
     .filter(
       ([id, cosmetic]) =>
         !HIDDEN_CUSTOMIZATION_EFFECTS.has(id) &&
-        (!cosmetic.infinityRarity || cosmetic.infinityRarity === rarity) &&
+        canEquipCardCosmetic(id, rarity, isEvolved) &&
         ((cosmetic.kind === "animation" && (copies?.[id] || onSale.has(id))) ||
           (cosmetic.kind === "filter" && copies?.[id])) &&
         t.has(`items.${cosmeticNameId(id)}`)
@@ -142,20 +152,22 @@ export function CardCustomizer({
     setFeedback(undefined);
   }
 
-  async function apply() {
-    if (!canApply || saving.current) return;
+  async function save({ kind, id }: Choice) {
+    if (busy || saving.current) return;
     saving.current = true;
-    setBusy(true);
+    onBusyChange(true);
     setFeedback(undefined);
-    const db = createClient();
     try {
+      const db = createClient();
       const { data, error } = await db.rpc("set_card_cosmetic", {
         p_card_id: instanceId,
         p_kind: kind,
-        p_cosmetic_id: chosen
+        p_cosmetic_id: id
       });
       if (!error && data) {
         onInventory(data as CardCosmeticInventory);
+        publishPlayerSnapshotInvalidation(["collection"]);
+        setDraft(undefined);
         onPreview(undefined);
         setFeedback("saved");
       } else if (error?.message === "COSMETIC_COPIES_EXHAUSTED") {
@@ -171,45 +183,32 @@ export function CardCustomizer({
       setFeedback("equipFailed");
     } finally {
       saving.current = false;
-      setBusy(false);
+      onBusyChange(false);
     }
   }
 
   return (
     <section
+      ref={panel}
+      tabIndex={-1}
       className="yk-customize-panel"
       aria-label={t("customize")}
       aria-busy={busy}
     >
-      <header>
-        <h3 ref={heading} tabIndex={-1}>
-          {t("customize")}
-        </h3>
-        <p>{t("tryCosmetics")}</p>
-      </header>
       {copies ? (
-        <>
-          <div className="yk-customize-toolbar">
-            <button
-              type="button"
-              className="yk-customize-default"
-              aria-pressed={chosen === null}
-              disabled={busy}
-              onClick={() => choose(kind, null)}
-            >
-              {t("defaultLook")}
-            </button>
-            {removableKind && (
-              <button
-                type="button"
-                className="yk-customize-default"
-                disabled={busy}
-                onClick={() => choose(removableKind, null)}
-              >
-                {t("removeEquippedEffect")}
-              </button>
-            )}
-          </div>
+        <div className="yk-customize-content">
+          <Button
+            variant="danger"
+            className="yk-customize-default"
+            aria-pressed={!removableKind && chosen === null}
+            disabled={busy || (!removableKind && !changed)}
+            onClick={() => {
+              if (removableKind) void save({ kind: removableKind, id: null });
+              else choose(kind, null);
+            }}
+          >
+            {t("defaultLook")}
+          </Button>
           <div className="yk-customize-options">
             {tiles.map(([key, { family, variants }]) => {
               const equippedVariant = variants.find(
@@ -227,7 +226,6 @@ export function CardCustomizer({
               const { id, cosmetic, color } = variant;
               const applied = id === equipped?.[cosmetic.kind];
               const stock = copies[id];
-              const compatible = canEquipCardCosmetic(id, rarity, isEvolved);
               const active = draft ? chosen === id : applied;
               const name = family
                 ? t(`families.${family}`)
@@ -246,14 +244,18 @@ export function CardCustomizer({
               };
               const status = applied
                 ? t("equippedOnCard")
-                : !compatible
-                  ? t(cardCosmeticEligibility(id))
-                  : !stock
-                    ? t("notOwned")
-                    : t("availableCopies", { count: stock.available });
+                : !stock
+                  ? t("notOwned")
+                  : t("availableCopies", { count: stock.available });
               const tile = (
                 <>
-                  <span className="yk-customize-thumb" aria-hidden="true" />
+                  <span className="yk-customize-thumb" aria-hidden="true">
+                    {(family ||
+                      id === "cracked_glass" ||
+                      id === "burned_card") && (
+                      <span className="yk-customize-sample" />
+                    )}
+                  </span>
                   <strong>{label}</strong>
                 </>
               );
@@ -341,25 +343,14 @@ export function CardCustomizer({
               {t("findCosmetics")}
             </Link>
           )}
-        </>
+        </div>
       ) : (
-        <p role="alert">{t("inventoryUnavailable")}</p>
+        <p className="yk-customize-content" role="alert">
+          {t("inventoryUnavailable")}
+        </p>
       )}
       <div className="yk-customize-actions">
-        <p aria-live="polite">
-          {feedback
-            ? t(feedback)
-            : changed && chosen && !eligible
-              ? t(cardCosmeticEligibility(chosen))
-              : changed && chosen && !copies?.[chosen]
-                ? t("notOwned")
-                : changed && chosen && selectedCopies === 0
-                  ? t("copiesExhausted")
-                  : changed
-                    ? t("previewOnly")
-                    : null}
-        </p>
-        {changed && allCopiesEquipped && chosen && (
+        {!removableKind && changed && allCopiesEquipped && chosen && (
           <Button
             variant="secondary"
             disabled={busy}
@@ -368,19 +359,34 @@ export function CardCustomizer({
             {t("viewEquippedCards")}
           </Button>
         )}
-        <Button variant="secondary" onClick={onBack} disabled={busy}>
-          {t("backToCardDetails")}
-        </Button>
         {toShop ? (
           <Link className="yk-button yk-button-primary" href={toShop}>
             {t("buyInShop")}
           </Link>
         ) : (
-          <Button onClick={() => void apply()} disabled={!canApply || busy}>
+          <Button
+            onClick={() => {
+              if (canApply) void save({ kind, id: chosen });
+            }}
+            disabled={!canApply || busy}
+          >
             {t(busy ? "applyingCosmetic" : "applyCosmetic")}
           </Button>
         )}
       </div>
+      <p className="yk-customize-feedback" aria-live="polite">
+        {feedback
+          ? t(feedback)
+          : changed && chosen && !eligible
+            ? t(cardCosmeticEligibility(chosen))
+            : changed && chosen && !copies?.[chosen]
+              ? t("notOwned")
+              : changed && chosen && selectedCopies === 0
+                ? t("copiesExhausted")
+                : changed
+                  ? t("previewOnly")
+                  : null}
+      </p>
     </section>
   );
 }

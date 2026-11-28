@@ -122,6 +122,55 @@ const spots = [
   [58, 70]
 ];
 
+const consumedEmbers = [
+  "upper-left",
+  "upper-right",
+  "lower-left",
+  "lower-right"
+];
+let consumedCardObserver: IntersectionObserver | undefined;
+let observedConsumedCards = 0;
+
+function observeConsumedCard(layer: HTMLDivElement | null) {
+  if (!layer) return;
+  if (typeof IntersectionObserver === "undefined") {
+    layer.dataset.consumedVisible = "";
+    return;
+  }
+  const observer = (consumedCardObserver ??= new IntersectionObserver(
+    entries => {
+      for (const { target, isIntersecting } of entries) {
+        target.toggleAttribute("data-consumed-visible", isIntersecting);
+      }
+    }
+  ));
+  observedConsumedCards++;
+  observer.observe(layer);
+  return () => {
+    observer.unobserve(layer);
+    if (--observedConsumedCards === 0) {
+      observer.disconnect();
+      consumedCardObserver = undefined;
+    }
+  };
+}
+
+function ConsumedCardEffect() {
+  return (
+    <div
+      className="yk-card-cosmetic-motion"
+      data-cosmetic-animation="burned_card"
+      ref={observeConsumedCard}
+      aria-hidden="true"
+    >
+      <span className="yk-consumed-paper" />
+      {consumedEmbers.map(zone => (
+        <span className="yk-consumed-ember" data-ember={zone} key={zone} />
+      ))}
+    </div>
+  );
+}
+
 function FirstLrCopyBadge({
   instanceId,
   copyInstanceIds,
@@ -393,13 +442,16 @@ export function YokaiCard({
           {cosmetics?.animation &&
             !lightning &&
             !reflection &&
-            !showcaseScene && (
+            !showcaseScene &&
+            (cosmetics.animation === "burned_card" ? (
+              <ConsumedCardEffect />
+            ) : (
               <div
                 className="yk-card-cosmetic-motion"
                 data-cosmetic-animation={cosmetics.animation}
                 aria-hidden="true"
               />
-            )}
+            ))}
           {special && <div className="yk-holo" />}
           {(evolvedStyle || lightning || reflection) && (
             <div className="yk-evolved-energy" aria-hidden="true">
@@ -495,6 +547,14 @@ export function YokaiCard({
                     )}
                   </span>
                 )}
+                {showcaseScene === "vhs" && (
+                  <span className="yk-card-vhs-hud">
+                    <span className="yk-card-vhs-rec" aria-hidden="true">
+                      REC
+                    </span>
+                    {rarityAccessory}
+                  </span>
+                )}
               </span>
             </div>
             {categoryAccessory && (
@@ -502,7 +562,7 @@ export function YokaiCard({
                 {categoryAccessory}
               </div>
             )}
-            {rarityAccessory && (
+            {rarityAccessory && showcaseScene !== "vhs" && (
               <div className="yk-card-rarity-accessory">{rarityAccessory}</div>
             )}
             {!image && (

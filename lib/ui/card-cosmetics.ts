@@ -61,6 +61,7 @@ export const CARD_COSMETIC_DISPLAY: Readonly<
   ember_aura: { kind: "animation" },
   frame_halo: { kind: "animation", frameHalo: true },
   cracked_glass: { kind: "animation", crackedGlass: true },
+  burned_card: { kind: "animation" },
   ...Object.fromEntries(
     INFINITY_RARITIES.flatMap(infinityRarity => {
       const suffix = infinityRarity === "SSR" ? "_ssr" : "";

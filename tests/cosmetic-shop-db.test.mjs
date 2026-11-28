@@ -71,7 +71,17 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
 
   const initial = await shop(user);
   assert.equal(initial.invocationBack, null);
-  assert.equal(initial.items.length, 35);
+  assert.equal(initial.items.length, 36);
+  assert.deepEqual(
+    initial.items.find(item => item.id === "burned_card"),
+    {
+      id: "burned_card",
+      kind: "animation",
+      price: 900,
+      quantity: 0,
+      available: 0
+    }
+  );
   assert.deepEqual(
     initial.items.find(item => item.id === "cracked_glass"),
     {
@@ -608,6 +618,31 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
   );
   await buy("cracked_glass", 900, 1, randomUUID(), other);
   await equip(other, "animation", "cracked_glass", copiesByName.common);
+  await db.query(
+    "update public.user_profiles set is_public=true where user_id=$1",
+    [other]
+  );
+  const saveShowcase = await call(
+    other,
+    "select public.update_profile('',null,array[$1::uuid]) result",
+    [copiesByName.common]
+  );
+  const readShowcase = () =>
+    call(user, "select public.get_profile($1::text) result", [other]);
+  assert.equal(saveShowcase.featuredCards[0].instanceId, copiesByName.common);
+  assert.equal(
+    saveShowcase.featuredCards[0].cosmetics.animation,
+    "cracked_glass"
+  );
+  assert.equal(
+    (await readShowcase()).featuredCards[0].cosmetics.animation,
+    "cracked_glass"
+  );
+  await db.query(
+    "update public.user_profiles set is_public=false where user_id=$1",
+    [other]
+  );
+  assert.deepEqual((await readShowcase()).featuredCards, []);
   assert.deepEqual(
     pageCopies(await cosmeticPage(other, "cracked_glass", true)),
     [copiesByName.common]
@@ -626,6 +661,19 @@ test("cosmetics charge once per order, reserve one copy per card, and release co
     "prism_sweep"
   );
   assert.equal((await inventory(other)).copies.showcase_sakura.available, 1);
+
+  await db.query(
+    "update public.user_profiles set karas_balance=1800 where user_id=$1",
+    [other]
+  );
+  const burned = await buy("burned_card", 900, 2, randomUUID(), other);
+  assert.equal(burned.balance, 0);
+  await equip(other, "animation", "burned_card", copiesByName.common);
+  await equip(other, "animation", "burned_card", eligibleCard);
+  assert.deepEqual(
+    new Set(pageCopies(await cosmeticPage(other, "burned_card", true))),
+    new Set([copiesByName.common, eligibleCard])
+  );
 
   await db.exec(
     "alter table auth.users add column if not exists banned_until timestamptz"

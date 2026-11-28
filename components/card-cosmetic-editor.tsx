@@ -6,17 +6,20 @@ import {
   CARD_COSMETIC_DISPLAY,
   replayCardCosmeticColor
 } from "@/lib/ui/card-cosmetics";
-import "@/styles/card-customize.css";
 
 export function CardCosmeticEntry({
   onCustomize,
+  onBack,
   customizing,
+  busy,
   customizeButtonRef,
   animationPreview,
   children
 }: {
   onCustomize: () => void;
+  onBack: () => void;
   customizing: boolean;
+  busy: boolean;
   customizeButtonRef: Ref<HTMLButtonElement>;
   animationPreview?: { id: string | null };
   children: ReactNode;
@@ -40,11 +43,11 @@ export function CardCosmeticEntry({
         <button
           type="button"
           ref={customizeButtonRef}
-          onClick={onCustomize}
-          aria-pressed={customizing}
+          onClick={customizing ? onBack : onCustomize}
+          disabled={customizing && busy}
           className="yk-button yk-button-primary"
         >
-          {t("customize")}
+          {t(customizing ? "backToCardDetails" : "customize")}
         </button>
       </div>
     </>

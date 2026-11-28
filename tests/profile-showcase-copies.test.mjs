@@ -108,6 +108,7 @@ for (const count of [1, 10]) {
     const collection = [
       original,
       card("duplicate"),
+      card("glass", { cosmetics: { animation: "cracked_glass" } }),
       custom,
       card("shiny", { shiny: true }),
       card("infinity", { isEvolved: true }),
@@ -156,6 +157,7 @@ for (const count of [1, 10]) {
     const available = choices();
     assert.deepEqual(Array.from(available, node => node.key).sort(), [
       "custom",
+      "glass",
       "infinity",
       "shiny"
     ]);
@@ -176,6 +178,27 @@ for (const count of [1, 10]) {
     assert.equal(
       choices().some(node => node.key === "original"),
       true
+    );
+    const glassButton = choices().find(node => node.key === "glass");
+    const glassArt = glassButton.props.children[0];
+    assert.equal(
+      glassArt.type(glassArt.props).props.cosmetics.animation,
+      "cracked_glass"
+    );
+    glassButton.props.onClick();
+    render();
+    assert.deepEqual(
+      Array.from(selection()),
+      featured.map(item => (item === original ? "glass" : item.instanceId))
+    );
+    const selectedArt = walk(tree).find(
+      node =>
+        node.type?.name === "SelectedShowcaseArt" &&
+        node.props.card.instanceId === "glass"
+    );
+    assert.equal(
+      selectedArt.type(selectedArt.props).props.cosmetics.animation,
+      "cracked_glass"
     );
     const actions = walk(tree).find(
       node =>

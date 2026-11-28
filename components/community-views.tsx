@@ -33,12 +33,12 @@ import {
 import {
   getCataloguePage,
   getGameInfo,
-  getUserCollection,
   invalidatePlayerSnapshots,
   type Card,
   type CollectedCard,
   type Rarity
 } from "@/lib/data/cards";
+import { getProfileEditorCollection } from "@/lib/data/profile";
 import { useNotificationItems, Topbar } from "@/components/topbar";
 import {
   Avatar,
@@ -3088,7 +3088,7 @@ export function CommunityView({
       }
     );
     if (screen === "profile" && isMe)
-      void getUserCollection(false).then(
+      void getProfileEditorCollection().then(
         data => {
           if (active) setCollection(data);
         },
@@ -3155,7 +3155,7 @@ export function CommunityView({
           () => undefined
         );
       if (scopes.includes("collection") && screen === "profile" && isMe)
-        void getUserCollection(false).then(
+        void getProfileEditorCollection().then(
           cards => {
             if (active) setCollection(cards);
           },

@@ -49,7 +49,14 @@ const ShowcaseStyleFields = dynamic(() =>
 );
 const PAGE_SIZES = [48, 96] as const;
 const showcaseAppearance = (card: CollectedCard) =>
-  JSON.stringify([card.id, card.image, card.shiny, card.isEvolved]);
+  JSON.stringify([
+    card.id,
+    card.image,
+    card.shiny,
+    card.isEvolved,
+    card.cosmetics?.animation,
+    card.cosmetics?.filter
+  ]);
 
 const PickerArt = memo(function PickerArt({ card }: { card: CollectedCard }) {
   return (

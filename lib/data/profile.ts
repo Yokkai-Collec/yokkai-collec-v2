@@ -5,6 +5,7 @@ import type { CollectionCoverFrame } from "@/lib/ui/collection-cover-frame";
 import {
   withAlbumCovers,
   withLiveCardFranchises,
+  getUserCollection,
   type CardFilter,
   type Card,
   type CollectedCard,
@@ -16,6 +17,7 @@ import type { FriendUser, FriendshipStatus } from "@/lib/data/friends";
 import { publishPlayerSnapshotInvalidation } from "@/lib/data/player-state";
 import type { BannerFrame } from "@/lib/ui/banner-frame";
 import type { PlayerCosmetics } from "@/components/styled-player-name";
+import type { CardCosmeticInventory } from "@/lib/ui/card-cosmetics";
 
 function friendFilterParam(value: CardFilter = ""): string {
   if (typeof value === "string") return value;
@@ -147,6 +149,22 @@ export async function getProfile(identifier?: string) {
   );
   if (error) throw fail(error);
   return hydrateProfile(data as Profile, true);
+}
+
+export async function getProfileEditorCollection(): Promise<CollectedCard[]> {
+  const [cards, { data, error }] = await Promise.all([
+    getUserCollection(false),
+    readRequest(signal =>
+      db().rpc("get_my_card_cosmetics").abortSignal(signal)
+    )
+  ]);
+  if (error?.code === "PGRST202") return cards;
+  if (error) throw fail(error);
+  const equipped = (data as CardCosmeticInventory).equipped;
+  return cards.map(card => ({
+    ...card,
+    cosmetics: equipped[card.instanceId]
+  }));
 }
 export async function markPlayerTitlesSeen(titleIds: string[]): Promise<void> {
   const { error } = await db().rpc("mark_player_titles_seen", { p_title_ids: titleIds });
