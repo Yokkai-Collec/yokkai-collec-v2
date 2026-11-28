@@ -1,6 +1,7 @@
 import { readRequest, resumePages, type PageCheckpoint } from "@/lib/data/read-request";
 import { createClient } from "@/utils/supabase/client";
 import type { CollectionCoverFrame } from "@/lib/ui/collection-cover-frame";
+import type { CardCosmeticLoadout } from "@/lib/ui/card-cosmetics";
 import { cardSearchTerms } from "@/lib/ui/card-search";
 import type { CollectionSort } from "@/lib/ui/collection-sort";
 import { createPlayerSnapshotCache, PLAYER_SNAPSHOT_TTL, publishPlayerSnapshotInvalidation, subscribePlayerSnapshotInvalidation, type PlayerSnapshotScope } from "@/lib/data/player-state";
@@ -54,7 +55,7 @@ export type PaniniAlbumCardPage = {
   binderTotal?: number;
   binderOwned?: number;
 };
-export type CollectedCard = Card & { instanceId: string; obtainedAt: string; shiny: boolean; isEvolved: boolean; isFirstOwner: boolean; locked?: boolean; folderId: string | null; catalogueImage: string; customImageUrl: string | null; destructionValue?: number };
+export type CollectedCard = Card & { instanceId: string; obtainedAt: string; shiny: boolean; isEvolved: boolean; isFirstOwner: boolean; locked?: boolean; folderId: string | null; catalogueImage: string; customImageUrl: string | null; destructionValue?: number; cosmetics?: CardCosmeticLoadout };
 export type Folder = { id: string; name: string; cardIds?: string[] };
 export type ActiveAuctionCard = { instanceId: string; auctionId: string; endsAt: string };
 export type PackStatus = {

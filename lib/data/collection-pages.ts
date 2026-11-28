@@ -63,11 +63,16 @@ export async function getCollectionGroupsPage(
     p_auction_only: filters.auctionOnly,
     p_locked_only: filters.lockedOnly,
     ...(filters.duplicatesOnly ? { p_duplicates_only: true } : {}),
+    ...(filters.cosmetic ? {
+      p_cosmetic_id: filters.cosmetic.id,
+      p_cosmetic_equipped_only: filters.cosmetic.equippedOnly
+    } : {}),
     p_sort: filters.sort,
     p_after: position.after ?? null,
     p_offset: position.offset ?? 0,
     p_limit: position.limit
   });
+  if (!page && filters.cosmetic) throw new Error("COLLECTION_PAGE_INVALID");
   return (
     page && {
       ...page,

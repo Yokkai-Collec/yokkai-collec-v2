@@ -1665,13 +1665,12 @@ test("l’avatar ouvre un menu profil compact avec résumé et actions", () => {
     normalizeWhitespace(topbar),
     normalizeWhitespace(/yk-mobile-account/)
   );
-  assert.ok(
-    normalizeWhitespace(topbar).indexOf(
-      normalizeWhitespace('href="/wishlist"')
-    ) <
-      normalizeWhitespace(topbar).indexOf(
-        normalizeWhitespace('href="/catalog" aria-current')
-      )
+  assert.doesNotMatch(topbar, /href="\/wishlist"/);
+  assert.match(
+    normalizeWhitespace(topbar),
+    normalizeWhitespace(
+      /href="\/catalog" aria-current=\{ view === "search" \|\| view === "wishlist" \? "page" : undefined \}.*?> \{t\("explore"\)\}/
+    )
   );
   assert.match(
     normalizeWhitespace(topbar),

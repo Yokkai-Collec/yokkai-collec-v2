@@ -28,6 +28,7 @@ import "../styles/messenger.css";
 import "../styles/profile.css";
 import "../styles/profile-style.css";
 import "../styles/collection.css";
+import "../styles/card-customize.css";
 import "../styles/boosters.css";
 import "../styles/boosters-showcase.css";
 import "../styles/market.css";
@@ -159,6 +160,7 @@ export default async function RootLayout({
       "collectionUi",
       "gameUi",
       "catalogueUi",
+      "cosmeticShop",
       "collectionShared",
       "cardErrors",
       "homeFriendFeed",

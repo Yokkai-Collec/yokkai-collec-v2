@@ -38,7 +38,7 @@
   background: var(--color-surface);
   margin: 0 0 20px auto;
 }
-.yk-collection-tabs button {
+.yk-collection-tabs :is(button, a) {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -50,12 +50,12 @@
   font-weight: 650;
   font-size: 14px;
 }
-.yk-collection-tabs button[aria-pressed="true"] {
+.yk-collection-tabs :is(button[aria-pressed="true"], a[aria-current="page"]) {
   background: #a9c8ff1c;
   color: var(--color-ink);
   box-shadow: inset 0 0 0 1px #a9c8ff66;
 }
-.yk-collection-tabs button:focus-visible {
+.yk-collection-tabs :is(button, a):focus-visible {
   outline: 2px solid #a9c8ff;
   outline-offset: 2px;
 }
@@ -471,7 +471,7 @@
   .yk-collection-tabs {
     width: 100%;
   }
-  .yk-collection-tabs button {
+  .yk-collection-tabs :is(button, a) {
     padding: 10px 12px;
     flex: 1;
     font-size: 13px;

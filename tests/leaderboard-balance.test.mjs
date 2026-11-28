@@ -129,7 +129,13 @@ test("Referral Event mounts the balance-loading navigation instead of an unfed T
     },
     "@/components/account-menu": { AccountMenu: "account-menu" },
     "@/components/referral-panel": { ReferralPanel: "referral-panel" },
-    "@/components/referral-event": { ReferralEventPanel: "event-panel" }
+    "@/components/referral-event": { ReferralEventPanel: "event-panel" },
+    "@/components/invocation-card-back": {
+      InvocationCardBackProvider: "invocation-card-back"
+    },
+    "@/lib/data/invocation-card-back": {
+      getInvocationCardBack: async () => null
+    }
   };
   vm.runInNewContext(
     ts.transpileModule(readFileSync("app/referral-event/page.tsx", "utf8"), {

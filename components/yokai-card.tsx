@@ -2,12 +2,22 @@
 
 import { formatLicenseName } from "@/lib/ui/license-name";
 import { useTranslations } from "next-intl";
+import { CardShowcaseEffect } from "@/components/card-showcase-effect";
+import { useInvocationCardBack } from "@/components/invocation-card-back";
 
 import { cardRarityLabel } from "@/lib/ui/card-rarity-label";
+import {
+  invocationBackFrame,
+  invocationBackImage
+} from "@/lib/ui/booster-opening-document";
 import type { FirstLrCopySource } from "@/lib/data/first-lr-copies";
 import { useEffect, useState } from "react";
 import type { CSSProperties, ReactNode, SyntheticEvent } from "react";
 import type { Rarity } from "@/lib/data/cards";
+import {
+  CARD_COSMETIC_DISPLAY,
+  type CardCosmeticLoadout
+} from "@/lib/ui/card-cosmetics";
 import "@/styles/cards.css";
 
 export type YokaiCardProps = {
@@ -32,6 +42,7 @@ export type YokaiCardProps = {
   imageLoading?: "lazy" | "eager";
   categoryAccessory?: ReactNode;
   rarityAccessory?: ReactNode;
+  cosmetics?: CardCosmeticLoadout;
 };
 // Grid size for card tiles: about 190 px on desktop, 2 columns on phones.
 export const GRID_CARD_IMAGE_SIZES =
@@ -110,6 +121,55 @@ const spots = [
   [8, 40],
   [58, 70]
 ];
+
+const consumedEmbers = [
+  "upper-left",
+  "upper-right",
+  "lower-left",
+  "lower-right"
+];
+let consumedCardObserver: IntersectionObserver | undefined;
+let observedConsumedCards = 0;
+
+function observeConsumedCard(layer: HTMLDivElement | null) {
+  if (!layer) return;
+  if (typeof IntersectionObserver === "undefined") {
+    layer.dataset.consumedVisible = "";
+    return;
+  }
+  const observer = (consumedCardObserver ??= new IntersectionObserver(
+    entries => {
+      for (const { target, isIntersecting } of entries) {
+        target.toggleAttribute("data-consumed-visible", isIntersecting);
+      }
+    }
+  ));
+  observedConsumedCards++;
+  observer.observe(layer);
+  return () => {
+    observer.unobserve(layer);
+    if (--observedConsumedCards === 0) {
+      observer.disconnect();
+      consumedCardObserver = undefined;
+    }
+  };
+}
+
+function ConsumedCardEffect() {
+  return (
+    <div
+      className="yk-card-cosmetic-motion"
+      data-cosmetic-animation="burned_card"
+      ref={observeConsumedCard}
+      aria-hidden="true"
+    >
+      <span className="yk-consumed-paper" />
+      {consumedEmbers.map(zone => (
+        <span className="yk-consumed-ember" data-ember={zone} key={zone} />
+      ))}
+    </div>
+  );
+}
 
 function FirstLrCopyBadge({
   instanceId,
@@ -228,7 +288,8 @@ export function YokaiCard({
   catalogueImage,
   imageSizes,
   categoryAccessory,
-  rarityAccessory
+  rarityAccessory,
+  cosmetics
 }: YokaiCardProps) {
   const blackoutPreview = id?.startsWith("blackout-") ?? false;
   const blackout = isBlackoutCard({ id, image, catalogueImage });
@@ -243,6 +304,12 @@ export function YokaiCard({
   const evolvedStyle =
     (evolved || (blackout && rarity === "LR")) && !(shiny && rarity === "LR");
   const special = holo || evolvedStyle;
+  const animationStyle = cosmetics?.animation
+    ? CARD_COSMETIC_DISPLAY[cosmetics.animation]
+    : undefined;
+  const lightning = animationStyle?.lightningColor;
+  const reflection = animationStyle?.reflectionColor;
+  const showcaseScene = animationStyle?.showcaseScene;
   const franchise = formatLicenseName(anime?.trim());
   const sparkCount = !animated
     ? 0
@@ -299,6 +366,7 @@ export function YokaiCard({
   };
   return (
     <div
+      data-cosmetic-filter={cosmetics?.filter}
       data-sunset={sunset || undefined}
       data-blackout={blackout || undefined}
       className={`yk-card yk-rarity-${rarity} ${evolvedStyle ? "yk-evolved" : holo ? "yk-shiny" : ""} ${animated ? "yk-animated" : ""} ${className}`}
@@ -370,10 +438,58 @@ export function YokaiCard({
             </div>
           )}
           <div className="yk-card-foil" />
+          {showcaseScene && <CardShowcaseEffect scene={showcaseScene} />}
+          {cosmetics?.animation &&
+            !lightning &&
+            !reflection &&
+            !showcaseScene &&
+            (cosmetics.animation === "burned_card" ? (
+              <ConsumedCardEffect />
+            ) : (
+              <div
+                className="yk-card-cosmetic-motion"
+                data-cosmetic-animation={cosmetics.animation}
+                aria-hidden="true"
+              />
+            ))}
           {special && <div className="yk-holo" />}
-          {evolvedStyle && (
+          {(evolvedStyle || lightning || reflection) && (
             <div className="yk-evolved-energy" aria-hidden="true">
-              <span className="yk-evolved-scan" />
+              {(evolvedStyle || reflection) && (
+                <span
+                  className="yk-evolved-scan"
+                  data-reflection-color={reflection}
+                />
+              )}
+              {lightning && (
+                <svg
+                  className="yk-evolved-lightning"
+                  data-lightning-color={lightning}
+                  viewBox="0 0 100 140"
+                  preserveAspectRatio="none"
+                >
+                  <path
+                    pathLength="100"
+                    d="M3 10 8 19 5 20 12 31 7 29 10 41 4 49 M8 19 14 21 17 28 M10 41 15 44 13 50"
+                  />
+                  <path
+                    pathLength="100"
+                    d="M97 42 91 53 95 52 87 65 92 63 89 76 96 85 M91 53 85 55 82 61 M89 76 84 78 85 84"
+                  />
+                  <path
+                    pathLength="100"
+                    d="M3 87 9 96 5 95 12 107 7 105 10 118 4 129 M9 96 15 98 17 104 M10 118 17 121 20 128"
+                  />
+                  <path
+                    pathLength="100"
+                    d="M97 104 91 114 95 113 87 125 91 124 84 134 73 131 M91 114 85 115 82 121 M84 134 80 128 74 126"
+                  />
+                  <path
+                    pathLength="100"
+                    d="M98 2 95 10 98 8 95 20 97 17 92 29 94 36 M95 20 90 23 87 28 M92 29 87 32 85 36"
+                  />
+                </svg>
+              )}
             </div>
           )}
           {spots.slice(0, sparkCount).map(([left, top], i) => (
@@ -431,6 +547,14 @@ export function YokaiCard({
                     )}
                   </span>
                 )}
+                {showcaseScene === "vhs" && (
+                  <span className="yk-card-vhs-hud">
+                    <span className="yk-card-vhs-rec" aria-hidden="true">
+                      REC
+                    </span>
+                    {rarityAccessory}
+                  </span>
+                )}
               </span>
             </div>
             {categoryAccessory && (
@@ -438,7 +562,7 @@ export function YokaiCard({
                 {categoryAccessory}
               </div>
             )}
-            {rarityAccessory && (
+            {rarityAccessory && showcaseScene !== "vhs" && (
               <div className="yk-card-rarity-accessory">{rarityAccessory}</div>
             )}
             {!image && (
@@ -457,6 +581,9 @@ export function YokaiCard({
           </div>
         </div>
       </div>
+      {animationStyle?.frameHalo && (
+        <span className="yk-card-frame-halo" aria-hidden="true" />
+      )}
       {rarity === "LR" &&
         !blackoutPreview &&
         Boolean(firstLrCopy || instanceId || copyInstanceIds?.length) && (
@@ -473,24 +600,29 @@ export function YokaiCard({
   );
 }
 
-export function CardBack({ className = "" }: { className?: string }) {
+export function CardBack({
+  className = "",
+  cosmetic
+}: {
+  className?: string;
+  cosmetic?: string;
+}) {
   const t = useTranslations("collectionShared");
-  const style = useOwnProfileStyle();
+  const invocationBack = useInvocationCardBack();
+  const back = cosmetic ?? invocationBack;
+  const frame = invocationBackFrame(back);
   return (
     <div
       role="img"
       aria-label={t("cardBack")}
       className={`yk-card-back ${className}`}
+      data-cosmetic-back={back ?? undefined}
       style={
-        style?.cardBackUrl
-          ? {
-              backgroundImage: `url(${JSON.stringify(style.cardBackUrl)})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center"
-            }
-          : undefined
+        frame ??
+        (back
+          ? { backgroundImage: `url(${invocationBackImage(back)})` }
+          : undefined)
       }
     />
   );
 }
-import { useOwnProfileStyle } from "@/components/pro-access";

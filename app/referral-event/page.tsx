@@ -4,12 +4,14 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getReferralStatus } from "@/lib/referrals/server";
+import { getInvocationCardBack } from "@/lib/data/invocation-card-back";
 import type { ReferralEvent } from "@/lib/referrals/event";
 import { createClient } from "@/utils/supabase/server";
 import { LeaderboardTopbar } from "@/components/leaderboard-topbar";
 import { AccountMenu } from "@/components/account-menu";
 import { ReferralPanel } from "@/components/referral-panel";
 import { ReferralEventPanel } from "@/components/referral-event";
+import { InvocationCardBackProvider } from "@/components/invocation-card-back";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("referralEvent");
@@ -20,9 +22,10 @@ export default async function ReferralEventPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/referral-event");
   const db = createClient(await cookies());
-  const [event, referral] = await Promise.all([
+  const [event, referral, invocationBack] = await Promise.all([
     db.rpc("get_referral_event"),
-    getReferralStatus()
+    getReferralStatus(),
+    getInvocationCardBack(db)
   ]);
   if (event.error) throw new Error("REFERRAL_EVENT_UNAVAILABLE");
   const origin = new URL(
@@ -35,16 +38,18 @@ export default async function ReferralEventPage() {
         id="main-content"
         className="mx-auto w-full max-w-6xl min-w-0 px-3 py-6 sm:px-6 sm:py-10"
       >
-        <ReferralEventPanel
-          initialEvent={event.data as ReferralEvent | null}
-          invite={
-            <ReferralPanel
-              compact
-              initialStatus={referral}
-              siteOrigin={origin}
-            />
-          }
-        />
+        <InvocationCardBackProvider back={invocationBack}>
+          <ReferralEventPanel
+            initialEvent={event.data as ReferralEvent | null}
+            invite={
+              <ReferralPanel
+                compact
+                initialStatus={referral}
+                siteOrigin={origin}
+              />
+            }
+          />
+        </InvocationCardBackProvider>
       </main>
     </div>
   );

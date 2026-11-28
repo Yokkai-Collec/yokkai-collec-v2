@@ -1,0 +1,168 @@
+.yk-page-transition .yk-wave-preview,
+.yk-wave-preview {
+  width: min(calc(100% - 2 * var(--layout-gutter-compact)), 60rem);
+  margin-inline: auto;
+  padding-block: clamp(1rem, 4vw, 3rem) 5rem;
+}
+
+.yk-wave-preview-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 44px;
+  margin-bottom: 0.65rem;
+  color: var(--color-ink-2);
+  font-size: 0.88rem;
+}
+
+.yk-wave-preview-back:hover {
+  color: var(--color-ink);
+}
+
+.yk-wave-preview-layout {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid #b79ce13d;
+  border-radius: 1.25rem;
+  background: #161222;
+}
+
+.yk-wave-preview-controls {
+  grid-row: 2;
+  align-self: center;
+  display: grid;
+  gap: 1.1rem;
+  padding: clamp(1rem, 4vw, 2.5rem);
+}
+
+.yk-wave-preview-controls h1 {
+  font-size: clamp(2rem, 6vw, 3.7rem);
+  font-weight: 760;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.yk-wave-preview-controls p {
+  max-width: 29ch;
+  color: #c6bbda;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.yk-wave-preview-setting {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.yk-wave-preview-setting output {
+  color: #dfbeff;
+  font-variant-numeric: tabular-nums;
+}
+
+.yk-wave-preview-setting input {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-height: 44px;
+  accent-color: #c59aff;
+}
+
+.yk-wave-preview-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 44px;
+  width: fit-content;
+  cursor: pointer;
+  font-size: 0.88rem;
+}
+
+.yk-wave-preview-toggle input {
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: #c59aff;
+}
+
+.yk-wave-preview-controls .yk-button {
+  min-height: 44px;
+  width: fit-content;
+  max-width: 100%;
+  white-space: normal;
+}
+
+.yk-wave-preview-stage {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-row: 1;
+  place-items: center;
+  overflow: hidden;
+  padding: clamp(1.5rem, 5vw, 4rem);
+  border-bottom: 1px solid #b79ce12b;
+  background:
+    radial-gradient(ellipse at 51% 44%, #59348187, transparent 66%),
+    linear-gradient(155deg, #241833, #100c1a 75%);
+}
+
+.yk-wave-preview-card {
+  width: clamp(9rem, 48vw, 16rem);
+  max-width: 100%;
+}
+
+.yk-wave-preview-variants {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.yk-wave-preview-variants .yk-button {
+  padding-inline: 0.75rem;
+}
+
+.yk-wave-preview-variants [aria-pressed="true"] {
+  color: #f2e6ff;
+  border-color: #bd97ff96;
+  background: #312141;
+}
+
+.yk-wave-preview-stage .yk-evolved.yk-animated .yk-evolved-scan {
+  animation-duration: var(--wave-duration);
+}
+
+.yk-wave-preview-stage[data-wave-isolated="true"] .yk-animated,
+.yk-wave-preview-stage[data-wave-isolated="true"] .yk-card-clip::after,
+.yk-wave-preview-stage[data-wave-isolated="true"] .yk-card-interior::before {
+  animation: none;
+}
+
+.yk-wave-preview-stage[data-wave-isolated="true"] .yk-card-foil,
+.yk-wave-preview-stage[data-wave-isolated="true"] .yk-holo,
+.yk-wave-preview-stage[data-wave-isolated="true"] .yk-sparkle,
+.yk-wave-preview-stage[data-wave-enabled="false"] .yk-evolved-scan {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yk-wave-preview-stage[data-wave-manual="true"]
+    .yk-evolved.yk-animated
+    .yk-evolved-scan {
+    animation: yk-evolved-scan var(--wave-duration) ease-in-out infinite;
+  }
+}
+
+@media (min-width: 700px) {
+  .yk-wave-preview-layout {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  }
+
+  .yk-wave-preview-controls {
+    grid-row: 1;
+  }
+
+  .yk-wave-preview-stage {
+    grid-column: 2;
+    border-bottom: 0;
+    border-left: 1px solid #b79ce12b;
+  }
+}

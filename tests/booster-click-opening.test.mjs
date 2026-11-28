@@ -260,6 +260,9 @@ test("player queues early clicks, keeps failures/timeouts closed until clicked, 
       "components/booster-opening.tsx",
       {
         react: state.react,
+        "@/components/invocation-card-back": {
+          useInvocationCardBack: () => null
+        },
         "@/lib/ui/booster-opening-document": {
           SUNSET_BOOSTER_IMAGE: "/assets/events/gta-sunset/booster.png"
         }

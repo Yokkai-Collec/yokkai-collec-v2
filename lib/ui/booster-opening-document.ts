@@ -4,12 +4,56 @@ export const BLACKOUT_BOOSTER_IMAGE = "/assets/chrome-regular-booster-v1.png";
 
 export const SUNSET_BOOSTER_IMAGE = "/assets/events/gta-sunset/booster.png";
 
+export const DEFAULT_INVOCATION_BACK = "/assets/bubble-card-back-v1.png";
+const INVOCATION_BACKS: Readonly<Record<string, string>> = {
+  obsidian_seal: "/assets/card-backs/obsidian-seal.webp",
+  astral_atlas: "/assets/card-backs/astral-atlas.webp",
+  violet_mist: "/assets/card-backs/violet-mist.webp",
+  midnight_sakura: "/assets/card-backs/midnight-sakura.webp"
+};
+
+const INVOCATION_BACK_FRAMES = {
+  obsidian_seal: {
+    metal:
+      "linear-gradient(150deg, #4b3428, #efd49a 15%, #86603c 33%, #4a3023 48%, #a37849 62%, #f8d69b 76%, #6b4731)",
+    bevel: "#ffc98566",
+    edge: "#241811"
+  },
+  astral_atlas: {
+    metal:
+      "linear-gradient(150deg, #173048, #b2edff 15%, #4b88a9 33%, #1c3b5c 48%, #548db6 62%, #d5f5ff 76%, #315774)",
+    bevel: "#ade7ff80",
+    edge: "#102336"
+  }
+};
+
+export function invocationBackImage(cosmetic?: string | null) {
+  return cosmetic && Object.hasOwn(INVOCATION_BACKS, cosmetic)
+    ? INVOCATION_BACKS[cosmetic]
+    : DEFAULT_INVOCATION_BACK;
+}
+
+export function invocationBackFrame(
+  cosmetic?: string | null,
+  image = invocationBackImage(cosmetic)
+) {
+  if (cosmetic !== "obsidian_seal" && cosmetic !== "astral_atlas") return;
+  const { metal, bevel, edge } = INVOCATION_BACK_FRAMES[cosmetic];
+  // Crop the baked-in straight edge, then paint a frame that follows the UI radius.
+  return {
+    background: `url(${JSON.stringify(image)}) center / 102% 102% no-repeat padding-box, ${metal} border-box`,
+    border: "4px solid transparent",
+    boxShadow: `inset 0 0 0 1px ${bevel}, 0 0 0 1px ${edge}, 0 7px 18px #0008`
+  };
+}
+
 // Preserve the supplied artwork; adapt startup and composite-only playback.
 export function boosterOpeningDocument(
   source: string,
   parentOrigin: string,
   kind: BoosterKind,
-  waitForClick = false
+  waitForClick = false,
+  invocationBack?: string | null
 ) {
   if (
     kind !== "regular" &&
@@ -63,10 +107,9 @@ export function boosterOpeningDocument(
     !source.includes("window.setYokkaiBooster = setYokkaiBooster;")
   )
     throw new Error("Invalid booster asset");
-  let document = source.replaceAll(
-    "__CARD_BACK__",
-    new URL("/assets/bubble-card-back-v1.png", origin).href
-  );
+  const backImage = new URL(invocationBackImage(invocationBack), origin).href;
+  const backFrame = invocationBackFrame(invocationBack, backImage);
+  let document = source.replaceAll("__CARD_BACK__", backImage);
   if (sunset || blackout) {
     const fan =
       /<div class="opening-cards">(?:\s*<div class="opening-card"[^>]*><\/div>){5}<\/div>/;
@@ -247,6 +290,7 @@ export function boosterOpeningDocument(
       "</head>",
       `<style>
       body{background:#070b13 url(${json(new URL(nebula, origin).href)}) center / cover no-repeat}
+      ${backFrame ? `.opening-card{background:${backFrame.background};border:${backFrame.border};box-shadow:${backFrame.boxShadow}}` : ""}
       ${blackout ? ".pack-position{filter:hue-rotate(34deg) saturate(.82) brightness(1.06)}" : ""}
       html,body,.scene{-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
       .pack-position,.opening-cards{transform-style:preserve-3d}

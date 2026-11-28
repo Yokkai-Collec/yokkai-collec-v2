@@ -39,8 +39,13 @@ function load(input = source) {
         if (name === "next-intl") return intl;
         if (name === "@/lib/ui/card-rarity-label") return cardRarityLabels;
         if (name.endsWith(".css")) return {};
-        if (name === "@/components/pro-access")
-          return { useOwnProfileStyle: () => null };
+        if (name === "@/components/invocation-card-back")
+          return { useInvocationCardBack: () => null };
+        if (name === "@/components/card-showcase-effect")
+          return { CardShowcaseEffect: () => null };
+        if (name === "@/lib/ui/card-cosmetics")
+          return { CARD_COSMETIC_DISPLAY: {} };
+        if (name === "@/lib/ui/booster-opening-document") return {};
         if (name === "react") return React;
         if (name === "react/jsx-runtime") return jsxRuntime;
         if (name === "next/image")

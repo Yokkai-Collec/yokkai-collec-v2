@@ -153,9 +153,56 @@
   pointer-events: none;
 }
 .yk-card-badges {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 2cqw;
+}
+.yk-card-vhs-hud {
+  position: absolute;
+  inset-block-start: calc(100% + clamp(3px, 1.8cqw, 5px));
+  inset-inline-end: 0;
+  display: grid;
+  justify-items: end;
+  gap: clamp(2px, 1.2cqw, 4px);
+  pointer-events: none;
+}
+.yk-card-vhs-rec {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  color: #fff5f6;
+  font:
+    700 clamp(6px, 4.5cqw, 12px) / 1 ui-monospace,
+    monospace;
+  letter-spacing: 0.08em;
+  text-shadow:
+    0 1px 2px #000,
+    0 0 5px #000;
+}
+.yk-card-vhs-rec::before {
+  content: "";
+  inline-size: 0.52em;
+  block-size: 0.52em;
+  border-radius: 50%;
+  background: #ff4259;
+  box-shadow: 0 0 0.35em #ff4259b0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .yk-card-vhs-rec::before {
+    animation: yk-card-vhs-rec-blink 2.8s ease-in-out infinite;
+  }
+}
+@keyframes yk-card-vhs-rec-blink {
+  0%,
+  25%,
+  100% {
+    opacity: 1;
+  }
+  55%,
+  70% {
+    opacity: 0.28;
+  }
 }
 .yk-card-copy-status {
   position: absolute;
@@ -594,30 +641,57 @@
   height: 100%;
   overflow: visible;
   fill: none;
-  stroke: #fff;
+  stroke: var(--lightning-stroke, #fff);
   stroke-width: 0.72;
   stroke-linecap: round;
   stroke-linejoin: round;
-  filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 3px #fff)
-    drop-shadow(0 0 8px rgba(225, 240, 255, 0.85));
+  filter: drop-shadow(
+      0 0 1px var(--lightning-edge, var(--lightning-stroke, #fff))
+    )
+    drop-shadow(0 0 3px var(--lightning-inner-glow, #fff))
+    drop-shadow(0 0 8px var(--lightning-outer-glow, #e1f0ffd9));
+}
+.yk-evolved-lightning[data-lightning-color="violet"] {
+  --lightning-stroke: #e6c3ff;
+  --lightning-inner-glow: #b86dff;
+  --lightning-outer-glow: #8e36ff;
+}
+.yk-evolved-lightning[data-lightning-color="blue"] {
+  --lightning-stroke: #bdefff;
+  --lightning-inner-glow: #36c5ff;
+  --lightning-outer-glow: #147bff;
+}
+.yk-evolved-lightning[data-lightning-color="gold"] {
+  --lightning-stroke: #ffe7a3;
+  --lightning-inner-glow: #ffb62f;
+  --lightning-outer-glow: #ff922e;
+}
+.yk-evolved-lightning[data-lightning-color="red"] {
+  --lightning-stroke: #ff9da5;
+  --lightning-inner-glow: #ff344a;
+  --lightning-outer-glow: #db0b25;
+}
+.yk-evolved-lightning[data-lightning-color="black"] {
+  --lightning-stroke: #08070c;
+  --lightning-edge: #f2edf8;
+  --lightning-inner-glow: #b5a9c6;
+  --lightning-outer-glow: #77618ecc;
 }
 .yk-evolved-lightning path {
   opacity: 0;
-}
-.yk-evolved.yk-animated .yk-evolved-lightning path {
   animation: yk-evolved-lightning 4.8s linear infinite;
 }
-.yk-evolved.yk-animated .yk-evolved-lightning path:nth-child(2) {
+.yk-evolved-lightning path:nth-child(2) {
   animation-delay: -2.4s;
 }
-.yk-evolved.yk-animated .yk-evolved-lightning path:nth-child(3) {
+.yk-evolved-lightning path:nth-child(3) {
   animation-delay: -1.2s;
 }
-.yk-evolved.yk-animated .yk-evolved-lightning path:nth-child(4) {
+.yk-evolved-lightning path:nth-child(4) {
   animation-delay: -3.6s;
 }
-.yk-evolved:not(.yk-animated) .yk-evolved-lightning path {
-  opacity: 0.22;
+.yk-evolved-lightning path:nth-child(5) {
+  animation-delay: -0.6s;
 }
 @keyframes yk-evolved-lightning {
   0%,
@@ -655,6 +729,46 @@
 }
 .yk-evolved.yk-animated .yk-evolved-scan {
   animation: yk-evolved-scan 3.8s ease-in-out infinite;
+}
+.yk-evolved-scan[data-reflection-color] {
+  animation: yk-evolved-scan 3.8s ease-in-out infinite;
+}
+.yk-evolved-scan[data-reflection-color="original"] {
+  --evolution-rgb: 255, 67, 155;
+  --evolution-light-rgb: 255, 225, 239;
+}
+.yk-evolved-scan[data-reflection-color]:not(
+    [data-reflection-color="original"]
+  ) {
+  --reflection-strength: var(--reflection-intensity, 0.85);
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgb(var(--reflection-tone) / calc(0.19 * var(--reflection-strength))) 41%,
+    rgb(var(--reflection-tone) / calc(0.58 * var(--reflection-strength))) 46%,
+    rgb(var(--reflection-light) / var(--reflection-strength)) 49.7%,
+    rgb(var(--reflection-light) / calc(0.96 * var(--reflection-strength))) 50.3%,
+    rgb(var(--reflection-tone) / calc(0.45 * var(--reflection-strength))) 52.8%,
+    rgb(var(--reflection-light) / calc(0.28 * var(--reflection-strength))) 54.5%,
+    rgb(var(--reflection-tone) / calc(0.13 * var(--reflection-strength))) 58%,
+    transparent 64%
+  );
+}
+.yk-evolved-scan[data-reflection-color="violet"] {
+  --reflection-tone: 155 77 255;
+  --reflection-light: 245 228 255;
+}
+.yk-evolved-scan[data-reflection-color="blue"] {
+  --reflection-tone: 36 165 255;
+  --reflection-light: 223 251 255;
+}
+.yk-evolved-scan[data-reflection-color="red"] {
+  --reflection-tone: 255 40 66;
+  --reflection-light: 255 212 221;
+}
+.yk-evolved-scan[data-reflection-color="gold"] {
+  --reflection-tone: 251 158 31;
+  --reflection-light: 255 241 191;
 }
 .yk-evolved.yk-animated .yk-card-interior::before,
 .yk-shiny.yk-animated .yk-card-interior::before {
@@ -763,11 +877,12 @@
   .yk-evolved.yk-animated .yk-card-frame,
   .yk-evolved.yk-animated .yk-card-foil,
   .yk-evolved.yk-animated .yk-evolved-scan,
+  .yk-evolved-scan[data-reflection-color],
   .yk-evolved.yk-animated .yk-card-interior::before,
   .yk-evolved.yk-animated .yk-card-clip::after {
     animation: none;
   }
-  .yk-evolved.yk-animated .yk-evolved-lightning path {
+  .yk-evolved-lightning path {
     animation: none;
     opacity: 0.2;
   }
@@ -865,4 +980,291 @@
   .yk-sparkle {
     display: none;
   }
+}
+
+/* Purchasable effects stay below the card text and reuse the base frame. */
+@property --yk-halo-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.yk-card-frame-halo {
+  position: absolute;
+  z-index: 4;
+  inset: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 9px #8caeff78;
+}
+
+.yk-card-frame-halo::after {
+  position: absolute;
+  inset: 0;
+  padding: 3px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--yk-halo-angle),
+    #7261e778 0deg,
+    #a0c7ff 55deg,
+    #eefaff 77deg,
+    #867bff44 130deg,
+    #8ff3efbb 220deg,
+    #7261e778 360deg
+  );
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: yk-card-frame-halo 4.8s linear infinite;
+  content: "";
+}
+
+@keyframes yk-card-frame-halo {
+  to {
+    --yk-halo-angle: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yk-card-frame-halo::after {
+    animation: none;
+  }
+}
+
+.yk-card[data-cosmetic-filter="silver_screen"] .yk-card-art {
+  filter: grayscale(1) contrast(1.14) brightness(1.06);
+}
+
+.yk-card[data-cosmetic-filter="violet_dusk"] .yk-card-art {
+  filter: grayscale(0.4) sepia(0.4) hue-rotate(210deg) saturate(1.85);
+}
+
+.yk-card-cosmetic-motion {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+}
+
+:is(
+  [data-cosmetic-animation="cracked_glass"],
+  .yk-customize-option[data-cosmetic="cracked_glass"]
+) {
+  --glass-cracks: url("/assets/card-effects/cracked-glass.webp");
+  --glass-detail: url("/assets/card-effects/cracked-glass-detail.webp");
+  /* Fade the two impact cores while keeping the surrounding fractures sharp. */
+  --glass-impact-mask:
+    radial-gradient(ellipse 8% 6% at 85.4% 22.8%, #0006, #000a 40%, #000 94%),
+    radial-gradient(ellipse 6% 4.5% at 13.2% 78.8%, #0006, #000a 40%, #000 94%);
+}
+
+.yk-card-cosmetic-motion[data-cosmetic-animation="cracked_glass"],
+.yk-customize-option[data-cosmetic="cracked_glass"]
+  .yk-customize-sample::before {
+  background:
+    var(--glass-detail) center / 100% 100% no-repeat,
+    var(--glass-cracks) center / 100% 100% no-repeat;
+  filter: brightness(1.25) drop-shadow(0.45px 0.65px 0.3px #08101eb3);
+  mask: var(--glass-impact-mask);
+  mask-composite: intersect;
+}
+
+.yk-card-cosmetic-motion[data-cosmetic-animation="cracked_glass"] {
+  z-index: 3;
+}
+
+.yk-card-cosmetic-motion[data-cosmetic-animation="cracked_glass"]::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+      133deg,
+      transparent 37%,
+      #d5f1ff18 46%,
+      #e6f6ff4d 50%,
+      #d5f1ff18 55%,
+      transparent 63%
+    )
+    100% center / 250% 100% no-repeat;
+  mask: var(--glass-cracks) center / 100% 100% no-repeat;
+  animation: yk-cracked-glass-sheen 4.6s ease-in-out infinite;
+  content: "";
+}
+
+@keyframes yk-cracked-glass-sheen {
+  0%,
+  25% {
+    background-position: 100% center;
+  }
+  69%,
+  100% {
+    background-position: 0 center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yk-card-cosmetic-motion[data-cosmetic-animation="cracked_glass"]::after {
+    display: none;
+  }
+}
+
+.yk-card-cosmetic-motion[data-cosmetic-animation="prism_sweep"] {
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    #b799ff42 44%,
+    #e7faff9c 50%,
+    #92eee747 56%,
+    transparent 65%
+  );
+  background-size: 240% 100%;
+  animation: yk-cosmetic-prism 4.4s ease-in-out infinite;
+}
+
+.yk-card-cosmetic-motion[data-cosmetic-animation="ember_aura"] {
+  background: radial-gradient(
+    ellipse at 50% 105%,
+    #f28527c9,
+    #f8432631 44%,
+    transparent 70%
+  );
+  box-shadow: inset 0 -12px 27px #f0793070;
+  animation: yk-cosmetic-ember 3.6s ease-in-out infinite alternate;
+}
+
+:is(
+  [data-cosmetic-animation="burned_card"],
+  .yk-customize-option[data-cosmetic="burned_card"]
+) {
+  --consumed-paper: url("/assets/card-effects/consumed-paper.webp");
+}
+
+.yk-card-cosmetic-motion[data-cosmetic-animation="burned_card"] {
+  z-index: 3;
+}
+
+.yk-card-cosmetic-motion[data-consumed-visible] {
+  --consumed-fire-content: "";
+}
+
+.yk-consumed-paper {
+  position: absolute;
+  inset: 0;
+  background: var(--consumed-paper) center / 100% 100% no-repeat;
+}
+
+.yk-consumed-ember {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 31.3846%;
+  height: 27.4725%;
+  overflow: hidden;
+}
+
+.yk-consumed-ember::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4800%;
+  height: 300%;
+  /* Each corner uses three rows of 48 frames from the shared atlas. */
+  background: url("/assets/card-effects/consumed-paper-fluid.webp") left
+    var(--ember-row, 0%) / 100% 200% no-repeat;
+  content: var(--consumed-fire-content, none);
+  --ember-loop: var(--ember-cycle, 5.4s);
+  animation:
+    yk-consumed-fire-front calc(var(--ember-loop) / 3) steps(48, end)
+      var(--ember-delay, -0.42s) infinite,
+    yk-consumed-fire-row var(--ember-loop) steps(3, end)
+      var(--ember-delay, -0.42s) infinite;
+}
+
+.yk-consumed-ember[data-ember$="-right"] {
+  right: 0;
+  left: auto;
+}
+
+.yk-consumed-ember[data-ember^="lower-"] {
+  top: auto;
+  bottom: 0;
+  --ember-row: 100%;
+}
+
+.yk-consumed-ember:is([data-ember="upper-right"], [data-ember="lower-left"]) {
+  transform: scaleX(-1);
+}
+
+.yk-consumed-ember[data-ember="upper-right"] {
+  width: 25%;
+  height: 24%;
+  opacity: 0.73;
+  --ember-cycle: 6s;
+  --ember-delay: -4.3s;
+}
+
+.yk-consumed-ember[data-ember="lower-left"] {
+  width: 24%;
+  height: 23%;
+  opacity: 0.61;
+  --ember-cycle: 6.5s;
+  --ember-delay: -3s;
+}
+
+.yk-consumed-ember[data-ember="lower-right"] {
+  opacity: 0.94;
+  --ember-cycle: 5.8s;
+  --ember-delay: -1.8s;
+}
+
+@keyframes yk-consumed-fire-front {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes yk-consumed-fire-row {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 0 -100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yk-consumed-ember::before {
+    animation: none;
+    transform: translateX(-37.5%);
+    translate: 0 -33.333333%;
+  }
+}
+
+@keyframes yk-cosmetic-prism {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+@keyframes yk-cosmetic-ember {
+  from {
+    opacity: 0.38;
+    transform: translateY(8%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-3%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yk-card-cosmetic-motion {
+    animation: none;
+    background-position: center;
+  }
+}
+
+.yk-card-back[data-cosmetic-back] {
+  background-size: 100% 100%;
 }

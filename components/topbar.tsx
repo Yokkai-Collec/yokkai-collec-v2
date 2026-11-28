@@ -120,6 +120,7 @@ export function Topbar({
     | "trades"
     | "search"
     | "wishlist"
+    | "shop"
     | "admin"
     | "achievements"
     | "settings"
@@ -315,16 +316,20 @@ export function Topbar({
             </span>
           </Link>
           <Link
-            href="/wishlist"
-            aria-current={view === "wishlist" ? "page" : undefined}
+            href="/catalog"
+            aria-current={
+              view === "search" || view === "wishlist" ? "page" : undefined
+            }
+            onClick={() => setMobileMenu(false)}
           >
-            {t("wishlist")}
+            {t("explore")}
           </Link>
           <Link
-            href="/catalog"
-            aria-current={view === "search" ? "page" : undefined}
+            href="/shop"
+            aria-current={view === "shop" ? "page" : undefined}
+            onClick={() => setMobileMenu(false)}
           >
-            {t("catalog")}
+            {t("shop")}
           </Link>
           {isAdmin && (
             <Link

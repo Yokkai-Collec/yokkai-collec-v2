@@ -120,6 +120,11 @@ const allowlist = {
     "authenticated"
   ], // Admin-only pending cards and their recovery blockers.
   "public.get_gta_sunset_event()": ["authenticated"], // Public event and only the current player’s opening.
+  "public.get_card_cosmetic_shop()": ["authenticated"], // Offers and only the caller's purchases and balance.
+  "public.buy_card_cosmetic(text, integer, integer, uuid)": ["authenticated"], // Price-checked and retry-safe purchase for the caller.
+  "public.get_my_card_cosmetics()": ["authenticated"], // Own purchases and owned card loadouts only.
+  "public.set_card_cosmetic(uuid, text, text)": ["authenticated"], // Equips an owned cosmetic on an owned card.
+  "public.set_my_invocation_card_back(text)": ["authenticated"], // Selects a card back owned by the caller.
   "public.get_blackout_event()": ["authenticated"], // Scheduled event and current player wallet only.
   "public.buy_blackout_packs(integer, uuid)": ["authenticated"], // Purchases against the caller’s wallet during the event.
   "public.open_blackout_booster(uuid)": ["authenticated"], // Consumes only the caller’s credit and writes their own collection.
@@ -460,7 +465,7 @@ const allowlist = {
   "public.report_user(uuid, text, text, uuid, text, boolean)": [
     "authenticated"
   ], // Creates a validated report under the current player's identity.
-  "public.get_collection_groups_page(text, text[], text[], boolean, text, boolean, boolean, text, text, integer, integer, boolean)":
+  "public.get_collection_groups_page(text, text[], text[], boolean, text, boolean, boolean, text, text, integer, integer, boolean, text, boolean)":
     ["authenticated"], // Read-only page of the caller's own collection groups (auth.uid()), bounded page size and validated sort.
   "public.get_collection_counts()": ["authenticated"], // Read-only distinct-group counters of the caller's own collection (auth.uid()).
   "public.get_collection_group_copies(text)": ["authenticated"], // Read-only copies of one group of the caller's own collection (auth.uid()), validated key.

@@ -2,6 +2,7 @@
 import { useTranslations } from "next-intl";
 
 import { useEffect, useRef, useState } from "react";
+import { useInvocationCardBack } from "@/components/invocation-card-back";
 import {
   BLACKOUT_BOOSTER_IMAGE,
   SUNSET_BOOSTER_IMAGE,
@@ -32,6 +33,7 @@ export function BoosterOpening({
   onFanReady?: () => void;
 }) {
   const tp = useTranslations("packs");
+  const invocationBack = useInvocationCardBack();
   const tSunset = useTranslations("gtaSunset");
   const tBlackout = useTranslations("blackout");
   const [html, setHtml] = useState("");
@@ -144,7 +146,7 @@ export function BoosterOpening({
     void (async () => {
       try {
         const response = await fetch(
-          `/api/booster-opening?kind=${kind}${waitForClick ? "&gesture=click" : ""}`,
+          `/api/booster-opening?kind=${kind}${waitForClick ? "&gesture=click" : ""}${invocationBack ? `&back=${encodeURIComponent(invocationBack)}` : ""}`,
           {
             cache: "no-store",
             signal: controller.signal
@@ -165,7 +167,7 @@ export function BoosterOpening({
       window.clearTimeout(timeout);
       window.removeEventListener("message", receive);
     };
-  }, [kind, waitForClick]);
+  }, [kind, waitForClick, invocationBack]);
   useEffect(() => {
     requested.current = openRequested ?? true;
     if (!waitForClick || !requested.current) return;

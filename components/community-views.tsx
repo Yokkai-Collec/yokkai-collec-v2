@@ -1,5 +1,6 @@
 "use client";
 import { EventsHub } from "@/components/events-hub";
+import { ExploreNavigation } from "@/components/explore-navigation";
 import { MysteryAuctionTile } from "@/components/mystery-auction";
 import { CardFranchise } from "@/components/card-franchise";
 import { PlayerTitle } from "@/components/player-title";
@@ -32,12 +33,12 @@ import {
 import {
   getCataloguePage,
   getGameInfo,
-  getUserCollection,
   invalidatePlayerSnapshots,
   type Card,
   type CollectedCard,
   type Rarity
 } from "@/lib/data/cards";
+import { getProfileEditorCollection } from "@/lib/data/profile";
 import { useNotificationItems, Topbar } from "@/components/topbar";
 import {
   Avatar,
@@ -2838,9 +2839,6 @@ export function WishlistView({
               {tv("getAnAlertWhenOneOfTheseCards")}
             </p>
           </div>
-          <Link href="/catalog" className="yk-button yk-button-secondary">
-            {tv("discoverCards")}
-          </Link>
         </div>
       )}
       {error && (
@@ -3090,7 +3088,7 @@ export function CommunityView({
       }
     );
     if (screen === "profile" && isMe)
-      void getUserCollection(false).then(
+      void getProfileEditorCollection().then(
         data => {
           if (active) setCollection(data);
         },
@@ -3157,7 +3155,7 @@ export function CommunityView({
           () => undefined
         );
       if (scopes.includes("collection") && screen === "profile" && isMe)
-        void getUserCollection(false).then(
+        void getProfileEditorCollection().then(
           cards => {
             if (active) setCollection(cards);
           },
@@ -3247,8 +3245,18 @@ export function CommunityView({
         id="main-content"
         className={`${isSocialPage ? "yk-social-page" : ""} mx-auto w-full ${pageWidth} px-6 py-10`}
       >
+        {(screen === "search" || screen === "wishlist") && (
+          <header className="yk-explore-heading">
+            <div>
+              <p className="eyebrow">{overline}</p>
+              <h1 className="yk-title mt-3">{title}</h1>
+            </div>
+            <ExploreNavigation view={screen} />
+          </header>
+        )}
         {screen !== "market" &&
           screen !== "search" &&
+          screen !== "wishlist" &&
           screen !== "events" &&
           !(screen === "auction" && auction?.isMystery) && (
             <div>
@@ -3346,16 +3354,7 @@ export function CommunityView({
               onToggleWatch={auction ? watchAuction : undefined}
             />
           )}{" "}
-          {screen === "search" && (
-            <SearchView
-              pageHeading={
-                <>
-                  <p className="eyebrow">{overline}</p>
-                  <h1 className="yk-title mt-3">{title}</h1>
-                </>
-              }
-            />
-          )}
+          {screen === "search" && <SearchView />}
           {screen === "trades" && <TradesView />}
           {screen === "wishlist" && <WishlistView />}
         </div>

@@ -3,6 +3,7 @@ import { matchesCardSearch } from "@/lib/ui/card-search";
 import { sortCollection, type CollectionSort } from "@/lib/ui/collection-sort";
 
 import { collectionGroupKey } from "@/lib/ui/collection-groups";
+import type { CosmeticCollectionFilter } from "@/lib/ui/card-cosmetics";
 
 export type CollectionFilters = {
   query: string;
@@ -14,6 +15,7 @@ export type CollectionFilters = {
   auctionOnly: boolean;
   lockedOnly: boolean;
   duplicatesOnly?: boolean;
+  cosmetic?: CosmeticCollectionFilter | null;
   sort: CollectionSort;
 };
 
